@@ -1,4 +1,4 @@
-# pebrapp
+# PEBRApp
 
 PEBRApp - Help Peer Educators manage their interactions with patients.
 
