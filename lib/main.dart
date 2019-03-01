@@ -1,29 +1,26 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
-void main() => runApp(MyApp());
+void main() => runApp(PEBRApp());
 
-class MyApp extends StatelessWidget {
+class PEBRApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return PEBRApp();
+    return MaterialApp(
+        title: 'PEBRApp', theme: ThemeData.light(), home: PEBRAppHome());
   }
 }
 
-class PEBRApp extends StatelessWidget {
+class PEBRAppHome extends StatefulWidget {
+  @override
+  PEBRAppHomeState createState() => new PEBRAppHomeState();
+}
 
+class PEBRAppHomeState extends State<PEBRAppHome> {
   final _appBarHeight = 115.0;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'PEBRApp',
-      theme: ThemeData.light(),
-      home: _home(context),
-    );
-  }
-
-  _home(BuildContext context) {
     return Scaffold(
         backgroundColor: Color.fromARGB(255, 224, 224, 224),
         floatingActionButton: FloatingActionButton(
@@ -59,9 +56,25 @@ class PEBRApp extends StatelessWidget {
       actions: <Widget>[
         IconButton(
           icon: Icon(Icons.settings),
-          onPressed: () {},
+          onPressed: _pushSaved,
         )
       ],
+    );
+  }
+
+  void _pushSaved() {
+    Navigator.of(context).push(
+      new MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return new Scaffold(
+              appBar: new AppBar(
+                title: const Text('Settings'),
+              ),
+              body: Center(
+                child: Text('SETTINGS'),
+              ));
+        },
+      ),
     );
   }
 
