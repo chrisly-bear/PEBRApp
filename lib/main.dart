@@ -24,7 +24,7 @@ class PEBRAppHomeState extends State<PEBRAppHome> {
     return Scaffold(
         backgroundColor: Color.fromARGB(255, 224, 224, 224),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => {},
+          onPressed: _pushNewPatientScreen,
           child: Icon(Icons.add),
         ),
         body: Stack(
@@ -56,13 +56,13 @@ class PEBRAppHomeState extends State<PEBRAppHome> {
       actions: <Widget>[
         IconButton(
           icon: Icon(Icons.settings),
-          onPressed: _pushSaved,
+          onPressed: _pushSettingsScreen,
         )
       ],
     );
   }
 
-  void _pushSaved() {
+  void _pushSettingsScreen() {
     Navigator.of(context).push(
       new MaterialPageRoute<void>(
         builder: (BuildContext context) {
@@ -71,7 +71,39 @@ class PEBRAppHomeState extends State<PEBRAppHome> {
                 title: const Text('Settings'),
               ),
               body: Center(
-                child: Text('SETTINGS'),
+                child: Text('SETTINGS SCREEN'),
+              ));
+        },
+      ),
+    );
+  }
+
+  void _pushNewPatientScreen() {
+    Navigator.of(context).push(
+      new MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return new Scaffold(
+              appBar: new AppBar(
+                title: const Text('New Patient'),
+              ),
+              body: Center(
+                child: Text('NEW PATIENT SCREEN'),
+              ));
+        },
+      ),
+    );
+  }
+
+  void _pushPatientScreen() {
+    Navigator.of(context).push(
+      new MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return new Scaffold(
+              appBar: new AppBar(
+                title: const Text('Patient'),
+              ),
+              body: Center(
+                child: Text('PATIENT SCREEN'),
               ));
         },
       ),
@@ -111,9 +143,7 @@ class PEBRAppHomeState extends State<PEBRAppHome> {
                 right: _paddingHorizontal),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-            onTap: () {
-              print('Card was tapped');
-            },
+            onTap: _pushPatientScreen,
             // Generally, material cards use onSurface with 12% opacity for the pressed state.
             splashColor:
                 Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
