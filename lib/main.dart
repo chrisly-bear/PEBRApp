@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:pebrapp/screens/SettingsScreen.dart';
+import 'package:pebrapp/screens/NewPatientScreen.dart';
+import 'package:pebrapp/screens/PatientScreen.dart';
 import 'dart:ui';
 
 void main() => runApp(PEBRApp());
@@ -66,13 +69,7 @@ class PEBRAppHomeState extends State<PEBRAppHome> {
     Navigator.of(context).push(
       new MaterialPageRoute<void>(
         builder: (BuildContext context) {
-          return new Scaffold(
-              appBar: new AppBar(
-                title: const Text('Settings'),
-              ),
-              body: Center(
-                child: Text('SETTINGS SCREEN'),
-              ));
+          return SettingsScreen();
         },
       ),
     );
@@ -82,13 +79,7 @@ class PEBRAppHomeState extends State<PEBRAppHome> {
     Navigator.of(context).push(
       new MaterialPageRoute<void>(
         builder: (BuildContext context) {
-          return new Scaffold(
-              appBar: new AppBar(
-                title: const Text('New Patient'),
-              ),
-              body: Center(
-                child: Text('NEW PATIENT SCREEN'),
-              ));
+          return NewPatientScreen();
         },
       ),
     );
@@ -98,13 +89,7 @@ class PEBRAppHomeState extends State<PEBRAppHome> {
     Navigator.of(context).push(
       new MaterialPageRoute<void>(
         builder: (BuildContext context) {
-          return new Scaffold(
-              appBar: new AppBar(
-                title: const Text('Patient'),
-              ),
-              body: Center(
-                child: Text('PATIENT SCREEN'),
-              ));
+          return PatientScreen();
         },
       ),
     );
