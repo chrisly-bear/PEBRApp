@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'dart:math';
 
 import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:pebrapp/screens/NewPatientScreen.dart';
@@ -105,7 +106,9 @@ class MainScreenState extends State<MainScreen> {
       )
     ];
     final numberOfPatients = 20;
+    final random = Random();
     for (var i = 0; i < numberOfPatients; i++) {
+      final randomPatientId = random.nextInt(100000).toString().padLeft(5, '0');
       _patients.add(Card(
         margin: i == numberOfPatients - 1
             ? EdgeInsets.only(
@@ -130,7 +133,7 @@ class MainScreenState extends State<MainScreen> {
                 padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
                 child: Row(
                   children: <Widget>[
-                    _formatText('B/01/00378'),
+                    _formatText('B/01/$randomPatientId'),
                     _formatText('02.02.2019'),
                     _formatText('VHW'),
                     Icon(Icons.home),
