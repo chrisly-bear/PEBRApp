@@ -78,11 +78,11 @@ class MainScreenState extends State<MainScreen> {
     );
   }
 
-  void _pushPatientScreen() {
+  void _pushPatientScreen(patientId) {
     Navigator.of(context).push(
       new MaterialPageRoute<void>(
         builder: (BuildContext context) {
-          return PatientScreen();
+          return PatientScreen(patientId);
         },
       ),
     );
@@ -109,6 +109,7 @@ class MainScreenState extends State<MainScreen> {
     final random = Random();
     for (var i = 0; i < numberOfPatients; i++) {
       final randomPatientId = random.nextInt(100000).toString().padLeft(5, '0');
+      final patientId = 'B/01/$randomPatientId';
       _patients.add(Card(
         margin: i == numberOfPatients - 1
             ? EdgeInsets.only(
@@ -123,7 +124,7 @@ class MainScreenState extends State<MainScreen> {
                 right: _paddingHorizontal),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-            onTap: _pushPatientScreen,
+            onTap: () {_pushPatientScreen(patientId);},
             // Generally, material cards use onSurface with 12% opacity for the pressed state.
             splashColor:
                 Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
@@ -133,7 +134,7 @@ class MainScreenState extends State<MainScreen> {
                 padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
                 child: Row(
                   children: <Widget>[
-                    _formatText('B/01/$randomPatientId'),
+                    _formatText(patientId),
                     _formatText('02.02.2019'),
                     _formatText('VHW'),
                     Icon(Icons.home),
