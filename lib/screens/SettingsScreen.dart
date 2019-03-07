@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pebrapp/components/SizedButton.dart';
 
 class SettingsScreen extends StatelessWidget {
   @override
@@ -17,20 +18,8 @@ class SettingsBody extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        SizedBox(
-          width: 150,
-          child: RaisedButton(
-            onPressed: () {},
-            child: Text('Set PIN'),
-          ),
-        ),
-        SizedBox(
-          width: 150,
-          child: RaisedButton(
-            onPressed: () {},
-            child: Text('Start Backup'),
-          ),
-        ),
+        SizedButton('Set PIN'),
+        SizedButton('Start Backup'),
         Text("last backup: never")
       ],
     );
