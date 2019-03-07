@@ -31,10 +31,12 @@ class PatientScreenBody extends StatelessWidget {
         _buildTitle('Preferences'),
         _buildPreferencesCard(),
         Center(child: _buildTitle('Next Preference Assessment')),
+        Center(child: Text('Today')),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [SizedButton('Start Assessment')]),
         Center(child: _buildTitle('Next ART Refill')),
+        Center(child: Text('02.02.2019')),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [SizedButton('Manage Refill')]),
