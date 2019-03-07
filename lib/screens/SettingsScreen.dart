@@ -31,6 +31,7 @@ class SettingsBody extends StatelessWidget {
             child: Text('Start Backup'),
           ),
         ),
+        Text("last backup: never")
       ],
     );
   }
