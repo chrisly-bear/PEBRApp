@@ -1,5 +1,8 @@
 
 class PreferenceAssessment {
+  static final tableName = 'PreferenceAssessment';
+
+  // column names
   static final colId = 'id';
   static final colPatient = 'patient';
   static final colCreatedDate = 'created_date';
