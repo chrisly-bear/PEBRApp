@@ -45,11 +45,9 @@ class Patient {
     var map = Map<String, dynamic>();
     map[colARTNumber] = _artNumber;
     map[colCreatedDate] = _createdDate.millisecondsSinceEpoch;
-    // TODO: try storing it directly as bool (remove the conditionals)
-    map[colIsActivated] = _isActivated ? 1 : 0;
+    map[colIsActivated] = _isActivated;
     if (_vlSuppressed != null) {
-      // TODO: try storing it directly as bool (remove the conditionals)
-      map[colIsVLSuppressed] = _vlSuppressed ? 1 : 0;
+      map[colIsVLSuppressed] = _vlSuppressed;
     }
     map[colVillage] = _village;
     map[colDistrict] = _district;
