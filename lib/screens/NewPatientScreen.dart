@@ -63,8 +63,6 @@ class NewPatientFormState extends State<NewPatientForm> {
                   if (value.isEmpty) {
                     print('Validation failed');
                     return 'Please enter an ART number';
-                  } else {
-                    print('Validation successful');
                   }
                 },
               ),
@@ -133,7 +131,7 @@ class NewPatientFormState extends State<NewPatientForm> {
     // Validate will return true if the form is valid, or false if the form is invalid.
     if (_formKey.currentState.validate()) {
       final newPatient = Patient(_artNumberCtr.text, _districtCtr.text, _phoneNumberCtr.text, _villageCtr.text);
-      print('NEW PATIENT: ${newPatient.toMap()}');
+      print('NEW PATIENT (_id will be given by SQLite database):\n$newPatient');
       await DatabaseProvider.db.insertPatient(newPatient);
       Scaffold.of(context).showSnackBar(SnackBar(
         content: Text(
@@ -156,6 +154,7 @@ class NewPatientFormState extends State<NewPatientForm> {
 
   _getAllPatients() async {
     final List<Patient> patients = await DatabaseProvider.db.retrievePatients();
+    if (patients.length == 0) { print('No patients in Patient table'); }
     for (final patient in patients) {
       print(patient);
     }
