@@ -38,7 +38,7 @@ class DatabaseProvider {
         ")");
   }
 
-  insertPatient(Patient newPatient) async {
+  Future<void> insertPatient(Patient newPatient) async {
     final db = await database;
     var res = await db.insert("Patient", newPatient.toMap(),
         // conflictAlgorithm: ConflictAlgorithm.ignore);
@@ -46,12 +46,18 @@ class DatabaseProvider {
     return res;
   }
 
-  retrievePatients() async {
+  Future<List<Patient>> retrievePatients() async {
     final Database db = await database;
     // query the table for all patients
     final res = await db.query(Patient.tableName);
     final list = res.isNotEmpty ? res.map((patient) => Patient.fromMap(patient)).toList() : [];
     return list;
+  }
+
+  Future<List<Map<String, dynamic>>> getTableInfo(String tableName) async {
+    final Database db = await database;
+    var res = db.rawQuery("PRAGMA table_info($tableName);");
+    return res;
   }
 
 }

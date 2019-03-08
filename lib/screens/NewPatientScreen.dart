@@ -104,6 +104,24 @@ class NewPatientFormState extends State<NewPatientForm> {
                   ),
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: Center(
+                  child: SizedButton(
+                    'Get DB Info',
+                    onPressed: _getDBInfo,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: Center(
+                  child: SizedButton(
+                    'Get All Patients',
+                    onPressed: _getAllPatients,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -111,22 +129,36 @@ class NewPatientFormState extends State<NewPatientForm> {
     );
   }
 
-  _onSubmitForm() {
-    // Validate will return true if the form is valid, or false if
-    // the form is invalid.
+  _onSubmitForm() async {
+    // Validate will return true if the form is valid, or false if the form is invalid.
     if (_formKey.currentState.validate()) {
-      // If the form is valid, we want to show a Snackbar
-      Scaffold.of(context)
-          .showSnackBar(SnackBar(content: Text('Creating new patient')));
-
       final newPatient = Patient(_artNumberCtr.text, _districtCtr.text, _phoneNumberCtr.text, _villageCtr.text);
       print('NEW PATIENT: ${newPatient.toMap()}');
-      // await DatabaseProvider.db.insertPatient(newPatient);
-      DatabaseProvider.db.insertPatient(newPatient).then((dynamic) => print('THEN'));
-      print('patient stored in database');
-      Scaffold.of(context)
-        .showSnackBar(SnackBar(content: Text('New patient created successfully')));
-
+      await DatabaseProvider.db.insertPatient(newPatient);
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text(
+          'New patient created successfully',
+          textAlign: TextAlign.center,
+          )
+        )
+      );
     }
   }
+
+  _getDBInfo() async {
+    final columns = await DatabaseProvider.db.getTableInfo(Patient.tableName); 
+    print('### TABLE \'${Patient.tableName}\' INFO <START> ###');
+    for (final column in columns) {
+      print(column);
+    }
+    print('### TABLE \'${Patient.tableName}\' INFO <END> ###');
+  }
+
+  _getAllPatients() async {
+    final List<Patient> patients = await DatabaseProvider.db.retrievePatients();
+    for (final patient in patients) {
+      print(patient.toMap());
+    }
+  }
+
 }
