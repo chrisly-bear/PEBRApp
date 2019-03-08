@@ -61,4 +61,20 @@ class Patient {
     }
     return map;
   }
+
+  @override
+  String toString() {
+    return '''
+    _id: $_id,
+    _artNumber: $_artNumber,
+    _createdDate: $_createdDate,
+    _isActivated: $_isActivated,
+    _vlSuppressed: $_vlSuppressed,
+    _village: $_village,
+    _district: $_district,
+    _phoneNumber: $_phoneNumber,
+    _latestPreferenceAssessment: $_latestPreferenceAssessment
+    ''';
+  }
+
 }

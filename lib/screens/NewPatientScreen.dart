@@ -157,7 +157,7 @@ class NewPatientFormState extends State<NewPatientForm> {
   _getAllPatients() async {
     final List<Patient> patients = await DatabaseProvider.db.retrievePatients();
     for (final patient in patients) {
-      print(patient.toMap());
+      print(patient);
     }
   }
 
