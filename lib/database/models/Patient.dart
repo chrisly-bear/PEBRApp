@@ -1,6 +1,7 @@
 class Patient {
   static final tableName = 'Patient';
 
+  // column names
   static final colId = 'id';
   static final colARTNumber = 'art_number';
   static final colCreatedDate = 'created_date';
@@ -27,6 +28,7 @@ class Patient {
   }
 
   Patient.fromMap(map) {
+    this._id = map[colId];
     this._artNumber = map[colARTNumber];
     this._createdDate =
         DateTime.fromMillisecondsSinceEpoch(map[colCreatedDate]);
