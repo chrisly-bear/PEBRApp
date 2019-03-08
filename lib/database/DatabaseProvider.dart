@@ -24,18 +24,19 @@ class DatabaseProvider {
   }
 
   _onCreate(Database db, int version) async {
-    await db.execute("CREATE TABLE ${Patient.tableName} ("
-        "${Patient.colId} INTEGER PRIMARY KEY,"
-        // "${Patient.colId} INTEGER PRIMARY KEY AUTOINCREMENT,"
-        "${Patient.colARTNumber} TEXT,"
-        "${Patient.colCreatedDate} INTEGER,"
-        "${Patient.colIsActivated} BIT"
-        "${Patient.colIsVLSuppressed} BIT"
-        "${Patient.colVillage} TEXT"
-        "${Patient.colDistrict} TEXT"
-        "${Patient.colPhoneNumber} TEXT"
-        "${Patient.colLatestPreferenceAssessment} INTEGER" // TODO: set as foreign key to `PreferenceAssessment` table
-        ")");
+    await db.execute("""
+        CREATE TABLE ${Patient.tableName} (
+          ${Patient.colId} INTEGER PRIMARY KEY,
+          ${Patient.colARTNumber} TEXT NOT NULL,
+          ${Patient.colCreatedDate} INTEGER NOT NULL,
+          ${Patient.colIsActivated} BIT NOT NULL,
+          ${Patient.colIsVLSuppressed} BIT,
+          ${Patient.colVillage} TEXT,
+          ${Patient.colDistrict} TEXT,
+          ${Patient.colPhoneNumber} TEXT,
+          ${Patient.colLatestPreferenceAssessment} INTEGER
+        )""");
+        // TODO: set colLatestPreferenceAssessment as foreign key to `PreferenceAssessment` table
   }
 
   Future<void> insertPatient(Patient newPatient) async {
