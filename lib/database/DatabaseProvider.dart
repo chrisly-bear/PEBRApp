@@ -50,7 +50,7 @@ class DatabaseProvider {
     final Database db = await database;
     // query the table for all patients
     final res = await db.query(Patient.tableName);
-    final list = res.isNotEmpty ? res.map((patient) => Patient.fromMap(patient)).toList() : [];
+    final list = res.isNotEmpty ? res.map((patient) => Patient.fromMap(patient)).toList() : List<Patient>();
     return list;
   }
 
