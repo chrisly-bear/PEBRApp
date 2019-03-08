@@ -30,10 +30,11 @@ class Patient {
   Patient.fromMap(map) {
     this._id = map[colId];
     this._artNumber = map[colARTNumber];
-    this._createdDate =
-        DateTime.fromMillisecondsSinceEpoch(map[colCreatedDate]);
+    this._createdDate = DateTime.fromMillisecondsSinceEpoch(map[colCreatedDate]);
     this._isActivated = map[colIsActivated] == 1;
-    this._vlSuppressed = map[colIsVLSuppressed] == 1;
+    if (map[colIsVLSuppressed] != null) {
+      this._vlSuppressed = map[colIsVLSuppressed] == 1;
+    }
     this._village = map[colVillage];
     this._district = map[colDistrict];
     this._phoneNumber = map[colPhoneNumber];
