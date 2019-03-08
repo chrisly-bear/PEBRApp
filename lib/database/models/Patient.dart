@@ -39,17 +39,21 @@ class Patient {
   }
 
   toMap() {
-    var map = {};
+    var map = Map<String, dynamic>();
     map[colARTNumber] = _artNumber;
     map[colCreatedDate] = _createdDate.millisecondsSinceEpoch;
     // TODO: try storing it directly as bool (remove the conditionals)
     map[colIsActivated] = _isActivated ? 1 : 0;
-    // TODO: try storing it directly as bool (remove the conditionals)
-    map[colIsVLSuppressed] = _vlSuppressed ? 1 : 0;
+    if (_vlSuppressed != null) {
+      // TODO: try storing it directly as bool (remove the conditionals)
+      map[colIsVLSuppressed] = _vlSuppressed ? 1 : 0;
+    }
     map[colVillage] = _village;
     map[colDistrict] = _district;
     map[colPhoneNumber] = _phoneNumber;
-    map[colLatestPreferenceAssessment] = _latestPreferenceAssessment;
+    if (_latestPreferenceAssessment != null) {
+      map[colLatestPreferenceAssessment] = _latestPreferenceAssessment;
+    }
     if (_id != null) {
       map[colId] = _id;
     }

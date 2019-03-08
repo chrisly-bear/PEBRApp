@@ -19,6 +19,7 @@ class DatabaseProvider {
 
   initDB() async {
     String path = join(await getDatabasesPath(), "PEBRApp.db");
+    print('DATABASE PATH: $path');
     return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 
@@ -40,7 +41,8 @@ class DatabaseProvider {
   insertPatient(Patient newPatient) async {
     final db = await database;
     var res = await db.insert("Patient", newPatient.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.ignore);
+        // conflictAlgorithm: ConflictAlgorithm.ignore);
+        conflictAlgorithm: ConflictAlgorithm.replace);
     return res;
   }
 
