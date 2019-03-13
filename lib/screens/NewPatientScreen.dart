@@ -27,12 +27,12 @@ class NewPatientScreenBody extends StatelessWidget {
 // https://flutter.dev/docs/cookbook/forms/validation
 class NewPatientForm extends StatefulWidget {
   @override
-  NewPatientFormState createState() {
-    return NewPatientFormState();
+  _NewPatientFormState createState() {
+    return _NewPatientFormState();
   }
 }
 
-class NewPatientFormState extends State<NewPatientForm> {
+class _NewPatientFormState extends State<NewPatientForm> {
   // Create a global key that will uniquely identify the Form widget and allow
   // us to validate the form
   //
@@ -44,8 +44,53 @@ class NewPatientFormState extends State<NewPatientForm> {
   var _districtCtr = TextEditingController();
   var _phoneNumberCtr = TextEditingController();
 
+  List<String> _artNumbersInDB;
+  bool get _isLoading { return _artNumbersInDB == null; }
+
+  @override
+  initState() {
+    print('~~~ initState');
+    super.initState();
+    DatabaseProvider.db.retrievePatientsART().then((artNumbers) {
+      setState(() {
+        _artNumbersInDB = artNumbers;
+      });
+    });
+  }
+
+  @override
+  void didUpdateWidget(NewPatientForm oldWidget) {
+    print('~~~ didUpdateWidget');
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void reassemble() {
+    print('~~~ reassemble');
+    super.reassemble();
+  }
+
+  @override
+  void didChangeDependencies() {
+    print('~~~ didChangeDependencies');
+    super.didChangeDependencies();
+  }
+
+  @override
+  void deactivate() {
+    print('~~~ deactivate');
+    super.deactivate();
+  }
+
+  @override
+  void dispose() {
+    print('~~~ dispose');
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    print('~~~ build');
     // Build a Form widget using the _formKey we created above
     return Form(
       key: _formKey,
@@ -61,8 +106,11 @@ class NewPatientFormState extends State<NewPatientForm> {
                 controller: _artNumberCtr,
                 validator: (value) {
                   if (value.isEmpty) {
-                    print('Validation failed');
+                    print('ART validation failed');
                     return 'Please enter an ART number';
+                  } else if (_artNumberExists(value)) {
+                    print('ART validation failed');
+                    return 'This ART number exists already in the database';
                   }
                 },
               ),
@@ -98,7 +146,7 @@ class NewPatientFormState extends State<NewPatientForm> {
                 child: Center(
                   child: SizedButton(
                     'Save',
-                    onPressed: _onSubmitForm,
+                    onPressed: _isLoading ? null : _onSubmitForm,
                   ),
                 ),
               ),
@@ -158,6 +206,10 @@ class NewPatientFormState extends State<NewPatientForm> {
     for (final patient in patients) {
       print(patient);
     }
+  }
+
+  bool _artNumberExists(artNumber) {
+    return _artNumbersInDB.contains(artNumber);
   }
 
 }

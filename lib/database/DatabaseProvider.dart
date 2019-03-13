@@ -45,6 +45,12 @@ class DatabaseProvider {
     return res;
   }
 
+  Future<List<String>> retrievePatientsART() async {
+    final Database db = await database;
+    final res = await db.rawQuery("SELECT ${Patient.colARTNumber} FROM ${Patient.tableName}");
+    return res.isNotEmpty ? res.map((entry) => entry[Patient.colARTNumber] as String).toList() : List<String>();
+  }
+
   Future<List<Patient>> retrievePatients() async {
     final Database db = await database;
     // query the table for all patients
