@@ -13,11 +13,11 @@ class DatabaseProvider {
   get database async {
     if (_database != null) return _database;
     // if _database is null we instantiate it
-    _database = await initDB();
+    _database = await _initDB();
     return _database;
   }
 
-  initDB() async {
+  _initDB() async {
     String path = join(await getDatabasesPath(), "PEBRApp.db");
     print('DATABASE PATH: $path');
     return await openDatabase(path, version: 1, onCreate: _onCreate);
