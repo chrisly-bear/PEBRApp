@@ -10,7 +10,7 @@ class DatabaseProvider {
   DatabaseProvider._();
   static final DatabaseProvider db = DatabaseProvider._();
 
-  get database async {
+  get _databaseInstance async {
     if (_database != null) return _database;
     // if _database is null we instantiate it
     _database = await _initDB();
@@ -40,19 +40,19 @@ class DatabaseProvider {
   }
 
   Future<void> insertPatient(Patient newPatient) async {
-    final Database db = await database;
+    final Database db = await _databaseInstance;
     final res = await db.insert("Patient", newPatient.toMap());
     return res;
   }
 
   Future<List<String>> retrievePatientsART() async {
-    final Database db = await database;
+    final Database db = await _databaseInstance;
     final res = await db.rawQuery("SELECT ${Patient.colARTNumber} FROM ${Patient.tableName}");
     return res.isNotEmpty ? res.map((entry) => entry[Patient.colARTNumber] as String).toList() : List<String>();
   }
 
   Future<List<Patient>> retrievePatients() async {
-    final Database db = await database;
+    final Database db = await _databaseInstance;
     // query the table for all patients
     final res = await db.query(Patient.tableName);
     final list = res.isNotEmpty ? res.map((patient) => Patient.fromMap(patient)).toList() : List<Patient>();
@@ -60,7 +60,7 @@ class DatabaseProvider {
   }
 
   Future<List<Map<String, dynamic>>> getTableInfo(String tableName) async {
-    final Database db = await database;
+    final Database db = await _databaseInstance;
     var res = db.rawQuery("PRAGMA table_info($tableName);");
     return res;
   }
