@@ -3,12 +3,18 @@ import 'package:pebrapp/database/models/Patient.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
+/// Access to the SQFLite database.
+/// Get an instance either via `DatabaseProvider.instance` or via the singleton constructor `DatabaseProvider()`.
 class DatabaseProvider {
   static Database _database;
 
   // private constructor for Singleton pattern
   DatabaseProvider._();
-  static final DatabaseProvider db = DatabaseProvider._();
+  static final DatabaseProvider instance = DatabaseProvider._();
+
+  factory DatabaseProvider() {
+    return instance;
+  }
 
   get _databaseInstance async {
     if (_database != null) return _database;

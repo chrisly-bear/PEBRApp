@@ -51,7 +51,7 @@ class _NewPatientFormState extends State<NewPatientForm> {
   initState() {
     print('~~~ initState');
     super.initState();
-    DatabaseProvider.db.retrievePatientsART().then((artNumbers) {
+    DatabaseProvider().retrievePatientsART().then((artNumbers) {
       setState(() {
         _artNumbersInDB = artNumbers;
       });
@@ -180,7 +180,7 @@ class _NewPatientFormState extends State<NewPatientForm> {
     if (_formKey.currentState.validate()) {
       final newPatient = Patient(_artNumberCtr.text, _districtCtr.text, _phoneNumberCtr.text, _villageCtr.text);
       print('NEW PATIENT (_id will be given by SQLite database):\n$newPatient');
-      await DatabaseProvider.db.insertPatient(newPatient);
+      await DatabaseProvider().insertPatient(newPatient);
       Navigator.of(context).pop(); // close New Patient screen
       Scaffold.of(context).showSnackBar(SnackBar(
         content: Text(
@@ -193,7 +193,7 @@ class _NewPatientFormState extends State<NewPatientForm> {
   }
 
   _getDBInfo() async {
-    final columns = await DatabaseProvider.db.getTableInfo(Patient.tableName); 
+    final columns = await DatabaseProvider().getTableInfo(Patient.tableName);
     print('### TABLE \'${Patient.tableName}\' INFO <START> ###');
     for (final column in columns) {
       print(column);
@@ -202,7 +202,7 @@ class _NewPatientFormState extends State<NewPatientForm> {
   }
 
   _getAllPatients() async {
-    final List<Patient> patients = await DatabaseProvider.db.retrievePatients();
+    final List<Patient> patients = await DatabaseProvider().retrievePatients();
     if (patients.length == 0) { print('No patients in Patient table'); }
     for (final patient in patients) {
       print(patient);
