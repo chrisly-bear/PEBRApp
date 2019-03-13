@@ -5,7 +5,7 @@ class SizedButton extends StatelessWidget {
   final String _buttonText;
   final onPressed;
 
-  SizedButton(this._buttonText, { this.onPressed });
+  const SizedButton(this._buttonText, {this.onPressed}) : super();
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class SizedButton extends StatelessWidget {
         onPressed: this.onPressed,
         color: Color.fromRGBO(37, 55, 208, 1.0),
         child: Text(
-          _buttonText.toUpperCase(),
+          this._buttonText.toUpperCase(),
           style: TextStyle(
             color: Colors.white,
           ),
