@@ -181,6 +181,7 @@ class _NewPatientFormState extends State<NewPatientForm> {
       final newPatient = Patient(_artNumberCtr.text, _districtCtr.text, _phoneNumberCtr.text, _villageCtr.text);
       print('NEW PATIENT (_id will be given by SQLite database):\n$newPatient');
       await DatabaseProvider.db.insertPatient(newPatient);
+      Navigator.of(context).pop(); // close New Patient screen
       Scaffold.of(context).showSnackBar(SnackBar(
         content: Text(
           'New patient created successfully',
