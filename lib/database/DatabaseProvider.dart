@@ -40,10 +40,8 @@ class DatabaseProvider {
   }
 
   Future<void> insertPatient(Patient newPatient) async {
-    final db = await database;
-    var res = await db.insert("Patient", newPatient.toMap(),
-        // conflictAlgorithm: ConflictAlgorithm.ignore);
-        conflictAlgorithm: ConflictAlgorithm.replace);
+    final Database db = await database;
+    final res = await db.insert("Patient", newPatient.toMap());
     return res;
   }
 
