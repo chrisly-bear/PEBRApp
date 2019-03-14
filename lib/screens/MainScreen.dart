@@ -116,17 +116,55 @@ class MainScreenState extends State<MainScreen> {
   }
 
   _buildPatientCards(BuildContext context) {
-    final _paddingVertical = 10.0;
-    final _paddingHorizontal = 10.0;
+    final _cardPaddingVertical = 10.0;
+    final _cardPaddingHorizontal = 10.0;
+    final _rowPaddingVertical = 20.0;
+    final _rowPaddingHorizontal = 10.0;
 
     print("_buildPatientCards called. Number of patients in DB: ${_patients.length}");
+
+    _formatHeaderRowText(String text) {
+      return Text(
+        text.toUpperCase(),
+        style: TextStyle(
+          color: Colors.grey[600],
+          fontWeight: FontWeight.bold,
+        ),
+      );
+    }
+
+    _formatPatientRowText(String text) {
+      return Text(
+        text,
+        style: TextStyle(
+          fontSize: 18,
+        ),
+      );
+    }
 
     var _patientCards = <Widget>[
       // container acting as margin for the app bar
       Container(
         height: _appBarHeight - 10,
         color: Colors.transparent,
-      )
+      ),
+      Container(
+          padding: EdgeInsets.symmetric(
+              vertical: _cardPaddingVertical,
+              horizontal: _cardPaddingHorizontal),
+          child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: _rowPaddingHorizontal),
+              child: Row(
+                children: <Widget>[
+                  Expanded(child: _formatHeaderRowText('ART NR.')),
+                  Expanded(child: _formatHeaderRowText('NEXT REFILL')),
+                  Expanded(child: _formatHeaderRowText('REFILL BY')),
+                  Expanded(child: _formatHeaderRowText('SUPPORT')),
+                  Expanded(child: _formatHeaderRowText('VIRAL LOAD (EAC)')),
+                  Expanded(child: _formatHeaderRowText('NEXT ASSESSMENT')),
+                ],
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              ))),
     ];
     final numberOfPatients = _patients.length;
     for (var i = 0; i < numberOfPatients; i++) {
@@ -139,35 +177,42 @@ class MainScreenState extends State<MainScreen> {
         viralLoadEACText = 'UNSUPPR';
       }
       _patientCards.add(Card(
-        margin: i == numberOfPatients - 1
-            ? EdgeInsets.only(
-                top: _paddingVertical,
-                bottom: _paddingVertical,
-                left: _paddingHorizontal,
-                right: _paddingHorizontal)
+        elevation: 5.0,
+        margin: i == numberOfPatients - 1 // last element also has padding at the bottom
+            ? EdgeInsets.symmetric(
+                vertical: _cardPaddingVertical,
+                horizontal: _cardPaddingHorizontal)
             : EdgeInsets.only(
-                top: _paddingVertical,
+                top: _cardPaddingVertical,
                 bottom: 0,
-                left: _paddingHorizontal,
-                right: _paddingHorizontal),
+                left: _cardPaddingHorizontal,
+                right: _cardPaddingHorizontal),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-            onTap: () {_pushPatientScreen(patientART);},
+            onTap: () {
+              _pushPatientScreen(patientART);
+            },
             // Generally, material cards use onSurface with 12% opacity for the pressed state.
             splashColor:
                 Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
             // Generally, material cards do not have a highlight overlay.
             highlightColor: Colors.transparent,
             child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                padding: EdgeInsets.symmetric(
+                    vertical: _rowPaddingVertical,
+                    horizontal: _rowPaddingHorizontal),
                 child: Row(
                   children: <Widget>[
-                    _formatText(patientART),
-                    _formatText('02.02.2019'),
-                    _formatText('VHW'),
-                    Icon(Icons.home),
-                    _formatText(viralLoadEACText),
-                    _formatText('Today'),
+                    Expanded(child: _formatPatientRowText(patientART)),
+                    Expanded(child: _formatPatientRowText('02.02.2019')),
+                    Expanded(child: _formatPatientRowText('VHW')),
+                    Expanded(child: Row(children: [Icon(Icons.home)])),
+                    Expanded(
+                        child: Row(children: [
+                      _formatPatientRowText(viralLoadEACText),
+                      Icon(Icons.phone),
+                    ])),
+                    Expanded(child: _formatPatientRowText('Today')),
                   ],
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 ))),
@@ -176,12 +221,4 @@ class MainScreenState extends State<MainScreen> {
     return _patientCards;
   }
 
-  _formatText(String text) {
-    return Text(
-      text,
-      style: TextStyle(
-        fontSize: 18,
-      ),
-    );
-  }
 }
