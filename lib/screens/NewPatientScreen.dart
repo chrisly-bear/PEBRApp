@@ -187,12 +187,14 @@ class _NewPatientFormState extends State<NewPatientForm> {
   }
 
   _openKoBoCollect() async {
-    const url = 'android-app://org.koboc.collect.android';
-    if (await canLaunch(url)) {
-      await launch(url);
+    const appUrl = 'android-app://org.koboc.collect.android';
+    const marketUrl = 'market://details?id=org.koboc.collect.android';
+    if (await canLaunch(appUrl)) {
+      await launch(appUrl);
+    } else if (await canLaunch(marketUrl)) {
+      await launch(marketUrl);
     } else {
-      // TODO: refer to Google Play store when the app is not installed ('market:...')
-      throw 'Could not launch $url';
+      showFlushBar(context, "Could not finde KoBoCollect app. Make sure KoBoCollect is installed.");
     }
   }
 
