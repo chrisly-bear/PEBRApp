@@ -22,7 +22,9 @@ class NewPatientScreen extends StatelessWidget {
 class NewPatientScreenBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return NewPatientForm();
+    return Column(children: [
+      Expanded(child: SingleChildScrollView(child: NewPatientForm())),
+    ]);
   }
 }
 
@@ -40,7 +42,7 @@ class _NewPatientFormState extends State<NewPatientForm> {
   //
   // Note: This is a `GlobalKey<FormState>`, not a GlobalKey<MyCustomFormState>!
   final _formKey = GlobalKey<FormState>();
-  
+
   var _artNumberCtr = TextEditingController();
   var _villageCtr = TextEditingController();
   var _districtCtr = TextEditingController();
