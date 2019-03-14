@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'dart:math';
 
 import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:pebrapp/screens/NewPatientScreen.dart';
 import 'package:pebrapp/screens/PatientScreen.dart';
 import 'package:pebrapp/components/PageHeader.dart';
+import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/database/models/Patient.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -14,6 +15,13 @@ class MainScreen extends StatefulWidget {
 
 class MainScreenState extends State<MainScreen> {
   final _appBarHeight = 115.0;
+  var _patients = List<Patient>();
+
+  @override
+  void initState() {
+    _updateListView();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,14 +76,24 @@ class MainScreenState extends State<MainScreen> {
     );
   }
 
-  void _pushNewPatientScreen() {
-    Navigator.of(context).push(
+  void _pushNewPatientScreen() async {
+    await Navigator.of(context).push(
       new MaterialPageRoute<void>(
         builder: (BuildContext context) {
           return NewPatientScreen();
         },
       ),
     );
+
+    // reload patients from database
+    _updateListView();
+  }
+
+  void _updateListView() async {
+    final patientList = await DatabaseProvider().retrievePatients();
+    setState(() {
+      _patients = patientList;
+    });
   }
 
   void _pushPatientScreen(patientId) {
@@ -89,6 +107,9 @@ class MainScreenState extends State<MainScreen> {
   }
 
   _buildPatientTable(BuildContext context) {
+    if (_patients.isEmpty) {
+      return Center(child: Text("No patients recorded yet. Add new patient by clicking the + icon."));
+    }
     return ListView(
       children: _buildPatientCards(context),
     );
@@ -98,19 +119,26 @@ class MainScreenState extends State<MainScreen> {
     final _paddingVertical = 10.0;
     final _paddingHorizontal = 10.0;
 
-    var _patients = <Widget>[
+    print("_buildPatientCards called. Number of patients in DB: ${_patients.length}");
+
+    var _patientCards = <Widget>[
       // container acting as margin for the app bar
       Container(
         height: _appBarHeight - 10,
         color: Colors.transparent,
       )
     ];
-    final numberOfPatients = 20;
-    final random = Random();
+    final numberOfPatients = _patients.length;
     for (var i = 0; i < numberOfPatients; i++) {
-      final randomPatientId = random.nextInt(100000).toString().padLeft(5, '0');
-      final patientId = 'B/01/$randomPatientId';
-      _patients.add(Card(
+      final Patient curPatient = _patients[i];
+      final patientART = curPatient.artNumber;
+      var viralLoadEACText = '—';
+      if (curPatient.vlSuppressed != null && curPatient.vlSuppressed) {
+        viralLoadEACText = 'SUPPR';
+      } else if (curPatient.vlSuppressed != null && !curPatient.vlSuppressed) {
+        viralLoadEACText = 'UNSUPPR';
+      }
+      _patientCards.add(Card(
         margin: i == numberOfPatients - 1
             ? EdgeInsets.only(
                 top: _paddingVertical,
@@ -124,7 +152,7 @@ class MainScreenState extends State<MainScreen> {
                 right: _paddingHorizontal),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-            onTap: () {_pushPatientScreen(patientId);},
+            onTap: () {_pushPatientScreen(patientART);},
             // Generally, material cards use onSurface with 12% opacity for the pressed state.
             splashColor:
                 Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
@@ -134,18 +162,18 @@ class MainScreenState extends State<MainScreen> {
                 padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
                 child: Row(
                   children: <Widget>[
-                    _formatText(patientId),
+                    _formatText(patientART),
                     _formatText('02.02.2019'),
                     _formatText('VHW'),
                     Icon(Icons.home),
-                    _formatText('Unsuppr'),
+                    _formatText(viralLoadEACText),
                     _formatText('Today'),
                   ],
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 ))),
       ));
     }
-    return _patients;
+    return _patientCards;
   }
 
   _formatText(String text) {

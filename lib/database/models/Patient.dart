@@ -76,4 +76,20 @@ class Patient {
     ''';
   }
 
+  String get artNumber => _artNumber;
+
+  int get latestPreferenceAssessment => _latestPreferenceAssessment;
+
+  String get phoneNumber => _phoneNumber;
+
+  String get district => _district;
+
+  String get village => _village;
+
+  bool get vlSuppressed => _vlSuppressed;
+
+  bool get isActivated => _isActivated;
+
+  DateTime get createdDate => _createdDate;
+
 }
