@@ -3,6 +3,7 @@ import 'package:pebrapp/components/SizedButton.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/utils/Utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class NewPatientScreen extends StatelessWidget {
   @override
@@ -169,11 +170,30 @@ class _NewPatientFormState extends State<NewPatientForm> {
                   ),
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: Center(
+                  child: SizedButton(
+                    'Open KoBoCollect',
+                    onPressed: _openKoBoCollect,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  _openKoBoCollect() async {
+    const url = 'android-app://org.koboc.collect.android';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      // TODO: refer to Google Play store when the app is not installed ('market:...')
+      throw 'Could not launch $url';
+    }
   }
 
   _onSubmitForm() async {
