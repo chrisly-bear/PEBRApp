@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/Patient.dart';
-import 'package:flushbar/flushbar.dart';
+import 'package:pebrapp/utils/Utils.dart';
 
 class NewPatientScreen extends StatelessWidget {
   @override
@@ -183,16 +183,8 @@ class _NewPatientFormState extends State<NewPatientForm> {
       print('NEW PATIENT (_id will be given by SQLite database):\n$newPatient');
       await DatabaseProvider().insertPatient(newPatient);
       Navigator.of(context).pop(); // close New Patient screen
-      _showFlushBar(context, 'New patient created successfully');
+      showFlushBar(context, 'New patient created successfully');
     }
-  }
-
-  void _showFlushBar(BuildContext context, String message, {String title}) {
-    Flushbar()
-      ..title = title
-      ..messageText = Text(message, textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 18.0))
-      ..duration = Duration(seconds: 5)
-      ..show(context);
   }
 
   _getDBInfo() async {
@@ -210,7 +202,7 @@ class _NewPatientFormState extends State<NewPatientForm> {
     for (final patient in patients) {
       print(patient);
     }
-    _showFlushBar(context, "${patients.length} patients in database");
+    showFlushBar(context, "${patients.length} patients in database");
   }
 
   bool _artNumberExists(artNumber) {
