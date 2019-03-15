@@ -98,93 +98,95 @@ class _NewPatientFormState extends State<NewPatientForm> {
     // Build a Form widget using the _formKey we created above
     return Form(
       key: _formKey,
-      child: Card(
-        margin: EdgeInsets.all(20),
-        child: Padding(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text('ART Number'),
-              TextFormField(
-                controller: _artNumberCtr,
-                validator: (value) {
-                  if (value.isEmpty) {
-                    print('ART validation failed');
-                    return 'Please enter an ART number';
-                  } else if (_artNumberExists(value)) {
-                    print('ART validation failed');
-                    return 'This ART number exists already in the database';
-                  }
-                },
-              ),
-              Text('Village'),
-              TextFormField(
-                controller: _villageCtr,
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return 'Please enter an village';
-                  }
-                },
-              ),
-              Text('District'),
-              TextFormField(
-                controller: _districtCtr,
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return 'Please enter a district';
-                  }
-                },
-              ),
-              Text('Phone Number'),
-              TextFormField(
-                controller: _phoneNumberCtr,
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return 'Please enter a phone number';
-                  }
-                },
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: Center(
-                  child: SizedButton(
-                    'Save',
-                    onPressed: _isLoading ? null : _onSubmitForm,
-                  ),
+      child: Column(children: [
+        Card(
+          margin: EdgeInsets.all(20),
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text('ART Number'),
+                TextFormField(
+                  controller: _artNumberCtr,
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      print('ART validation failed');
+                      return 'Please enter an ART number';
+                    } else if (_artNumberExists(value)) {
+                      print('ART validation failed');
+                      return 'This ART number exists already in the database';
+                    }
+                  },
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: Center(
-                  child: SizedButton(
-                    'Get DB Info',
-                    onPressed: _getDBInfo,
-                  ),
+                Text('Village'),
+                TextFormField(
+                  controller: _villageCtr,
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Please enter an village';
+                    }
+                  },
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: Center(
-                  child: SizedButton(
-                    'Get All Patients',
-                    onPressed: _getAllPatients,
-                  ),
+                Text('District'),
+                TextFormField(
+                  controller: _districtCtr,
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Please enter a district';
+                    }
+                  },
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: Center(
-                  child: SizedButton(
-                    'Open KoBoCollect',
-                    onPressed: _openKoBoCollect,
-                  ),
+                Text('Phone Number'),
+                TextFormField(
+                  controller: _phoneNumberCtr,
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Please enter a phone number';
+                    }
+                  },
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          child: Center(
+            child: SizedButton(
+              'Save',
+              onPressed: _isLoading ? null : _onSubmitForm,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          child: Center(
+            child: SizedButton(
+              'Get DB Info',
+              onPressed: _getDBInfo,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          child: Center(
+            child: SizedButton(
+              'Get All Patients',
+              onPressed: _getAllPatients,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          child: Center(
+            child: SizedButton(
+              'Open KoBoCollect',
+              onPressed: _openKoBoCollect,
+            ),
+          ),
+        ),
+      ]),
     );
   }
 
