@@ -20,7 +20,7 @@ class Patient {
   String _village;
   String _district;
   String _phoneNumber;
-  int _latestPreferenceAssessment; // foreign key to [PreferenceAssessment] model
+  int _latestPreferenceAssessment; // foreign key to [PreferenceAssessment].id
 
   Patient(this._artNumber, this._district, this._phoneNumber, this._village) {
     this._createdDate = new DateTime.now();
