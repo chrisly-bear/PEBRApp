@@ -28,21 +28,21 @@ class PreferenceAssessment {
   String _patientART; // foreign key to [Patient].art_number
   DateTime _createdDate;
   ARTRefillOption _artRefillOption1;
-  ARTRefillOption _artRefillOption2;
-  ARTRefillOption _artRefillOption3;
-  ARTRefillOption _artRefillOption4;
-  String _artRefillPersonName;
-  String _artRefillPersonPhoneNumber;
+  ARTRefillOption _artRefillOption2; // nullable
+  ARTRefillOption _artRefillOption3; // nullable
+  ARTRefillOption _artRefillOption4; // nullable
+  String _artRefillPersonName; // nullable
+  String _artRefillPersonPhoneNumber; // nullable
   bool _phoneAvailable;
-  String _patientPhoneNumber;
-  bool _adherenceReminderEnabled;
-  AdherenceReminderFrequency _adherenceReminderFrequency;
-  String _adherenceReminderTime;
-  String _adherenceReminderMessage;
-  bool _vlNotificationEnabled;
-  String _vlNotificationMessageSuppressed;
-  String _vlNotificationMessageUnsuppressed;
-  String _pePhoneNumber;
+  String _patientPhoneNumber; // nullable
+  bool _adherenceReminderEnabled; // nullable
+  AdherenceReminderFrequency _adherenceReminderFrequency; // nullable
+  String _adherenceReminderTime; // nullable
+  String _adherenceReminderMessage; // nullable
+  bool _vlNotificationEnabled; // nullable
+  String _vlNotificationMessageSuppressed; // nullable
+  String _vlNotificationMessageUnsuppressed; // nullable
+  String _pePhoneNumber; // nullable
   List<SupportPreference> _supportPreferences;
 
   PreferenceAssessment() {
@@ -53,6 +53,29 @@ class PreferenceAssessment {
     this._id = map[colId];
     this._patientART = map[colPatientART];
     this._createdDate = DateTime.fromMillisecondsSinceEpoch(map[colCreatedDate]);
+    this._artRefillOption1 = map[colARTRefillOption1];
+    this._artRefillOption2 = map[colARTRefillOption2];
+    this._artRefillOption3 = map[colARTRefillOption3];
+    this._artRefillOption4 = map[colARTRefillOption4];
+    this._artRefillPersonName = map[colARTRefillPersonName];
+    this._artRefillPersonPhoneNumber = map[colARTRefillPersonPhoneNumber];
+    if (map[colPhoneAvailable] != null) {
+      this._phoneAvailable = map[colPhoneAvailable] == 1;
+    }
+    this._patientPhoneNumber = map[colPatientPhoneNumber];
+    if (map[colAdherenceReminderEnabled] != null) {
+      this._adherenceReminderEnabled = map[colAdherenceReminderEnabled] == 1;
+    }
+    this._adherenceReminderFrequency = map[colAdherenceReminderFrequency];
+    this._adherenceReminderTime = map[colAdherenceReminderTime];
+    this._adherenceReminderMessage = map[colAdherenceReminderMessage];
+    if (map[colVLNotificationEnabled] != null) {
+      this._vlNotificationEnabled = map[colVLNotificationEnabled] == 1;
+    }
+    this._vlNotificationMessageSuppressed = map[colVLNotificationMessageSuppressed];
+    this._vlNotificationMessageUnsuppressed = map[colVLNotificationMessageUnsuppressed];
+    this._pePhoneNumber = map[colPEPhoneNumber];
+    this._supportPreferences = _parseSupportPreferences(map[colSupportPreferences]);
   }
 
   toMap() {
@@ -63,6 +86,11 @@ class PreferenceAssessment {
       map[colId] = _id;
     }
     return map;
+  }
+
+  List<SupportPreference> _parseSupportPreferences(String string) {
+    // TODO: implement
+    return null;
   }
 
 }
