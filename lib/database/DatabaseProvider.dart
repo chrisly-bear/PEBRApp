@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -41,8 +42,32 @@ class DatabaseProvider {
           ${Patient.colDistrict} TEXT,
           ${Patient.colPhoneNumber} TEXT,
           ${Patient.colLatestPreferenceAssessment} INTEGER
-        )""");
+        );
+        CREATE TABLE ${PreferenceAssessment.tableName} (
+          ${PreferenceAssessment.colId} INTEGER PRIMARY KEY,
+          ${PreferenceAssessment.colPatientART} TEXT NOT NULL, 
+          ${PreferenceAssessment.colCreatedDate} INTEGER NOT NULL,
+          ${PreferenceAssessment.colARTRefillOption1} INTEGER NOT NULL,
+          ${PreferenceAssessment.colARTRefillOption2} INTEGER,
+          ${PreferenceAssessment.colARTRefillOption3} INTEGER,
+          ${PreferenceAssessment.colARTRefillOption4} INTEGER,
+          ${PreferenceAssessment.colARTRefillPersonName} TEXT,
+          ${PreferenceAssessment.colARTRefillPersonPhoneNumber} TEXT,
+          ${PreferenceAssessment.colPhoneAvailable} BIT NOT NULL,
+          ${PreferenceAssessment.colPatientPhoneNumber} TEXT,
+          ${PreferenceAssessment.colAdherenceReminderEnabled} BIT,
+          ${PreferenceAssessment.colAdherenceReminderFrequency} INTEGER,
+          ${PreferenceAssessment.colAdherenceReminderTime} TEXT,
+          ${PreferenceAssessment.colAdherenceReminderMessage} TEXT,
+          ${PreferenceAssessment.colVLNotificationEnabled} BIT,
+          ${PreferenceAssessment.colVLNotificationMessageSuppressed} TEXT,
+          ${PreferenceAssessment.colVLNotificationMessageUnsuppressed} TEXT,
+          ${PreferenceAssessment.colPEPhoneNumber} TEXT,
+          ${PreferenceAssessment.colSupportPreferences} TEXT
+        );
+        """);
         // TODO: set colLatestPreferenceAssessment as foreign key to `PreferenceAssessment` table
+        //       set colPatientART as foreign key to `Patient` table
   }
 
   Future<void> insertPatient(Patient newPatient) async {
