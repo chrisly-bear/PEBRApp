@@ -75,20 +75,35 @@ class PreferenceAssessment {
     this._vlNotificationMessageSuppressed = map[colVLNotificationMessageSuppressed];
     this._vlNotificationMessageUnsuppressed = map[colVLNotificationMessageUnsuppressed];
     this._pePhoneNumber = map[colPEPhoneNumber];
-    this._supportPreferences = _parseSupportPreferences(map[colSupportPreferences]);
+    this._supportPreferences = _supportPreferencesFromString(map[colSupportPreferences]);
   }
 
   toMap() {
-    var map = {};
+    var map = Map<String, dynamic>();
+    map[colId] = _id;
     map[colPatientART] = _patientART;
     map[colCreatedDate] = _createdDate.millisecondsSinceEpoch;
-    if (_id != null) {
-      map[colId] = _id;
-    }
+    map[colARTRefillOption1] = _artRefillOption1;
+    map[colARTRefillOption2] = _artRefillOption2;
+    map[colARTRefillOption3] = _artRefillOption3;
+    map[colARTRefillOption4] = _artRefillOption4;
+    map[colARTRefillPersonName] = _artRefillPersonName;
+    map[colARTRefillPersonPhoneNumber] = _artRefillPersonPhoneNumber;
+    map[colPhoneAvailable] = _phoneAvailable;
+    map[colPatientPhoneNumber] = _patientPhoneNumber;
+    map[colAdherenceReminderEnabled] = _adherenceReminderEnabled;
+    map[colAdherenceReminderFrequency] = _adherenceReminderFrequency;
+    map[colAdherenceReminderTime] = _adherenceReminderTime;
+    map[colAdherenceReminderMessage] = _adherenceReminderMessage;
+    map[colVLNotificationEnabled] = _vlNotificationEnabled;
+    map[colVLNotificationMessageSuppressed] = _vlNotificationMessageSuppressed;
+    map[colVLNotificationMessageUnsuppressed] = _vlNotificationMessageUnsuppressed;
+    map[colPEPhoneNumber] = _pePhoneNumber;
+    map[colSupportPreferences] = _supportPreferences.toString();
     return map;
   }
 
-  List<SupportPreference> _parseSupportPreferences(String string) {
+  List<SupportPreference> _supportPreferencesFromString(String string) {
     // TODO: implement
     return null;
   }
