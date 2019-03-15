@@ -16,11 +16,11 @@ class Patient {
   String _artNumber;
   DateTime _createdDate;
   bool _isActivated;
-  bool _vlSuppressed;
-  String _village;
-  String _district;
-  String _phoneNumber;
-  int _latestPreferenceAssessment; // foreign key to [PreferenceAssessment].id
+  bool _vlSuppressed; // nullable
+  String _village; // nullable
+  String _district; // nullable
+  String _phoneNumber; // nullable
+  int _latestPreferenceAssessment; // foreign key to [PreferenceAssessment].id, nullable
 
   Patient(this._artNumber, this._district, this._phoneNumber, this._village) {
     this._createdDate = new DateTime.now();
@@ -46,18 +46,12 @@ class Patient {
     map[colARTNumber] = _artNumber;
     map[colCreatedDate] = _createdDate.millisecondsSinceEpoch;
     map[colIsActivated] = _isActivated;
-    if (_vlSuppressed != null) {
-      map[colIsVLSuppressed] = _vlSuppressed;
-    }
+    map[colIsVLSuppressed] = _vlSuppressed;
     map[colVillage] = _village;
     map[colDistrict] = _district;
     map[colPhoneNumber] = _phoneNumber;
-    if (_latestPreferenceAssessment != null) {
-      map[colLatestPreferenceAssessment] = _latestPreferenceAssessment;
-    }
-    if (_id != null) {
-      map[colId] = _id;
-    }
+    map[colLatestPreferenceAssessment] = _latestPreferenceAssessment;
+    map[colId] = _id;
     return map;
   }
 
