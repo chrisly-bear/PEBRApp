@@ -119,7 +119,7 @@ class MainScreenState extends State<MainScreen> {
     final _cardPaddingVertical = 10.0;
     final _cardPaddingHorizontal = 10.0;
     final _rowPaddingVertical = 20.0;
-    final _rowPaddingHorizontal = 10.0;
+    final _rowPaddingHorizontal = 15.0;
 
     print("_buildPatientCards called. Number of patients in DB: ${_patients.length}");
 
@@ -159,7 +159,7 @@ class MainScreenState extends State<MainScreen> {
                   Expanded(child: _formatHeaderRowText('ART NR.')),
                   Expanded(child: _formatHeaderRowText('NEXT REFILL')),
                   Expanded(child: _formatHeaderRowText('REFILL BY')),
-                  Expanded(child: _formatHeaderRowText('SUPPORT')),
+                  Expanded(flex: 2, child: _formatHeaderRowText('SUPPORT')),
                   Expanded(child: _formatHeaderRowText('VIRAL LOAD (EAC)')),
                   Expanded(child: _formatHeaderRowText('NEXT ASSESSMENT')),
                 ],
@@ -206,11 +206,114 @@ class MainScreenState extends State<MainScreen> {
                     Expanded(child: _formatPatientRowText(patientART)),
                     Expanded(child: _formatPatientRowText('02.02.2019')),
                     Expanded(child: _formatPatientRowText('VHW')),
-                    Expanded(child: Row(children: [Icon(Icons.home)])),
+                    Expanded(
+                      flex: 2,
+                        child: Row(
+                            children: [
+//                              Icon(Icons.home),
+
+                              // *** custom icons
+                              ClipRect(
+                                  clipBehavior: Clip.antiAlias,
+                                  child: SizedOverflowBox(
+                                      size: Size(24.0, 24.0),
+                                      child: Image(
+                                        height: 30.0,
+                                        image: AssetImage(
+                                            'assets/icons/homevisit_pe.png'),
+                                      ))),
+                              Container(width: 5),
+                              ClipRect(
+                                  clipBehavior: Clip.antiAlias,
+                                  child: SizedOverflowBox(
+                                      size: Size(24.0, 24.0),
+                                      child: Image(
+                                        height: 30.0,
+                                        image: AssetImage(
+                                            'assets/icons/nurse_clinic.png'),
+                                      ))),
+                              Container(width: 5),
+                              ClipRect(
+                                  clipBehavior: Clip.antiAlias,
+                                  child: SizedOverflowBox(
+                                      size: Size(24.0, 24.0),
+                                      child: Image(
+                                        height: 30.0,
+                                        image: AssetImage(
+                                            'assets/icons/phonecall_pe.png'),
+                                      ))),
+                              Container(width: 5),
+                              ClipRect(
+                                  clipBehavior: Clip.antiAlias,
+                                  child: SizedOverflowBox(
+                                      size: Size(24.0, 24.0),
+                                      child: Image(
+                                        height: 30.0,
+                                        image: AssetImage(
+                                            'assets/icons/saturday_clinic_club.png'),
+                                      ))),
+                              Container(width: 5),
+                              ClipRect(
+                                  clipBehavior: Clip.antiAlias,
+                                  child: SizedOverflowBox(
+                                      size: Size(24.0, 24.0),
+                                      child: Image(
+                                        height: 30.0,
+                                        image: AssetImage(
+                                            'assets/icons/schooltalk_pe.png'),
+                                      ))),
+                              Container(width: 5),
+                              ClipRect(
+                                  clipBehavior: Clip.antiAlias,
+                                  child: SizedOverflowBox(
+                                      size: Size(24.0, 24.0),
+                                      child: Image(
+                                        height: 30.0,
+                                        image: AssetImage(
+                                            'assets/icons/youth_club.png'),
+                                      ))),
+                              Container(width: 5),
+                              ClipRect(
+                                  clipBehavior: Clip.antiAlias,
+                                  child: SizedOverflowBox(
+                                      size: Size(24.0, 24.0),
+                                      child: Image(
+                                        height: 30.0,
+                                        image: AssetImage(
+                                            'assets/icons/no_support.png'),
+                                      ))),
+//                      ImageIcon(
+//                        AssetImage('assets/icons/viralload_suppressed.png'),
+//                        color: Colors.green,
+//                      ),
+                        ]
+                        )
+                    ),
                     Expanded(
                         child: Row(children: [
-                      _formatPatientRowText(viralLoadEACText),
-                      Icon(Icons.phone),
+//                      _formatPatientRowText(viralLoadEACText),
+//                      Icon(Icons.phone),
+
+                      // *** custom icons
+                      ClipRect(
+                          clipBehavior: Clip.antiAlias,
+                          child: SizedOverflowBox(
+                              size: Size(24.0, 24.0),
+                              child: Image(
+                                height: 30.0,
+                                image: AssetImage(
+                                    'assets/icons/viralload_suppressed.png'),
+                              ))),
+                      Container(width: 5),
+                      ClipRect(
+                          clipBehavior: Clip.antiAlias,
+                          child: SizedOverflowBox(
+                              size: Size(24.0, 24.0),
+                              child: Image(
+                                height: 30.0,
+                                image: AssetImage(
+                                    'assets/icons/nurse_clinic.png'),
+                              ))),
                     ])),
                     Expanded(child: _formatPatientRowText('Today')),
                   ],
