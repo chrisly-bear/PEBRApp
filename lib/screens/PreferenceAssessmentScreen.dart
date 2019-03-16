@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
+import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/utils/Utils.dart';
 
 class PreferenceAssessmentScreen extends StatelessWidget {
-  final _patientART;
+  final String _patientART;
 
   PreferenceAssessmentScreen(this._patientART);
 
@@ -13,12 +16,30 @@ class PreferenceAssessmentScreen extends StatelessWidget {
         appBar: AppBar(
           title: Text('Preference Assessment: ${this._patientART}'),
         ),
-        body: Center(child: PreferenceAssessmentScreenBody()));
+        body: Center(child: PreferenceAssessmentForm(_patientART)));
   }
 }
 
-class PreferenceAssessmentScreenBody extends StatelessWidget {
-  final _tableRowPaddingVertical = 5.0;
+class PreferenceAssessmentForm extends StatefulWidget {
+  final String _patientART;
+
+  PreferenceAssessmentForm(this._patientART);
+
+  @override
+  createState() => _PreferenceAssessmentFormState(_patientART);
+}
+
+class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
+  final _formKey = GlobalKey<FormState>();
+  final String _patientART;
+
+  _PreferenceAssessmentFormState(this._patientART);
+
+  // TODO: add all necessary controller that we need to get the text from the form fields
+  ARTRefillOption _artRefillOption1;
+  bool _artRefillOption1PersonAvailable;
+  var _phoneAvailableCtr = TextEditingController();
+  var _supportPreferencesCtr = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +51,7 @@ class PreferenceAssessmentScreenBody extends StatelessWidget {
         _buildNotificationsCard(),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [SizedButton('Export')]
-        ),
+            children: [SizedButton('Export')]),
         _buildTitle('Support'),
         _buildSupportCard(),
         _buildTitle('EAC (Enhanced Adherence Counseling)'),
@@ -40,9 +60,12 @@ class PreferenceAssessmentScreenBody extends StatelessWidget {
         Center(child: _buildTitle('Next Preference Assessment')),
         Center(child: Text('Today')),
         Container(height: 50), // padding at bottom
-        Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [SizedButton('Save')]),
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          SizedButton(
+            'Save',
+            onPressed: _onSubmitForm,
+          )
+        ]),
         Container(height: 50), // padding at bottom
       ],
     );
@@ -63,32 +86,111 @@ class PreferenceAssessmentScreenBody extends StatelessWidget {
 
   _buildARTRefillCard() {
     return Card(
-      margin: EdgeInsets.symmetric(horizontal: 15),
-      child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          child: null,
-      ),
-    );
+        margin: EdgeInsets.symmetric(horizontal: 15),
+        child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                        'How and where do you want to refill your ART mainly?'),
+                    DropdownButton<ARTRefillOption>(
+                      value: _artRefillOption1,
+                      onChanged: (ARTRefillOption newValue) {
+                        setState(() {
+                          _artRefillOption1 = newValue;
+                        });
+                      },
+                      items: <ARTRefillOption>[
+                        ARTRefillOption.CLINIC,
+                        ARTRefillOption.COMMUNITY_ADHERENCE_CLUB,
+                        ARTRefillOption.PE_HOME_DELIVERY,
+                        ARTRefillOption.TREATMENT_BUDDY,
+                        ARTRefillOption.VHW
+                      ].map<DropdownMenuItem<ARTRefillOption>>(
+                          (ARTRefillOption value) {
+                        String description;
+                        switch (value) {
+                          case ARTRefillOption.CLINIC:
+                            description = 'Clinic';
+                            break;
+                          case ARTRefillOption.COMMUNITY_ADHERENCE_CLUB:
+                            description = 'Community Adherence Club';
+                            break;
+                          case ARTRefillOption.PE_HOME_DELIVERY:
+                            description = 'Home Delivery (PE)';
+                            break;
+                          case ARTRefillOption.TREATMENT_BUDDY:
+                            description = 'Treatment Buddy';
+                            break;
+                          case ARTRefillOption.VHW:
+                            description = 'Treatment Buddy';
+                            break;
+                        }
+                        return DropdownMenuItem<ARTRefillOption>(
+                          value: value,
+                          child: Text(description),
+                        );
+                      }).toList(),
+                    )
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text('Is there a VHW available nearby?'),
+                    DropdownButton<bool>(
+                      value: _artRefillOption1PersonAvailable,
+                      onChanged: (bool newValue) {
+                        setState(() {
+                          _artRefillOption1PersonAvailable = newValue;
+                        });
+                      },
+                      items: <bool>[
+                        true,
+                        false
+                      ].map<DropdownMenuItem<bool>>(
+                          (bool value) {
+                        String description;
+                        switch (value) {
+                          case true:
+                            description = 'Yes';
+                            break;
+                          case false:
+                            description = 'No';
+                            break;
+                        }
+                        return DropdownMenuItem<bool>(
+                          value: value,
+                          child: Text(description),
+                        );
+                      }).toList(),
+                    )
+                  ],
+                ),
+              ],
+            )));
   }
 
   _buildNotificationsCard() {
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 15),
       child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          child: null,
+        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        child: null,
       ),
     );
   }
 
   _buildSupportCard() {
     return Card(
-      margin: EdgeInsets.symmetric(horizontal: 15),
-      child: Padding(
+        margin: EdgeInsets.symmetric(horizontal: 15),
+        child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
           child: null,
-      )
-    );
+        ));
   }
 
   _buildEACCard() {
@@ -97,8 +199,21 @@ class PreferenceAssessmentScreenBody extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
           child: null,
-        )
-    );
+        ));
   }
 
+  _onSubmitForm() async {
+    if (_formKey.currentState.validate()) {
+//      final _newPrefAssessment = PreferenceAssessment(
+//          _patientART,
+//          _artRefillOption1Ctr.text,
+//          _phoneAvailableCtr.text,
+//          _supportPreferencesCtr.text
+//      );
+//      print('NEW PREFERENCE ASSESSMENT (_id will be given by SQLite database):\n$_newPrefAssessment');
+//      await DatabaseProvider().insertPreferenceAssessment(_newPrefAssessment);
+//      Navigator.of(context).pop(); // close Preference Assessment screen
+//      showFlushBar(context, 'Preference Assessment saved');
+    }
+  }
 }

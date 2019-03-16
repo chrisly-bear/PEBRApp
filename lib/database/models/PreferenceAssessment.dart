@@ -45,8 +45,37 @@ class PreferenceAssessment {
   String _pePhoneNumber; // nullable
   List<SupportPreference> _supportPreferences;
 
-  PreferenceAssessment() {
+  PreferenceAssessment(this._patientART, this._artRefillOption1, this._phoneAvailable, this._supportPreferences, {
+    ARTRefillOption artRefillOption2,
+    ARTRefillOption artRefillOption3,
+    ARTRefillOption artRefillOption4,
+    String artRefillPersonName,
+    String artRefillPersonPhoneNumber,
+    String patientPhoneNumber,
+    bool adherenceReminderEnabled,
+    AdherenceReminderFrequency adherenceReminderFrequency,
+    String adherenceReminderTime,
+    String adherenceReminderMessage,
+    bool vlNotificationEnabled,
+    String vlNotificationMessageSuppressed,
+    String vlNotificationMessageUnsuppressed,
+    String pePhoneNumber
+  }) {
     this._createdDate = DateTime.now();
+    this._artRefillOption2 = artRefillOption2;
+    this._artRefillOption3 = artRefillOption3;
+    this._artRefillOption4 = artRefillOption4;
+    this._artRefillPersonName = artRefillPersonName;
+    this._artRefillPersonPhoneNumber = artRefillPersonPhoneNumber;
+    this._patientPhoneNumber = patientPhoneNumber;
+    this._adherenceReminderEnabled = adherenceReminderEnabled;
+    this._adherenceReminderFrequency = adherenceReminderFrequency;
+    this._adherenceReminderTime = adherenceReminderTime;
+    this._adherenceReminderMessage = adherenceReminderMessage;
+    this._vlNotificationEnabled = vlNotificationEnabled;
+    this._vlNotificationMessageSuppressed = vlNotificationMessageSuppressed;
+    this._vlNotificationMessageUnsuppressed = vlNotificationMessageUnsuppressed;
+    this._pePhoneNumber = pePhoneNumber;
   }
 
   PreferenceAssessment.fromMap(map) {

@@ -72,7 +72,7 @@ class DatabaseProvider {
 
   Future<void> insertPatient(Patient newPatient) async {
     final Database db = await _databaseInstance;
-    final res = await db.insert("Patient", newPatient.toMap());
+    final res = await db.insert(Patient.tableName, newPatient.toMap());
     return res;
   }
 
@@ -93,6 +93,12 @@ class DatabaseProvider {
   Future<List<Map<String, dynamic>>> getTableInfo(String tableName) async {
     final Database db = await _databaseInstance;
     var res = db.rawQuery("PRAGMA table_info($tableName);");
+    return res;
+  }
+
+  Future<void> insertPreferenceAssessment(PreferenceAssessment newPreferenceAssessment) async {
+    final Database db = await _databaseInstance;
+    final res = await db.insert(PreferenceAssessment.tableName, newPreferenceAssessment.toMap());
     return res;
   }
 

@@ -39,8 +39,6 @@ class NewPatientForm extends StatefulWidget {
 class _NewPatientFormState extends State<NewPatientForm> {
   // Create a global key that will uniquely identify the Form widget and allow
   // us to validate the form
-  //
-  // Note: This is a `GlobalKey<FormState>`, not a GlobalKey<MyCustomFormState>!
   final _formKey = GlobalKey<FormState>();
 
   var _artNumberCtr = TextEditingController();
