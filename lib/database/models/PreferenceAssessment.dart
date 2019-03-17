@@ -25,110 +25,99 @@ class PreferenceAssessment {
   static final colSupportPreferences = 'support_preferences';
 
   int _id; // primary key
-  String _patientART; // foreign key to [Patient].art_number
-  DateTime _createdDate;
-  ARTRefillOption _artRefillOption1;
-  ARTRefillOption _artRefillOption2; // nullable
-  ARTRefillOption _artRefillOption3; // nullable
-  ARTRefillOption _artRefillOption4; // nullable
-  String _artRefillPersonName; // nullable
-  String _artRefillPersonPhoneNumber; // nullable
-  bool _phoneAvailable;
-  String _patientPhoneNumber; // nullable
-  bool _adherenceReminderEnabled; // nullable
-  AdherenceReminderFrequency _adherenceReminderFrequency; // nullable
-  String _adherenceReminderTime; // nullable
-  String _adherenceReminderMessage; // nullable
-  bool _vlNotificationEnabled; // nullable
-  String _vlNotificationMessageSuppressed; // nullable
-  String _vlNotificationMessageUnsuppressed; // nullable
-  String _pePhoneNumber; // nullable
-  List<SupportPreference> _supportPreferences;
+  String patientART; // foreign key to [Patient].art_number
+  DateTime createdDate;
+  ARTRefillOption artRefillOption1;
+  ARTRefillOption artRefillOption2; // nullable
+  ARTRefillOption artRefillOption3; // nullable
+  ARTRefillOption artRefillOption4; // nullable
+  String artRefillPersonName; // nullable
+  String artRefillPersonPhoneNumber; // nullable
+  bool phoneAvailable;
+  String patientPhoneNumber; // nullable
+  bool adherenceReminderEnabled; // nullable
+  AdherenceReminderFrequency adherenceReminderFrequency; // nullable
+  String adherenceReminderTime; // nullable
+  String adherenceReminderMessage; // nullable
+  bool vlNotificationEnabled; // nullable
+  String vlNotificationMessageSuppressed; // nullable
+  String vlNotificationMessageUnsuppressed; // nullable
+  String pePhoneNumber; // nullable
+  List<SupportPreference> supportPreferences;
 
-  PreferenceAssessment(this._patientART, this._artRefillOption1, this._phoneAvailable, this._supportPreferences, {
-    ARTRefillOption artRefillOption2,
-    ARTRefillOption artRefillOption3,
-    ARTRefillOption artRefillOption4,
-    String artRefillPersonName,
-    String artRefillPersonPhoneNumber,
-    String patientPhoneNumber,
-    bool adherenceReminderEnabled,
-    AdherenceReminderFrequency adherenceReminderFrequency,
-    String adherenceReminderTime,
-    String adherenceReminderMessage,
-    bool vlNotificationEnabled,
-    String vlNotificationMessageSuppressed,
-    String vlNotificationMessageUnsuppressed,
-    String pePhoneNumber
-  }) {
-    this._createdDate = DateTime.now();
-    this._artRefillOption2 = artRefillOption2;
-    this._artRefillOption3 = artRefillOption3;
-    this._artRefillOption4 = artRefillOption4;
-    this._artRefillPersonName = artRefillPersonName;
-    this._artRefillPersonPhoneNumber = artRefillPersonPhoneNumber;
-    this._patientPhoneNumber = patientPhoneNumber;
-    this._adherenceReminderEnabled = adherenceReminderEnabled;
-    this._adherenceReminderFrequency = adherenceReminderFrequency;
-    this._adherenceReminderTime = adherenceReminderTime;
-    this._adherenceReminderMessage = adherenceReminderMessage;
-    this._vlNotificationEnabled = vlNotificationEnabled;
-    this._vlNotificationMessageSuppressed = vlNotificationMessageSuppressed;
-    this._vlNotificationMessageUnsuppressed = vlNotificationMessageUnsuppressed;
-    this._pePhoneNumber = pePhoneNumber;
-  }
+  PreferenceAssessment(
+      this.patientART,
+      this.artRefillOption1,
+      this.phoneAvailable,
+      this.supportPreferences,
+      {
+        ARTRefillOption artRefillOption2,
+        ARTRefillOption artRefillOption3,
+        ARTRefillOption artRefillOption4,
+        String artRefillPersonName,
+        String artRefillPersonPhoneNumber,
+        String patientPhoneNumber,
+        bool adherenceReminderEnabled,
+        AdherenceReminderFrequency adherenceReminderFrequency,
+        String adherenceReminderTime,
+        String adherenceReminderMessage,
+        bool vlNotificationEnabled,
+        String vlNotificationMessageSuppressed,
+        String vlNotificationMessageUnsuppressed,
+        String pePhoneNumber
+      });
 
   PreferenceAssessment.fromMap(map) {
     this._id = map[colId];
-    this._patientART = map[colPatientART];
-    this._createdDate = DateTime.fromMillisecondsSinceEpoch(map[colCreatedDate]);
-    this._artRefillOption1 = map[colARTRefillOption1];
-    this._artRefillOption2 = map[colARTRefillOption2];
-    this._artRefillOption3 = map[colARTRefillOption3];
-    this._artRefillOption4 = map[colARTRefillOption4];
-    this._artRefillPersonName = map[colARTRefillPersonName];
-    this._artRefillPersonPhoneNumber = map[colARTRefillPersonPhoneNumber];
+    this.patientART = map[colPatientART];
+    this.createdDate = DateTime.fromMillisecondsSinceEpoch(map[colCreatedDate]);
+    this.artRefillOption1 = map[colARTRefillOption1];
+    this.artRefillOption2 = map[colARTRefillOption2];
+    this.artRefillOption3 = map[colARTRefillOption3];
+    this.artRefillOption4 = map[colARTRefillOption4];
+    this.artRefillPersonName = map[colARTRefillPersonName];
+    this.artRefillPersonPhoneNumber = map[colARTRefillPersonPhoneNumber];
     if (map[colPhoneAvailable] != null) {
-      this._phoneAvailable = map[colPhoneAvailable] == 1;
+      this.phoneAvailable = map[colPhoneAvailable] == 1;
     }
-    this._patientPhoneNumber = map[colPatientPhoneNumber];
+    this.patientPhoneNumber = map[colPatientPhoneNumber];
     if (map[colAdherenceReminderEnabled] != null) {
-      this._adherenceReminderEnabled = map[colAdherenceReminderEnabled] == 1;
+      this.adherenceReminderEnabled = map[colAdherenceReminderEnabled] == 1;
     }
-    this._adherenceReminderFrequency = map[colAdherenceReminderFrequency];
-    this._adherenceReminderTime = map[colAdherenceReminderTime];
-    this._adherenceReminderMessage = map[colAdherenceReminderMessage];
+    this.adherenceReminderFrequency = map[colAdherenceReminderFrequency];
+    this.adherenceReminderTime = map[colAdherenceReminderTime];
+    this.adherenceReminderMessage = map[colAdherenceReminderMessage];
     if (map[colVLNotificationEnabled] != null) {
-      this._vlNotificationEnabled = map[colVLNotificationEnabled] == 1;
+      this.vlNotificationEnabled = map[colVLNotificationEnabled] == 1;
     }
-    this._vlNotificationMessageSuppressed = map[colVLNotificationMessageSuppressed];
-    this._vlNotificationMessageUnsuppressed = map[colVLNotificationMessageUnsuppressed];
-    this._pePhoneNumber = map[colPEPhoneNumber];
-    this._supportPreferences = _supportPreferencesFromString(map[colSupportPreferences]);
+    this.vlNotificationMessageSuppressed = map[colVLNotificationMessageSuppressed];
+    this.vlNotificationMessageUnsuppressed = map[colVLNotificationMessageUnsuppressed];
+    this.pePhoneNumber = map[colPEPhoneNumber];
+    this.supportPreferences = _supportPreferencesFromString(map[colSupportPreferences]);
   }
 
   toMap() {
     var map = Map<String, dynamic>();
     map[colId] = _id;
-    map[colPatientART] = _patientART;
-    map[colCreatedDate] = _createdDate.millisecondsSinceEpoch;
-    map[colARTRefillOption1] = _artRefillOption1;
-    map[colARTRefillOption2] = _artRefillOption2;
-    map[colARTRefillOption3] = _artRefillOption3;
-    map[colARTRefillOption4] = _artRefillOption4;
-    map[colARTRefillPersonName] = _artRefillPersonName;
-    map[colARTRefillPersonPhoneNumber] = _artRefillPersonPhoneNumber;
-    map[colPhoneAvailable] = _phoneAvailable;
-    map[colPatientPhoneNumber] = _patientPhoneNumber;
-    map[colAdherenceReminderEnabled] = _adherenceReminderEnabled;
-    map[colAdherenceReminderFrequency] = _adherenceReminderFrequency;
-    map[colAdherenceReminderTime] = _adherenceReminderTime;
-    map[colAdherenceReminderMessage] = _adherenceReminderMessage;
-    map[colVLNotificationEnabled] = _vlNotificationEnabled;
-    map[colVLNotificationMessageSuppressed] = _vlNotificationMessageSuppressed;
-    map[colVLNotificationMessageUnsuppressed] = _vlNotificationMessageUnsuppressed;
-    map[colPEPhoneNumber] = _pePhoneNumber;
-    map[colSupportPreferences] = _supportPreferences.toString();
+    map[colPatientART] = patientART;
+    map[colCreatedDate] = createdDate.millisecondsSinceEpoch;
+    map[colARTRefillOption1] = artRefillOption1;
+    map[colARTRefillOption2] = artRefillOption2;
+    map[colARTRefillOption3] = artRefillOption3;
+    map[colARTRefillOption4] = artRefillOption4;
+    map[colARTRefillPersonName] = artRefillPersonName;
+    map[colARTRefillPersonPhoneNumber] = artRefillPersonPhoneNumber;
+    map[colPhoneAvailable] = phoneAvailable;
+    map[colPatientPhoneNumber] = patientPhoneNumber;
+    map[colAdherenceReminderEnabled] = adherenceReminderEnabled;
+    map[colAdherenceReminderFrequency] = adherenceReminderFrequency;
+    map[colAdherenceReminderTime] = adherenceReminderTime;
+    map[colAdherenceReminderMessage] = adherenceReminderMessage;
+    map[colVLNotificationEnabled] = vlNotificationEnabled;
+    map[colVLNotificationMessageSuppressed] = vlNotificationMessageSuppressed;
+    map[colVLNotificationMessageUnsuppressed] = vlNotificationMessageUnsuppressed;
+    map[colPEPhoneNumber] = pePhoneNumber;
+    map[colSupportPreferences] = supportPreferences.toString();
     return map;
   }
 
