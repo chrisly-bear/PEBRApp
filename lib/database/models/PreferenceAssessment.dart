@@ -43,7 +43,7 @@ class PreferenceAssessment {
   String vlNotificationMessageSuppressed; // nullable
   String vlNotificationMessageUnsuppressed; // nullable
   String pePhoneNumber; // nullable
-  List<SupportPreference> supportPreferences;
+  SupportPreferencesSelection supportPreferences = SupportPreferencesSelection();
 
   PreferenceAssessment(
       this.patientART,
@@ -123,11 +123,35 @@ class PreferenceAssessment {
     return map;
   }
 
-  List<SupportPreference> _supportPreferencesFromString(String string) {
+  SupportPreferencesSelection _supportPreferencesFromString(String string) {
     // TODO: implement
     return null;
   }
 
+}
+
+class SupportPreferencesSelection {
+  bool saturdayClinicClubSelected = false;
+  bool communityYouthClubSelected = false;
+  bool phoneCallPESelected = false;
+  bool homeVisitPESelected = false;
+  bool nurseAtClinicSelected = false;
+
+  void deselectAll() {
+    saturdayClinicClubSelected = false;
+    communityYouthClubSelected = false;
+    phoneCallPESelected = false;
+    homeVisitPESelected = false;
+    nurseAtClinicSelected = false;
+  }
+
+  bool get areAllDeselected {
+    return !(saturdayClinicClubSelected ||
+        communityYouthClubSelected ||
+        phoneCallPESelected ||
+        homeVisitPESelected ||
+        nurseAtClinicSelected);
+  }
 }
 
 enum ARTRefillOption { CLINIC, PE_HOME_DELIVERY, VHW, TREATMENT_BUDDY, COMMUNITY_ADHERENCE_CLUB }
