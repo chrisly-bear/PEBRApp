@@ -25,9 +25,17 @@ dependencies:
   url_launcher: ^5.0.2
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.7.0
   flutter_test:
     sdk: flutter
 
+# set the app launcher icon here, then to update the icon run
+# `flutter packages pub run flutter_launcher_icons:main`
+# https://pub.dartlang.org/packages/flutter_launcher_icons
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo/PEBRA_logo.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
