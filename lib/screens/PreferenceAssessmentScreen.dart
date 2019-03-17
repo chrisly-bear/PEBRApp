@@ -255,79 +255,114 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         ));
   }
 
-  Row _supportPreferencesQuestion() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child: Text(
-                'What kind of support do you mainly wish? (tick all that apply)')),
-        Expanded(
-          flex: _answersFlex,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              CheckboxListTile(
-                  // secondary: const Icon(Icons.local_hospital),
-                  title: Text('Saturday Clinic Club'),
+  Column _supportPreferencesQuestion() {
+    return Column(children: <Widget>[
+      Row(
+        children: <Widget>[
+          Expanded(
+              flex: _questionsFlex,
+              child: Text(
+                  'What kind of support do you mainly wish? (tick all that apply)')),
+          Expanded(
+            flex: _answersFlex,
+            child: CheckboxListTile(
+                // secondary: const Icon(Icons.local_hospital),
+                title: Text('Saturday Clinic Club'),
 //                  dense: true,
-                  value: _pa.supportPreferences.saturdayClinicClubSelected,
-                  onChanged: (bool newValue) => this.setState(() {
-                        _pa.supportPreferences.saturdayClinicClubSelected =
-                            newValue;
-                      })),
-              CheckboxListTile(
-                  // secondary: const Icon(Icons.local_hospital),
-                  title: Text('Community Youth Club'),
+                value: _pa.supportPreferences.saturdayClinicClubSelected,
+                onChanged: (bool newValue) => this.setState(() {
+                      _pa.supportPreferences.saturdayClinicClubSelected =
+                          newValue;
+                    })),
+          )
+        ],
+      ),
+      Row(
+        children: <Widget>[
+          Expanded(flex: _questionsFlex, child: Container()),
+          Expanded(
+            flex: _answersFlex,
+            child: CheckboxListTile(
+                // secondary: const Icon(Icons.local_hospital),
+                title: Text('Community Youth Club'),
 //                  dense: true,
-                  value: _pa.supportPreferences.communityYouthClubSelected,
-                  onChanged: (bool newValue) => this.setState(() {
-                        _pa.supportPreferences.communityYouthClubSelected =
-                            newValue;
-                      })),
-              CheckboxListTile(
-                  // secondary: const Icon(Icons.local_hospital),
-                  title: Text('1x Phone Call from PE'),
+                value: _pa.supportPreferences.communityYouthClubSelected,
+                onChanged: (bool newValue) => this.setState(() {
+                      _pa.supportPreferences.communityYouthClubSelected =
+                          newValue;
+                    })),
+          )
+        ],
+      ),
+      Row(
+        children: <Widget>[
+          Expanded(flex: _questionsFlex, child: Container()),
+          Expanded(
+            flex: _answersFlex,
+            child: CheckboxListTile(
+                // secondary: const Icon(Icons.local_hospital),
+                title: Text('1x Phone Call from PE'),
 //                  dense: true,
-                  value: _pa.supportPreferences.phoneCallPESelected,
-                  onChanged: (bool newValue) => this.setState(() {
-                        _pa.supportPreferences.phoneCallPESelected = newValue;
-                      })),
-              CheckboxListTile(
-                  // secondary: const Icon(Icons.local_hospital),
-                  title: Text('1x Home Visit from PE'),
+                value: _pa.supportPreferences.phoneCallPESelected,
+                onChanged: (bool newValue) => this.setState(() {
+                      _pa.supportPreferences.phoneCallPESelected = newValue;
+                    })),
+          )
+        ],
+      ),
+      Row(
+        children: <Widget>[
+          Expanded(flex: _questionsFlex, child: Container()),
+          Expanded(
+            flex: _answersFlex,
+            child: CheckboxListTile(
+                // secondary: const Icon(Icons.local_hospital),
+                title: Text('1x Home Visit from PE'),
 //                  dense: true,
-                  value: _pa.supportPreferences.homeVisitPESelected,
-                  onChanged: (bool newValue) => this.setState(() {
-                        _pa.supportPreferences.homeVisitPESelected = newValue;
-                      })),
-              CheckboxListTile(
-                  // secondary: const Icon(Icons.local_hospital),
-                  title: Text('Nurse at the Clinic'),
+                value: _pa.supportPreferences.homeVisitPESelected,
+                onChanged: (bool newValue) => this.setState(() {
+                      _pa.supportPreferences.homeVisitPESelected = newValue;
+                    })),
+          )
+        ],
+      ),
+      Row(
+        children: <Widget>[
+          Expanded(flex: _questionsFlex, child: Container()),
+          Expanded(
+            flex: _answersFlex,
+            child: CheckboxListTile(
+                // secondary: const Icon(Icons.local_hospital),
+                title: Text('Nurse at the Clinic'),
 //                  dense: true,
-                  value: _pa.supportPreferences.nurseAtClinicSelected,
-                  onChanged: (bool newValue) => this.setState(() {
-                        _pa.supportPreferences.nurseAtClinicSelected = newValue;
-                      })),
-              CheckboxListTile(
-                  // secondary: const Icon(Icons.local_hospital),
-                  title: Text('None'),
+                value: _pa.supportPreferences.nurseAtClinicSelected,
+                onChanged: (bool newValue) => this.setState(() {
+                      _pa.supportPreferences.nurseAtClinicSelected = newValue;
+                    })),
+          )
+        ],
+      ),
+      Row(
+        children: <Widget>[
+          Expanded(flex: _questionsFlex, child: Container()),
+          Expanded(
+            flex: _answersFlex,
+            child: CheckboxListTile(
+                // secondary: const Icon(Icons.local_hospital),
+                title: Text('None'),
 //                  dense: true,
-                  value: _pa.supportPreferences.areAllDeselected,
-                  onChanged: (bool newValue) {
-                    if (newValue) {
-                      this.setState(() {
-                        _pa.supportPreferences.deselectAll();
-                      });
-                    }
-                  }),
-            ],
-          ),
-        )
-      ],
-    );
+                value: _pa.supportPreferences.areAllDeselected,
+                onChanged: (bool newValue) {
+                  if (newValue) {
+                    this.setState(() {
+                      _pa.supportPreferences.deselectAll();
+                    });
+                  }
+                }),
+          )
+        ],
+      ),
+    ]);
   }
 
   _buildEACCard() {
