@@ -114,4 +114,18 @@ class DatabaseProvider {
     return res;
   }
 
+  Future<PreferenceAssessment> retrieveLatestPreferenceAssessmentForPatient(String patientART) async {
+    final Database db = await _databaseInstance;
+    final List<Map> res = await db.query(
+        PreferenceAssessment.tableName,
+        where: '${PreferenceAssessment.colPatientART} = ?',
+        whereArgs: [patientART],
+        orderBy: PreferenceAssessment.colCreatedDate
+    );
+    if (res.length > 0) {
+      return PreferenceAssessment.fromMap(res.first);
+    }
+    return null;
+  }
+
 }
