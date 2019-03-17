@@ -67,6 +67,8 @@ class PreferenceAssessment {
         String pePhoneNumber
       });
 
+  PreferenceAssessment.uninitialized();
+
   PreferenceAssessment.fromMap(map) {
     this._id = map[colId];
     this.patientART = map[colPatientART];
