@@ -47,7 +47,9 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
+    return Form(
+        key: _formKey,
+        child: ListView(
       children: <Widget>[
         _buildTitle('ART Refill'),
         _buildARTRefillCard(),
@@ -72,6 +74,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         ]),
         Container(height: 50), // padding at bottom
       ],
+    )
     );
   }
 
@@ -101,43 +104,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             )));
   }
 
-  Row _artRefillOptionPersonAvailable() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child: Text('Is there a VHW available nearby?')),
-        Expanded(
-            flex: _answersFlex,
-            child: DropdownButtonFormField<bool>(
-              value: _artRefillOption1PersonAvailable,
-              onChanged: (bool newValue) {
-                setState(() {
-                  _artRefillOption1PersonAvailable = newValue;
-                });
-              },
-              items:
-                  <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
-                String description;
-                switch (value) {
-                  case true:
-                    description = 'Yes';
-                    break;
-                  case false:
-                    description = 'No';
-                    break;
-                }
-                return DropdownMenuItem<bool>(
-                  value: value,
-                  child: Text(description),
-                );
-              }).toList(),
-            ))
-      ],
-    );
-  }
-
   Row _artRefillOption1() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -145,7 +111,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         Expanded(
             flex: _questionsFlex,
             child:
-                Text('How and where do you want to refill your ART mainly?')),
+            Text('How and where do you want to refill your ART mainly?')),
         Expanded(
             flex: _answersFlex,
             child: DropdownButtonFormField<ARTRefillOption>(
@@ -154,6 +120,9 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
                 setState(() {
                   _pa.artRefillOption1 = newValue;
                 });
+              },
+              validator: (value) {
+                if (value == null) { return 'Please answer this question'; }
               },
               items: <ARTRefillOption>[
                 ARTRefillOption.CLINIC,
@@ -181,6 +150,46 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
                     break;
                 }
                 return DropdownMenuItem<ARTRefillOption>(
+                  value: value,
+                  child: Text(description),
+                );
+              }).toList(),
+            ))
+      ],
+    );
+  }
+
+  Row _artRefillOptionPersonAvailable() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child: Text('Is there a VHW available nearby?')),
+        Expanded(
+            flex: _answersFlex,
+            child: DropdownButtonFormField<bool>(
+              value: _artRefillOption1PersonAvailable,
+              onChanged: (bool newValue) {
+                setState(() {
+                  _artRefillOption1PersonAvailable = newValue;
+                });
+              },
+              validator: (value) {
+                if (value == null) { return 'Please answer this question'; }
+              },
+              items:
+                  <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+                String description;
+                switch (value) {
+                  case true:
+                    description = 'Yes';
+                    break;
+                  case false:
+                    description = 'No';
+                    break;
+                }
+                return DropdownMenuItem<bool>(
                   value: value,
                   child: Text(description),
                 );
@@ -220,6 +229,9 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
                 setState(() {
                   _pa.phoneAvailable = newValue;
                 });
+              },
+              validator: (value) {
+                if (value == null) { return 'Please answer this question'; }
               },
               items:
                   <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
