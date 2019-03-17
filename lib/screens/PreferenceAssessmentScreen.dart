@@ -393,6 +393,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       await DatabaseProvider().insertPreferenceAssessment(_pa);
       Navigator.of(context).pop(); // close Preference Assessment screen
       showFlushBar(context, 'Preference Assessment saved');
+    } else {
+      showFlushBar(context, "Errors exist in the assessment form. Please check the form.");
     }
   }
 }
