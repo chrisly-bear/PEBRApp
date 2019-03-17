@@ -34,7 +34,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   final _formKey = GlobalKey<FormState>();
   PreferenceAssessment _pa = PreferenceAssessment.uninitialized();
   bool _artRefillOption1PersonAvailable;
-  int _questionsFlex = 4;
+  int _questionsFlex = 3;
   int _answersFlex = 1;
   // TODO: add all necessary controller that we need to get the text from the form fields
   var _phoneAvailableCtr = TextEditingController();
