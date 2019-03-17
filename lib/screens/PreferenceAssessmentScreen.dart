@@ -30,11 +30,12 @@ class PreferenceAssessmentForm extends StatefulWidget {
 }
 
 class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
-
   // fields
   final _formKey = GlobalKey<FormState>();
-  var _pa = PreferenceAssessment.uninitialized();
+  PreferenceAssessment _pa = PreferenceAssessment.uninitialized();
   bool _artRefillOption1PersonAvailable;
+  int _questionsFlex = 4;
+  int _answersFlex = 1;
   // TODO: add all necessary controller that we need to get the text from the form fields
   var _phoneAvailableCtr = TextEditingController();
   var _supportPreferencesCtr = TextEditingController();
@@ -102,87 +103,91 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Row _artRefillOptionPersonAvailable() {
     return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text('Is there a VHW available nearby?'),
-                  DropdownButton<bool>(
-                    value: _artRefillOption1PersonAvailable,
-                    onChanged: (bool newValue) {
-                      setState(() {
-                        _artRefillOption1PersonAvailable = newValue;
-                      });
-                    },
-                    items: <bool>[
-                      true,
-                      false
-                    ].map<DropdownMenuItem<bool>>(
-                        (bool value) {
-                      String description;
-                      switch (value) {
-                        case true:
-                          description = 'Yes';
-                          break;
-                        case false:
-                          description = 'No';
-                          break;
-                      }
-                      return DropdownMenuItem<bool>(
-                        value: value,
-                        child: Text(description),
-                      );
-                    }).toList(),
-                  )
-                ],
-              );
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child: Text('Is there a VHW available nearby?')),
+        Expanded(
+            flex: _answersFlex,
+            child: DropdownButtonFormField<bool>(
+              value: _artRefillOption1PersonAvailable,
+              onChanged: (bool newValue) {
+                setState(() {
+                  _artRefillOption1PersonAvailable = newValue;
+                });
+              },
+              items:
+                  <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+                String description;
+                switch (value) {
+                  case true:
+                    description = 'Yes';
+                    break;
+                  case false:
+                    description = 'No';
+                    break;
+                }
+                return DropdownMenuItem<bool>(
+                  value: value,
+                  child: Text(description),
+                );
+              }).toList(),
+            ))
+      ],
+    );
   }
 
   Row _artRefillOption1() {
     return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(
-                      'How and where do you want to refill your ART mainly?'),
-                  DropdownButton<ARTRefillOption>(
-                    value: _pa.artRefillOption1,
-                    onChanged: (ARTRefillOption newValue) {
-                      setState(() {
-                        _pa.artRefillOption1 = newValue;
-                      });
-                    },
-                    items: <ARTRefillOption>[
-                      ARTRefillOption.CLINIC,
-                      ARTRefillOption.COMMUNITY_ADHERENCE_CLUB,
-                      ARTRefillOption.PE_HOME_DELIVERY,
-                      ARTRefillOption.TREATMENT_BUDDY,
-                      ARTRefillOption.VHW
-                    ].map<DropdownMenuItem<ARTRefillOption>>(
-                        (ARTRefillOption value) {
-                      String description;
-                      switch (value) {
-                        case ARTRefillOption.CLINIC:
-                          description = 'Clinic';
-                          break;
-                        case ARTRefillOption.COMMUNITY_ADHERENCE_CLUB:
-                          description = 'Community Adherence Club';
-                          break;
-                        case ARTRefillOption.PE_HOME_DELIVERY:
-                          description = 'Home Delivery (PE)';
-                          break;
-                        case ARTRefillOption.TREATMENT_BUDDY:
-                          description = 'Treatment Buddy';
-                          break;
-                        case ARTRefillOption.VHW:
-                          description = 'Treatment Buddy';
-                          break;
-                      }
-                      return DropdownMenuItem<ARTRefillOption>(
-                        value: value,
-                        child: Text(description),
-                      );
-                    }).toList(),
-                  )
-                ],
-              );
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child:
+                Text('How and where do you want to refill your ART mainly?')),
+        Expanded(
+            flex: _answersFlex,
+            child: DropdownButtonFormField<ARTRefillOption>(
+              value: _pa.artRefillOption1,
+              onChanged: (ARTRefillOption newValue) {
+                setState(() {
+                  _pa.artRefillOption1 = newValue;
+                });
+              },
+              items: <ARTRefillOption>[
+                ARTRefillOption.CLINIC,
+                ARTRefillOption.COMMUNITY_ADHERENCE_CLUB,
+                ARTRefillOption.PE_HOME_DELIVERY,
+                ARTRefillOption.TREATMENT_BUDDY,
+                ARTRefillOption.VHW
+              ].map<DropdownMenuItem<ARTRefillOption>>((ARTRefillOption value) {
+                String description;
+                switch (value) {
+                  case ARTRefillOption.CLINIC:
+                    description = 'Clinic';
+                    break;
+                  case ARTRefillOption.COMMUNITY_ADHERENCE_CLUB:
+                    description = 'Community Adherence Club';
+                    break;
+                  case ARTRefillOption.PE_HOME_DELIVERY:
+                    description = 'Home Delivery (PE)';
+                    break;
+                  case ARTRefillOption.TREATMENT_BUDDY:
+                    description = 'Treatment Buddy';
+                    break;
+                  case ARTRefillOption.VHW:
+                    description = 'Treatment Buddy';
+                    break;
+                }
+                return DropdownMenuItem<ARTRefillOption>(
+                  value: value,
+                  child: Text(description),
+                );
+              }).toList(),
+            ))
+      ],
+    );
   }
 
   _buildNotificationsCard() {
@@ -203,19 +208,21 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        Text('Do you have regular access to a phone where you can receive confidential information?'),
-        DropdownButton<bool>(
-          value: _pa.phoneAvailable,
-          onChanged: (bool newValue) {
-            setState(() {
-              _pa.phoneAvailable = newValue;
-            });
-          },
-          items: <bool>[
-            true,
-            false
-          ].map<DropdownMenuItem<bool>>(
-                  (bool value) {
+        Expanded(
+            flex: _questionsFlex,
+            child: Text(
+                'Do you have regular access to a phone where you can receive confidential information?')),
+        Expanded(
+            flex: _answersFlex,
+            child: DropdownButtonFormField<bool>(
+              value: _pa.phoneAvailable,
+              onChanged: (bool newValue) {
+                setState(() {
+                  _pa.phoneAvailable = newValue;
+                });
+              },
+              items:
+                  <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
                 String description;
                 switch (value) {
                   case true:
@@ -230,7 +237,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
                   child: Text(description),
                 );
               }).toList(),
-        )
+            ))
       ],
     );
   }
@@ -253,73 +260,71 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(
-            'What kind of support do you mainly wish? (tick all that apply)'),
-        Container(
-        width: 220,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: <Widget>[
-            CheckboxListTile(
-                // secondary: const Icon(Icons.local_hospital),
-                title: Text('Saturday Clinic Club'),
-                dense: true,
-                value: _pa.supportPreferences.saturdayClinicClubSelected,
-                onChanged: (bool newValue) => this.setState(() {
-                  _pa.supportPreferences.saturdayClinicClubSelected = newValue;
-                })
-              ),
-            CheckboxListTile(
-              // secondary: const Icon(Icons.local_hospital),
-                title: Text('Community Youth Club'),
-                dense: true,
-                value: _pa.supportPreferences.communityYouthClubSelected,
-                onChanged: (bool newValue) => this.setState(() {
-                  _pa.supportPreferences.communityYouthClubSelected = newValue;
-                })
-            ),
-            CheckboxListTile(
-              // secondary: const Icon(Icons.local_hospital),
-                title: Text('1x Phone Call from PE'),
-                dense: true,
-                value: _pa.supportPreferences.phoneCallPESelected,
-                onChanged: (bool newValue) => this.setState(() {
-                  _pa.supportPreferences.phoneCallPESelected = newValue;
-                })
-            ),
-            CheckboxListTile(
-              // secondary: const Icon(Icons.local_hospital),
-                title: Text('1x Home Visit from PE'),
-                dense: true,
-                value: _pa.supportPreferences.homeVisitPESelected,
-                onChanged: (bool newValue) => this.setState(() {
-                  _pa.supportPreferences.homeVisitPESelected = newValue;
-                })
-            ),
-            CheckboxListTile(
-              // secondary: const Icon(Icons.local_hospital),
-                title: Text('Nurse at the Clinic'),
-                dense: true,
-                value: _pa.supportPreferences.nurseAtClinicSelected,
-                onChanged: (bool newValue) => this.setState(() {
-                  _pa.supportPreferences.nurseAtClinicSelected = newValue;
-                })
-            ),
-            CheckboxListTile(
-              // secondary: const Icon(Icons.local_hospital),
-                title: Text('None'),
-                dense: true,
-                value: _pa.supportPreferences.areAllDeselected,
-                onChanged: (bool newValue) {
-                  if (newValue) {
-                    this.setState(() {
-                      _pa.supportPreferences.deselectAll();
-                    });
-                  }
-                }
-            ),
-          ],
-        ),
+        Expanded(
+            flex: _questionsFlex,
+            child: Text(
+                'What kind of support do you mainly wish? (tick all that apply)')),
+        Expanded(
+          flex: _answersFlex,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: <Widget>[
+              CheckboxListTile(
+                  // secondary: const Icon(Icons.local_hospital),
+                  title: Text('Saturday Clinic Club'),
+//                  dense: true,
+                  value: _pa.supportPreferences.saturdayClinicClubSelected,
+                  onChanged: (bool newValue) => this.setState(() {
+                        _pa.supportPreferences.saturdayClinicClubSelected =
+                            newValue;
+                      })),
+              CheckboxListTile(
+                  // secondary: const Icon(Icons.local_hospital),
+                  title: Text('Community Youth Club'),
+//                  dense: true,
+                  value: _pa.supportPreferences.communityYouthClubSelected,
+                  onChanged: (bool newValue) => this.setState(() {
+                        _pa.supportPreferences.communityYouthClubSelected =
+                            newValue;
+                      })),
+              CheckboxListTile(
+                  // secondary: const Icon(Icons.local_hospital),
+                  title: Text('1x Phone Call from PE'),
+//                  dense: true,
+                  value: _pa.supportPreferences.phoneCallPESelected,
+                  onChanged: (bool newValue) => this.setState(() {
+                        _pa.supportPreferences.phoneCallPESelected = newValue;
+                      })),
+              CheckboxListTile(
+                  // secondary: const Icon(Icons.local_hospital),
+                  title: Text('1x Home Visit from PE'),
+//                  dense: true,
+                  value: _pa.supportPreferences.homeVisitPESelected,
+                  onChanged: (bool newValue) => this.setState(() {
+                        _pa.supportPreferences.homeVisitPESelected = newValue;
+                      })),
+              CheckboxListTile(
+                  // secondary: const Icon(Icons.local_hospital),
+                  title: Text('Nurse at the Clinic'),
+//                  dense: true,
+                  value: _pa.supportPreferences.nurseAtClinicSelected,
+                  onChanged: (bool newValue) => this.setState(() {
+                        _pa.supportPreferences.nurseAtClinicSelected = newValue;
+                      })),
+              CheckboxListTile(
+                  // secondary: const Icon(Icons.local_hospital),
+                  title: Text('None'),
+//                  dense: true,
+                  value: _pa.supportPreferences.areAllDeselected,
+                  onChanged: (bool newValue) {
+                    if (newValue) {
+                      this.setState(() {
+                        _pa.supportPreferences.deselectAll();
+                      });
+                    }
+                  }),
+            ],
+          ),
         )
       ],
     );
@@ -336,7 +341,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   _onSubmitForm() async {
     if (_formKey.currentState.validate()) {
-      print('NEW PREFERENCE ASSESSMENT (_id will be given by SQLite database):\n$_pa');
+      print(
+          'NEW PREFERENCE ASSESSMENT (_id will be given by SQLite database):\n$_pa');
       await DatabaseProvider().insertPreferenceAssessment(_pa);
       Navigator.of(context).pop(); // close Preference Assessment screen
       showFlushBar(context, 'Preference Assessment saved');
