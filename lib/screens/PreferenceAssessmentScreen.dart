@@ -30,16 +30,19 @@ class PreferenceAssessmentForm extends StatefulWidget {
 }
 
 class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
+
+  // fields
   final _formKey = GlobalKey<FormState>();
-  final String _patientART;
-
-  _PreferenceAssessmentFormState(this._patientART);
-
-  // TODO: add all necessary controller that we need to get the text from the form fields
-  ARTRefillOption _artRefillOption1;
+  var _pa = PreferenceAssessment.uninitialized();
   bool _artRefillOption1PersonAvailable;
+  // TODO: add all necessary controller that we need to get the text from the form fields
   var _phoneAvailableCtr = TextEditingController();
   var _supportPreferencesCtr = TextEditingController();
+
+  // constructor
+  _PreferenceAssessmentFormState(String patientART) {
+    _pa.patientART = patientART;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,10 +100,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
                     Text(
                         'How and where do you want to refill your ART mainly?'),
                     DropdownButton<ARTRefillOption>(
-                      value: _artRefillOption1,
+                      value: _pa.artRefillOption1,
                       onChanged: (ARTRefillOption newValue) {
                         setState(() {
-                          _artRefillOption1 = newValue;
+                          _pa.artRefillOption1 = newValue;
                         });
                       },
                       items: <ARTRefillOption>[
@@ -204,16 +207,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   _onSubmitForm() async {
     if (_formKey.currentState.validate()) {
-//      final _newPrefAssessment = PreferenceAssessment(
-//          _patientART,
-//          _artRefillOption1Ctr.text,
-//          _phoneAvailableCtr.text,
-//          _supportPreferencesCtr.text
-//      );
-//      print('NEW PREFERENCE ASSESSMENT (_id will be given by SQLite database):\n$_newPrefAssessment');
-//      await DatabaseProvider().insertPreferenceAssessment(_newPrefAssessment);
-//      Navigator.of(context).pop(); // close Preference Assessment screen
-//      showFlushBar(context, 'Preference Assessment saved');
+      print('NEW PREFERENCE ASSESSMENT (_id will be given by SQLite database):\n$_pa');
+      await DatabaseProvider().insertPreferenceAssessment(_pa);
+      Navigator.of(context).pop(); // close Preference Assessment screen
+      showFlushBar(context, 'Preference Assessment saved');
     }
   }
 }
