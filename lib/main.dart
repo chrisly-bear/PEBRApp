@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/screens/MainScreen.dart';
+import 'package:pebrapp/state/AppStateContainer.dart';
 
 void main() => runApp(PEBRApp());
 
@@ -9,6 +10,9 @@ class PEBRApp extends StatelessWidget {
     return MaterialApp(
         title: 'PEBRApp',
         theme: ThemeData.light(),
-        home: MainScreen());
+        home: AppStateContainer(
+            child: MainScreen()
+        )
+    );
   }
 }

@@ -1,30 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
+import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/screens/PreferenceAssessmentScreen.dart';
 
 class PatientScreen extends StatelessWidget {
-  final _patientId;
+  final Patient _patient;
 
-  PatientScreen(this._patientId);
+  PatientScreen(this._patient);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Color.fromARGB(255, 224, 224, 224),
         appBar: AppBar(
-          title: Text('Patient ${this._patientId}'),
+          title: Text('Patient ${this._patient.artNumber}'),
         ),
-        body: Center(child: PatientScreenBody(context, _patientId)));
+        body: Center(child: PatientScreenBody(context, _patient)));
   }
 }
 
 class PatientScreenBody extends StatelessWidget {
   final _tableRowPaddingVertical = 5.0;
   final BuildContext _context;
-  final String _patientART;
+  final Patient _patient;
 
-  PatientScreenBody(BuildContext this._context, String this._patientART);
-
+  PatientScreenBody(this._context, this._patient);
+  
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -40,7 +41,7 @@ class PatientScreenBody extends StatelessWidget {
         Center(child: Text('Today')),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [SizedButton('Start Assessment', onPressed: () { _pushPreferenceAssessmentScreen(_context, _patientART); })]),
+            children: [SizedButton('Start Assessment', onPressed: () { _pushPreferenceAssessmentScreen(_context, _patient.artNumber); })]),
         Center(child: _buildTitle('Next ART Refill')),
         Center(child: Text('02.02.2019')),
         Row(

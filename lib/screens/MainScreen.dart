@@ -5,26 +5,19 @@ import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:pebrapp/screens/NewPatientScreen.dart';
 import 'package:pebrapp/screens/PatientScreen.dart';
 import 'package:pebrapp/components/PageHeader.dart';
-import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/state/AppState.dart';
+import 'package:pebrapp/state/AppStateContainer.dart';
 
-class MainScreen extends StatefulWidget {
-  @override
-  MainScreenState createState() => new MainScreenState();
-}
-
-class MainScreenState extends State<MainScreen> {
+class MainScreen extends StatelessWidget {
+  AppState _appState;
+  BuildContext _context;
   final _appBarHeight = 115.0;
-  var _patients = List<Patient>();
-
-  @override
-  void initState() {
-    _updateListView();
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
+    _appState = AppStateContainer.of(context).state;
+    _context = context;
     return Scaffold(
         backgroundColor: Color.fromARGB(255, 224, 224, 224),
         floatingActionButton: FloatingActionButton(
@@ -59,15 +52,19 @@ class MainScreenState extends State<MainScreen> {
       flexibleSpace: PageHeader(title: 'Patients', subtitle: 'Overview'),
       actions: <Widget>[
         IconButton(
+          icon: Icon(Icons.refresh),
+          onPressed: () { AppStateContainer.of(_context).updateState(); },
+        ),
+        IconButton(
           icon: Icon(Icons.settings),
           onPressed: _pushSettingsScreen,
-        )
+        ),
       ],
     );
   }
 
   void _pushSettingsScreen() {
-    Navigator.of(context).push(
+    Navigator.of(_context).push(
       new MaterialPageRoute<void>(
         builder: (BuildContext context) {
           return SettingsScreen();
@@ -76,38 +73,33 @@ class MainScreenState extends State<MainScreen> {
     );
   }
 
-  void _pushNewPatientScreen() async {
-    await Navigator.of(context).push(
+  void _pushNewPatientScreen() {
+    Navigator.of(_context).push(
       new MaterialPageRoute<void>(
         builder: (BuildContext context) {
           return NewPatientScreen();
         },
       ),
     );
-
-    // reload patients from database
-    _updateListView();
   }
 
-  void _updateListView() async {
-    final patientList = await DatabaseProvider().retrievePatients();
-    setState(() {
-      _patients = patientList;
-    });
-  }
-
-  void _pushPatientScreen(patientId) {
-    Navigator.of(context).push(
+  void _pushPatientScreen(Patient patient) {
+    Navigator.of(_context).push(
       new MaterialPageRoute<void>(
         builder: (BuildContext context) {
-          return PatientScreen(patientId);
+          return PatientScreen(patient);
         },
       ),
     );
   }
 
   _buildPatientTable(BuildContext context) {
-    if (_patients.isEmpty) {
+    print("BUILDING PATIENT TABLE IN MAIN SCREEN");
+    if (_appState?.isLoading == null || _appState?.isLoading == true) {
+      print(_appState == null ? "APP STATE is NULL" : "APP STATE is LOADING");
+      return Center(child: Text("LOADING..."));
+    }
+    if (_appState.patientsPreferenceAssessmentJoined.length == 0) {
       return Center(child: Text("No patients recorded yet. Add new patient by clicking the + icon."));
     }
     return ListView(
@@ -121,7 +113,7 @@ class MainScreenState extends State<MainScreen> {
     final _rowPaddingVertical = 20.0;
     final _rowPaddingHorizontal = 15.0;
 
-    print("_buildPatientCards called. Number of patients in DB: ${_patients.length}");
+    print("_buildPatientCards called. Number of patients in DB: ${_appState.patientsPreferenceAssessmentJoined.length}");
 
     _formatHeaderRowText(String text) {
       return Text(
@@ -166,9 +158,9 @@ class MainScreenState extends State<MainScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
               ))),
     ];
-    final numberOfPatients = _patients.length;
+    final numberOfPatients = _appState.patientsPreferenceAssessmentJoined.length;
     for (var i = 0; i < numberOfPatients; i++) {
-      final Patient curPatient = _patients[i];
+      final Patient curPatient = _appState.patients[i];
       final patientART = curPatient.artNumber;
       var viralLoadEACText = '—';
       if (curPatient.vlSuppressed != null && curPatient.vlSuppressed) {
@@ -190,7 +182,7 @@ class MainScreenState extends State<MainScreen> {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
             onTap: () {
-              _pushPatientScreen(patientART);
+              _pushPatientScreen(curPatient);
             },
             // Generally, material cards use onSurface with 12% opacity for the pressed state.
             splashColor:
