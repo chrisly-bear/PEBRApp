@@ -1,3 +1,4 @@
+import 'dart:convert';
 
 class PreferenceAssessment {
   static final tableName = 'PreferenceAssessment';
@@ -95,7 +96,7 @@ class PreferenceAssessment {
     this.vlNotificationMessageSuppressed = map[colVLNotificationMessageSuppressed];
     this.vlNotificationMessageUnsuppressed = map[colVLNotificationMessageUnsuppressed];
     this.pePhoneNumber = map[colPEPhoneNumber];
-    this.supportPreferences = _supportPreferencesFromString(map[colSupportPreferences]);
+    this.supportPreferences = SupportPreferencesSelection.deserializeFromJSON(map[colSupportPreferences]);
   }
 
   toMap() {
@@ -119,13 +120,8 @@ class PreferenceAssessment {
     map[colVLNotificationMessageSuppressed] = vlNotificationMessageSuppressed;
     map[colVLNotificationMessageUnsuppressed] = vlNotificationMessageUnsuppressed;
     map[colPEPhoneNumber] = pePhoneNumber;
-    map[colSupportPreferences] = supportPreferences.toString();
+    map[colSupportPreferences] = supportPreferences.serializeToJSON();
     return map;
-  }
-
-  SupportPreferencesSelection _supportPreferencesFromString(String string) {
-    // TODO: implement
-    return null;
   }
 
 }
@@ -152,6 +148,28 @@ class SupportPreferencesSelection {
         homeVisitPESelected ||
         nurseAtClinicSelected);
   }
+
+  String serializeToJSON() {
+    var map = Map<String, bool>();
+    map['saturdayClinicClubSelected'] = saturdayClinicClubSelected;
+    map['communityYouthClubSelected'] = communityYouthClubSelected;
+    map['phoneCallPESelected'] = phoneCallPESelected;
+    map['homeVisitPESelected'] = homeVisitPESelected;
+    map['nurseAtClinicSelected'] = nurseAtClinicSelected;
+    return jsonEncode(map);
+  }
+
+  static SupportPreferencesSelection deserializeFromJSON(String json) {
+    final map = jsonDecode(json) as Map<String, dynamic>;
+    var obj = SupportPreferencesSelection();
+    obj.saturdayClinicClubSelected = map['saturdayClinicClubSelected'];
+    obj.communityYouthClubSelected = map['communityYouthClubSelected'];
+    obj.phoneCallPESelected = map['phoneCallPESelected'];
+    obj.homeVisitPESelected = map['homeVisitPESelected'];
+    obj.nurseAtClinicSelected = map['nurseAtClinicSelected'];
+    return obj;
+  }
+
 }
 
 enum ARTRefillOption { CLINIC, PE_HOME_DELIVERY, VHW, TREATMENT_BUDDY, COMMUNITY_ADHERENCE_CLUB }
