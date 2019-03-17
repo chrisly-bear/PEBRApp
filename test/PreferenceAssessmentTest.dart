@@ -76,31 +76,5 @@ void main() {
       expect(deserializedValueMonthly, AdherenceReminderFrequency.MONTHLY);
     });
 
-    test('SupportPreference serialization', () {
-      int serializedValueSCC = SupportPreference.SATURDAY_CLINIC_CLUB.index;
-      expect(serializedValueSCC, 0);
-      int serializedValueCYC = SupportPreference.COMMUNITY_YOUTH_CLUB.index;
-      expect(serializedValueCYC, 1);
-      int serializedValuePhoneCallPE = SupportPreference.PHONE_CALL_PE.index;
-      expect(serializedValuePhoneCallPE, 2);
-      int serializedValueHomeVisitPE = SupportPreference.HOME_VISIT_PE.index;
-      expect(serializedValueHomeVisitPE, 3);
-      int serializedValueNurseAtClinic = SupportPreference.NURSE_AT_CLINIC.index;
-      expect(serializedValueNurseAtClinic, 4);
-    });
-
-    test('SupportPreference serialization', () {
-      SupportPreference deserializedValueSCC = SupportPreference.values[0];
-      expect(deserializedValueSCC, SupportPreference.SATURDAY_CLINIC_CLUB);
-      SupportPreference deserializedValueCYC = SupportPreference.values[1];
-      expect(deserializedValueCYC, SupportPreference.COMMUNITY_YOUTH_CLUB);
-      SupportPreference deserializedValuePhoneCallPE = SupportPreference.values[2];
-      expect(deserializedValuePhoneCallPE, SupportPreference.PHONE_CALL_PE);
-      SupportPreference deserializedValueHomeVisitPE = SupportPreference.values[3];
-      expect(deserializedValueHomeVisitPE, SupportPreference.HOME_VISIT_PE);
-      SupportPreference deserializedValueNurseAtClinic = SupportPreference.values[4];
-      expect(deserializedValueNurseAtClinic, SupportPreference.NURSE_AT_CLINIC);
-    });
-
   });
 }

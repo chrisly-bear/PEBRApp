@@ -74,10 +74,10 @@ class PreferenceAssessment {
     this._id = map[colId];
     this.patientART = map[colPatientART];
     this.createdDate = DateTime.fromMillisecondsSinceEpoch(map[colCreatedDate]);
-    this.artRefillOption1 = map[colARTRefillOption1];
-    this.artRefillOption2 = map[colARTRefillOption2];
-    this.artRefillOption3 = map[colARTRefillOption3];
-    this.artRefillOption4 = map[colARTRefillOption4];
+    this.artRefillOption1 = map[colARTRefillOption1] == null ? null : ARTRefillOption.values[map[colARTRefillOption1]];
+    this.artRefillOption2 = map[colARTRefillOption2] == null ? null : ARTRefillOption.values[map[colARTRefillOption2]];
+    this.artRefillOption3 = map[colARTRefillOption3] == null ? null : ARTRefillOption.values[map[colARTRefillOption3]];
+    this.artRefillOption4 = map[colARTRefillOption4] == null ? null : ARTRefillOption.values[map[colARTRefillOption4]];
     this.artRefillPersonName = map[colARTRefillPersonName];
     this.artRefillPersonPhoneNumber = map[colARTRefillPersonPhoneNumber];
     if (map[colPhoneAvailable] != null) {
@@ -87,7 +87,7 @@ class PreferenceAssessment {
     if (map[colAdherenceReminderEnabled] != null) {
       this.adherenceReminderEnabled = map[colAdherenceReminderEnabled] == 1;
     }
-    this.adherenceReminderFrequency = map[colAdherenceReminderFrequency];
+    this.adherenceReminderFrequency = map[colAdherenceReminderFrequency] == null ? null : AdherenceReminderFrequency.values[map[colAdherenceReminderFrequency]];
     this.adherenceReminderTime = map[colAdherenceReminderTime];
     this.adherenceReminderMessage = map[colAdherenceReminderMessage];
     if (map[colVLNotificationEnabled] != null) {
@@ -104,10 +104,10 @@ class PreferenceAssessment {
     map[colId] = _id;
     map[colPatientART] = patientART;
     map[colCreatedDate] = createdDate.millisecondsSinceEpoch;
-    map[colARTRefillOption1] = artRefillOption1;
-    map[colARTRefillOption2] = artRefillOption2;
-    map[colARTRefillOption3] = artRefillOption3;
-    map[colARTRefillOption4] = artRefillOption4;
+    map[colARTRefillOption1] = artRefillOption1.index;
+    map[colARTRefillOption2] = artRefillOption2?.index;
+    map[colARTRefillOption3] = artRefillOption3?.index;
+    map[colARTRefillOption4] = artRefillOption4?.index;
     map[colARTRefillPersonName] = artRefillPersonName;
     map[colARTRefillPersonPhoneNumber] = artRefillPersonPhoneNumber;
     map[colPhoneAvailable] = phoneAvailable;
@@ -172,8 +172,10 @@ class SupportPreferencesSelection {
 
 }
 
+// Do not change the order of the enums as their index is used to store the instance in the database!
 enum ARTRefillOption { CLINIC, PE_HOME_DELIVERY, VHW, TREATMENT_BUDDY, COMMUNITY_ADHERENCE_CLUB }
 
+// Do not change the order of the enums as their index is used to store the instance in the database!
 enum AdherenceReminderFrequency { DAILY, WEEKLY, MONTHLY }
 
 enum SupportPreference { SATURDAY_CLINIC_CLUB, COMMUNITY_YOUTH_CLUB, PHONE_CALL_PE, HOME_VISIT_PE, NURSE_AT_CLINIC }
