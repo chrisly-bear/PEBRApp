@@ -7,6 +7,9 @@ import 'package:path/path.dart';
 /// Access to the SQFLite database.
 /// Get an instance either via `DatabaseProvider.instance` or via the singleton constructor `DatabaseProvider()`.
 class DatabaseProvider {
+  // Increase the _DB_VERSION number if you made changes to the database schema.
+  // An increase will call the [_onUpgrade] method.
+  static const int _DB_VERSION = 1;
   static Database _database;
 
   // private constructor for Singleton pattern
@@ -27,12 +30,13 @@ class DatabaseProvider {
   _initDB() async {
     String path = join(await getDatabasesPath(), "PEBRApp.db");
     print('DATABASE PATH: $path');
-    return await openDatabase(path, version: 1, onCreate: _onCreate);
+    return await openDatabase(path, version: _DB_VERSION, onCreate: _onCreate, onUpgrade: _onUpgrade);
   }
 
-  _onCreate(Database db, int version) async {
+  FutureOr<void> _onCreate(Database db, int version) async {
+    print('Creating database with version $version');
     await db.execute("""
-        CREATE TABLE ${Patient.tableName} (
+        CREATE TABLE IF NOT EXISTS ${Patient.tableName} (
           ${Patient.colId} INTEGER PRIMARY KEY,
           ${Patient.colARTNumber} TEXT NOT NULL,
           ${Patient.colCreatedDate} INTEGER NOT NULL,
@@ -43,7 +47,9 @@ class DatabaseProvider {
           ${Patient.colPhoneNumber} TEXT,
           ${Patient.colLatestPreferenceAssessment} INTEGER
         );
-        CREATE TABLE ${PreferenceAssessment.tableName} (
+        """);
+    await db.execute("""
+        CREATE TABLE IF NOT EXISTS ${PreferenceAssessment.tableName} (
           ${PreferenceAssessment.colId} INTEGER PRIMARY KEY,
           ${PreferenceAssessment.colPatientART} TEXT NOT NULL, 
           ${PreferenceAssessment.colCreatedDate} INTEGER NOT NULL,
@@ -68,6 +74,12 @@ class DatabaseProvider {
         """);
         // TODO: set colLatestPreferenceAssessment as foreign key to `PreferenceAssessment` table
         //       set colPatientART as foreign key to `Patient` table
+  }
+
+  FutureOr<void> _onUpgrade(Database db, int oldVersion, int newVersion) {
+    print('Upgrading database from version $oldVersion to version $newVersion');
+    // make sure any new tables, which don't exist yet, are created
+    return _onCreate(db, newVersion);
   }
 
   Future<void> insertPatient(Patient newPatient) async {
