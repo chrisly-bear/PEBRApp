@@ -57,7 +57,7 @@ class _AppStateContainerState extends State<AppStateContainer> {
   }
 
   Future<void> _fetchDataFromDatabaseAndUpdateState(AppState state) async {
-    final List<Patient> _patientList = await DatabaseProvider().retrievePatients();
+    final List<Patient> _patientList = await DatabaseProvider().retrieveLatestPatients();
     final Map<Patient, PreferenceAssessment> _map = Map<Patient, PreferenceAssessment>();
     for (Patient p in _patientList) {
       final pa = await DatabaseProvider().retrieveLatestPreferenceAssessmentForPatient(p.artNumber);

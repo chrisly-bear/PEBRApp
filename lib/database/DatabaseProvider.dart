@@ -94,7 +94,25 @@ class DatabaseProvider {
     return res.isNotEmpty ? res.map((entry) => entry[Patient.colARTNumber] as String).toList() : List<String>();
   }
 
-  Future<List<Patient>> retrievePatients() async {
+  /// Retrieves only the latest patients from the database, i.e. the ones with the latest changes.
+  ///
+  /// SQL Query:
+  /// SELECT Patient.* FROM Patient INNER JOIN (
+  ///	  SELECT id, MAX(created_date) FROM Patient GROUP BY art_number
+  ///	) latest ON Patient.id == latest.id
+  Future<List<Patient>> retrieveLatestPatients() async {
+    final Database db = await _databaseInstance;
+    final res = await db.rawQuery("""
+    SELECT ${Patient.tableName}.* FROM ${Patient.tableName} INNER JOIN (
+	    SELECT ${Patient.colId}, MAX(${Patient.colCreatedDate}) FROM ${Patient.tableName} GROUP BY ${Patient.colARTNumber}
+	  ) latest ON ${Patient.tableName}.${Patient.colId} == latest.${Patient.colId}
+    """);
+    final list = res.isNotEmpty ? res.map((patient) => Patient.fromMap(patient)).toList() : List<Patient>();
+    return list;
+  }
+
+  /// Retrieves all patients from the database, including duplicates created when editing a patient.
+  Future<List<Patient>> retrieveAllPatients() async {
     final Database db = await _databaseInstance;
     // query the table for all patients
     final res = await db.query(Patient.tableName);

@@ -250,7 +250,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   }
 
   _getAllPatients() async {
-    final List<Patient> patients = await DatabaseProvider().retrievePatients();
+    final List<Patient> patients = await DatabaseProvider().retrieveLatestPatients();
     if (patients.length == 0) { print('No patients in Patient table'); }
     for (final patient in patients) {
       print(patient);
