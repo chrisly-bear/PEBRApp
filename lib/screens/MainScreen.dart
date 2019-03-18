@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/ViralLoadIndicator.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
@@ -8,18 +10,29 @@ import 'package:pebrapp/screens/NewOrEditPatientScreen.dart';
 import 'package:pebrapp/screens/PatientScreen.dart';
 import 'package:pebrapp/components/PageHeader.dart';
 import 'package:pebrapp/database/models/Patient.dart';
-import 'package:pebrapp/state/AppState.dart';
-import 'package:pebrapp/state/AppStateContainer.dart';
+import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
-class MainScreen extends StatelessWidget {
-  AppState _appState;
+class MainScreen extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  // TODO: remove _context field and pass context via args if necessary
   BuildContext _context;
   final _appBarHeight = 115.0;
+  List<Patient> _patients = [];
+  final Stream<AppState> _appStateStream = PatientBloc.instance.appState;
+
+  @override
+  void initState() {
+    PatientBloc.instance.loadPatientData();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    _appState = AppStateContainer.of(context).state;
     _context = context;
     return Scaffold(
         backgroundColor: Color.fromARGB(255, 224, 224, 224),
@@ -29,7 +42,33 @@ class MainScreen extends StatelessWidget {
         ),
         body: Stack(
           children: <Widget>[
-            _buildPatientTable(context),
+            StreamBuilder<AppState>(
+              stream: _appStateStream,
+              initialData: AppStateLoading(),
+              builder: (context, snapshot) {
+                print('snapshot received from stream: ${snapshot.data.runtimeType}');
+                if (snapshot.hasError) {
+                  print('SNAPSHOT HAS ERROR ⚡🛑');
+                }
+                if (snapshot.hasData) {
+                  print('Snapshot has data ✅');
+                }
+                if (snapshot.data is AppStateLoading) {
+                  return _bodyLoading();
+                }
+                if (snapshot.data is AppStatePatientData) {
+                  AppStatePatientData patientData = snapshot.data;
+                  _patients.add(patientData.patient); // TODO: replace entries with same ART number (otherwise we'll have duplicates in our list)
+                  print('new patient data received from stream: ${patientData.patient.artNumber}');
+                  print('patients state: ${_patients.map((p) => p.artNumber).toList().toString()}');
+                  return _bodyPatientTable(patientData.patient);
+                }
+                if (snapshot.data is AppStatePreferenceAssessmentData) {
+//                   TODO: update PreferenceAssessment data in UI
+                }
+              return Container();
+              },
+            ),
             Container(
               height: _appBarHeight,
               child: ClipRect(
@@ -56,7 +95,7 @@ class MainScreen extends StatelessWidget {
       actions: <Widget>[
         IconButton(
           icon: Icon(Icons.refresh),
-          onPressed: () { AppStateContainer.of(_context).updateState(); },
+          onPressed: PatientBloc.instance.loadPatientData
         ),
         IconButton(
           icon: Icon(Icons.settings),
@@ -96,27 +135,25 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  _buildPatientTable(BuildContext context) {
-    print("BUILDING PATIENT TABLE IN MAIN SCREEN");
-    if (_appState?.isLoading == null || _appState?.isLoading == true) {
-      print(_appState == null ? "APP STATE is NULL" : "APP STATE is LOADING");
-      return Center(child: Text("LOADING..."));
-    }
-    if (_appState.patientsPreferenceAssessmentJoined.length == 0) {
-      return Center(child: Text("No patients recorded yet. Add new patient by clicking the + icon."));
-    }
+  _bodyLoading() {
+    return Center(child: Text("LOADING..."));
+  }
+
+  _bodyNoData() {
+    return Center(child: Text("No patients recorded yet. Add new patient by clicking the + icon."));
+  }
+
+  _bodyPatientTable(Patient patient) {
     return ListView(
-      children: _buildPatientCards(context),
+      children: _buildPatientCards(),
     );
   }
 
-  _buildPatientCards(BuildContext context) {
+  _buildPatientCards() {
     final _cardPaddingVertical = 10.0;
     final _cardPaddingHorizontal = 10.0;
     final _rowPaddingVertical = 20.0;
     final _rowPaddingHorizontal = 15.0;
-
-    print("_buildPatientCards called. Number of patients in DB: ${_appState.patientsPreferenceAssessmentJoined.length}");
 
     _formatHeaderRowText(String text) {
       return Text(
@@ -217,9 +254,9 @@ class MainScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
               ))),
     ];
-    final numberOfPatients = _appState.patientsPreferenceAssessmentJoined.length;
+    final numberOfPatients = _patients.length;
     for (var i = 0; i < numberOfPatients; i++) {
-      final Patient curPatient = _appState.patients[i];
+      final Patient curPatient = _patients[i];
       final patientART = curPatient.artNumber;
 
       ViralLoadIndicator viralLoadIndicator = ViralLoadIndicator(ViralLoad.NA, smallSize: true);
@@ -256,7 +293,8 @@ class MainScreen extends StatelessWidget {
             },
             // Generally, material cards use onSurface with 12% opacity for the pressed state.
             splashColor:
-                Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
+                Colors.yellow,
+//                Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
             // Generally, material cards do not have a highlight overlay.
             highlightColor: Colors.transparent,
             child: Padding(
