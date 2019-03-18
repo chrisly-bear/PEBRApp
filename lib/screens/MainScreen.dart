@@ -168,11 +168,17 @@ class MainScreen extends StatelessWidget {
         icons.add(spacer);
       }
       if (sps.schoolTalkPESelected) {
+//        icons.add(Icon(Icons.school));
         icons.add(_getSupportIcon('assets/icons/schooltalk_pe.png'));
         icons.add(spacer);
       }
       if (sps.communityYouthClubSelected) {
         icons.add(_getSupportIcon('assets/icons/youth_club.png'));
+        icons.add(spacer);
+      }
+      if (sps.phoneCallPESelected) {
+//        icons.add(Icon(Icons.phone));
+        icons.add(_getSupportIcon('assets/icons/phonecall_pe.png'));
         icons.add(spacer);
       }
       if (sps.areAllDeselected) {
