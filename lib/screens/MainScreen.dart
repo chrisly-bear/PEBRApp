@@ -148,6 +148,40 @@ class MainScreen extends StatelessWidget {
               )));
     }
 
+    Widget _buildSupportIcons(SupportPreferencesSelection sps) {
+      List<Widget> icons = List<Widget>();
+      final Container spacer = Container(width: 5);
+      if (sps == null) {
+        return _formatPatientRowText('—');
+      }
+      if (sps.homeVisitPESelected) {
+//        icons.add(Icon(Icons.home));
+        icons.add(_getSupportIcon('assets/icons/homevisit_pe.png'));
+        icons.add(spacer);
+      }
+      if (sps.nurseAtClinicSelected) {
+        icons.add(_getSupportIcon('assets/icons/nurse_clinic.png'));
+        icons.add(spacer);
+      }
+      if (sps.saturdayClinicClubSelected) {
+        icons.add(_getSupportIcon('assets/icons/saturday_clinic_club.png'));
+        icons.add(spacer);
+      }
+      if (sps.schoolTalkPESelected) {
+        icons.add(_getSupportIcon('assets/icons/schooltalk_pe.png'));
+        icons.add(spacer);
+      }
+      if (sps.communityYouthClubSelected) {
+        icons.add(_getSupportIcon('assets/icons/youth_club.png'));
+        icons.add(spacer);
+      }
+      if (sps.areAllDeselected) {
+        icons.add(_getSupportIcon('assets/icons/no_support.png'));
+        icons.add(spacer);
+      }
+      return Row(children: icons);
+    }
+
     var _patientCards = <Widget>[
       // container acting as margin for the app bar
       Container(
@@ -241,30 +275,7 @@ class MainScreen extends StatelessWidget {
                     Expanded(child: _formatPatientRowText(refillByText)),
                     Expanded(
                       flex: 2,
-                        child: Row(
-                            children: [
-//                              Icon(Icons.home),
-
-                              // *** custom icons
-                              _getSupportIcon('assets/icons/homevisit_pe.png'),
-                              Container(width: 5),
-                              _getSupportIcon('assets/icons/nurse_clinic.png'),
-                              Container(width: 5),
-                              _getSupportIcon('assets/icons/phonecall_pe.png'),
-                              Container(width: 5),
-                              _getSupportIcon('assets/icons/saturday_clinic_club.png'),
-                              Container(width: 5),
-                              _getSupportIcon('assets/icons/schooltalk_pe.png'),
-                              Container(width: 5),
-                              _getSupportIcon('assets/icons/youth_club.png'),
-                              Container(width: 5),
-                              _getSupportIcon('assets/icons/no_support.png'),
-//                      ImageIcon(
-//                        AssetImage('assets/icons/viralload_suppressed.png'),
-//                        color: Colors.green,
-//                      ),
-                        ]
-                        )
+                        child: _buildSupportIcons(curPatient?.latestPreferenceAssessment?.supportPreferences),
                     ),
                     Expanded(
                         child: Row(children: [
