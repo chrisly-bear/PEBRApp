@@ -11,14 +11,15 @@ void main() {
       sps.homeVisitPESelected = true;
       sps.phoneCallPESelected = false;
       sps.communityYouthClubSelected = true;
+      sps.schoolTalkPESelected = false;
 
       final json = sps.serializeToJSON();
-      final expectedJson = '{"saturdayClinicClubSelected":false,"communityYouthClubSelected":true,"phoneCallPESelected":false,"homeVisitPESelected":true,"nurseAtClinicSelected":true}';
+      final expectedJson = '{"saturdayClinicClubSelected":false,"communityYouthClubSelected":true,"phoneCallPESelected":false,"homeVisitPESelected":true,"nurseAtClinicSelected":true,"schoolTalkPESelected":false}';
       expect(json, expectedJson);
     });
 
     test('deserialization', () {
-      final json = '{"saturdayClinicClubSelected":false,"communityYouthClubSelected":true,"phoneCallPESelected":false,"homeVisitPESelected":true,"nurseAtClinicSelected":true}';
+      final json = '{"saturdayClinicClubSelected":false,"communityYouthClubSelected":true,"phoneCallPESelected":false,"homeVisitPESelected":true,"nurseAtClinicSelected":true,"schoolTalkPESelected":false}';
       final sps = SupportPreferencesSelection.deserializeFromJSON(json);
 
       expect(sps.nurseAtClinicSelected, true);
@@ -26,6 +27,7 @@ void main() {
       expect(sps.homeVisitPESelected, true);
       expect(sps.phoneCallPESelected, false);
       expect(sps.communityYouthClubSelected, true);
+      expect(sps.schoolTalkPESelected, false);
     });
 
   });

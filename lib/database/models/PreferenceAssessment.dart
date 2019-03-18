@@ -134,6 +134,7 @@ class SupportPreferencesSelection {
   bool phoneCallPESelected = false;
   bool homeVisitPESelected = false;
   bool nurseAtClinicSelected = false;
+  bool schoolTalkPESelected = false;
 
   void deselectAll() {
     saturdayClinicClubSelected = false;
@@ -141,6 +142,7 @@ class SupportPreferencesSelection {
     phoneCallPESelected = false;
     homeVisitPESelected = false;
     nurseAtClinicSelected = false;
+    schoolTalkPESelected = false;
   }
 
   bool get areAllDeselected {
@@ -148,7 +150,8 @@ class SupportPreferencesSelection {
         communityYouthClubSelected ||
         phoneCallPESelected ||
         homeVisitPESelected ||
-        nurseAtClinicSelected);
+        nurseAtClinicSelected ||
+        schoolTalkPESelected);
   }
 
   String serializeToJSON() {
@@ -158,6 +161,7 @@ class SupportPreferencesSelection {
     map['phoneCallPESelected'] = phoneCallPESelected;
     map['homeVisitPESelected'] = homeVisitPESelected;
     map['nurseAtClinicSelected'] = nurseAtClinicSelected;
+    map['schoolTalkPESelected'] = schoolTalkPESelected;
     return jsonEncode(map);
   }
 
@@ -169,6 +173,7 @@ class SupportPreferencesSelection {
     obj.phoneCallPESelected = map['phoneCallPESelected'];
     obj.homeVisitPESelected = map['homeVisitPESelected'];
     obj.nurseAtClinicSelected = map['nurseAtClinicSelected'];
+    obj.schoolTalkPESelected = map['schoolTalkPESelected'];
     return obj;
   }
 
@@ -179,5 +184,3 @@ enum ARTRefillOption { CLINIC, PE_HOME_DELIVERY, VHW, TREATMENT_BUDDY, COMMUNITY
 
 // Do not change the order of the enums as their index is used to store the instance in the database!
 enum AdherenceReminderFrequency { DAILY, WEEKLY, MONTHLY }
-
-enum SupportPreference { SATURDAY_CLINIC_CLUB, COMMUNITY_YOUTH_CLUB, PHONE_CALL_PE, HOME_VISIT_PE, NURSE_AT_CLINIC }

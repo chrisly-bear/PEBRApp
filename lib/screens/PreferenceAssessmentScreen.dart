@@ -360,6 +360,22 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           Expanded(
             flex: _answersFlex,
             child: CheckboxListTile(
+              // secondary: const Icon(Icons.local_hospital),
+                title: Text('School Talk PE'),
+//                  dense: true,
+                value: _pa.supportPreferences.schoolTalkPESelected,
+                onChanged: (bool newValue) => this.setState(() {
+                  _pa.supportPreferences.schoolTalkPESelected = newValue;
+                })),
+          )
+        ],
+      ),
+      Row(
+        children: <Widget>[
+          Expanded(flex: _questionsFlex, child: Container()),
+          Expanded(
+            flex: _answersFlex,
+            child: CheckboxListTile(
                 // secondary: const Icon(Icons.local_hospital),
                 title: Text('None'),
 //                  dense: true,
