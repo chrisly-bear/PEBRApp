@@ -136,6 +136,18 @@ class MainScreen extends StatelessWidget {
       );
     }
 
+    _getSupportIcon(String assetLocation) {
+      return ClipRect(
+          clipBehavior: Clip.antiAlias,
+          child: SizedOverflowBox(
+              size: Size(24.0, 24.0),
+              child: Image(
+                height: 30.0,
+                image: AssetImage(
+                    assetLocation),
+              )));
+    }
+
     var _patientCards = <Widget>[
       // container acting as margin for the app bar
       Container(
@@ -234,75 +246,19 @@ class MainScreen extends StatelessWidget {
 //                              Icon(Icons.home),
 
                               // *** custom icons
-                              ClipRect(
-                                  clipBehavior: Clip.antiAlias,
-                                  child: SizedOverflowBox(
-                                      size: Size(24.0, 24.0),
-                                      child: Image(
-                                        height: 30.0,
-                                        image: AssetImage(
-                                            'assets/icons/homevisit_pe.png'),
-                                      ))),
+                              _getSupportIcon('assets/icons/homevisit_pe.png'),
                               Container(width: 5),
-                              ClipRect(
-                                  clipBehavior: Clip.antiAlias,
-                                  child: SizedOverflowBox(
-                                      size: Size(24.0, 24.0),
-                                      child: Image(
-                                        height: 30.0,
-                                        image: AssetImage(
-                                            'assets/icons/nurse_clinic.png'),
-                                      ))),
+                              _getSupportIcon('assets/icons/nurse_clinic.png'),
                               Container(width: 5),
-                              ClipRect(
-                                  clipBehavior: Clip.antiAlias,
-                                  child: SizedOverflowBox(
-                                      size: Size(24.0, 24.0),
-                                      child: Image(
-                                        height: 30.0,
-                                        image: AssetImage(
-                                            'assets/icons/phonecall_pe.png'),
-                                      ))),
+                              _getSupportIcon('assets/icons/phonecall_pe.png'),
                               Container(width: 5),
-                              ClipRect(
-                                  clipBehavior: Clip.antiAlias,
-                                  child: SizedOverflowBox(
-                                      size: Size(24.0, 24.0),
-                                      child: Image(
-                                        height: 30.0,
-                                        image: AssetImage(
-                                            'assets/icons/saturday_clinic_club.png'),
-                                      ))),
+                              _getSupportIcon('assets/icons/saturday_clinic_club.png'),
                               Container(width: 5),
-                              ClipRect(
-                                  clipBehavior: Clip.antiAlias,
-                                  child: SizedOverflowBox(
-                                      size: Size(24.0, 24.0),
-                                      child: Image(
-                                        height: 30.0,
-                                        image: AssetImage(
-                                            'assets/icons/schooltalk_pe.png'),
-                                      ))),
+                              _getSupportIcon('assets/icons/schooltalk_pe.png'),
                               Container(width: 5),
-                              ClipRect(
-                                  clipBehavior: Clip.antiAlias,
-                                  child: SizedOverflowBox(
-                                      size: Size(24.0, 24.0),
-                                      child: Image(
-                                        height: 30.0,
-                                        image: AssetImage(
-                                            'assets/icons/youth_club.png'),
-                                      ))),
+                              _getSupportIcon('assets/icons/youth_club.png'),
                               Container(width: 5),
-                              ClipRect(
-                                  clipBehavior: Clip.antiAlias,
-                                  child: SizedOverflowBox(
-                                      size: Size(24.0, 24.0),
-                                      child: Image(
-                                        height: 30.0,
-                                        image: AssetImage(
-                                            'assets/icons/no_support.png'),
-                                      ))),
+                              _getSupportIcon('assets/icons/no_support.png'),
 //                      ImageIcon(
 //                        AssetImage('assets/icons/viralload_suppressed.png'),
 //                        color: Colors.green,
@@ -317,25 +273,9 @@ class MainScreen extends StatelessWidget {
                           viralLoadIndicator,
 
                       // *** custom icons
-//                      ClipRect(
-//                          clipBehavior: Clip.antiAlias,
-//                          child: SizedOverflowBox(
-//                              size: Size(24.0, 24.0),
-//                              child: Image(
-//                                height: 30.0,
-//                                image: AssetImage(
-//                                    'assets/icons/viralload_suppressed.png'),
-//                              ))),
+//                      _getSupportIcon('assets/icons/viralload_suppressed.png'),
 //                      Container(width: 5),
-                      ClipRect(
-                          clipBehavior: Clip.antiAlias,
-                          child: SizedOverflowBox(
-                              size: Size(24.0, 24.0),
-                              child: Image(
-                                height: 30.0,
-                                image: AssetImage(
-                                    'assets/icons/nurse_clinic.png'),
-                              ))),
+                      _getSupportIcon('assets/icons/nurse_clinic.png'),
                     ])),
                     Expanded(child: _formatPatientRowText('Today')),
                   ],
