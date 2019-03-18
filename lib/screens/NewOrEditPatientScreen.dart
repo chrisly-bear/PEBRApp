@@ -2,49 +2,73 @@ import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/state/AppStateContainer.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class NewPatientScreen extends StatelessWidget {
+class NewOrEditPatientScreen extends StatelessWidget {
+
+  final Patient existingPatient;
+
+  NewOrEditPatientScreen({this.existingPatient});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Color.fromARGB(255, 224, 224, 224),
         appBar: AppBar(
-          title: const Text('New Patient'),
+          title: existingPatient == null ? const Text('New Patient') : Text('Edit Patient: ${existingPatient.artNumber}'),
         ),
         body: Center(
-          child: NewPatientScreenBody(),
+          child: _NewOrEditPatientScreenBody(existingPatient),
         ));
   }
 }
 
-class NewPatientScreenBody extends StatelessWidget {
+class _NewOrEditPatientScreenBody extends StatelessWidget {
+
+  final Patient _existingPatient;
+
+  _NewOrEditPatientScreenBody(this._existingPatient);
+
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      Expanded(child: SingleChildScrollView(child: NewPatientForm())),
+      Expanded(child: SingleChildScrollView(child: _NewOrEditPatientForm(_existingPatient))),
     ]);
   }
 }
 
 // https://flutter.dev/docs/cookbook/forms/validation
-class NewPatientForm extends StatefulWidget {
+class _NewOrEditPatientForm extends StatefulWidget {
+
+  final Patient _existingPatient;
+
+  _NewOrEditPatientForm(this._existingPatient);
+
   @override
-  _NewPatientFormState createState() {
-    return _NewPatientFormState();
+  _NewOrEditPatientFormState createState() {
+    return _NewOrEditPatientFormState(_existingPatient);
   }
 }
 
-class _NewPatientFormState extends State<NewPatientForm> {
+class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   // Create a global key that will uniquely identify the Form widget and allow
   // us to validate the form
   final _formKey = GlobalKey<FormState>();
 
+  final Patient _existingPatient;
   var _artNumberCtr = TextEditingController();
   var _villageCtr = TextEditingController();
   var _districtCtr = TextEditingController();
   var _phoneNumberCtr = TextEditingController();
+
+  _NewOrEditPatientFormState(this._existingPatient) {
+    _artNumberCtr.text = _existingPatient == null ? null : _existingPatient?.artNumber;
+    _villageCtr.text = _existingPatient == null ? null : _existingPatient?.village;
+    _districtCtr.text = _existingPatient == null ? null : _existingPatient?.district;
+    _phoneNumberCtr.text = _existingPatient == null ? null : _existingPatient?.phoneNumber;
+  }
 
   List<String> _artNumbersInDB;
   bool get _isLoading { return _artNumbersInDB == null; }
@@ -61,7 +85,7 @@ class _NewPatientFormState extends State<NewPatientForm> {
   }
 
   @override
-  void didUpdateWidget(NewPatientForm oldWidget) {
+  void didUpdateWidget(_NewOrEditPatientForm oldWidget) {
     print('~~~ didUpdateWidget');
     super.didUpdateWidget(oldWidget);
   }
@@ -106,8 +130,12 @@ class _NewPatientFormState extends State<NewPatientForm> {
               children: <Widget>[
                 Text('ART Number'),
                 TextFormField(
+                  enabled: _existingPatient == null,
                   controller: _artNumberCtr,
                   validator: (value) {
+                    if (_existingPatient != null) {
+                      return null;
+                    }
                     if (value.isEmpty) {
                       print('ART validation failed');
                       return 'Please enter an ART number';
@@ -206,8 +234,9 @@ class _NewPatientFormState extends State<NewPatientForm> {
       final newPatient = Patient(_artNumberCtr.text, _districtCtr.text, _phoneNumberCtr.text, _villageCtr.text);
       print('NEW PATIENT (_id will be given by SQLite database):\n$newPatient');
       await DatabaseProvider().insertPatient(newPatient);
-      Navigator.of(context).pop(); // close New Patient screen
-      showFlushBar(context, 'New patient created successfully');
+      Navigator.of(context).pop(newPatient); // close New Patient screen
+      final String finishNotification = _existingPatient == null ? 'New patient created successfully' : 'Changes saved';
+      showFlushBar(context, finishNotification);
     }
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/screens/NewOrEditPatientScreen.dart';
 import 'package:pebrapp/screens/PreferenceAssessmentScreen.dart';
 
 class PatientScreen extends StatelessWidget {
@@ -15,16 +16,26 @@ class PatientScreen extends StatelessWidget {
         appBar: AppBar(
           title: Text('Patient ${this._patient.artNumber}'),
         ),
-        body: Center(child: PatientScreenBody(context, _patient)));
+        body: Center(child: _PatientScreenBody(context, _patient)));
   }
 }
 
-class PatientScreenBody extends StatelessWidget {
-  final _tableRowPaddingVertical = 5.0;
+class _PatientScreenBody extends StatefulWidget {
   final BuildContext _context;
   final Patient _patient;
 
-  PatientScreenBody(this._context, this._patient);
+  _PatientScreenBody(this._context, this._patient);
+
+  @override
+  createState() => _PatientScreenBodyState(_context, _patient);
+}
+
+class _PatientScreenBodyState extends State<_PatientScreenBody> {
+  final _tableRowPaddingVertical = 5.0;
+  final BuildContext _context;
+  Patient _patient;
+
+  _PatientScreenBodyState(this._context, this._patient);
   
   @override
   Widget build(BuildContext context) {
@@ -34,7 +45,7 @@ class PatientScreenBody extends StatelessWidget {
         _buildPatientCharacteristicsCard(),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [SizedButton('Edit Characteristics')]),
+            children: [SizedButton('Edit Characteristics', onPressed: () { _pushEditPatientScreen(_patient); })]),
         _buildTitle('Preferences'),
         _buildPreferencesCard(),
         Center(child: _buildTitle('Next Preference Assessment')),
@@ -50,6 +61,19 @@ class PatientScreenBody extends StatelessWidget {
         Container(height: 50), // padding at bottom
       ],
     );
+  }
+
+  void _pushEditPatientScreen(Patient patient) async {
+    Patient newPatient = await Navigator.of(_context).push(
+      new MaterialPageRoute<Patient>(
+        builder: (BuildContext context) {
+          return NewOrEditPatientScreen(existingPatient: patient);
+        },
+      ),
+    );
+    setState(() {
+      this._patient = newPatient;
+    });
   }
 
   _buildTitle(String title) {
@@ -84,7 +108,7 @@ class PatientScreenBody extends StatelessWidget {
                   child: Padding(
                       padding: EdgeInsets.symmetric(
                           vertical: _tableRowPaddingVertical),
-                      child: Text('Abele')),
+                      child: Text(_patient.village)),
                 ),
               ]),
               TableRow(children: [
@@ -97,7 +121,7 @@ class PatientScreenBody extends StatelessWidget {
                     child: Padding(
                         padding: EdgeInsets.symmetric(
                             vertical: _tableRowPaddingVertical),
-                        child: Text('Maseru'))),
+                        child: Text(_patient.district))),
               ]),
               TableRow(children: [
                 TableCell(
@@ -110,7 +134,7 @@ class PatientScreenBody extends StatelessWidget {
                   child: Padding(
                       padding: EdgeInsets.symmetric(
                           vertical: _tableRowPaddingVertical),
-                      child: Text('+266 57 123 456')),
+                      child: Text(_patient.phoneNumber)),
                 ),
               ]),
             ],

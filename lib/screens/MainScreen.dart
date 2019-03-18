@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 
 import 'package:pebrapp/screens/SettingsScreen.dart';
-import 'package:pebrapp/screens/NewPatientScreen.dart';
+import 'package:pebrapp/screens/NewOrEditPatientScreen.dart';
 import 'package:pebrapp/screens/PatientScreen.dart';
 import 'package:pebrapp/components/PageHeader.dart';
 import 'package:pebrapp/database/models/Patient.dart';
@@ -77,7 +77,7 @@ class MainScreen extends StatelessWidget {
     Navigator.of(_context).push(
       new MaterialPageRoute<void>(
         builder: (BuildContext context) {
-          return NewPatientScreen();
+          return NewOrEditPatientScreen();
         },
       ),
     );
