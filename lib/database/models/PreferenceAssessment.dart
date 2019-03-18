@@ -168,12 +168,12 @@ class SupportPreferencesSelection {
   static SupportPreferencesSelection deserializeFromJSON(String json) {
     final map = jsonDecode(json) as Map<String, dynamic>;
     var obj = SupportPreferencesSelection();
-    obj.saturdayClinicClubSelected = map['saturdayClinicClubSelected'];
-    obj.communityYouthClubSelected = map['communityYouthClubSelected'];
-    obj.phoneCallPESelected = map['phoneCallPESelected'];
-    obj.homeVisitPESelected = map['homeVisitPESelected'];
-    obj.nurseAtClinicSelected = map['nurseAtClinicSelected'];
-    obj.schoolTalkPESelected = map['schoolTalkPESelected'];
+    obj.saturdayClinicClubSelected = map['saturdayClinicClubSelected'] ?? false;
+    obj.communityYouthClubSelected = map['communityYouthClubSelected'] ?? false;
+    obj.phoneCallPESelected = map['phoneCallPESelected'] ?? false;
+    obj.homeVisitPESelected = map['homeVisitPESelected'] ?? false;
+    obj.nurseAtClinicSelected = map['nurseAtClinicSelected'] ?? false;
+    obj.schoolTalkPESelected = map['schoolTalkPESelected'] ?? false;
     return obj;
   }
 
