@@ -90,7 +90,7 @@ class DatabaseProvider {
 
   Future<List<String>> retrievePatientsART() async {
     final Database db = await _databaseInstance;
-    final res = await db.rawQuery("SELECT ${Patient.colARTNumber} FROM ${Patient.tableName}");
+    final res = await db.rawQuery("SELECT DISTINCT ${Patient.colARTNumber} FROM ${Patient.tableName}");
     return res.isNotEmpty ? res.map((entry) => entry[Patient.colARTNumber] as String).toList() : List<String>();
   }
 
