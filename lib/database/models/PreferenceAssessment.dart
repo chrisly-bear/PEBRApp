@@ -141,6 +141,14 @@ class SupportPreferencesSelection {
   bool nurseAtClinicSelected = false;
   bool schoolTalkPESelected = false;
 
+  static String get saturdayClinicClubDescription => "Saturday Clinic Club";
+  static String get communityYouthClubDescription => "Community Youth Club";
+  static String get phoneCallPEDescription => "1x Phone Call from PE";
+  static String get homeVisitPEDescription => "1x Home Visit from PE";
+  static String get nurseAtClinicDescription => "Nurse at the Clinic";
+  static String get schoolTalkPEDescription => "School Talk PE";
+  static String get noneDescription => "None";
+
   void deselectAll() {
     saturdayClinicClubSelected = false;
     communityYouthClubSelected = false;

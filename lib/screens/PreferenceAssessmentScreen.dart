@@ -262,7 +262,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             flex: _answersFlex,
             child: CheckboxListTile(
                 // secondary: const Icon(Icons.local_hospital),
-                title: Text('Saturday Clinic Club'),
+                title: Text(SupportPreferencesSelection.saturdayClinicClubDescription),
 //                  dense: true,
                 value: _pa.supportPreferences.saturdayClinicClubSelected,
                 onChanged: (bool newValue) => this.setState(() {
@@ -279,7 +279,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             flex: _answersFlex,
             child: CheckboxListTile(
                 // secondary: const Icon(Icons.local_hospital),
-                title: Text('Community Youth Club'),
+                title: Text(SupportPreferencesSelection.communityYouthClubDescription),
 //                  dense: true,
                 value: _pa.supportPreferences.communityYouthClubSelected,
                 onChanged: (bool newValue) => this.setState(() {
@@ -296,7 +296,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             flex: _answersFlex,
             child: CheckboxListTile(
                 // secondary: const Icon(Icons.local_hospital),
-                title: Text('1x Phone Call from PE'),
+                title: Text(SupportPreferencesSelection.phoneCallPEDescription),
 //                  dense: true,
                 value: _pa.supportPreferences.phoneCallPESelected,
                 onChanged: (bool newValue) => this.setState(() {
@@ -312,7 +312,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             flex: _answersFlex,
             child: CheckboxListTile(
                 // secondary: const Icon(Icons.local_hospital),
-                title: Text('1x Home Visit from PE'),
+                title: Text(SupportPreferencesSelection.homeVisitPEDescription),
 //                  dense: true,
                 value: _pa.supportPreferences.homeVisitPESelected,
                 onChanged: (bool newValue) => this.setState(() {
@@ -328,7 +328,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             flex: _answersFlex,
             child: CheckboxListTile(
                 // secondary: const Icon(Icons.local_hospital),
-                title: Text('Nurse at the Clinic'),
+                title: Text(SupportPreferencesSelection.nurseAtClinicDescription),
 //                  dense: true,
                 value: _pa.supportPreferences.nurseAtClinicSelected,
                 onChanged: (bool newValue) => this.setState(() {
@@ -344,7 +344,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             flex: _answersFlex,
             child: CheckboxListTile(
               // secondary: const Icon(Icons.local_hospital),
-                title: Text('School Talk PE'),
+                title: Text(SupportPreferencesSelection.schoolTalkPEDescription),
 //                  dense: true,
                 value: _pa.supportPreferences.schoolTalkPESelected,
                 onChanged: (bool newValue) => this.setState(() {
@@ -360,7 +360,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             flex: _answersFlex,
             child: CheckboxListTile(
                 // secondary: const Icon(Icons.local_hospital),
-                title: Text('None'),
+                title: Text(SupportPreferencesSelection.noneDescription),
 //                  dense: true,
                 value: _pa.supportPreferences.areAllDeselected,
                 onChanged: (bool newValue) {
