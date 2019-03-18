@@ -1,6 +1,7 @@
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 
+@deprecated
 class AppState {
   bool isLoading = true;
   Map<Patient, PreferenceAssessment> patientsPreferenceAssessmentJoined = Map<Patient, PreferenceAssessment>();

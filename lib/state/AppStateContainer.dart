@@ -10,6 +10,7 @@ import 'package:pebrapp/state/AppState.dart';
 // code from https://flutterbyexample.com/set-up-inherited-widget-app-state/
 // see also  https://stackoverflow.com/a/49492495/6586631
 // and       https://gist.github.com/ericwindmill/f790bd2456e6489b1ab97eba246fd4c6
+@deprecated
 class AppStateContainer extends StatefulWidget {
   // This widget is simply the root of the tree,
   // so it has to have a child!
