@@ -14,6 +14,7 @@ class DatabaseProvider {
 
   // private constructor for Singleton pattern
   DatabaseProvider._();
+
   static final DatabaseProvider instance = DatabaseProvider._();
 
   factory DatabaseProvider() {
@@ -88,6 +89,7 @@ class DatabaseProvider {
     return res;
   }
 
+  /// Retrieves a list of all patient ART numbers in the database.
   Future<List<String>> retrievePatientsART() async {
     final Database db = await _databaseInstance;
     final res = await db.rawQuery("SELECT DISTINCT ${Patient.colARTNumber} FROM ${Patient.tableName}");
