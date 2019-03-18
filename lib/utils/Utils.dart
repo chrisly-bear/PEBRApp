@@ -32,3 +32,35 @@ String artRefillOptionToString(ARTRefillOption option) {
   }
   return returnString;
 }
+
+String adherenceReminderFrequencyToString(AdherenceReminderFrequency frequency) {
+  String returnString;
+  switch (frequency) {
+    case AdherenceReminderFrequency.DAILY:
+      returnString = "Daily";
+      break;
+    case AdherenceReminderFrequency.WEEKLY:
+      returnString = "Weekly";
+      break;
+    case AdherenceReminderFrequency.MONTHLY:
+      returnString = "Monthly";
+      break;
+  }
+  return returnString;
+}
+
+String eacOptionToString(EACOption option) {
+  String returnString;
+  switch (option) {
+    case EACOption.HOME:
+      returnString = "Home";
+      break;
+    case EACOption.NURSE:
+      returnString = "Nurse";
+      break;
+    case EACOption.PHONE:
+      returnString = "Phone";
+      break;
+  }
+  return returnString;
+}
