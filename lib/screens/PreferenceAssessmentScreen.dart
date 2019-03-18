@@ -131,24 +131,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
                 ARTRefillOption.TREATMENT_BUDDY,
                 ARTRefillOption.VHW
               ].map<DropdownMenuItem<ARTRefillOption>>((ARTRefillOption value) {
-                String description;
-                switch (value) {
-                  case ARTRefillOption.CLINIC:
-                    description = 'Clinic';
-                    break;
-                  case ARTRefillOption.COMMUNITY_ADHERENCE_CLUB:
-                    description = 'Community Adherence Club';
-                    break;
-                  case ARTRefillOption.PE_HOME_DELIVERY:
-                    description = 'Home Delivery (PE)';
-                    break;
-                  case ARTRefillOption.TREATMENT_BUDDY:
-                    description = 'Treatment Buddy';
-                    break;
-                  case ARTRefillOption.VHW:
-                    description = 'VHW';
-                    break;
-                }
+                String description = artRefillOptionToString(value);
                 return DropdownMenuItem<ARTRefillOption>(
                   value: value,
                   child: Text(description),

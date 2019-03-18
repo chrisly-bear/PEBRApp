@@ -10,6 +10,7 @@ import 'package:pebrapp/components/PageHeader.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/state/AppState.dart';
 import 'package:pebrapp/state/AppStateContainer.dart';
+import 'package:pebrapp/utils/Utils.dart';
 
 class MainScreen extends StatelessWidget {
   AppState _appState;
@@ -234,23 +235,7 @@ class MainScreen extends StatelessWidget {
       String refillByText = '—';
       ARTRefillOption aro = curPatient.latestPreferenceAssessment?.artRefillOption1;
       if (aro != null) {
-        switch (aro) {
-          case ARTRefillOption.CLINIC:
-            refillByText = 'Clinic';
-            break;
-          case ARTRefillOption.COMMUNITY_ADHERENCE_CLUB:
-            refillByText = 'Community Adherence Club';
-            break;
-          case ARTRefillOption.TREATMENT_BUDDY:
-            refillByText = 'Treatment Buddy';
-            break;
-          case ARTRefillOption.VHW:
-            refillByText = 'VHW';
-            break;
-          case ARTRefillOption.PE_HOME_DELIVERY:
-            refillByText = 'Home Delivery PE';
-            break;
-        }
+        refillByText = artRefillOptionToString(aro);
       }
 
       _patientCards.add(Card(
