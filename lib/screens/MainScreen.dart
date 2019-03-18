@@ -61,7 +61,12 @@ class _MainScreenState extends State<MainScreen> {
                   _patients.add(patientData.patient); // TODO: replace entries with same ART number (otherwise we'll have duplicates in our list)
                   print('new patient data received from stream: ${patientData.patient.artNumber}');
                   print('patients state: ${_patients.map((p) => p.artNumber).toList().toString()}');
-                  return _bodyPatientTable(patientData.patient);
+                  return _bodyPatientTable();
+                }
+                if (snapshot.data is AppStatePatientListData) {
+                  AppStatePatientListData patientData = snapshot.data;
+                  _patients = patientData.patientList;
+                  return _bodyPatientTable();
                 }
                 if (snapshot.data is AppStatePreferenceAssessmentData) {
 //                   TODO: update PreferenceAssessment data in UI
@@ -143,7 +148,7 @@ class _MainScreenState extends State<MainScreen> {
     return Center(child: Text("No patients recorded yet. Add new patient by clicking the + icon."));
   }
 
-  _bodyPatientTable(Patient patient) {
+  _bodyPatientTable() {
     return ListView(
       children: _buildPatientCards(),
     );

@@ -25,11 +25,17 @@ class PatientBloc {
   void loadPatientData() async {
     _appStateStreamController.sink.add(AppStateLoading());
     final List<Patient> patientList = await DatabaseProvider().retrieveLatestPatients();
+    _appStateStreamController.sink.add(AppStatePatientListData(patientList));
+
+    /*
+    // Feeding the patients to the stream one by one leads to race conditions
+    // (not all the patients are received by the StreamBuilder listener)
     for (Patient p in patientList) {
       await Future.delayed(Duration(milliseconds: 1000)); // TODO: remove this debug pause
       print('Putting patient ${p.artNumber} in the sink');
       _appStateStreamController.sink.add(AppStatePatientData(p));
     }
+    */
   }
 
   void insertPatientData(Patient newPatient) async {
@@ -52,6 +58,11 @@ class PatientBloc {
 class AppState {}
 
 class AppStateLoading extends AppState {}
+
+class AppStatePatientListData extends AppState {
+  AppStatePatientListData(this.patientList);
+  final List<Patient> patientList;
+}
 
 class AppStatePatientData extends AppState {
   AppStatePatientData(this.patient);
