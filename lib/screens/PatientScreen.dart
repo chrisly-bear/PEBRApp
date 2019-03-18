@@ -71,9 +71,11 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         },
       ),
     );
-    setState(() {
-      this._patient = newPatient;
-    });
+    if (newPatient != null) {
+      setState(() {
+        this._patient = newPatient;
+      });
+    }
   }
 
   _buildTitle(String title) {
