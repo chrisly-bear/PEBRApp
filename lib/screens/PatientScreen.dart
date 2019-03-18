@@ -145,6 +145,19 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   }
 
   _buildPreferencesCard() {
+    if (_patient.latestPreferenceAssessment == null) {
+      return Card(
+          margin: EdgeInsets.symmetric(horizontal: 15),
+          child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              child: Center(
+                  child: Text(
+                "No preferences available for this patient. Start a new preference assessment below.",
+                style: TextStyle(
+                  color: Colors.grey,
+                ),
+              ))));
+    }
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 15),
       child: Padding(
