@@ -146,7 +146,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
                     description = 'Treatment Buddy';
                     break;
                   case ARTRefillOption.VHW:
-                    description = 'Treatment Buddy';
+                    description = 'VHW';
                     break;
                 }
                 return DropdownMenuItem<ARTRefillOption>(
