@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pebrapp/components/ViralLoadIndicator.dart';
 import 'dart:ui';
 
 import 'package:pebrapp/screens/SettingsScreen.dart';
@@ -162,11 +163,14 @@ class MainScreen extends StatelessWidget {
     for (var i = 0; i < numberOfPatients; i++) {
       final Patient curPatient = _appState.patients[i];
       final patientART = curPatient.artNumber;
+      ViralLoadIndicator viralLoadIndicator = ViralLoadIndicator(ViralLoad.NA, smallSize: true);
       var viralLoadEACText = '—';
       if (curPatient.vlSuppressed != null && curPatient.vlSuppressed) {
         viralLoadEACText = 'SUPPR';
+        viralLoadIndicator = ViralLoadIndicator(ViralLoad.SUPPRESSED, smallSize: true);
       } else if (curPatient.vlSuppressed != null && !curPatient.vlSuppressed) {
         viralLoadEACText = 'UNSUPPR';
+        viralLoadIndicator = ViralLoadIndicator(ViralLoad.UNSUPPRESSED, smallSize: true);
       }
       _patientCards.add(Card(
         elevation: 5.0,
@@ -285,18 +289,19 @@ class MainScreen extends StatelessWidget {
                         child: Row(children: [
 //                      _formatPatientRowText(viralLoadEACText),
 //                      Icon(Icons.phone),
+                          viralLoadIndicator,
 
                       // *** custom icons
-                      ClipRect(
-                          clipBehavior: Clip.antiAlias,
-                          child: SizedOverflowBox(
-                              size: Size(24.0, 24.0),
-                              child: Image(
-                                height: 30.0,
-                                image: AssetImage(
-                                    'assets/icons/viralload_suppressed.png'),
-                              ))),
-                      Container(width: 5),
+//                      ClipRect(
+//                          clipBehavior: Clip.antiAlias,
+//                          child: SizedOverflowBox(
+//                              size: Size(24.0, 24.0),
+//                              child: Image(
+//                                height: 30.0,
+//                                image: AssetImage(
+//                                    'assets/icons/viralload_suppressed.png'),
+//                              ))),
+//                      Container(width: 5),
                       ClipRect(
                           clipBehavior: Clip.antiAlias,
                           child: SizedOverflowBox(
