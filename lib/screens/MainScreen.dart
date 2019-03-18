@@ -179,6 +179,10 @@ class MainScreen extends StatelessWidget {
         icons.add(_getSupportIcon('assets/icons/no_support.png'));
         icons.add(spacer);
       }
+      if (icons.last == spacer) {
+        // remove last spacer as there are no more icons that follow it
+        icons.removeLast();
+      }
       return Row(children: icons);
     }
 
