@@ -1,3 +1,8 @@
+import 'dart:async';
+
+import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+
 class Patient {
   static final tableName = 'Patient';
 
@@ -20,7 +25,10 @@ class Patient {
   String _village; // nullable
   String _district; // nullable
   String _phoneNumber; // nullable
-  int _latestPreferenceAssessment; // foreign key to [PreferenceAssessment].id, nullable
+  int _latestPreferenceAssessmentId; // foreign key to [PreferenceAssessment].id, nullable
+  // The following is not a column in the database, just the object for easier access to the latest PreferenceAssessment.
+  // Will be null until the [initializePreferenceAssessmentField] method was called.
+  PreferenceAssessment _latestPreferenceAssessment;
 
   Patient(this._artNumber, this._district, this._phoneNumber, this._village) {
     this._createdDate = new DateTime.now();
@@ -38,7 +46,7 @@ class Patient {
     this._village = map[colVillage];
     this._district = map[colDistrict];
     this._phoneNumber = map[colPhoneNumber];
-    this._latestPreferenceAssessment = map[colLatestPreferenceAssessment];
+    this._latestPreferenceAssessmentId = map[colLatestPreferenceAssessment];
   }
 
   toMap() {
@@ -50,7 +58,7 @@ class Patient {
     map[colVillage] = _village;
     map[colDistrict] = _district;
     map[colPhoneNumber] = _phoneNumber;
-    map[colLatestPreferenceAssessment] = _latestPreferenceAssessment;
+    map[colLatestPreferenceAssessment] = _latestPreferenceAssessmentId;
     map[colId] = _id;
     return map;
   }
@@ -66,13 +74,20 @@ class Patient {
     _village: $_village,
     _district: $_district,
     _phoneNumber: $_phoneNumber,
-    _latestPreferenceAssessment: $_latestPreferenceAssessment
+    _latestPreferenceAssessment: $_latestPreferenceAssessmentId
     ''';
+  }
+
+  /// Initializes the field [latestPreferenceAssessment] with the latest data from the database.
+  Future<void> initializePreferenceAssessmentField() async {
+    PreferenceAssessment pa = await DatabaseProvider().retrieveLatestPreferenceAssessmentForPatient(_artNumber);
+    this._latestPreferenceAssessment = pa;
+    this._latestPreferenceAssessmentId = pa?.id;
   }
 
   String get artNumber => _artNumber;
 
-  int get latestPreferenceAssessment => _latestPreferenceAssessment;
+  PreferenceAssessment get latestPreferenceAssessment => _latestPreferenceAssessment;
 
   String get phoneNumber => _phoneNumber;
 

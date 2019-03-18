@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/ViralLoadIndicator.dart';
+import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'dart:ui';
 
 import 'package:pebrapp/screens/SettingsScreen.dart';
@@ -163,6 +164,7 @@ class MainScreen extends StatelessWidget {
     for (var i = 0; i < numberOfPatients; i++) {
       final Patient curPatient = _appState.patients[i];
       final patientART = curPatient.artNumber;
+
       ViralLoadIndicator viralLoadIndicator = ViralLoadIndicator(ViralLoad.NA, smallSize: true);
       var viralLoadEACText = '—';
       if (curPatient.vlSuppressed != null && curPatient.vlSuppressed) {
@@ -172,6 +174,29 @@ class MainScreen extends StatelessWidget {
         viralLoadEACText = 'UNSUPPR';
         viralLoadIndicator = ViralLoadIndicator(ViralLoad.UNSUPPRESSED, smallSize: true);
       }
+
+      String refillByText = '—';
+      ARTRefillOption aro = curPatient.latestPreferenceAssessment?.artRefillOption1;
+      if (aro != null) {
+        switch (aro) {
+          case ARTRefillOption.CLINIC:
+            refillByText = 'Clinic';
+            break;
+          case ARTRefillOption.COMMUNITY_ADHERENCE_CLUB:
+            refillByText = 'Community Adherence Club';
+            break;
+          case ARTRefillOption.TREATMENT_BUDDY:
+            refillByText = 'Treatment Buddy';
+            break;
+          case ARTRefillOption.VHW:
+            refillByText = 'VHW';
+            break;
+          case ARTRefillOption.PE_HOME_DELIVERY:
+            refillByText = 'Home Delivery PE';
+            break;
+        }
+      }
+
       _patientCards.add(Card(
         elevation: 5.0,
         margin: i == numberOfPatients - 1 // last element also has padding at the bottom
@@ -201,7 +226,7 @@ class MainScreen extends StatelessWidget {
                   children: <Widget>[
                     Expanded(child: _formatPatientRowText(patientART)),
                     Expanded(child: _formatPatientRowText('02.02.2019')),
-                    Expanded(child: _formatPatientRowText('VHW')),
+                    Expanded(child: _formatPatientRowText(refillByText)),
                     Expanded(
                       flex: 2,
                         child: Row(

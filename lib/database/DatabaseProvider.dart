@@ -107,7 +107,14 @@ class DatabaseProvider {
 	    SELECT ${Patient.colId}, MAX(${Patient.colCreatedDate}) FROM ${Patient.tableName} GROUP BY ${Patient.colARTNumber}
 	  ) latest ON ${Patient.tableName}.${Patient.colId} == latest.${Patient.colId}
     """);
-    final list = res.isNotEmpty ? res.map((patient) => Patient.fromMap(patient)).toList() : List<Patient>();
+    List<Patient> list = List<Patient>();
+    if (res.isNotEmpty) {
+      for (Map<String, dynamic> map in res) {
+        Patient p = Patient.fromMap(map);
+        await p.initializePreferenceAssessmentField();
+        list.add(p);
+      }
+    }
     return list;
   }
 
@@ -116,7 +123,14 @@ class DatabaseProvider {
     final Database db = await _databaseInstance;
     // query the table for all patients
     final res = await db.query(Patient.tableName);
-    final list = res.isNotEmpty ? res.map((patient) => Patient.fromMap(patient)).toList() : List<Patient>();
+    List<Patient> list = List<Patient>();
+    if (res.isNotEmpty) {
+      for (Map<String, dynamic> map in res) {
+        Patient p = Patient.fromMap(map);
+        await p.initializePreferenceAssessmentField();
+        list.add(p);
+      }
+    }
     return list;
   }
 

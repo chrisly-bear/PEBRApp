@@ -124,6 +124,8 @@ class PreferenceAssessment {
     return map;
   }
 
+  int get id => _id;
+
 }
 
 class SupportPreferencesSelection {
