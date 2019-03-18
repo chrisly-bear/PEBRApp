@@ -24,6 +24,7 @@ class PreferenceAssessment {
   static final colVLNotificationMessageUnsuppressed = 'vl_notification_message_unsuppressed';
   static final colPEPhoneNumber = 'pe_phone_number';
   static final colSupportPreferences = 'support_preferences';
+  static final colEACOption = 'eac_option';
 
   int _id; // primary key
   String patientART; // foreign key to [Patient].art_number
@@ -45,12 +46,14 @@ class PreferenceAssessment {
   String vlNotificationMessageUnsuppressed; // nullable
   String pePhoneNumber; // nullable
   SupportPreferencesSelection supportPreferences = SupportPreferencesSelection();
+  EACOption eacOption;
 
   PreferenceAssessment(
       this.patientART,
       this.artRefillOption1,
       this.phoneAvailable,
       this.supportPreferences,
+      this.eacOption,
       {
         ARTRefillOption artRefillOption2,
         ARTRefillOption artRefillOption3,
@@ -97,6 +100,7 @@ class PreferenceAssessment {
     this.vlNotificationMessageUnsuppressed = map[colVLNotificationMessageUnsuppressed];
     this.pePhoneNumber = map[colPEPhoneNumber];
     this.supportPreferences = SupportPreferencesSelection.deserializeFromJSON(map[colSupportPreferences]);
+    this.eacOption = map[colEACOption] == null ? null : EACOption.values[map[colEACOption]];
   }
 
   toMap() {
@@ -121,6 +125,7 @@ class PreferenceAssessment {
     map[colVLNotificationMessageUnsuppressed] = vlNotificationMessageUnsuppressed;
     map[colPEPhoneNumber] = pePhoneNumber;
     map[colSupportPreferences] = supportPreferences.serializeToJSON();
+    map[colEACOption] = eacOption.index;
     return map;
   }
 
@@ -184,3 +189,6 @@ enum ARTRefillOption { CLINIC, PE_HOME_DELIVERY, VHW, TREATMENT_BUDDY, COMMUNITY
 
 // Do not change the order of the enums as their index is used to store the instance in the database!
 enum AdherenceReminderFrequency { DAILY, WEEKLY, MONTHLY }
+
+// Do not change the order of the enums as their index is used to store the instance in the database!
+enum EACOption { NURSE, PHONE, HOME }
