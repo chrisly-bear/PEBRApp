@@ -3,7 +3,7 @@ import 'package:flushbar/flushbar.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 
 void showFlushBar(BuildContext context, String message, {String title}) {
-  Flushbar()
+  Flushbar(flushbarPosition: FlushbarPosition.TOP)
     ..title = title
     ..messageText = Text(message, textAlign: TextAlign.center,
         style: TextStyle(color: Colors.white, fontSize: 18.0))
