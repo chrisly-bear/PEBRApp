@@ -235,7 +235,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
       print('NEW PATIENT (_id will be given by SQLite database):\n$newPatient');
       await DatabaseProvider().insertPatient(newPatient);
       // trigger stream event such that UI gets updated
-      PatientBloc.instance.insertPatientData(newPatient);
+      PatientBloc.instance.sinkPatientData(newPatient);
       Navigator.of(context).pop(newPatient); // close New Patient screen
       final String finishNotification = _existingPatient == null ? 'New patient created successfully' : 'Changes saved';
       showFlushBar(context, finishNotification);

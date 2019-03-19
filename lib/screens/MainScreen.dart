@@ -76,7 +76,7 @@ class _MainScreenState extends State<MainScreen> {
     });
 
 //    _appStateStream.skip(1);
-    PatientBloc.instance.loadPatientData();
+    PatientBloc.instance.sinkAllPatientsFromDatabase();
   }
 
   @override
@@ -117,7 +117,7 @@ class _MainScreenState extends State<MainScreen> {
       actions: <Widget>[
         IconButton(
           icon: Icon(Icons.refresh),
-          onPressed: PatientBloc.instance.loadPatientData
+          onPressed: PatientBloc.instance.sinkAllPatientsFromDatabase
         ),
         IconButton(
           icon: Icon(Icons.settings),
