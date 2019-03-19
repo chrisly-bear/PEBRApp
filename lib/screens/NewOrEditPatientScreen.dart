@@ -75,7 +75,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
 
   @override
   initState() {
-    print('~~~ initState');
+    print('~~~ _NewOrEditPatientFormState.initState ~~~');
     super.initState();
     DatabaseProvider().retrievePatientsART().then((artNumbers) {
       setState(() {
@@ -86,37 +86,37 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
 
   @override
   void didUpdateWidget(_NewOrEditPatientForm oldWidget) {
-    print('~~~ didUpdateWidget');
+    print('~~~ _NewOrEditPatientFormState.didUpdateWidget ~~~');
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   void reassemble() {
-    print('~~~ reassemble');
+    print('~~~ _NewOrEditPatientFormState.reassemble ~~~');
     super.reassemble();
   }
 
   @override
   void didChangeDependencies() {
-    print('~~~ didChangeDependencies');
+    print('~~~ _NewOrEditPatientFormState.didChangeDependencies ~~~');
     super.didChangeDependencies();
   }
 
   @override
   void deactivate() {
-    print('~~~ deactivate');
+    print('~~~ _NewOrEditPatientFormState.deactivate ~~~');
     super.deactivate();
   }
 
   @override
   void dispose() {
-    print('~~~ dispose');
+    print('~~~ _NewOrEditPatientFormState.dispose ~~~');
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    print('~~~ build');
+    print('~~~ _NewOrEditPatientFormState.build ~~~');
     // Build a Form widget using the _formKey we created above
     return Form(
       key: _formKey,
