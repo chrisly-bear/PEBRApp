@@ -54,12 +54,6 @@ class _MainScreenState extends State<MainScreen> {
           this._isLoading = true;
         });
       }
-      if (streamEvent is AppStatePatientListData) {
-        setState(() {
-          this._patients = streamEvent.patientList;
-          this._isLoading = false;
-        });
-      }
       if (streamEvent is AppStatePatientData) {
         print('*** stream.listen received AppStatePatientData: ${streamEvent.patient.artNumber} ***');
         setState(() {
