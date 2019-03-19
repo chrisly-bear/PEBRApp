@@ -48,10 +48,7 @@ class _MainScreenState extends State<MainScreen> {
               builder: (context, snapshot) {
                 print('snapshot received from stream: ${snapshot.data.runtimeType}');
                 if (snapshot.hasError) {
-                  print('SNAPSHOT HAS ERROR ⚡🛑');
-                }
-                if (snapshot.hasData) {
-                  print('Snapshot has data ✅');
+                  print('SNAPSHOT HAS ERROR 🛑');
                 }
                 if (snapshot.data is AppStateLoading) {
                   return _bodyLoading();
