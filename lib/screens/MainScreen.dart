@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/ViralLoadIndicator.dart';
+import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'dart:ui';
 
@@ -291,17 +292,55 @@ class _MainScreenState extends State<MainScreen> {
         refillByText = artRefillOptionToString(aro);
       }
 
-      _patientCards.add(Card(
+      final _curCardMargin = i == numberOfPatients - 1 // last element also has padding at the bottom
+          ? EdgeInsets.symmetric(
+          vertical: _cardPaddingVertical,
+          horizontal: _cardPaddingHorizontal)
+          : EdgeInsets.only(
+          top: _cardPaddingVertical,
+          bottom: 0,
+          left: _cardPaddingHorizontal,
+          right: _cardPaddingHorizontal);
+
+      _patientCards.add(Dismissible(
+          key: Key(curPatient.artNumber),
+          onDismissed: (direction) {
+            print('removing patient with ART number ${curPatient.artNumber}');
+            DatabaseProvider().deletePatient(curPatient).then((int rowsAffected) {
+              showFlushBar(context, 'Removed patient ${curPatient.artNumber} ($rowsAffected rows deleted in DB)');
+              _patients.removeWhere((p) => p.artNumber == curPatient.artNumber);
+            });
+          },
+          background: Container(
+            margin: _curCardMargin,
+            padding: EdgeInsets.symmetric(horizontal: 10.0),
+            color: Colors.red,
+//            alignment: Alignment.centerLeft,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+              Text(
+                "DELETE",
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              Text(
+                "DELETE",
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              ]
+            ),
+          ),
+          child: Card(
         elevation: 5.0,
-        margin: i == numberOfPatients - 1 // last element also has padding at the bottom
-            ? EdgeInsets.symmetric(
-                vertical: _cardPaddingVertical,
-                horizontal: _cardPaddingHorizontal)
-            : EdgeInsets.only(
-                top: _cardPaddingVertical,
-                bottom: 0,
-                left: _cardPaddingHorizontal,
-                right: _cardPaddingHorizontal),
+        margin: _curCardMargin,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
             onTap: () {
@@ -341,7 +380,7 @@ class _MainScreenState extends State<MainScreen> {
                   ],
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 ))),
-      ));
+      )));
     }
     return _patientCards;
   }

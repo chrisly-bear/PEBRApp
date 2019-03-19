@@ -120,28 +120,6 @@ class DatabaseProvider {
     return list;
   }
 
-  /// Retrieves all patients from the database, including duplicates created when editing a patient.
-  Future<List<Patient>> retrieveAllPatients() async {
-    final Database db = await _databaseInstance;
-    // query the table for all patients
-    final res = await db.query(Patient.tableName);
-    List<Patient> list = List<Patient>();
-    if (res.isNotEmpty) {
-      for (Map<String, dynamic> map in res) {
-        Patient p = Patient.fromMap(map);
-        await p.initializePreferenceAssessmentField();
-        list.add(p);
-      }
-    }
-    return list;
-  }
-
-  Future<List<Map<String, dynamic>>> getTableInfo(String tableName) async {
-    final Database db = await _databaseInstance;
-    var res = db.rawQuery("PRAGMA table_info($tableName);");
-    return res;
-  }
-
   Future<void> insertPreferenceAssessment(PreferenceAssessment newPreferenceAssessment) async {
     final Database db = await _databaseInstance;
     final res = await db.insert(PreferenceAssessment.tableName, newPreferenceAssessment.toMap());
@@ -160,6 +138,42 @@ class DatabaseProvider {
       return PreferenceAssessment.fromMap(res.first);
     }
     return null;
+  }
+
+
+  // Debug methods (should be removed/disabled for final release)
+  // ------------------------------------------------------------
+
+  /// Retrieves all patients from the database, including duplicates created when editing a patient.
+  Future<List<Patient>> retrieveAllPatients() async {
+    final Database db = await _databaseInstance;
+    // query the table for all patients
+    final res = await db.query(Patient.tableName);
+    List<Patient> list = List<Patient>();
+    if (res.isNotEmpty) {
+      for (Map<String, dynamic> map in res) {
+        Patient p = Patient.fromMap(map);
+        await p.initializePreferenceAssessmentField();
+        list.add(p);
+      }
+    }
+    return list;
+  }
+
+  /// Retrieves a table's column names.
+  Future<List<Map<String, dynamic>>> getTableInfo(String tableName) async {
+    final Database db = await _databaseInstance;
+    var res = db.rawQuery("PRAGMA table_info($tableName);");
+    return res;
+  }
+
+  /// Deletes a patient from the Patient table and its corresponding entries from the PreferenceAssessment table.
+  Future<int> deletePatient(Patient deletePatient) async {
+    final Database db = await _databaseInstance;
+    final String artNumber = deletePatient.artNumber;
+    final int rowsDeletedPatientTable = await db.delete(Patient.tableName, where: '${Patient.colARTNumber} = ?', whereArgs: [artNumber]);
+    final int rowsDeletedPreferenceAssessmentTable = await db.delete(PreferenceAssessment.tableName, where: '${PreferenceAssessment.colPatientART} = ?', whereArgs: [artNumber]);
+    return rowsDeletedPatientTable + rowsDeletedPreferenceAssessmentTable;
   }
 
 }
