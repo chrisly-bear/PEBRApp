@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -233,6 +234,8 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
       final newPatient = Patient(_artNumberCtr.text, _districtCtr.text, _phoneNumberCtr.text, _villageCtr.text);
       print('NEW PATIENT (_id will be given by SQLite database):\n$newPatient');
       await DatabaseProvider().insertPatient(newPatient);
+      // trigger stream event such that UI gets updated
+      PatientBloc.instance.insertPatientData(newPatient);
       Navigator.of(context).pop(newPatient); // close New Patient screen
       final String finishNotification = _existingPatient == null ? 'New patient created successfully' : 'Changes saved';
       showFlushBar(context, finishNotification);
