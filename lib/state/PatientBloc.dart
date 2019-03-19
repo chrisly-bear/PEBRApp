@@ -20,32 +20,41 @@ class PatientBloc {
   // broadcast allows multiple listeners (instead of just one)
   final _appStateStreamController = StreamController<AppState>.broadcast();
 
+  // Stream (Outputs)
+  // ----------------
+
   Stream<AppState> get appState => _appStateStreamController.stream;
 
+  // Event Triggers (Inputs)
+  // -----------------------
+
+  /// Trigger an [AppStateLoading] stream event, followed by a [AppStatePatientListData] event.
   void loadPatientData() async {
     _appStateStreamController.sink.add(AppStateLoading());
     final List<Patient> patientList = await DatabaseProvider().retrieveLatestPatients();
-    _appStateStreamController.sink.add(AppStatePatientListData(patientList));
 
-    /*
+    // (1) send entire list
+//    _appStateStreamController.sink.add(AppStatePatientListData(patientList));
+
+    // (2) send patient by patient
     // Feeding the patients to the stream one by one leads to race conditions
     // (not all the patients are received by the StreamBuilder listener)
     for (Patient p in patientList) {
-      await Future.delayed(Duration(milliseconds: 1000)); // TODO: remove this debug pause
+//      await Future.delayed(Duration(milliseconds: 1000)); // TODO: remove this debug pause
       print('Putting patient ${p.artNumber} in the sink');
       _appStateStreamController.sink.add(AppStatePatientData(p));
     }
-    */
   }
 
+  /// Trigger an [AppStatePatientData] stream event.
   void insertPatientData(Patient newPatient) async {
-    _appStateStreamController.sink.add(AppStateLoading());
     await DatabaseProvider().insertPatient(newPatient);
+    print('Putting patient ${newPatient.artNumber} down the sink');
     _appStateStreamController.sink.add(AppStatePatientData(newPatient));
   }
 
+  /// Trigger an [AppStatePreferenceAssessmentData] stream event.
   void insertPreferenceAssessmentData(PreferenceAssessment newPreferenceAssessment) async {
-    _appStateStreamController.sink.add(AppStateLoading());
     await DatabaseProvider().insertPreferenceAssessment(newPreferenceAssessment);
     _appStateStreamController.sink.add(AppStatePreferenceAssessmentData(newPreferenceAssessment));
   }

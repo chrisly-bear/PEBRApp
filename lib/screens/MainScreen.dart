@@ -19,16 +19,64 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  final _appBarHeight = 115.0;
   // TODO: remove _context field and pass context via args if necessary
   BuildContext _context;
-  final _appBarHeight = 115.0;
+  bool _isLoading = true;
   List<Patient> _patients = [];
-  final Stream<AppState> _appStateStream = PatientBloc.instance.appState;
+  Stream<AppState> _appStateStream;
 
   @override
   void initState() {
-    PatientBloc.instance.loadPatientData();
     super.initState();
+    print('~~~ MainScreenState.initState ~~~');
+    _appStateStream = PatientBloc.instance.appState;
+
+    /*
+     * Normally, one uses StreamBuilder with the BLoC pattern. But StreamBuilder
+     * always receives the last event from the stream when the build method is
+     * called. If the last event was a AppStatePatientData (i.e. a new patient
+     * was added or an existing one edited) then this patient gets added to the
+     * list on every build. And because the Navigator also causes builds of pages
+     * that are not visible (such as this MainScreen page), we add the same
+     * patient every time we push/pop a Screen onto/from the Navigator stack.
+     *
+     * StreamBuilder issue and solution:
+     * https://github.com/flutter/flutter/issues/22713#issuecomment-438562916
+     *
+     * Navigator build calls issue:
+     * https://github.com/flutter/flutter/issues/11655#issuecomment-348287396
+     */
+    _appStateStream.listen( (streamEvent) {
+      print('*** stream.listen received data: ${streamEvent.runtimeType} ***');
+      if (streamEvent is AppStateLoading) {
+        setState(() {
+          this._isLoading = true;
+        });
+      }
+      if (streamEvent is AppStatePatientListData) {
+        setState(() {
+          this._patients = streamEvent.patientList;
+          this._isLoading = false;
+        });
+      }
+      if (streamEvent is AppStatePatientData) {
+        print('*** stream.listen received AppStatePatientData: ${streamEvent.patient.artNumber} ***');
+        setState(() {
+          this._isLoading = false;
+          // TODO: replace existing patient with the same ART number to avoid duplicates (happens when a patient was edited)
+          this._patients.add(streamEvent.patient);
+        });
+      }
+      if (streamEvent is AppStatePreferenceAssessmentData) {
+        setState(() {
+          // TODO: implement changes to a patient's PreferenceAssessment
+        });
+      }
+    });
+
+//    _appStateStream.skip(1);
+    PatientBloc.instance.loadPatientData();
   }
 
   @override
@@ -42,35 +90,7 @@ class _MainScreenState extends State<MainScreen> {
         ),
         body: Stack(
           children: <Widget>[
-            StreamBuilder<AppState>(
-              stream: _appStateStream,
-              initialData: AppStateLoading(),
-              builder: (context, snapshot) {
-                print('snapshot received from stream: ${snapshot.data.runtimeType}');
-                if (snapshot.hasError) {
-                  print('SNAPSHOT HAS ERROR 🛑');
-                }
-                if (snapshot.data is AppStateLoading) {
-                  return _bodyLoading();
-                }
-                if (snapshot.data is AppStatePatientData) {
-                  AppStatePatientData patientData = snapshot.data;
-                  _patients.add(patientData.patient); // TODO: replace entries with same ART number (otherwise we'll have duplicates in our list)
-                  print('new patient data received from stream: ${patientData.patient.artNumber}');
-                  print('patients state: ${_patients.map((p) => p.artNumber).toList().toString()}');
-                  return _bodyPatientTable();
-                }
-                if (snapshot.data is AppStatePatientListData) {
-                  AppStatePatientListData patientData = snapshot.data;
-                  _patients = patientData.patientList;
-                  return _bodyPatientTable();
-                }
-                if (snapshot.data is AppStatePreferenceAssessmentData) {
-//                   TODO: update PreferenceAssessment data in UI
-                }
-              return Container();
-              },
-            ),
+            _isLoading ? _bodyLoading() : _bodyPatientTable(),
             Container(
               height: _appBarHeight,
               child: ClipRect(
