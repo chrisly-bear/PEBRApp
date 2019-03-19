@@ -302,6 +302,10 @@ class _MainScreenState extends State<MainScreen> {
           left: _cardPaddingHorizontal,
           right: _cardPaddingHorizontal);
 
+      // TODO: for final release, the patients should not be deletable. Either
+      // remove the Dismissible widget (return Card directly) or map the
+      // Dismissible's onDismissed callback to another function (e.g.
+      // deactivating a patient)
       _patientCards.add(Dismissible(
           key: Key(curPatient.artNumber),
           onDismissed: (direction) {

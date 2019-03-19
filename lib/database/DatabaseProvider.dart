@@ -143,6 +143,7 @@ class DatabaseProvider {
 
   // Debug methods (should be removed/disabled for final release)
   // ------------------------------------------------------------
+  // TODO: remove/disable these functions for the final release
 
   /// Retrieves all patients from the database, including duplicates created when editing a patient.
   Future<List<Patient>> retrieveAllPatients() async {
