@@ -77,6 +77,7 @@ class DatabaseProvider {
         //       set colPatientART as foreign key to `Patient` table
   }
 
+  
   // Private Methods
   // ---------------
 
@@ -85,6 +86,7 @@ class DatabaseProvider {
     // make sure any new tables, which don't exist yet, are created
     return _onCreate(db, newVersion);
   }
+
 
   // Public Methods
   // --------------
