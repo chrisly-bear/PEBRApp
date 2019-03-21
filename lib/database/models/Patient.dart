@@ -29,7 +29,9 @@ class Patient {
   // Will be null until the [initializePreferenceAssessmentField] method was called.
   PreferenceAssessment _latestPreferenceAssessment;
 
+
   // Constructors
+  // ------------
 
   Patient(this._artNumber, this.district, this.phoneNumber, this.village) {
     this._isActivated = true;
