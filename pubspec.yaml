@@ -23,6 +23,7 @@ dependencies:
   path: ^1.6.2
   flushbar: ^1.2.4
   url_launcher: ^5.0.2
+  intl: ^0.15.7
 
 dev_dependencies:
   flutter_launcher_icons: ^0.7.0

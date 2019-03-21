@@ -300,6 +300,13 @@ class _MainScreenState extends State<MainScreen> {
         refillByText = artRefillOptionToString(aro);
       }
 
+      String nextAssessmentText = '—';
+      DateTime lastAssessmentDate = curPatient.latestPreferenceAssessment?.createdDate;
+      if (lastAssessmentDate != null) {
+        DateTime nextAssessmentDate = calculateNextAssessment(lastAssessmentDate);
+        nextAssessmentText = formatDate(nextAssessmentDate);
+      }
+
       final _curCardMargin = i == numberOfPatients - 1 // last element also has padding at the bottom
           ? EdgeInsets.symmetric(
           vertical: _cardPaddingVertical,
@@ -388,7 +395,7 @@ class _MainScreenState extends State<MainScreen> {
 //                      Container(width: 5),
                       _getSupportIcon('assets/icons/nurse_clinic.png'),
                     ])),
-                    Expanded(child: _formatPatientRowText('Today')),
+                    Expanded(child: _formatPatientRowText(nextAssessmentText)),
                   ],
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 ))),
