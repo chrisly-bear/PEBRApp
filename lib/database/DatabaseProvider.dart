@@ -93,6 +93,7 @@ class DatabaseProvider {
 
   Future<void> insertPatient(Patient newPatient) async {
     final Database db = await _databaseInstance;
+    newPatient.createdDate = DateTime.now().toUtc();
     final res = await db.insert(Patient.tableName, newPatient.toMap());
     return res;
   }

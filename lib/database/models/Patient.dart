@@ -32,7 +32,6 @@ class Patient {
   // Constructors
 
   Patient(this._artNumber, this.district, this.phoneNumber, this.village) {
-    this._createdDate = new DateTime.now();
     this._isActivated = true;
   }
 
@@ -83,6 +82,14 @@ class Patient {
     this._latestPreferenceAssessmentId = pa?.id;
   }
 
+  /// Do not set the createdDate manually! The DatabaseProvider sets the date
+  /// automatically on inserts into database.
+  // ignore: unnecessary_getters_setters
+  set createdDate(DateTime date) => _createdDate = date;
+
+  // ignore: unnecessary_getters_setters
+  DateTime get createdDate => _createdDate;
+
   String get artNumber => _artNumber;
 
   PreferenceAssessment get latestPreferenceAssessment => _latestPreferenceAssessment;
@@ -90,7 +97,5 @@ class Patient {
   bool get vlSuppressed => _vlSuppressed;
 
   bool get isActivated => _isActivated;
-
-  DateTime get createdDate => _createdDate;
 
 }
