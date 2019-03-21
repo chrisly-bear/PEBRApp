@@ -58,16 +58,18 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   final _formKey = GlobalKey<FormState>();
 
   final Patient _existingPatient;
+  bool _editModeOn;
   TextEditingController _artNumberCtr = TextEditingController();
   TextEditingController _villageCtr = TextEditingController();
   TextEditingController _districtCtr = TextEditingController();
   TextEditingController _phoneNumberCtr = TextEditingController();
 
   _NewOrEditPatientFormState(this._existingPatient) {
-    _artNumberCtr.text = _existingPatient == null ? null : _existingPatient?.artNumber;
-    _villageCtr.text = _existingPatient == null ? null : _existingPatient?.village;
-    _districtCtr.text = _existingPatient == null ? null : _existingPatient?.district;
-    _phoneNumberCtr.text = _existingPatient == null ? null : _existingPatient?.phoneNumber;
+    _editModeOn = _existingPatient != null;
+    _artNumberCtr.text = _editModeOn ? _existingPatient?.artNumber : null;
+    _villageCtr.text = _editModeOn ? _existingPatient?.village : null;
+    _districtCtr.text = _editModeOn ? _existingPatient?.district : null;
+    _phoneNumberCtr.text = _editModeOn ? _existingPatient?.phoneNumber : null;
   }
 
   List<String> _artNumbersInDB;
@@ -130,7 +132,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
               children: <Widget>[
                 Text('ART Number'),
                 TextFormField(
-                  enabled: _existingPatient == null,
+                  enabled: !_editModeOn,
                   controller: _artNumberCtr,
                   validator: (value) {
                     if (_existingPatient != null) {
@@ -234,10 +236,12 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
       final newPatient = Patient(_artNumberCtr.text, _districtCtr.text, _phoneNumberCtr.text, _villageCtr.text);
       print('NEW PATIENT (_id will be given by SQLite database):\n$newPatient');
       await DatabaseProvider().insertPatient(newPatient);
-      // trigger stream event such that UI gets updated
+      // trigger stream event so that the UI gets updated
       PatientBloc.instance.sinkPatientData(newPatient);
       Navigator.of(context).pop(newPatient); // close New Patient screen
-      final String finishNotification = _existingPatient == null ? 'New patient created successfully' : 'Changes saved';
+      final String finishNotification = _editModeOn
+          ? 'Changes saved'
+          : 'New patient created successfully';
       showFlushBar(context, finishNotification);
     }
   }
