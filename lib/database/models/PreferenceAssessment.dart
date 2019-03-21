@@ -4,47 +4,47 @@ class PreferenceAssessment {
   static final tableName = 'PreferenceAssessment';
 
   // column names
-  static final colId = 'id';
-  static final colPatientART = 'patient_art';
+  static final colId = 'id'; // primary key
+  static final colPatientART = 'patient_art'; // foreign key to [Patient].art_number
   static final colCreatedDate = 'created_date';
   static final colARTRefillOption1 = 'art_refill_option_1';
-  static final colARTRefillOption2 = 'art_refill_option_2';
-  static final colARTRefillOption3 = 'art_refill_option_3';
-  static final colARTRefillOption4 = 'art_refill_option_4';
-  static final colARTRefillPersonName = 'art_refill_person_name';
-  static final colARTRefillPersonPhoneNumber = 'art_refill_person_phone_number';
+  static final colARTRefillOption2 = 'art_refill_option_2'; // nullable
+  static final colARTRefillOption3 = 'art_refill_option_3'; // nullable
+  static final colARTRefillOption4 = 'art_refill_option_4'; // nullable
+  static final colARTRefillPersonName = 'art_refill_person_name'; // nullable
+  static final colARTRefillPersonPhoneNumber = 'art_refill_person_phone_number'; // nullable
   static final colPhoneAvailable = 'phone_available';
-  static final colPatientPhoneNumber = 'patient_phone_number';
-  static final colAdherenceReminderEnabled = 'adherence_reminder_enabled';
-  static final colAdherenceReminderFrequency = 'adherence_reminder_frequency';
-  static final colAdherenceReminderTime = 'adherence_reminder_time';
-  static final colAdherenceReminderMessage = 'adherence_reminder_message';
-  static final colVLNotificationEnabled = 'vl_notification_enabled';
-  static final colVLNotificationMessageSuppressed = 'vl_notification_message_suppressed';
-  static final colVLNotificationMessageUnsuppressed = 'vl_notification_message_unsuppressed';
-  static final colPEPhoneNumber = 'pe_phone_number';
+  static final colPatientPhoneNumber = 'patient_phone_number'; // nullable
+  static final colAdherenceReminderEnabled = 'adherence_reminder_enabled'; // nullable
+  static final colAdherenceReminderFrequency = 'adherence_reminder_frequency'; // nullable
+  static final colAdherenceReminderTime = 'adherence_reminder_time'; // nullable
+  static final colAdherenceReminderMessage = 'adherence_reminder_message'; // nullable
+  static final colVLNotificationEnabled = 'vl_notification_enabled'; // nullable
+  static final colVLNotificationMessageSuppressed = 'vl_notification_message_suppressed'; // nullable
+  static final colVLNotificationMessageUnsuppressed = 'vl_notification_message_unsuppressed'; // nullable
+  static final colPEPhoneNumber = 'pe_phone_number'; // nullable
   static final colSupportPreferences = 'support_preferences';
   static final colEACOption = 'eac_option';
 
-  int _id; // primary key
-  String patientART; // foreign key to [Patient].art_number
+  int _id;
+  String patientART;
   DateTime createdDate;
   ARTRefillOption artRefillOption1;
-  ARTRefillOption artRefillOption2; // nullable
-  ARTRefillOption artRefillOption3; // nullable
-  ARTRefillOption artRefillOption4; // nullable
-  String artRefillPersonName; // nullable
-  String artRefillPersonPhoneNumber; // nullable
+  ARTRefillOption artRefillOption2;
+  ARTRefillOption artRefillOption3;
+  ARTRefillOption artRefillOption4;
+  String artRefillPersonName;
+  String artRefillPersonPhoneNumber;
   bool phoneAvailable;
-  String patientPhoneNumber; // nullable
-  bool adherenceReminderEnabled; // nullable
-  AdherenceReminderFrequency adherenceReminderFrequency; // nullable
-  String adherenceReminderTime; // nullable
-  String adherenceReminderMessage; // nullable
-  bool vlNotificationEnabled; // nullable
-  String vlNotificationMessageSuppressed; // nullable
-  String vlNotificationMessageUnsuppressed; // nullable
-  String pePhoneNumber; // nullable
+  String patientPhoneNumber;
+  bool adherenceReminderEnabled;
+  AdherenceReminderFrequency adherenceReminderFrequency;
+  String adherenceReminderTime;
+  String adherenceReminderMessage;
+  bool vlNotificationEnabled;
+  String vlNotificationMessageSuppressed;
+  String vlNotificationMessageUnsuppressed;
+  String pePhoneNumber;
   SupportPreferencesSelection supportPreferences = SupportPreferencesSelection();
   EACOption eacOption;
 
