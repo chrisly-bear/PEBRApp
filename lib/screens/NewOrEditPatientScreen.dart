@@ -58,10 +58,10 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   final _formKey = GlobalKey<FormState>();
 
   final Patient _existingPatient;
-  var _artNumberCtr = TextEditingController();
-  var _villageCtr = TextEditingController();
-  var _districtCtr = TextEditingController();
-  var _phoneNumberCtr = TextEditingController();
+  TextEditingController _artNumberCtr = TextEditingController();
+  TextEditingController _villageCtr = TextEditingController();
+  TextEditingController _districtCtr = TextEditingController();
+  TextEditingController _phoneNumberCtr = TextEditingController();
 
   _NewOrEditPatientFormState(this._existingPatient) {
     _artNumberCtr.text = _existingPatient == null ? null : _existingPatient?.artNumber;
