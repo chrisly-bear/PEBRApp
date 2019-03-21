@@ -7,25 +7,25 @@ class Patient {
   static final tableName = 'Patient';
 
   // column names
-  static final colId = 'id';
+  static final colId = 'id'; // primary key
   static final colARTNumber = 'art_number';
   static final colCreatedDate = 'created_date';
   static final colIsActivated = 'is_activated';
-  static final colIsVLSuppressed = 'is_vl_suppressed';
-  static final colVillage = 'village';
-  static final colDistrict = 'district';
-  static final colPhoneNumber = 'phone_number';
-  static final colLatestPreferenceAssessment = 'latest_preference_assessment';
+  static final colIsVLSuppressed = 'is_vl_suppressed'; // nullable
+  static final colVillage = 'village'; // nullable
+  static final colDistrict = 'district'; // nullable
+  static final colPhoneNumber = 'phone_number'; // nullable
+  static final colLatestPreferenceAssessment = 'latest_preference_assessment'; // foreign key to [PreferenceAssessment].id, nullable
 
-  int _id; // primary key
+  int _id;
   String _artNumber;
   DateTime _createdDate;
   bool _isActivated;
-  bool _vlSuppressed; // nullable
-  String _village; // nullable
-  String _district; // nullable
-  String _phoneNumber; // nullable
-  int _latestPreferenceAssessmentId; // foreign key to [PreferenceAssessment].id, nullable
+  bool _vlSuppressed;
+  String _village;
+  String _district;
+  String _phoneNumber;
+  int _latestPreferenceAssessmentId;
   // The following is not a column in the database, just the object for easier access to the latest PreferenceAssessment.
   // Will be null until the [initializePreferenceAssessmentField] method was called.
   PreferenceAssessment _latestPreferenceAssessment;
