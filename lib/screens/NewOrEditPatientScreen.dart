@@ -244,9 +244,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
         newPatient = Patient(_artNumberCtr.text, _districtCtr.text, _phoneNumberCtr.text, _villageCtr.text);
         print('NEW PATIENT:\n$newPatient');
       }
-      await DatabaseProvider().insertPatient(newPatient);
-      // trigger stream event so that the UI gets updated
-      PatientBloc.instance.sinkPatientData(newPatient);
+      await PatientBloc.instance.sinkPatientData(newPatient);
       Navigator.of(context).pop(newPatient); // close New Patient screen
       final String finishNotification = _editModeOn
           ? 'Changes saved'
