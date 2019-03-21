@@ -36,11 +36,19 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   final _tableRowPaddingVertical = 5.0;
   final BuildContext _context;
   Patient _patient;
+  String _nextAssessmentText = '—';
 
   _PatientScreenBodyState(this._context, this._patient);
   
   @override
   Widget build(BuildContext context) {
+
+    DateTime lastAssessmentDate = _patient.latestPreferenceAssessment?.createdDate;
+    if (lastAssessmentDate != null) {
+      DateTime nextAssessmentDate = calculateNextAssessment(lastAssessmentDate);
+      _nextAssessmentText = formatDate(nextAssessmentDate);
+    }
+
     return ListView(
       children: <Widget>[
         _buildTitle('Patient Characteristics'),
@@ -51,7 +59,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         _buildTitle('Preferences'),
         _buildPreferencesCard(),
         Center(child: _buildTitle('Next Preference Assessment')),
-        Center(child: Text('Today')),
+        Center(child: Text(_nextAssessmentText)),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [SizedButton('Start Assessment', onPressed: () { _pushPreferenceAssessmentScreen(_context, _patient.artNumber); })]),
