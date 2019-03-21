@@ -215,7 +215,7 @@ class _MainScreenState extends State<MainScreen> {
       );
     }
 
-    _getSupportIcon(String assetLocation) {
+    ClipRect _getSupportIcon(String assetLocation) {
       return ClipRect(
           clipBehavior: Clip.antiAlias,
           child: SizedOverflowBox(
@@ -225,6 +225,20 @@ class _MainScreenState extends State<MainScreen> {
                 image: AssetImage(
                     assetLocation),
               )));
+    }
+
+    Widget _buildEACSupportIcon(EACOption eacOption) {
+      if (eacOption == null) {
+        return _formatPatientRowText('—');
+      }
+      switch (eacOption) {
+        case EACOption.NURSE_AT_CLINIC:
+          return _getSupportIcon('assets/icons/nurse_clinic.png');
+        case EACOption.HOME_VISIT_PE:
+          return _getSupportIcon('assets/icons/phonecall_pe.png');
+        case EACOption.PHONE_CALL_PE:
+          return _getSupportIcon('assets/icons/homevisit_pe.png');
+      }
     }
 
     Widget _buildSupportIcons(SupportPreferencesSelection sps) {
@@ -308,6 +322,14 @@ class _MainScreenState extends State<MainScreen> {
       } else if (curPatient.vlSuppressed != null && !curPatient.vlSuppressed) {
         viralLoadEACText = 'UNSUPPR';
         viralLoadIndicator = ViralLoadIndicator(ViralLoad.UNSUPPRESSED, smallSize: true);
+      }
+
+      Widget eacSupportIndicator;
+      // only show EAC support icon if patient is unsuppressed
+      if (curPatient?.vlSuppressed == null || curPatient.vlSuppressed) {
+        eacSupportIndicator = Container();
+      } else {
+        eacSupportIndicator = _buildEACSupportIcon(curPatient?.latestPreferenceAssessment?.eacOption);
       }
 
       String refillByText = '—';
@@ -409,7 +431,7 @@ class _MainScreenState extends State<MainScreen> {
                       // *** custom icons
 //                      _getSupportIcon('assets/icons/viralload_suppressed.png'),
 //                      Container(width: 5),
-                      _getSupportIcon('assets/icons/nurse_clinic.png'),
+                      eacSupportIndicator,
                     ])),
                     Expanded(child: _formatPatientRowText(nextAssessmentText)),
                   ],
