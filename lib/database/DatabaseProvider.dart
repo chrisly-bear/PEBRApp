@@ -131,6 +131,7 @@ class DatabaseProvider {
 
   Future<void> insertPreferenceAssessment(PreferenceAssessment newPreferenceAssessment) async {
     final Database db = await _databaseInstance;
+    newPreferenceAssessment.createdDate = DateTime.now().toUtc();
     final res = await db.insert(PreferenceAssessment.tableName, newPreferenceAssessment.toMap());
     return res;
   }

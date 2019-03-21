@@ -27,7 +27,7 @@ class PreferenceAssessment {
   static final colEACOption = 'eac_option';
 
   String patientART;
-  DateTime createdDate;
+  DateTime _createdDate;
   ARTRefillOption artRefillOption1;
   ARTRefillOption artRefillOption2;
   ARTRefillOption artRefillOption3;
@@ -74,7 +74,7 @@ class PreferenceAssessment {
 
   PreferenceAssessment.fromMap(map) {
     this.patientART = map[colPatientART];
-    this.createdDate = DateTime.fromMillisecondsSinceEpoch(map[colCreatedDate]);
+    this._createdDate = DateTime.fromMillisecondsSinceEpoch(map[colCreatedDate]);
     this.artRefillOption1 = map[colARTRefillOption1] == null ? null : ARTRefillOption.values[map[colARTRefillOption1]];
     this.artRefillOption2 = map[colARTRefillOption2] == null ? null : ARTRefillOption.values[map[colARTRefillOption2]];
     this.artRefillOption3 = map[colARTRefillOption3] == null ? null : ARTRefillOption.values[map[colARTRefillOption3]];
@@ -104,7 +104,7 @@ class PreferenceAssessment {
   toMap() {
     var map = Map<String, dynamic>();
     map[colPatientART] = patientART;
-    map[colCreatedDate] = createdDate.millisecondsSinceEpoch;
+    map[colCreatedDate] = _createdDate.millisecondsSinceEpoch;
     map[colARTRefillOption1] = artRefillOption1.index;
     map[colARTRefillOption2] = artRefillOption2?.index;
     map[colARTRefillOption3] = artRefillOption3?.index;
@@ -125,6 +125,12 @@ class PreferenceAssessment {
     map[colEACOption] = eacOption.index;
     return map;
   }
+
+  /// Do not set the createdDate manually! The DatabaseProvider sets the date
+  /// automatically on inserts into database.
+  set createdDate(DateTime date) => this._createdDate = date;
+
+  DateTime get createdDate => this._createdDate;
 
 }
 

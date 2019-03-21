@@ -387,7 +387,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   _onSubmitForm() async {
     if (_formKey.currentState.validate()) {
-      _pa.createdDate = DateTime.now();
       print(
           'NEW PREFERENCE ASSESSMENT (_id will be given by SQLite database):\n$_pa');
       await DatabaseProvider().insertPreferenceAssessment(_pa);
