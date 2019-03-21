@@ -9,7 +9,7 @@ import 'package:path/path.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 1;
+  static const int _DB_VERSION = 2;
   static Database _database;
 
   // private constructor for Singleton pattern
@@ -37,7 +37,7 @@ class DatabaseProvider {
   FutureOr<void> _onCreate(Database db, int version) async {
     print('Creating database with version $version');
     await db.execute("""
-        CREATE TABLE IF NOT EXISTS ${Patient.tableName} (
+        CREATE TABLE ${Patient.tableName} (
           ${Patient.colId} INTEGER PRIMARY KEY,
           ${Patient.colARTNumber} TEXT NOT NULL,
           ${Patient.colCreatedDate} INTEGER NOT NULL,
@@ -50,7 +50,7 @@ class DatabaseProvider {
         );
         """);
     await db.execute("""
-        CREATE TABLE IF NOT EXISTS ${PreferenceAssessment.tableName} (
+        CREATE TABLE ${PreferenceAssessment.tableName} (
           ${PreferenceAssessment.colId} INTEGER PRIMARY KEY,
           ${PreferenceAssessment.colPatientART} TEXT NOT NULL, 
           ${PreferenceAssessment.colCreatedDate} INTEGER NOT NULL,
@@ -81,10 +81,107 @@ class DatabaseProvider {
   // Private Methods
   // ---------------
 
-  FutureOr<void> _onUpgrade(Database db, int oldVersion, int newVersion) {
+  FutureOr<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+
     print('Upgrading database from version $oldVersion to version $newVersion');
-    // make sure any new tables, which don't exist yet, are created
-    return _onCreate(db, newVersion);
+    if (oldVersion < 2) {
+      print('Upgrading to database version 2...');
+
+      // helper method
+      _convertDatesFromIntToString(String tablename) async {
+        List<Map<String, dynamic>> rows = await db.query(tablename, columns: ['id', 'created_date']);
+        Batch batch = db.batch();
+        for (Map<String, dynamic> row in rows) {
+          int id = row['id'];
+          int createdDateInMilliseconds = row['created_date'];
+          String createdDateAsUTCString = DateTime.fromMillisecondsSinceEpoch(createdDateInMilliseconds).toUtc().toIso8601String();
+          batch.update(
+            tablename,
+            {'created_date_utc': createdDateAsUTCString},
+            where: 'id == ?',
+            whereArgs: [id],
+          );
+          await batch.commit(noResult: true);
+        }
+      }
+
+      // 1 - add new column 'created_date_utc'
+      Batch batch = db.batch();
+      batch.execute("ALTER TABLE Patient RENAME TO Patient_tmp;");
+      batch.execute("ALTER TABLE Patient_tmp ADD created_date_utc TEXT NOT NULL DEFAULT '';");
+      batch.execute("ALTER TABLE PreferenceAssessment RENAME TO PreferenceAssessment_tmp;");
+      batch.execute("ALTER TABLE PreferenceAssessment_tmp ADD created_date_utc TEXT NOT NULL DEFAULT '';");
+      await batch.commit(noResult: true);
+
+      // 2 - change date representation to UTC String and store it in the new column
+      await _convertDatesFromIntToString('Patient_tmp');
+      await _convertDatesFromIntToString('PreferenceAssessment_tmp');
+
+      // 3 - copy values from Patient_tmp to Patient
+      // and from PreferenceAssessment_tmp to PreferenceAssessment
+      batch = db.batch();
+      batch.execute("""
+        CREATE TABLE Patient (
+          id INTEGER PRIMARY KEY,
+          art_number TEXT NOT NULL,
+          created_date_utc TEXT NOT NULL,
+          is_activated BIT NOT NULL,
+          is_vl_suppressed BIT,
+          village TEXT,
+          district TEXT,
+          phone_number TEXT,
+          latest_preference_assessment INTEGER
+        );
+      """);
+      batch.execute("""
+        INSERT INTO Patient
+        SELECT id, art_number, created_date_utc, is_activated, is_vl_suppressed,
+          village, district, phone_number, latest_preference_assessment
+        FROM Patient_tmp;
+      """);
+      batch.execute("DROP TABLE Patient_tmp;");
+
+      batch.execute("""
+        CREATE TABLE PreferenceAssessment (
+          id INTEGER PRIMARY KEY,
+          patient_art TEXT NOT NULL, 
+          created_date_utc TEXT NOT NULL,
+          art_refill_option_1 INTEGER NOT NULL,
+          art_refill_option_2 INTEGER,
+          art_refill_option_3 INTEGER,
+          art_refill_option_4 INTEGER,
+          art_refill_person_name TEXT,
+          art_refill_person_phone_number TEXT,
+          phone_available BIT NOT NULL,
+          patient_phone_number TEXT,
+          adherence_reminder_enabled BIT,
+          adherence_reminder_frequency INTEGER,
+          adherence_reminder_time TEXT,
+          adherence_reminder_message TEXT,
+          vl_notification_enabled BIT,
+          vl_notification_message_suppressed TEXT,
+          vl_notification_message_unsuppressed TEXT,
+          pe_phone_number TEXT,
+          support_preferences TEXT
+        );
+      """);
+      batch.execute("""
+        INSERT INTO PreferenceAssessment
+        SELECT id, patient_art, created_date_utc, art_refill_option_1,
+          art_refill_option_2, art_refill_option_3, art_refill_option_4,
+          art_refill_person_name, art_refill_person_phone_number,
+          phone_available, patient_phone_number, adherence_reminder_enabled,
+          adherence_reminder_frequency, adherence_reminder_time,
+          adherence_reminder_message, vl_notification_enabled,
+          vl_notification_message_suppressed,
+          vl_notification_message_unsuppressed, pe_phone_number,
+          support_preferences
+        FROM PreferenceAssessment_tmp;
+      """);
+      batch.execute("DROP TABLE PreferenceAssessment_tmp;");
+
+      await batch.commit(noResult: true);
+    }
   }
 
 

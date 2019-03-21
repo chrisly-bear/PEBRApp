@@ -39,7 +39,7 @@ class Patient {
 
   Patient.fromMap(map) {
     this._artNumber = map[colARTNumber];
-    this.createdDate = DateTime.fromMillisecondsSinceEpoch(map[colCreatedDate], isUtc: true);
+    this.createdDate = DateTime.parse(map[colCreatedDate]);
     this._isActivated = map[colIsActivated] == 1;
     if (map[colIsVLSuppressed] != null) {
       this._vlSuppressed = map[colIsVLSuppressed] == 1;
@@ -53,7 +53,7 @@ class Patient {
   toMap() {
     var map = Map<String, dynamic>();
     map[colARTNumber] = _artNumber;
-    map[colCreatedDate] = createdDate.millisecondsSinceEpoch;
+    map[colCreatedDate] = createdDate.toIso8601String();
     map[colIsActivated] = _isActivated;
     map[colIsVLSuppressed] = _vlSuppressed;
     map[colVillage] = village;
