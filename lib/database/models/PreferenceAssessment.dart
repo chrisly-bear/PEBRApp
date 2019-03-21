@@ -26,7 +26,6 @@ class PreferenceAssessment {
   static final colSupportPreferences = 'support_preferences';
   static final colEACOption = 'eac_option';
 
-  int _id;
   String patientART;
   DateTime createdDate;
   ARTRefillOption artRefillOption1;
@@ -74,7 +73,6 @@ class PreferenceAssessment {
   PreferenceAssessment.uninitialized();
 
   PreferenceAssessment.fromMap(map) {
-    this._id = map[colId];
     this.patientART = map[colPatientART];
     this.createdDate = DateTime.fromMillisecondsSinceEpoch(map[colCreatedDate]);
     this.artRefillOption1 = map[colARTRefillOption1] == null ? null : ARTRefillOption.values[map[colARTRefillOption1]];
@@ -105,7 +103,6 @@ class PreferenceAssessment {
 
   toMap() {
     var map = Map<String, dynamic>();
-    map[colId] = _id;
     map[colPatientART] = patientART;
     map[colCreatedDate] = createdDate.millisecondsSinceEpoch;
     map[colARTRefillOption1] = artRefillOption1.index;
@@ -128,8 +125,6 @@ class PreferenceAssessment {
     map[colEACOption] = eacOption.index;
     return map;
   }
-
-  int get id => _id;
 
 }
 

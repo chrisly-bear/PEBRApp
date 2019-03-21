@@ -81,7 +81,6 @@ class Patient {
   Future<void> initializePreferenceAssessmentField() async {
     PreferenceAssessment pa = await DatabaseProvider().retrieveLatestPreferenceAssessmentForPatient(_artNumber);
     this._latestPreferenceAssessment = pa;
-    this._latestPreferenceAssessmentId = pa?.id;
   }
 
   /// Do not set the createdDate manually! The DatabaseProvider sets the date
