@@ -79,7 +79,6 @@ class _MainScreenState extends State<MainScreen> {
       }
     });
 
-//    _appStateStream.skip(1);
     PatientBloc.instance.sinkAllPatientsFromDatabase();
   }
 
