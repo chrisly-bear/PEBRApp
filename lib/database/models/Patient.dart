@@ -9,7 +9,7 @@ class Patient {
   // column names
   static final colId = 'id'; // primary key
   static final colARTNumber = 'art_number';
-  static final colCreatedDate = 'created_date';
+  static final colCreatedDate = 'created_date_utc';
   static final colIsActivated = 'is_activated';
   static final colIsVLSuppressed = 'is_vl_suppressed'; // nullable
   static final colVillage = 'village'; // nullable
@@ -39,7 +39,7 @@ class Patient {
 
   Patient.fromMap(map) {
     this._artNumber = map[colARTNumber];
-    this._createdDate = DateTime.fromMillisecondsSinceEpoch(map[colCreatedDate]);
+    this.createdDate = DateTime.fromMillisecondsSinceEpoch(map[colCreatedDate], isUtc: true);
     this._isActivated = map[colIsActivated] == 1;
     if (map[colIsVLSuppressed] != null) {
       this._vlSuppressed = map[colIsVLSuppressed] == 1;
@@ -53,7 +53,7 @@ class Patient {
   toMap() {
     var map = Map<String, dynamic>();
     map[colARTNumber] = _artNumber;
-    map[colCreatedDate] = _createdDate.millisecondsSinceEpoch;
+    map[colCreatedDate] = createdDate.millisecondsSinceEpoch;
     map[colIsActivated] = _isActivated;
     map[colIsVLSuppressed] = _vlSuppressed;
     map[colVillage] = village;
@@ -67,7 +67,7 @@ class Patient {
   String toString() {
     return '''
     _artNumber: $_artNumber,
-    _createdDate: $_createdDate,
+    _createdDate: $createdDate,
     _isActivated: $_isActivated,
     _vlSuppressed: $_vlSuppressed,
     _village: $village,

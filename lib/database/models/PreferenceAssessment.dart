@@ -6,7 +6,7 @@ class PreferenceAssessment {
   // column names
   static final colId = 'id'; // primary key
   static final colPatientART = 'patient_art'; // foreign key to [Patient].art_number
-  static final colCreatedDate = 'created_date';
+  static final colCreatedDate = 'created_date_utc';
   static final colARTRefillOption1 = 'art_refill_option_1';
   static final colARTRefillOption2 = 'art_refill_option_2'; // nullable
   static final colARTRefillOption3 = 'art_refill_option_3'; // nullable
@@ -74,7 +74,7 @@ class PreferenceAssessment {
 
   PreferenceAssessment.fromMap(map) {
     this.patientART = map[colPatientART];
-    this._createdDate = DateTime.fromMillisecondsSinceEpoch(map[colCreatedDate]);
+    this.createdDate = DateTime.fromMillisecondsSinceEpoch(map[colCreatedDate], isUtc: true);
     this.artRefillOption1 = map[colARTRefillOption1] == null ? null : ARTRefillOption.values[map[colARTRefillOption1]];
     this.artRefillOption2 = map[colARTRefillOption2] == null ? null : ARTRefillOption.values[map[colARTRefillOption2]];
     this.artRefillOption3 = map[colARTRefillOption3] == null ? null : ARTRefillOption.values[map[colARTRefillOption3]];
@@ -104,7 +104,7 @@ class PreferenceAssessment {
   toMap() {
     var map = Map<String, dynamic>();
     map[colPatientART] = patientART;
-    map[colCreatedDate] = _createdDate.millisecondsSinceEpoch;
+    map[colCreatedDate] = createdDate.millisecondsSinceEpoch;
     map[colARTRefillOption1] = artRefillOption1.index;
     map[colARTRefillOption2] = artRefillOption2?.index;
     map[colARTRefillOption3] = artRefillOption3?.index;
