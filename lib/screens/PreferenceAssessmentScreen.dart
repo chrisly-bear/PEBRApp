@@ -64,7 +64,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         _buildEACCard(),
 
         Center(child: _buildTitle('Next Preference Assessment')),
-        Center(child: Text('Today')),
+        Center(child: Text(formatDate(calculateNextAssessment(DateTime.now())))),
         Container(height: 50), // padding at bottom
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           SizedButton(
