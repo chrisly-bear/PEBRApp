@@ -77,11 +77,17 @@ class DatabaseProvider {
         //       set colPatientART as foreign key to `Patient` table
   }
 
+  // Private Methods
+  // ---------------
+
   FutureOr<void> _onUpgrade(Database db, int oldVersion, int newVersion) {
     print('Upgrading database from version $oldVersion to version $newVersion');
     // make sure any new tables, which don't exist yet, are created
     return _onCreate(db, newVersion);
   }
+
+  // Public Methods
+  // --------------
 
   Future<void> insertPatient(Patient newPatient) async {
     final Database db = await _databaseInstance;
