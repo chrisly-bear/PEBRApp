@@ -56,11 +56,19 @@ class _MainScreenState extends State<MainScreen> {
         });
       }
       if (streamEvent is AppStatePatientData) {
-        print('*** stream.listen received AppStatePatientData: ${streamEvent.patient.artNumber} ***');
+        final newPatient = streamEvent.patient;
+        print('*** stream.listen received AppStatePatientData: ${newPatient.artNumber} ***');
         setState(() {
           this._isLoading = false;
           // TODO: replace existing patient with the same ART number to avoid duplicates (happens when a patient was edited)
-          this._patients.add(streamEvent.patient);
+          int indexOfExisting = this._patients.indexWhere((p) => p.artNumber == newPatient.artNumber);
+          if (indexOfExisting > -1) {
+            // replace if patient exists (patient was edited)
+            this._patients[indexOfExisting] = newPatient;
+          } else {
+            // add if not exists (new patient was added)
+            this._patients.add(newPatient);
+          }
         });
       }
       if (streamEvent is AppStatePreferenceAssessmentData) {

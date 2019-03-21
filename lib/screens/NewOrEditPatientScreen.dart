@@ -232,9 +232,18 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
 
   _onSubmitForm() async {
     // Validate will return true if the form is valid, or false if the form is invalid.
+    Patient newPatient;
     if (_formKey.currentState.validate()) {
-      final newPatient = Patient(_artNumberCtr.text, _districtCtr.text, _phoneNumberCtr.text, _villageCtr.text);
-      print('NEW PATIENT (_id will be given by SQLite database):\n$newPatient');
+      if (_editModeOn) { // editing an existing patient
+        newPatient = _existingPatient;
+        newPatient.village = _villageCtr.text;
+        newPatient.district = _districtCtr.text;
+        newPatient.phoneNumber = _phoneNumberCtr.text;
+        print('EDITED PATIENT:\n$newPatient');
+      } else { // creating a new patient
+        newPatient = Patient(_artNumberCtr.text, _districtCtr.text, _phoneNumberCtr.text, _villageCtr.text);
+        print('NEW PATIENT:\n$newPatient');
+      }
       await DatabaseProvider().insertPatient(newPatient);
       // trigger stream event so that the UI gets updated
       PatientBloc.instance.sinkPatientData(newPatient);
