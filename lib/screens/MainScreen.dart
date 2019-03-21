@@ -55,6 +55,12 @@ class _MainScreenState extends State<MainScreen> {
           this._isLoading = true;
         });
       }
+      if (streamEvent is AppStateNoData) {
+        setState(() {
+          this._patients = [];
+          this._isLoading = false;
+        });
+      }
       if (streamEvent is AppStatePatientData) {
         final newPatient = streamEvent.patient;
         print('*** stream.listen received AppStatePatientData: ${newPatient.artNumber} ***');
@@ -93,7 +99,7 @@ class _MainScreenState extends State<MainScreen> {
         ),
         body: Stack(
           children: <Widget>[
-            _isLoading ? _bodyLoading() : _bodyPatientTable(),
+            _bodyToDisplayBasedOnState(),
             Container(
               height: _appBarHeight,
               child: ClipRect(
@@ -105,6 +111,16 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ],
         ));
+  }
+
+  Widget _bodyToDisplayBasedOnState() {
+    if (_isLoading) {
+      return _bodyLoading();
+    } else if (_patients.isEmpty) {
+      return _bodyNoData();
+    } else {
+      return _bodyPatientTable();
+    }
   }
 
   _customHeightAppBar() {

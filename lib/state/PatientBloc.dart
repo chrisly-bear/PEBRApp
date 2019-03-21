@@ -32,6 +32,10 @@ class PatientBloc {
   Future<void> sinkAllPatientsFromDatabase() async {
     _appStateStreamController.sink.add(AppStateLoading());
     final List<Patient> patientList = await DatabaseProvider().retrieveLatestPatients();
+    if (patientList.isEmpty) {
+      print('No patients in database. Putting AppStateNoData down the sink');
+      _appStateStreamController.sink.add(AppStateNoData());
+    }
     for (Patient p in patientList) {
       print('Putting patient ${p.artNumber} in the sink');
       _appStateStreamController.sink.add(AppStatePatientData(p));
@@ -60,6 +64,8 @@ class PatientBloc {
 class AppState {}
 
 class AppStateLoading extends AppState {}
+
+class AppStateNoData extends AppState {}
 
 class AppStatePatientData extends AppState {
   AppStatePatientData(this.patient);
