@@ -71,7 +71,7 @@ class DatabaseProvider {
           ${PreferenceAssessment.colVLNotificationMessageUnsuppressed} TEXT,
           ${PreferenceAssessment.colPEPhoneNumber} TEXT,
           ${PreferenceAssessment.colSupportPreferences} TEXT,
-          ${PreferenceAssessment.colEACOption} INTEGER NOT NULL,
+          ${PreferenceAssessment.colEACOption} INTEGER NOT NULL
         );
         """);
         // TODO: set colLatestPreferenceAssessment as foreign key to `PreferenceAssessment` table
