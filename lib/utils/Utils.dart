@@ -53,14 +53,14 @@ String adherenceReminderFrequencyToString(AdherenceReminderFrequency frequency) 
 String eacOptionToString(EACOption option) {
   String returnString;
   switch (option) {
-    case EACOption.HOME:
-      returnString = "Home";
+    case EACOption.HOME_VISIT_PE:
+      returnString = "Home Visit from PE";
       break;
-    case EACOption.NURSE:
-      returnString = "Nurse";
+    case EACOption.NURSE_AT_CLINIC:
+      returnString = "Nurse at the Clinic";
       break;
-    case EACOption.PHONE:
-      returnString = "Phone";
+    case EACOption.PHONE_CALL_PE:
+      returnString = "Phone Call from PE";
       break;
   }
   return returnString;

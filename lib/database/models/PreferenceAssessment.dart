@@ -47,6 +47,10 @@ class PreferenceAssessment {
   SupportPreferencesSelection supportPreferences = SupportPreferencesSelection();
   EACOption eacOption;
 
+
+  // Constructors
+  // ------------
+
   PreferenceAssessment(
       this.patientART,
       this.artRefillOption1,
@@ -200,4 +204,4 @@ enum ARTRefillOption { CLINIC, PE_HOME_DELIVERY, VHW, TREATMENT_BUDDY, COMMUNITY
 enum AdherenceReminderFrequency { DAILY, WEEKLY, MONTHLY }
 
 // Do not change the order of the enums as their index is used to store the instance in the database!
-enum EACOption { NURSE, PHONE, HOME }
+enum EACOption { NURSE_AT_CLINIC, PHONE_CALL_PE, HOME_VISIT_PE }

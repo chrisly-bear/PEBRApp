@@ -9,7 +9,7 @@ import 'package:path/path.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 2;
+  static const int _DB_VERSION = 3;
   static Database _database;
 
   // private constructor for Singleton pattern
@@ -70,7 +70,8 @@ class DatabaseProvider {
           ${PreferenceAssessment.colVLNotificationMessageSuppressed} TEXT,
           ${PreferenceAssessment.colVLNotificationMessageUnsuppressed} TEXT,
           ${PreferenceAssessment.colPEPhoneNumber} TEXT,
-          ${PreferenceAssessment.colSupportPreferences} TEXT
+          ${PreferenceAssessment.colSupportPreferences} TEXT,
+          ${PreferenceAssessment.colEACOption} INTEGER NOT NULL,
         );
         """);
         // TODO: set colLatestPreferenceAssessment as foreign key to `PreferenceAssessment` table
@@ -181,6 +182,14 @@ class DatabaseProvider {
       batch.execute("DROP TABLE PreferenceAssessment_tmp;");
 
       await batch.commit(noResult: true);
+    }
+    if (oldVersion < 3) {
+      print('Upgrading to database version 3...');
+      // Add the column 'eac_option'. Since this is a NOT NULL column we have to
+      // provide a default value (we chose 0). This means that all preference
+      // assessments done under previous database versions (< 3) will have the
+      // "Nurse at Clinic" EAC option selected.
+      await db.execute("ALTER TABLE PreferenceAssessment ADD eac_option INTEGER NOT NULL DEFAULT 0;");
     }
   }
 
