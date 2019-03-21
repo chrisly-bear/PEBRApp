@@ -73,7 +73,9 @@ class _MainScreenState extends State<MainScreen> {
       }
       if (streamEvent is AppStatePreferenceAssessmentData) {
         setState(() {
-          // TODO: implement changes to a patient's PreferenceAssessment
+          final newPreferenceAssessment = streamEvent.preferenceAssessment;
+          Patient changedPatient = this._patients.singleWhere((p) => p.artNumber == newPreferenceAssessment.patientART);
+          changedPatient.latestPreferenceAssessment = newPreferenceAssessment;
         });
       }
     });

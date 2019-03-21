@@ -29,7 +29,7 @@ class PatientBloc {
   // -----------------------
 
   /// Trigger an [AppStateLoading] stream event, followed by a [AppStatePatientListData] event.
-  void sinkAllPatientsFromDatabase() async {
+  Future<void> sinkAllPatientsFromDatabase() async {
     _appStateStreamController.sink.add(AppStateLoading());
     final List<Patient> patientList = await DatabaseProvider().retrieveLatestPatients();
     for (Patient p in patientList) {
@@ -39,15 +39,16 @@ class PatientBloc {
   }
 
   /// Trigger an [AppStatePatientData] stream event.
-  void sinkPatientData(Patient newPatient) async {
+  Future<void> sinkPatientData(Patient newPatient) async {
     await DatabaseProvider().insertPatient(newPatient);
     print('Putting patient ${newPatient.artNumber} down the sink');
     _appStateStreamController.sink.add(AppStatePatientData(newPatient));
   }
 
   /// Trigger an [AppStatePreferenceAssessmentData] stream event.
-  void sinkPreferenceAssessmentData(PreferenceAssessment newPreferenceAssessment) async {
+  Future<void> sinkPreferenceAssessmentData(PreferenceAssessment newPreferenceAssessment) async {
     await DatabaseProvider().insertPreferenceAssessment(newPreferenceAssessment);
+    print('Putting preference assessment for patient ${newPreferenceAssessment.patientART} down the sink');
     _appStateStreamController.sink.add(AppStatePreferenceAssessmentData(newPreferenceAssessment));
   }
 

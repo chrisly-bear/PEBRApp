@@ -27,7 +27,7 @@ class Patient {
   int _latestPreferenceAssessmentId;
   // The following is not a column in the database, just the object for easier access to the latest PreferenceAssessment.
   // Will be null until the [initializePreferenceAssessmentField] method was called.
-  PreferenceAssessment _latestPreferenceAssessment;
+  PreferenceAssessment latestPreferenceAssessment;
 
 
   // Constructors
@@ -80,7 +80,7 @@ class Patient {
   /// Initializes the field [latestPreferenceAssessment] with the latest data from the database.
   Future<void> initializePreferenceAssessmentField() async {
     PreferenceAssessment pa = await DatabaseProvider().retrieveLatestPreferenceAssessmentForPatient(_artNumber);
-    this._latestPreferenceAssessment = pa;
+    this.latestPreferenceAssessment = pa;
   }
 
   /// Do not set the createdDate manually! The DatabaseProvider sets the date
@@ -92,8 +92,6 @@ class Patient {
   DateTime get createdDate => _createdDate;
 
   String get artNumber => _artNumber;
-
-  PreferenceAssessment get latestPreferenceAssessment => _latestPreferenceAssessment;
 
   bool get vlSuppressed => _vlSuppressed;
 

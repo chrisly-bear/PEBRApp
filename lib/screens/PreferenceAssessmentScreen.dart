@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
-import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 class PreferenceAssessmentScreen extends StatelessWidget {
@@ -425,7 +425,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     if (_formKey.currentState.validate()) {
       print(
           'NEW PREFERENCE ASSESSMENT (_id will be given by SQLite database):\n$_pa');
-      await DatabaseProvider().insertPreferenceAssessment(_pa);
+      await PatientBloc.instance.sinkPreferenceAssessmentData(_pa);
       Navigator.of(context).pop(); // close Preference Assessment screen
       showFlushBar(context, 'Preference Assessment saved');
     } else {
