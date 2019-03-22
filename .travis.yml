@@ -1,0 +1,20 @@
+jobs:
+  include:
+
+  - stage: Unit Testing
+    language: generic
+    os: linux
+    env: Running unit and widget tests with code coverage.
+    before_script:
+    # Flutter depends on /usr/lib/x86_64-linux-gnu/libstdc++.so.6 version GLIBCXX_3.4.18
+    # if we don't specify this, the libstdc++6 we get is the wrong version
+    - sudo apt-get install -y --no-install-recommends lib32stdc++6 libstdc++6 > /dev/null
+
+    - FLUTTER_CHANNEL=stable
+    - FLUTTER_VERSION=1.2.1-${FLUTTER_CHANNEL}
+    - wget --quiet --output-document=flutter.tar.xz https://storage.googleapis.com/flutter_infra/releases/${FLUTTER_CHANNEL}/linux/flutter_linux_v${FLUTTER_VERSION}.tar.xz && tar xf flutter.tar.xz > /dev/null && rm flutter.tar.xz
+    - export PATH="$PATH":"$HOME/.pub-cache/bin"
+    - export PATH=$PWD/flutter/bin:$PWD/flutter/bin/cache/dart-sdk/bin:$PATH
+    - flutter doctor
+    script: flutter test --coverage
+    after_success: bash <(curl -s https://codecov.io/bash) -f coverage/lcov.info
