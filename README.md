@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/chrisly-bear/PEBRApp.svg?branch=master)](https://travis-ci.org/chrisly-bear/PEBRApp)
+[![codecov](https://codecov.io/gh/chrisly-bear/PEBRApp/branch/master/graph/badge.svg)](https://codecov.io/gh/chrisly-bear/PEBRApp)
+
 # PEBRApp
 
 PEBRApp - Help Peer Educators manage their interactions with patients.
