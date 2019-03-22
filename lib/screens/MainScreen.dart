@@ -94,6 +94,7 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
         backgroundColor: Color.fromARGB(255, 224, 224, 224),
         floatingActionButton: FloatingActionButton(
+          key: Key('addPatient'), // key can be used to find the button in integration testing
           onPressed: _pushNewPatientScreen,
           child: Icon(Icons.add),
         ),

@@ -17,7 +17,9 @@ class NewOrEditPatientScreen extends StatelessWidget {
     return Scaffold(
         backgroundColor: Color.fromARGB(255, 224, 224, 224),
         appBar: AppBar(
-          title: existingPatient == null ? const Text('New Patient') : Text('Edit Patient: ${existingPatient.artNumber}'),
+          title: existingPatient == null ?
+          const Text('New Patient', key: Key('newOrEditPatientTitle'),) :
+          Text('Edit Patient: ${existingPatient.artNumber}', key: Key('newOrEditPatientTitle')),
         ),
         body: Center(
           child: _NewOrEditPatientScreenBody(existingPatient),

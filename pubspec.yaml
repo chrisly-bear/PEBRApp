@@ -29,6 +29,9 @@ dev_dependencies:
   flutter_launcher_icons: ^0.7.0
   flutter_test:
     sdk: flutter
+  flutter_driver:
+    sdk: flutter
+  test: any
 
 # set the app launcher icon here, then to update the icon run
 # `flutter packages pub run flutter_launcher_icons:main`
