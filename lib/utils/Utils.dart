@@ -4,12 +4,18 @@ import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:intl/intl.dart';
 
 void showFlushBar(BuildContext context, String message, {String title}) {
-  Flushbar(flushbarPosition: FlushbarPosition.TOP)
-    ..title = title
-    ..messageText = Text(message, textAlign: TextAlign.center,
-        style: TextStyle(color: Colors.white, fontSize: 18.0))
-    ..duration = Duration(seconds: 5)
-    ..show(context);
+  Flushbar(
+      flushbarPosition: FlushbarPosition.TOP,
+    title: title,
+    messageText: Text(
+        message, textAlign: TextAlign.center,
+        style: TextStyle(
+            color: Colors.white,
+            fontSize: 18.0,
+        ),
+    ),
+    duration: Duration(seconds: 5),
+  ).show(context);
 }
 
 String artRefillOptionToString(ARTRefillOption option) {
