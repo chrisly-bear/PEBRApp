@@ -1,7 +1,12 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flushbar/flushbar.dart';
+import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 void showFlushBar(BuildContext context, String message, {String title}) {
   Flushbar(
@@ -121,4 +126,17 @@ DateTime calculateNextAssessment(DateTime lastAssessment) {
 DateTime calculateNextARTRefill(DateTime lastARTRefill) {
   // TODO: implement proper calculation of adding three months
   return lastARTRefill.add(Duration(days: 90));
+}
+
+Future<void> uploadDatabaseToFirebaseStorage() async {
+  final StorageReference storageRef =
+  FirebaseStorage.instance.ref().child('backup.db');
+
+  final filePath = await DatabaseProvider().databaseFilePath;
+  final StorageUploadTask uploadTask = storageRef.putFile(
+    File(filePath),
+    StorageMetadata(contentType: 'application/x-sqlite3'),
+  );
+  StorageTaskSnapshot snapshot = await uploadTask.onComplete;
+  print("Database file uploaded to firebase. ${snapshot.bytesTransferred} bytes transferred. Error code: ${snapshot.error}.");
 }

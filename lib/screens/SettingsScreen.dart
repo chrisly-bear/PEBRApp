@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
+import 'package:pebrapp/utils/Utils.dart';
 
 class SettingsScreen extends StatelessWidget {
   @override
@@ -20,7 +21,7 @@ class SettingsBody extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         SizedButton('Set PIN'),
-        SizedButton('Start Backup'),
+        SizedButton('Start Backup', onPressed: uploadDatabaseToFirebaseStorage,),
         Text("last backup: never")
       ],
     );
