@@ -197,6 +197,12 @@ class DatabaseProvider {
   // Public Methods
   // --------------
 
+  /// Get the file system path of the sql lite database file.
+  Future<String> get databaseFilePath async {
+    final Database db = await _databaseInstance;
+    return db.path;
+  }
+
   Future<void> insertPatient(Patient newPatient) async {
     final Database db = await _databaseInstance;
     newPatient.createdDate = DateTime.now().toUtc();
