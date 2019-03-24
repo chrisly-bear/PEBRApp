@@ -1,7 +1,13 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:intl/intl.dart';
+import 'package:html/parser.dart' show parse;
+import 'package:html/dom.dart' as dom;
 
 void showFlushBar(BuildContext context, String message, {String title}) {
   Flushbar(
@@ -121,4 +127,63 @@ DateTime calculateNextAssessment(DateTime lastAssessment) {
 DateTime calculateNextARTRefill(DateTime lastARTRefill) {
   // TODO: implement proper calculation of adding three months
   return lastARTRefill.add(Duration(days: 90));
+}
+
+Future<void> uploadDatabaseToSWITCHdrive(File sourceFile, String targetFolder,
+    String targetFilename, String username, String password) async {
+
+  String _urlEncode(Map data) {
+    return data.keys.map((key) => "${Uri.encodeComponent(key)}=${Uri.encodeComponent(data[key])}").join("&");
+  }
+
+  String _urlEncodeString(String s) {
+    return Uri.encodeComponent(s);
+  }
+
+  String _base64Encode(String s) {
+    final bytes = utf8.encode(s);
+    return base64.encode(bytes);
+  }
+
+  final _switchHost = 'drive.switch.ch';
+  // https://drive.switch.ch/index.php/login
+  final _loginUri = Uri.https(_switchHost, 'index.php/login');
+
+  // https://drive.switch.ch/remote.php/webdav/targetFolder/targetFilename
+  final _uploadPath = 'remote.php/webdav/' + targetFolder + '/' + targetFilename;
+  final _uploadUri = Uri.https(_switchHost, _uploadPath);
+
+  // get request token
+  String requestToken;
+  HttpClientRequest request = await HttpClient().getUrl(_loginUri);
+  HttpClientResponse response = await request.close();
+  await response.transform(utf8.decoder).forEach((String html) {
+    final dom.Document doc = parse(html);
+    final dom.Element el = doc.querySelector('input[name="requesttoken"]');
+    requestToken = el.attributes['value'];
+  });
+
+  // log in
+  final _payload = _urlEncode({
+    'user': username,
+    'password': password,
+    'requesttoken': requestToken,
+  });
+  final _contentLength = utf8.encode(_payload).length;
+  request = await HttpClient().postUrl(_loginUri)
+    ..headers.add('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3')
+    ..contentLength = _contentLength
+    ..write(_payload);
+  response = await request.close();
+
+  // upload file
+  request = await HttpClient().putUrl(_uploadUri)
+    ..headers.add('Authorization', 'Basic ${_base64Encode(username + ':' + password)}')
+    ..contentLength = await sourceFile.length()
+    ..add(sourceFile.readAsBytesSync())
+  ;
+  response = await request.close();
+
+  final statusCode = response.statusCode;
+  print("end of upload (status code: $statusCode)");
 }
