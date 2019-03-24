@@ -127,7 +127,7 @@ DateTime calculateNextARTRefill(DateTime lastARTRefill) {
   return lastARTRefill.add(Duration(days: 90));
 }
 
-Future<void> loginToSWITCHdrive(String username, String password) async {
+Future<int> loginToSWITCHdrive(String username, String password) async {
 
   String _urlEncode(Map data) {
     return data.keys.map((key) => "${Uri.encodeComponent(key)}=${Uri.encodeComponent(data[key])}").join("&");
@@ -153,8 +153,11 @@ Future<void> loginToSWITCHdrive(String username, String password) async {
     ..write(_payload);
   final response = await request.close();
 
+  // TODO: always returns 200, even if login is clearly wrong
+
   final statusCode = response.statusCode;
   print("end of login (status code: $statusCode)");
+  return statusCode;
 }
 
 Future<void> uploadDatabaseToSWITCHdrive(File sourceFile, String targetFolder,
