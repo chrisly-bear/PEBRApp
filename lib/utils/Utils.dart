@@ -160,7 +160,7 @@ Future<int> loginToSWITCHdrive(String username, String password) async {
   return statusCode;
 }
 
-Future<void> uploadDatabaseToSWITCHdrive(File sourceFile, String targetFolder,
+Future<void> uploadFileToSWITCHdrive(File sourceFile, String targetFolder,
     String targetFilename, String username, String password) async {
 
   String _base64Encode(String s) {
