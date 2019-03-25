@@ -222,7 +222,7 @@ class _MainScreenState extends State<MainScreen> {
           child: SizedOverflowBox(
               size: Size(24.0, 24.0),
               child: Image(
-                height: 30.0,
+                height: 24.0,
                 image: AssetImage(
                     assetLocation),
               )));
@@ -234,11 +234,11 @@ class _MainScreenState extends State<MainScreen> {
       }
       switch (eacOption) {
         case EACOption.NURSE_AT_CLINIC:
-          return _getSupportIcon('assets/icons/nurse_clinic.png');
+          return _getSupportIcon('assets/icons/nurse_clinic_fett.png');
         case EACOption.HOME_VISIT_PE:
-          return _getSupportIcon('assets/icons/phonecall_pe.png');
+          return _getSupportIcon('assets/icons/phonecall_pe_black.png');
         case EACOption.PHONE_CALL_PE:
-          return _getSupportIcon('assets/icons/homevisit_pe.png');
+          return _getSupportIcon('assets/icons/homevisit_pe_black.png');
       }
     }
 
@@ -250,33 +250,33 @@ class _MainScreenState extends State<MainScreen> {
       }
       if (sps.homeVisitPESelected) {
 //        icons.add(Icon(Icons.home));
-        icons.add(_getSupportIcon('assets/icons/homevisit_pe.png'));
+        icons.add(_getSupportIcon('assets/icons/homevisit_pe_black.png'));
         icons.add(spacer);
       }
       if (sps.nurseAtClinicSelected) {
-        icons.add(_getSupportIcon('assets/icons/nurse_clinic.png'));
+        icons.add(_getSupportIcon('assets/icons/nurse_clinic_fett.png'));
         icons.add(spacer);
       }
       if (sps.saturdayClinicClubSelected) {
-        icons.add(_getSupportIcon('assets/icons/saturday_clinic_club.png'));
+        icons.add(_getSupportIcon('assets/icons/saturday_clinic_club_black.png'));
         icons.add(spacer);
       }
       if (sps.schoolTalkPESelected) {
 //        icons.add(Icon(Icons.school));
-        icons.add(_getSupportIcon('assets/icons/schooltalk_pe.png'));
+        icons.add(_getSupportIcon('assets/icons/schooltalk_pe_black.png'));
         icons.add(spacer);
       }
       if (sps.communityYouthClubSelected) {
-        icons.add(_getSupportIcon('assets/icons/youth_club.png'));
+        icons.add(_getSupportIcon('assets/icons/youth_club_black.png'));
         icons.add(spacer);
       }
       if (sps.phoneCallPESelected) {
 //        icons.add(Icon(Icons.phone));
-        icons.add(_getSupportIcon('assets/icons/phonecall_pe.png'));
+        icons.add(_getSupportIcon('assets/icons/phonecall_pe_black.png'));
         icons.add(spacer);
       }
       if (sps.areAllDeselected) {
-        icons.add(_getSupportIcon('assets/icons/no_support.png'));
+        icons.add(_getSupportIcon('assets/icons/no_support_fett.png'));
         icons.add(spacer);
       }
       if (icons.last == spacer) {
