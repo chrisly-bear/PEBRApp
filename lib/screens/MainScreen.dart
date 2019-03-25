@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:pebrapp/components/ViralLoadIndicator.dart';
+import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'dart:ui';
@@ -317,17 +317,17 @@ class _MainScreenState extends State<MainScreen> {
 
       Widget _getViralLoadIndicator() {
         Widget viralLoadIcon = _formatPatientRowText('—');
-        ViralLoadIndicator viralLoadIndicator = ViralLoadIndicator(ViralLoad.NA, smallSize: true);
+        ViralLoadBadge viralLoadBadge = ViralLoadBadge(ViralLoad.NA, smallSize: true);
         if (curPatient.vlSuppressed != null && curPatient.vlSuppressed) {
           viralLoadIcon = _getPaddedIcon('assets/icons/viralload_suppressed.png');
-          viralLoadIndicator = ViralLoadIndicator(ViralLoad.SUPPRESSED, smallSize: true);
+          viralLoadBadge = ViralLoadBadge(ViralLoad.SUPPRESSED, smallSize: true);
         } else
         if (curPatient.vlSuppressed != null && !curPatient.vlSuppressed) {
           viralLoadIcon = _getPaddedIcon('assets/icons/viralload_unsuppressed.png');
-          viralLoadIndicator = ViralLoadIndicator(ViralLoad.UNSUPPRESSED, smallSize: true);
+          viralLoadBadge = ViralLoadBadge(ViralLoad.UNSUPPRESSED, smallSize: true);
         }
         return viralLoadIcon;
-//        return viralLoadIndicator;
+//        return viralLoadBadge;
       }
 
       Widget eacSupportIndicator;

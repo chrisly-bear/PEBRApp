@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class ViralLoadIndicator extends StatelessWidget {
+class ViralLoadBadge extends StatelessWidget {
   final ViralLoad viralLoad;
   final bool smallSize;
 
-  const ViralLoadIndicator(this.viralLoad, {this.smallSize}) : super();
+  const ViralLoadBadge(this.viralLoad, {this.smallSize}) : super();
 
   @override
   Widget build(BuildContext context) {
