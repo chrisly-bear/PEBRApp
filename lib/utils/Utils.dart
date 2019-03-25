@@ -213,7 +213,7 @@ Future<String> authenticateWithSWITCHtoolboxServiceProvider(String username, Str
 
   Future<void> _printSessionInfo() async {
     print('~~~ show session info ~~~');
-    final _url = 'https://toolbox.switch.ch/Shibboleth.sso/Session';
+    final _url = 'https://letodms.toolbox.switch.ch/Shibboleth.sso/Session';
     final _response = await http.get(_url);
     _printHTMLResponse(_response);
   }
@@ -232,7 +232,7 @@ Future<String> authenticateWithSWITCHtoolboxServiceProvider(String username, Str
 
   // link composed with
   // https://www.switch.ch/aai/guides/discovery/login-link-composer/
-  final _req1 = http.Request('GET', Uri.parse('https://toolbox.switch.ch/Shibboleth.sso/Login?entityID=https%3A%2F%2Feduid.ch%2Fidp%2Fshibboleth&target=https%3A%2F%2Ftoolbox.switch.ch%2FShibboleth.sso%2FSession'))
+  final _req1 = http.Request('GET', Uri.parse('https://letodms.toolbox.switch.ch/Shibboleth.sso/Login?entityID=https%3A%2F%2Feduid.ch%2Fidp%2Fshibboleth&target=https%3A%2F%2Fletodms.toolbox.switch.ch%2Fpebrapp-data%2F'))
   ..followRedirects = false;
   final _resp1Stream = await _req1.send();
   final _resp1 = await http.Response.fromStream(_resp1Stream);
