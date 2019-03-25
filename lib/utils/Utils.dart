@@ -6,6 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'package:html/parser.dart' show parse;
+import 'package:html/dom.dart' as dom;
+
 
 void showFlushBar(BuildContext context, String message, {String title}) {
   Flushbar(
@@ -183,4 +187,128 @@ Future<void> uploadFileToSWITCHdrive(File sourceFile, String targetFolder,
 
   final statusCode = response.statusCode;
   print("end of upload (status code: $statusCode)");
+}
+
+Future<void> uploadFileToSWITCHtoolbox(File sourceFile, String targetFolder,
+    String targetFilename, String username, String password) async {
+
+  final _shibsessionCookie = await authenticateWithSWITCHtoolboxServiceProvider(username, password);
+
+  // TODO: -------------------------------------------------------------------
+  // TODO: IMPLEMENT FILE UPLOAD
+  // TODO: -------------------------------------------------------------------
+  print("Uploading file...");
+  print(_shibsessionCookie);
+
+}
+
+Future<String> authenticateWithSWITCHtoolboxServiceProvider(String username, String password) async {
+
+  void _printHTMLResponse(http.Response r, {printBody = true}) {
+    print('Response status: ${r.statusCode}');
+    print('Response isRedirect: ${r.isRedirect}');
+    print('Response headers: ${r.headers}');
+    print('Response body:\n${r.body}');
+  }
+
+  Future<void> _printSessionInfo() async {
+    print('~~~ show session info ~~~');
+    final _url = 'https://toolbox.switch.ch/Shibboleth.sso/Session';
+    final _response = await http.get(_url);
+    _printHTMLResponse(_response);
+  }
+
+  String _urlEncode(Map data) {
+    return data.keys.map((key) => "${Uri.encodeComponent(key)}=${Uri
+        .encodeComponent(data[key] ?? '')}").join("&");
+  }
+
+  // ------------------------------------------------
+
+  await _printSessionInfo();
+
+
+  print('\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% - 1 - %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
+
+  // link composed with
+  // https://www.switch.ch/aai/guides/discovery/login-link-composer/
+  final _req1 = http.Request('GET', Uri.parse('https://toolbox.switch.ch/Shibboleth.sso/Login?entityID=https%3A%2F%2Feduid.ch%2Fidp%2Fshibboleth&target=https%3A%2F%2Ftoolbox.switch.ch%2FShibboleth.sso%2FSession'))
+  ..followRedirects = false;
+  final _resp1Stream = await _req1.send();
+  final _resp1 = await http.Response.fromStream(_resp1Stream);
+
+  final _redirectUrl1 = _resp1.headers['location'];
+  print(_redirectUrl1);
+  _printHTMLResponse(_resp1);
+
+
+  print('\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% - 2 - %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
+
+
+  final _req2 = http.Request('GET', Uri.parse(_redirectUrl1))
+    ..followRedirects = false;
+  final _resp2Stream = await _req2.send();
+  final _resp2 = await http.Response.fromStream(_resp2Stream);
+
+  final _jsessionidCookie = _resp2.headers['set-cookie'];
+  print(_jsessionidCookie);
+  final _host = 'https://login.eduid.ch';
+  final _redirectUrl2 = _host + _resp2.headers['location'];
+  print(_redirectUrl2);
+
+  print('\n');
+  _printHTMLResponse(_resp2);
+
+
+  print('\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% - 3 - %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
+
+
+  final _req3 = http.Request('GET', Uri.parse(_redirectUrl2))
+    ..followRedirects = false
+    ..headers['Cookie'] = _jsessionidCookie;
+  final _resp3Stream = await _req3.send();
+  final _resp3 = await http.Response.fromStream(_resp3Stream);
+
+  _printHTMLResponse(_resp3);
+
+
+  print('\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% - 4 - %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
+
+
+  final _resp4 = await http.post(
+      _redirectUrl2,
+      headers: {'Cookie': _jsessionidCookie},
+      body: {
+        'j_username': username,
+        'j_password': password,
+        '_eventId_proceed': '',
+      });
+  _printHTMLResponse(_resp4);
+
+
+  print('\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% - 5 - %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
+
+
+  final dom.Document _doc = parse(_resp4.body);
+  final dom.Element _formEl = _doc.querySelector('form');
+  final dom.Element _relayStateEl = _doc.querySelector('input[name="RelayState"]');
+  final dom.Element _samlResponseEl = _doc.querySelector('input[name="SAMLResponse"]');
+  final _formUrl = _formEl.attributes['action'];
+  final _relayState = _relayStateEl.attributes['value'];
+  final _samlResponse = _samlResponseEl.attributes['value'];
+
+  print(_formUrl);
+  print(_relayState);
+  print(_samlResponse);
+
+  final _resp5 = await http.post(_formUrl, body: {
+    'RelayState': _relayState,
+    'SAMLResponse': _samlResponse,
+  });
+
+  _printHTMLResponse(_resp5);
+  final _shibsessionCookie = _resp5.headers['set-cookie'];
+  print(_shibsessionCookie);
+
+  return _shibsessionCookie;
 }
