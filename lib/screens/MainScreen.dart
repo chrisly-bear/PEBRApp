@@ -216,7 +216,7 @@ class _MainScreenState extends State<MainScreen> {
       );
     }
 
-    ClipRect _getSupportIcon(String assetLocation) {
+    ClipRect _getPaddedIcon(String assetLocation) {
       return ClipRect(
           clipBehavior: Clip.antiAlias,
           child: SizedOverflowBox(
@@ -234,11 +234,11 @@ class _MainScreenState extends State<MainScreen> {
       }
       switch (eacOption) {
         case EACOption.NURSE_AT_CLINIC:
-          return _getSupportIcon('assets/icons/nurse_clinic_fett.png');
+          return _getPaddedIcon('assets/icons/nurse_clinic_fett.png');
         case EACOption.HOME_VISIT_PE:
-          return _getSupportIcon('assets/icons/phonecall_pe_black.png');
+          return _getPaddedIcon('assets/icons/phonecall_pe_black.png');
         case EACOption.PHONE_CALL_PE:
-          return _getSupportIcon('assets/icons/homevisit_pe_black.png');
+          return _getPaddedIcon('assets/icons/homevisit_pe_black.png');
       }
     }
 
@@ -250,33 +250,33 @@ class _MainScreenState extends State<MainScreen> {
       }
       if (sps.homeVisitPESelected) {
 //        icons.add(Icon(Icons.home));
-        icons.add(_getSupportIcon('assets/icons/homevisit_pe_black.png'));
+        icons.add(_getPaddedIcon('assets/icons/homevisit_pe_black.png'));
         icons.add(spacer);
       }
       if (sps.nurseAtClinicSelected) {
-        icons.add(_getSupportIcon('assets/icons/nurse_clinic_fett.png'));
+        icons.add(_getPaddedIcon('assets/icons/nurse_clinic_fett.png'));
         icons.add(spacer);
       }
       if (sps.saturdayClinicClubSelected) {
-        icons.add(_getSupportIcon('assets/icons/saturday_clinic_club_black.png'));
+        icons.add(_getPaddedIcon('assets/icons/saturday_clinic_club_black.png'));
         icons.add(spacer);
       }
       if (sps.schoolTalkPESelected) {
 //        icons.add(Icon(Icons.school));
-        icons.add(_getSupportIcon('assets/icons/schooltalk_pe_black.png'));
+        icons.add(_getPaddedIcon('assets/icons/schooltalk_pe_black.png'));
         icons.add(spacer);
       }
       if (sps.communityYouthClubSelected) {
-        icons.add(_getSupportIcon('assets/icons/youth_club_black.png'));
+        icons.add(_getPaddedIcon('assets/icons/youth_club_black.png'));
         icons.add(spacer);
       }
       if (sps.phoneCallPESelected) {
 //        icons.add(Icon(Icons.phone));
-        icons.add(_getSupportIcon('assets/icons/phonecall_pe_black.png'));
+        icons.add(_getPaddedIcon('assets/icons/phonecall_pe_black.png'));
         icons.add(spacer);
       }
       if (sps.areAllDeselected) {
-        icons.add(_getSupportIcon('assets/icons/no_support_fett.png'));
+        icons.add(_getPaddedIcon('assets/icons/no_support_fett.png'));
         icons.add(spacer);
       }
       if (icons.last == spacer) {
@@ -319,11 +319,11 @@ class _MainScreenState extends State<MainScreen> {
         Widget viralLoadIcon = _formatPatientRowText('—');
         ViralLoadIndicator viralLoadIndicator = ViralLoadIndicator(ViralLoad.NA, smallSize: true);
         if (curPatient.vlSuppressed != null && curPatient.vlSuppressed) {
-          viralLoadIcon = _getSupportIcon('assets/icons/viralload_suppressed.png');
+          viralLoadIcon = _getPaddedIcon('assets/icons/viralload_suppressed.png');
           viralLoadIndicator = ViralLoadIndicator(ViralLoad.SUPPRESSED, smallSize: true);
         } else
         if (curPatient.vlSuppressed != null && !curPatient.vlSuppressed) {
-          viralLoadIcon = _getSupportIcon('assets/icons/viralload_unsuppressed.png');
+          viralLoadIcon = _getPaddedIcon('assets/icons/viralload_unsuppressed.png');
           viralLoadIndicator = ViralLoadIndicator(ViralLoad.UNSUPPRESSED, smallSize: true);
         }
         return viralLoadIcon;
