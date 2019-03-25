@@ -164,6 +164,7 @@ Future<int> loginToSWITCHdrive(String username, String password) async {
   return statusCode;
 }
 
+/// Upload a file to the SWITCH toolbox's file storage.
 Future<void> uploadFileToSWITCHdrive(File sourceFile, String targetFolder,
     String targetFilename, String username, String password) async {
 
@@ -194,16 +195,33 @@ Future<void> uploadFileToSWITCHtoolbox(File sourceFile, String targetFolder,
 
   final _shibsessionCookie = await authenticateWithSWITCHtoolboxServiceProvider(username, password);
 
-  // TODO: -------------------------------------------------------------------
-  // TODO: IMPLEMENT FILE UPLOAD
-  // TODO: -------------------------------------------------------------------
-  print("Uploading file...");
-  print(_shibsessionCookie);
+  // get mydms_session cookie (required to access toolbox file storage service)
+  final _req0 = http.Request('GET', Uri.parse('https://letodms.toolbox.switch.ch/pebrapp-data/op/op.Login.php?referuri='))
+    ..headers['Cookie'] = _shibsessionCookie
+    ..followRedirects = false;
+  final _resp0 = await _req0.send();
 
+  final _mydmsSessionCookie = _resp0.headers['set-cookie'];
+  final _cookieHeaderString = '${_mydmsSessionCookie.split(' ').first} ${_shibsessionCookie.split(' ').first}';
+
+  // upload file
+  final _req1 = http.MultipartRequest('POST', Uri.parse('https://letodms.toolbox.switch.ch/pebrapp-data/op/op.AddDocument.php'))
+    ..headers['Cookie'] = _cookieHeaderString
+    ..files.add(await http.MultipartFile.fromPath('userfile[]', sourceFile.path))
+    ..fields.addAll({
+      'name': '${sourceFile.path.split('/').last}',
+      'folderid': '1',
+      'sequence': '1',
+    });
+
+  final _resp2Stream = await _req1.send();
+  final _resp2 = await http.Response.fromStream(_resp2Stream);
+  // TODO: return something to indicate whether the upload was successful or not
 }
 
 Future<String> authenticateWithSWITCHtoolboxServiceProvider(String username, String password) async {
 
+  /// debug helper method: print the response object to console
   void _printHTMLResponse(http.Response r, {printBody = true}) {
     print('Response status: ${r.statusCode}');
     print('Response isRedirect: ${r.isRedirect}');
@@ -211,6 +229,11 @@ Future<String> authenticateWithSWITCHtoolboxServiceProvider(String username, Str
     print('Response body:\n${r.body}');
   }
 
+  // TODO: does this even do anything? we would have to pass a _shibsession_
+  //       cookie to get any session information. we could maybe change this
+  //       to take a _shibsession_ cookie as an argument and check if the
+  //       session is valid.
+  /// debug helper method: check if there is a valid session
   Future<void> _printSessionInfo() async {
     print('~~~ show session info ~~~');
     final _url = 'https://letodms.toolbox.switch.ch/Shibboleth.sso/Session';
@@ -218,17 +241,9 @@ Future<String> authenticateWithSWITCHtoolboxServiceProvider(String username, Str
     _printHTMLResponse(_response);
   }
 
-  String _urlEncode(Map data) {
-    return data.keys.map((key) => "${Uri.encodeComponent(key)}=${Uri
-        .encodeComponent(data[key] ?? '')}").join("&");
-  }
 
-  // ------------------------------------------------
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% - 1 - %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-  await _printSessionInfo();
-
-
-  print('\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% - 1 - %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
 
   // link composed with
   // https://www.switch.ch/aai/guides/discovery/login-link-composer/
@@ -238,12 +253,10 @@ Future<String> authenticateWithSWITCHtoolboxServiceProvider(String username, Str
   final _resp1 = await http.Response.fromStream(_resp1Stream);
 
   final _redirectUrl1 = _resp1.headers['location'];
-  print(_redirectUrl1);
-  _printHTMLResponse(_resp1);
 
 
-  print('\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% - 2 - %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
-
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% - 2 - %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  // get JSESSIONID cookie
 
   final _req2 = http.Request('GET', Uri.parse(_redirectUrl1))
     ..followRedirects = false;
@@ -251,16 +264,11 @@ Future<String> authenticateWithSWITCHtoolboxServiceProvider(String username, Str
   final _resp2 = await http.Response.fromStream(_resp2Stream);
 
   final _jsessionidCookie = _resp2.headers['set-cookie'];
-  print(_jsessionidCookie);
   final _host = 'https://login.eduid.ch';
   final _redirectUrl2 = _host + _resp2.headers['location'];
-  print(_redirectUrl2);
-
-  print('\n');
-  _printHTMLResponse(_resp2);
 
 
-  print('\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% - 3 - %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% - 3 - %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
   final _req3 = http.Request('GET', Uri.parse(_redirectUrl2))
@@ -269,11 +277,9 @@ Future<String> authenticateWithSWITCHtoolboxServiceProvider(String username, Str
   final _resp3Stream = await _req3.send();
   final _resp3 = await http.Response.fromStream(_resp3Stream);
 
-  _printHTMLResponse(_resp3);
 
-
-  print('\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% - 4 - %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
-
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% - 4 - %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  // get RelayState and SAMLResponse tokens
 
   final _resp4 = await http.post(
       _redirectUrl2,
@@ -283,11 +289,10 @@ Future<String> authenticateWithSWITCHtoolboxServiceProvider(String username, Str
         'j_password': password,
         '_eventId_proceed': '',
       });
-  _printHTMLResponse(_resp4);
 
 
-  print('\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% - 5 - %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
-
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% - 5 - %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  // get _shibsession_ cookie
 
   final dom.Document _doc = parse(_resp4.body);
   final dom.Element _formEl = _doc.querySelector('form');
@@ -297,18 +302,12 @@ Future<String> authenticateWithSWITCHtoolboxServiceProvider(String username, Str
   final _relayState = _relayStateEl.attributes['value'];
   final _samlResponse = _samlResponseEl.attributes['value'];
 
-  print(_formUrl);
-  print(_relayState);
-  print(_samlResponse);
-
   final _resp5 = await http.post(_formUrl, body: {
     'RelayState': _relayState,
     'SAMLResponse': _samlResponse,
   });
 
-  _printHTMLResponse(_resp5);
   final _shibsessionCookie = _resp5.headers['set-cookie'];
-  print(_shibsessionCookie);
 
   return _shibsessionCookie;
 }
