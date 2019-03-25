@@ -220,9 +220,9 @@ class _MainScreenState extends State<MainScreen> {
       return ClipRect(
           clipBehavior: Clip.antiAlias,
           child: SizedOverflowBox(
-              size: Size(24.0, 24.0),
+              size: Size(32.0, 30.0),
               child: Image(
-                height: 24.0,
+                height: 30.0,
                 image: AssetImage(
                     assetLocation),
               )));
@@ -244,7 +244,7 @@ class _MainScreenState extends State<MainScreen> {
 
     Widget _buildSupportIcons(SupportPreferencesSelection sps) {
       List<Widget> icons = List<Widget>();
-      final Container spacer = Container(width: 5);
+      final Container spacer = Container(width: 3);
       if (sps == null) {
         return _formatPatientRowText('—');
       }
