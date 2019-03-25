@@ -315,14 +315,19 @@ class _MainScreenState extends State<MainScreen> {
       final Patient curPatient = _patients[i];
       final patientART = curPatient.artNumber;
 
-      ViralLoadIndicator viralLoadIndicator = ViralLoadIndicator(ViralLoad.NA, smallSize: true);
-      var viralLoadEACText = '—';
-      if (curPatient.vlSuppressed != null && curPatient.vlSuppressed) {
-        viralLoadEACText = 'SUPPR';
-        viralLoadIndicator = ViralLoadIndicator(ViralLoad.SUPPRESSED, smallSize: true);
-      } else if (curPatient.vlSuppressed != null && !curPatient.vlSuppressed) {
-        viralLoadEACText = 'UNSUPPR';
-        viralLoadIndicator = ViralLoadIndicator(ViralLoad.UNSUPPRESSED, smallSize: true);
+      Widget _getViralLoadIndicator() {
+        Widget viralLoadIcon = _formatPatientRowText('—');
+        ViralLoadIndicator viralLoadIndicator = ViralLoadIndicator(ViralLoad.NA, smallSize: true);
+        if (curPatient.vlSuppressed != null && curPatient.vlSuppressed) {
+          viralLoadIcon = _getSupportIcon('assets/icons/viralload_suppressed.png');
+          viralLoadIndicator = ViralLoadIndicator(ViralLoad.SUPPRESSED, smallSize: true);
+        } else
+        if (curPatient.vlSuppressed != null && !curPatient.vlSuppressed) {
+          viralLoadIcon = _getSupportIcon('assets/icons/viralload_unsuppressed.png');
+          viralLoadIndicator = ViralLoadIndicator(ViralLoad.UNSUPPRESSED, smallSize: true);
+        }
+        return viralLoadIcon;
+//        return viralLoadIndicator;
       }
 
       Widget eacSupportIndicator;
@@ -425,14 +430,9 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     Expanded(
                         child: Row(children: [
-//                      _formatPatientRowText(viralLoadEACText),
-//                      Icon(Icons.phone),
-                          viralLoadIndicator,
-
-                      // *** custom icons
-//                      _getSupportIcon('assets/icons/viralload_suppressed.png'),
-//                      Container(width: 5),
-                      eacSupportIndicator,
+                          _getViralLoadIndicator(),
+                          Container(width: 5),
+                          eacSupportIndicator,
                     ])),
                     Expanded(child: _formatPatientRowText(nextAssessmentText)),
                   ],
