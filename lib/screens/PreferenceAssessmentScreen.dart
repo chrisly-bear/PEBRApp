@@ -34,11 +34,15 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   final _formKey = GlobalKey<FormState>();
   PreferenceAssessment _pa = PreferenceAssessment.uninitialized();
   bool _artRefillOption1PersonAvailable;
+  bool _artRefillOption2PersonAvailable;
+  bool _artRefillOption3PersonAvailable;
   int _questionsFlex = 3;
   int _answersFlex = 1;
   // TODO: add all necessary controller that we need to get the text from the form fields
   var _phoneAvailableCtr = TextEditingController();
   var _supportPreferencesCtr = TextEditingController();
+  var _artRefillOptionPersonNameCtr = TextEditingController();
+  var _artRefillOptionPersonPhoneNumberCtr = TextEditingController();
 
   // constructor
   _PreferenceAssessmentFormState(String patientART) {
@@ -98,27 +102,64 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             child: Column(
               children: [
-                _artRefillOption1(),
-                _artRefillOptionPersonAvailable(),
+                _artRefillOption(1),
+                _artRefillOptionPersonAvailable(1),
+                _artRefillOption(2),
+                _artRefillOptionPersonAvailable(2),
+                _artRefillOption(3),
+                _artRefillOptionPersonAvailable(3),
+                _artRefillOption(4),
+                _artRefillOptionPersonName(),
+                _artRefillOptionPersonNumber(),
               ],
             )));
   }
 
-  Row _artRefillOption1() {
+  Row _artRefillOption(int optionNumber) {
+    var displayValue;
+    switch (optionNumber) {
+      case 1:
+        displayValue = _pa.artRefillOption1;
+        break;
+      case 2:
+        displayValue = _pa.artRefillOption2;
+        break;
+      case 3:
+        displayValue = _pa.artRefillOption3;
+        break;
+      case 4:
+        displayValue = _pa.artRefillOption4;
+        break;
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Expanded(
             flex: _questionsFlex,
             child:
-            Text('How and where do you want to refill your ART mainly?')),
+            optionNumber == 1 ?
+            Text('How and where do you want to refill your ART mainly?') :
+            Text('Choose another option additionally')),
         Expanded(
             flex: _answersFlex,
             child: DropdownButtonFormField<ARTRefillOption>(
-              value: _pa.artRefillOption1,
+              value: displayValue,
               onChanged: (ARTRefillOption newValue) {
                 setState(() {
-                  _pa.artRefillOption1 = newValue;
+                  switch (optionNumber) {
+                    case 1:
+                      _pa.artRefillOption1 = newValue;
+                      break;
+                    case 2:
+                      _pa.artRefillOption2 = newValue;
+                      break;
+                    case 3:
+                      _pa.artRefillOption3 = newValue;
+                      break;
+                    case 4:
+                      _pa.artRefillOption4 = newValue;
+                      break;
+                  }
                 });
               },
               validator: (value) {
@@ -142,7 +183,19 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     );
   }
 
-  Row _artRefillOptionPersonAvailable() {
+  Row _artRefillOptionPersonAvailable(int optionNumber) {
+    var displayValue;
+    switch (optionNumber) {
+      case 1:
+        displayValue = _artRefillOption1PersonAvailable;
+        break;
+      case 2:
+        displayValue = _artRefillOption2PersonAvailable;
+        break;
+      case 3:
+        displayValue = _artRefillOption3PersonAvailable;
+        break;
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -152,10 +205,20 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         Expanded(
             flex: _answersFlex,
             child: DropdownButtonFormField<bool>(
-              value: _artRefillOption1PersonAvailable,
+              value: displayValue,
               onChanged: (bool newValue) {
                 setState(() {
-                  _artRefillOption1PersonAvailable = newValue;
+                  switch (optionNumber) {
+                    case 1:
+                      _artRefillOption1PersonAvailable = newValue;
+                      break;
+                    case 2:
+                      _artRefillOption2PersonAvailable = newValue;
+                      break;
+                    case 3:
+                      _artRefillOption3PersonAvailable = newValue;
+                      break;
+                  }
                 });
               },
               validator: (value) {
@@ -178,6 +241,50 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
                 );
               }).toList(),
             ))
+      ],
+    );
+  }
+
+  _artRefillOptionPersonName() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child:
+            Text('VHW Name')),
+        Expanded(
+            flex: _answersFlex,
+            child: TextFormField(
+              controller: _artRefillOptionPersonNameCtr,
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Please enter a name';
+                }
+              },
+            ),)
+      ],
+    );
+  }
+
+  _artRefillOptionPersonNumber() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child:
+            Text('VHW Phone Number')),
+        Expanded(
+          flex: _answersFlex,
+          child: TextFormField(
+            controller: _artRefillOptionPersonPhoneNumberCtr,
+            validator: (value) {
+              if (value.isEmpty) {
+                return 'Please enter a phone number';
+              }
+            },
+          ),)
       ],
     );
   }
