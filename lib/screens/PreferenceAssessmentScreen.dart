@@ -33,9 +33,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   // fields
   final _formKey = GlobalKey<FormState>();
   PreferenceAssessment _pa = PreferenceAssessment.uninitialized();
-  bool _artRefillOption1PersonAvailable;
-  bool _artRefillOption2PersonAvailable;
-  bool _artRefillOption3PersonAvailable;
+  final _artRefillOptionSelections = List<ARTRefillOption>(4);
+  final _artRefillOptionPersonAvailableSelections = List<bool>(3);
   int _questionsFlex = 3;
   int _answersFlex = 1;
   // TODO: add all necessary controller that we need to get the text from the form fields
@@ -102,13 +101,13 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             child: Column(
               children: [
+                _artRefillOption(0),
+                _artRefillOptionPersonAvailableRow(0),
                 _artRefillOption(1),
-                _artRefillOptionPersonAvailable(1),
+                _artRefillOptionPersonAvailableRow(1),
                 _artRefillOption(2),
-                _artRefillOptionPersonAvailable(2),
+                _artRefillOptionPersonAvailableRow(2),
                 _artRefillOption(3),
-                _artRefillOptionPersonAvailable(3),
-                _artRefillOption(4),
                 _artRefillOptionPersonName(),
                 _artRefillOptionPersonNumber(),
               ],
@@ -116,21 +115,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Row _artRefillOption(int optionNumber) {
-    var displayValue;
-    switch (optionNumber) {
-      case 1:
-        displayValue = _pa.artRefillOption1;
-        break;
-      case 2:
-        displayValue = _pa.artRefillOption2;
-        break;
-      case 3:
-        displayValue = _pa.artRefillOption3;
-        break;
-      case 4:
-        displayValue = _pa.artRefillOption4;
-        break;
-    }
+    var displayValue = _artRefillOptionSelections[optionNumber];
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -146,20 +131,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               value: displayValue,
               onChanged: (ARTRefillOption newValue) {
                 setState(() {
-                  switch (optionNumber) {
-                    case 1:
-                      _pa.artRefillOption1 = newValue;
-                      break;
-                    case 2:
-                      _pa.artRefillOption2 = newValue;
-                      break;
-                    case 3:
-                      _pa.artRefillOption3 = newValue;
-                      break;
-                    case 4:
-                      _pa.artRefillOption4 = newValue;
-                      break;
-                  }
+                  _artRefillOptionSelections[optionNumber] = newValue;
                 });
               },
               validator: (value) {
@@ -183,19 +155,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     );
   }
 
-  Row _artRefillOptionPersonAvailable(int optionNumber) {
-    var displayValue;
-    switch (optionNumber) {
-      case 1:
-        displayValue = _artRefillOption1PersonAvailable;
-        break;
-      case 2:
-        displayValue = _artRefillOption2PersonAvailable;
-        break;
-      case 3:
-        displayValue = _artRefillOption3PersonAvailable;
-        break;
-    }
+  Row _artRefillOptionPersonAvailableRow(int optionNumber) {
+    var displayValue = _artRefillOptionPersonAvailableSelections[optionNumber];
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -208,17 +169,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               value: displayValue,
               onChanged: (bool newValue) {
                 setState(() {
-                  switch (optionNumber) {
-                    case 1:
-                      _artRefillOption1PersonAvailable = newValue;
-                      break;
-                    case 2:
-                      _artRefillOption2PersonAvailable = newValue;
-                      break;
-                    case 3:
-                      _artRefillOption3PersonAvailable = newValue;
-                      break;
-                  }
+                  _artRefillOptionPersonAvailableSelections[optionNumber] = newValue;
                 });
               },
               validator: (value) {
@@ -530,6 +481,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   _onSubmitForm() async {
     if (_formKey.currentState.validate()) {
+      _pa.artRefillOption1 = _artRefillOptionSelections[0];
+      _pa.artRefillOption2 = _artRefillOptionSelections[1];
+      _pa.artRefillOption3 = _artRefillOptionSelections[2];
+      _pa.artRefillOption4 = _artRefillOptionSelections[3];
       print(
           'NEW PREFERENCE ASSESSMENT (_id will be given by SQLite database):\n$_pa');
       await PatientBloc.instance.sinkPreferenceAssessmentData(_pa);
