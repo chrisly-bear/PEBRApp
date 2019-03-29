@@ -48,6 +48,20 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     _pa.patientART = patientART;
   }
 
+  /// Returns true for VHW, Treatment Buddy, Community Adherence Club selections.
+  bool _availabilityRequiredForSelection(int currentOption) {
+    final availabilityRequiredOptions = [
+      ARTRefillOption.VHW,
+      ARTRefillOption.TREATMENT_BUDDY,
+      ARTRefillOption.COMMUNITY_ADHERENCE_CLUB,
+    ];
+    final currentSelection = _artRefillOptionSelections[currentOption];
+    if (currentSelection == null) {
+      return false;
+    }
+    return availabilityRequiredOptions.contains(currentSelection);
+  }
+
   /// Returns true if the previously selected ART Refill Option is one of VHW,
   /// Treatment Buddy, or Community Adherence Club and that option has been
   /// selected as not available.
@@ -55,17 +69,11 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     if (currentOption < 1) {
       return true;
     }
-    final availabilityRequiredOptions = [
-      ARTRefillOption.VHW,
-      ARTRefillOption.TREATMENT_BUDDY,
-      ARTRefillOption.COMMUNITY_ADHERENCE_CLUB,
-    ];
-    final previousOptionSelection = _artRefillOptionSelections[currentOption - 1];
     final previousOptionAvailable = _artRefillOptionPersonAvailableSelections[currentOption - 1];
-    if (previousOptionSelection == null || previousOptionAvailable == null) {
+    if (previousOptionAvailable == null) {
       return false;
     }
-    return (availabilityRequiredOptions.contains(previousOptionSelection) &&
+    return (_availabilityRequiredForSelection(currentOption - 1) &&
         !previousOptionAvailable);
   }
 
@@ -136,7 +144,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _artRefillOption(int optionNumber) {
-    if (optionNumber > 0 && !_additionalARTRefillOptionRequired(optionNumber)) {
+    if (!_additionalARTRefillOptionRequired(optionNumber)) {
       return Container();
     }
     var displayValue = _artRefillOptionSelections[optionNumber];
@@ -180,7 +188,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _artRefillOptionPersonAvailableRow(int optionNumber) {
-    if (optionNumber > 0 && !_additionalARTRefillOptionRequired(optionNumber)) {
+    if (!_availabilityRequiredForSelection(optionNumber)) {
       return Container();
     }
     var displayValue = _artRefillOptionPersonAvailableSelections[optionNumber];
