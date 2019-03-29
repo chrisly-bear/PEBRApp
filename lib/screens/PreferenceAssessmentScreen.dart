@@ -38,10 +38,11 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   int _questionsFlex = 3;
   int _answersFlex = 1;
   // TODO: add all necessary controller that we need to get the text from the form fields
-  var _phoneAvailableCtr = TextEditingController();
-  var _supportPreferencesCtr = TextEditingController();
   var _artRefillOptionPersonNameCtr = TextEditingController();
   var _artRefillOptionPersonPhoneNumberCtr = TextEditingController();
+  var _patientPhoneNumberCtr = TextEditingController();
+  var _adherenceReminderTimeCtr = TextEditingController();
+  var _pePhoneNumberCtr = TextEditingController();
 
   // constructor
   _PreferenceAssessmentFormState(String patientART) {
@@ -311,6 +312,17 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         child: Column(
           children: [
             _phoneAvailableQuestion(),
+            _phoneNumberPatientQuestion(),
+            _adherenceReminderQuestion(),
+            _adherenceReminderFrequencyQuestion(),
+            _adherenceReminderTimeQuestion(),
+            _adherenceReminderMessageQuestion(),
+            _artRefillReminderQuestion(),
+            _artRefillReminderDaysBeforeQuestion(),
+            _viralLoadNotificationQuestion(),
+            _viralLoadMessageSuppressedQuestion(),
+            _viralLoadMessageUnsuppressedQuestion(),
+            _phoneNumberPEQuestion(),
           ],
         ),
       ),
@@ -354,6 +366,335 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
                 );
               }).toList(),
             ))
+      ],
+    );
+  }
+
+  Widget _phoneNumberPatientQuestion() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child:
+            Text('Patient Phone Number')),
+        Expanded(
+          flex: _answersFlex,
+          child: TextFormField(
+            controller: _patientPhoneNumberCtr,
+            validator: (value) {
+              if (value.isEmpty) {
+                return 'Please enter a phone number';
+              }
+            },
+          ),)
+      ],
+    );
+  }
+
+  Widget _adherenceReminderQuestion() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child: Text('Do you want to receive adherence reminders?')),
+        Expanded(
+            flex: _answersFlex,
+            child: DropdownButtonFormField<bool>(
+              value: _pa.adherenceReminderEnabled,
+              onChanged: (bool newValue) {
+                setState(() {
+                  _pa.adherenceReminderEnabled = newValue;
+                });
+              },
+              validator: (value) {
+                if (value == null) { return 'Please answer this question'; }
+              },
+              items:
+              <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+                String description;
+                switch (value) {
+                  case true:
+                    description = 'Yes';
+                    break;
+                  case false:
+                    description = 'No';
+                    break;
+                }
+                return DropdownMenuItem<bool>(
+                  value: value,
+                  child: Text(description),
+                );
+              }).toList(),
+            ))
+      ],
+    );
+  }
+
+  Widget _adherenceReminderFrequencyQuestion() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child:
+            Text('How often do you want to receive adherence reminders?')),
+        Expanded(
+            flex: _answersFlex,
+            child: DropdownButtonFormField<AdherenceReminderFrequency>(
+              value: _pa.adherenceReminderFrequency,
+              onChanged: (AdherenceReminderFrequency newValue) {
+                setState(() {
+                  _pa.adherenceReminderFrequency = newValue;
+                });
+              },
+              validator: (value) {
+                if (value == null) { return 'Please answer this question'; }
+              },
+              items: AdherenceReminderFrequency.values.map<DropdownMenuItem<AdherenceReminderFrequency>>((AdherenceReminderFrequency value) {
+                String description = adherenceReminderFrequencyToString(value);
+                return DropdownMenuItem<AdherenceReminderFrequency>(
+                  value: value,
+                  child: Text(description),
+                );
+              }).toList(),
+            ))
+      ],
+    );
+  }
+
+  Widget _adherenceReminderTimeQuestion() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child:
+            Text('When during the day do you want to receive the adherence reminder?')),
+        Expanded(
+          flex: _answersFlex,
+          child: TextFormField(
+            controller: _adherenceReminderTimeCtr,
+            validator: (value) {
+              if (value.isEmpty) {
+                return 'Please enter a phone number';
+              }
+            },
+          ),)
+      ],
+    );
+  }
+
+  Widget _adherenceReminderMessageQuestion() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child:
+            Text('Which adherence reminder do you want to receive?')),
+        Expanded(
+            flex: _answersFlex,
+            child: DropdownButtonFormField<AdherenceReminderMessage>(
+              value: null, // TODO
+              onChanged: (AdherenceReminderMessage newValue) {
+                setState(() {
+                  // TODO
+                });
+              },
+              validator: (value) {
+                if (value == null) { return 'Please answer this question'; }
+              },
+              items: AdherenceReminderMessage.values.map<DropdownMenuItem<AdherenceReminderMessage>>((AdherenceReminderMessage value) {
+                String description = adherenceReminderMessageToString(value);
+                return DropdownMenuItem<AdherenceReminderMessage>(
+                  value: value,
+                  child: Text(description),
+                );
+              }).toList(),
+            ))
+      ],
+    );
+  }
+
+  Widget _artRefillReminderQuestion() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child: Text('Do you want to receive ART refill reminders?')),
+        Expanded(
+            flex: _answersFlex,
+            child: DropdownButtonFormField<bool>(
+              value: _pa.adherenceReminderEnabled,
+              onChanged: (bool newValue) {
+                setState(() {
+                  _pa.adherenceReminderEnabled = newValue;
+                });
+              },
+              validator: (value) {
+                if (value == null) { return 'Please answer this question'; }
+              },
+              items:
+              <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+                String description;
+                switch (value) {
+                  case true:
+                    description = 'Yes';
+                    break;
+                  case false:
+                    description = 'No';
+                    break;
+                }
+                return DropdownMenuItem<bool>(
+                  value: value,
+                  child: Text(description),
+                );
+              }).toList(),
+            ))
+      ],
+    );
+  }
+
+  Widget _artRefillReminderDaysBeforeQuestion() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child: Text('How many days before would you like to receive the reminder?')),
+        Expanded(
+            flex: _answersFlex,
+            // TODO: replace with a number picker dropdown
+            child: Container(height: 45,))
+      ],
+    );
+  }
+
+  Widget _viralLoadNotificationQuestion() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child: Text('Do you want to receive a notification after a VL measurement?')),
+        Expanded(
+            flex: _answersFlex,
+            child: DropdownButtonFormField<bool>(
+              value: _pa.vlNotificationEnabled,
+              onChanged: (bool newValue) {
+                setState(() {
+                  _pa.vlNotificationEnabled = newValue;
+                });
+              },
+              validator: (value) {
+                if (value == null) { return 'Please answer this question'; }
+              },
+              items:
+              <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+                String description;
+                switch (value) {
+                  case true:
+                    description = 'Yes';
+                    break;
+                  case false:
+                    description = 'No';
+                    break;
+                }
+                return DropdownMenuItem<bool>(
+                  value: value,
+                  child: Text(description),
+                );
+              }).toList(),
+            ))
+      ],
+    );
+  }
+
+  Widget _viralLoadMessageSuppressedQuestion() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child:
+            Text('Which message do you want to receive if VL is suppressed?')),
+        Expanded(
+            flex: _answersFlex,
+            child: DropdownButtonFormField<VLSuppressedMessage>(
+              value: null, // TODO
+              onChanged: (VLSuppressedMessage newValue) {
+                setState(() {
+                  // TODO
+                });
+              },
+              validator: (value) {
+                if (value == null) { return 'Please answer this question'; }
+              },
+              items: VLSuppressedMessage.values.map<DropdownMenuItem<VLSuppressedMessage>>((VLSuppressedMessage value) {
+                String description = vlSuppressedMessageToString(value);
+                return DropdownMenuItem<VLSuppressedMessage>(
+                  value: value,
+                  child: Text(description),
+                );
+              }).toList(),
+            ))
+      ],
+    );
+  }
+
+  Widget _viralLoadMessageUnsuppressedQuestion() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child:
+            Text('Which message do you want to receive if VL is unsuppressed?')),
+        Expanded(
+            flex: _answersFlex,
+            child: DropdownButtonFormField<VLUnsuppressedMessage>(
+              value: null, // TODO
+              onChanged: (VLUnsuppressedMessage newValue) {
+                setState(() {
+                  // TODO
+                });
+              },
+              validator: (value) {
+                if (value == null) { return 'Please answer this question'; }
+              },
+              items: VLUnsuppressedMessage.values.map<DropdownMenuItem<VLUnsuppressedMessage>>((VLUnsuppressedMessage value) {
+                String description = vlUnsuppressedMessageToString(value);
+                return DropdownMenuItem<VLUnsuppressedMessage>(
+                  value: value,
+                  child: Text(description),
+                );
+              }).toList(),
+            ))
+      ],
+    );
+  }
+
+  Widget _phoneNumberPEQuestion() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child:
+            Text('PE Phone Number')),
+        Expanded(
+          flex: _answersFlex,
+          child: TextFormField(
+            controller: _pePhoneNumberCtr,
+            validator: (value) {
+              if (value.isEmpty) {
+                return 'Please enter a phone number';
+              }
+            },
+          ),)
       ],
     );
   }

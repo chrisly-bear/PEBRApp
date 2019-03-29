@@ -203,5 +203,12 @@ enum ARTRefillOption { CLINIC, PE_HOME_DELIVERY, VHW, TREATMENT_BUDDY, COMMUNITY
 // Do not change the order of the enums as their index is used to store the instance in the database!
 enum AdherenceReminderFrequency { DAILY, WEEKLY, MONTHLY }
 
+// TODO: create database schema stuff
+enum AdherenceReminderMessage { MESSAGE_1, MESSAGE_2 }
+
+enum VLSuppressedMessage { MESSAGE_1, MESSAGE_2 }
+
+enum VLUnsuppressedMessage { MESSAGE_1, MESSAGE_2 }
+
 // Do not change the order of the enums as their index is used to store the instance in the database!
 enum EACOption { NURSE_AT_CLINIC, PHONE_CALL_PE, HOME_VISIT_PE }

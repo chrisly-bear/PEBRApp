@@ -64,6 +64,45 @@ String adherenceReminderFrequencyToString(AdherenceReminderFrequency frequency) 
   return returnString;
 }
 
+String adherenceReminderMessageToString(AdherenceReminderMessage message) {
+  String returnString;
+  switch (message) {
+    case AdherenceReminderMessage.MESSAGE_1:
+      returnString = "MESSAGE 1";
+      break;
+    case AdherenceReminderMessage.MESSAGE_2:
+      returnString = "MESSAGE 2";
+      break;
+  }
+  return returnString;
+}
+
+String vlSuppressedMessageToString(VLSuppressedMessage message) {
+  String returnString;
+  switch (message) {
+    case VLSuppressedMessage.MESSAGE_1:
+      returnString = ":)";
+      break;
+    case VLSuppressedMessage.MESSAGE_2:
+      returnString = "MESSAGE 2";
+      break;
+  }
+  return returnString;
+}
+
+String vlUnsuppressedMessageToString(VLUnsuppressedMessage message) {
+  String returnString;
+  switch (message) {
+    case VLUnsuppressedMessage.MESSAGE_1:
+      returnString = ":(";
+      break;
+    case VLUnsuppressedMessage.MESSAGE_2:
+      returnString = "MESSAGE 2";
+      break;
+  }
+  return returnString;
+}
+
 String eacOptionToString(EACOption option) {
   String returnString;
   switch (option) {
