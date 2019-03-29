@@ -313,20 +313,36 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           children: [
             _phoneAvailableQuestion(),
             _phoneNumberPatientQuestion(),
+            _adherenceReminderSubtitle(),
             _adherenceReminderQuestion(),
             _adherenceReminderFrequencyQuestion(),
             _adherenceReminderTimeQuestion(),
             _adherenceReminderMessageQuestion(),
+            _artRefillReminderSubtitle(),
             _artRefillReminderQuestion(),
             _artRefillReminderDaysBeforeQuestion(),
+            _viralLoadNotificationSubtitle(),
             _viralLoadNotificationQuestion(),
             _viralLoadMessageSuppressedQuestion(),
             _viralLoadMessageUnsuppressedQuestion(),
+            _phoneNumberPEPadding(),
             _phoneNumberPEQuestion(),
           ],
         ),
       ),
     );
+  }
+
+  Widget _makeSubtitle(String subtitle) {
+    return Padding(padding: EdgeInsets.only(top: 20, bottom: 10),
+        child:
+      Row(children: [
+      Text(subtitle, style: TextStyle(
+        color: Colors.grey,
+        fontStyle: FontStyle.italic,
+        fontSize: 15.0,
+      ),)
+    ]));
   }
 
   Row _phoneAvailableQuestion() {
@@ -371,6 +387,9 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _phoneNumberPatientQuestion() {
+    if (_pa.phoneAvailable == null || !_pa.phoneAvailable) {
+      return Container();
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -392,7 +411,17 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     );
   }
 
+  Widget _adherenceReminderSubtitle() {
+    if (_pa.phoneAvailable == null || !_pa.phoneAvailable) {
+      return Container();
+    }
+    return _makeSubtitle('Adherence Reminder');
+  }
+
   Widget _adherenceReminderQuestion() {
+    if (_pa.phoneAvailable == null || !_pa.phoneAvailable) {
+      return Container();
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -433,6 +462,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _adherenceReminderFrequencyQuestion() {
+    if (_pa.phoneAvailable == null || !_pa.phoneAvailable ||
+        _pa.adherenceReminderEnabled == null || !_pa.adherenceReminderEnabled) {
+      return Container();
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -465,6 +498,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _adherenceReminderTimeQuestion() {
+    if (_pa.phoneAvailable == null || !_pa.phoneAvailable ||
+        _pa.adherenceReminderEnabled == null || !_pa.adherenceReminderEnabled) {
+      return Container();
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -487,6 +524,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _adherenceReminderMessageQuestion() {
+    if (_pa.phoneAvailable == null || !_pa.phoneAvailable ||
+        _pa.adherenceReminderEnabled == null || !_pa.adherenceReminderEnabled) {
+      return Container();
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -518,7 +559,17 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     );
   }
 
+  Widget _artRefillReminderSubtitle() {
+    if (_pa.phoneAvailable == null || !_pa.phoneAvailable) {
+      return Container();
+    }
+    return _makeSubtitle('ART Refill Reminder');
+  }
+
   Widget _artRefillReminderQuestion() {
+    if (_pa.phoneAvailable == null || !_pa.phoneAvailable) {
+      return Container();
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -528,10 +579,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         Expanded(
             flex: _answersFlex,
             child: DropdownButtonFormField<bool>(
-              value: _pa.adherenceReminderEnabled,
+              value: null, // TODO
               onChanged: (bool newValue) {
                 setState(() {
-                  _pa.adherenceReminderEnabled = newValue;
+                  // TODO
                 });
               },
               validator: (value) {
@@ -559,6 +610,9 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _artRefillReminderDaysBeforeQuestion() {
+    if (_pa.phoneAvailable == null || !_pa.phoneAvailable) {
+      return Container();
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -573,7 +627,17 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     );
   }
 
+  Widget _viralLoadNotificationSubtitle() {
+    if (_pa.phoneAvailable == null || !_pa.phoneAvailable) {
+      return Container();
+    }
+    return _makeSubtitle('Viral Load Notification');
+  }
+
   Widget _viralLoadNotificationQuestion() {
+    if (_pa.phoneAvailable == null || !_pa.phoneAvailable) {
+      return Container();
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -614,6 +678,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _viralLoadMessageSuppressedQuestion() {
+    if (_pa.phoneAvailable == null || !_pa.phoneAvailable ||
+        _pa.vlNotificationEnabled == null || !_pa.vlNotificationEnabled) {
+      return Container();
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -646,6 +714,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _viralLoadMessageUnsuppressedQuestion() {
+    if (_pa.phoneAvailable == null || !_pa.phoneAvailable ||
+        _pa.vlNotificationEnabled == null || !_pa.vlNotificationEnabled) {
+      return Container();
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -677,7 +749,17 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     );
   }
 
+  Widget _phoneNumberPEPadding() {
+    if (_pa.phoneAvailable == null || !_pa.phoneAvailable) {
+      return Container();
+    }
+    return Container(height: 20,);
+  }
+
   Widget _phoneNumberPEQuestion() {
+    if (_pa.phoneAvailable == null || !_pa.phoneAvailable) {
+      return Container();
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
