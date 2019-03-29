@@ -41,12 +41,12 @@ class PreferenceAssessment {
   bool adherenceReminderEnabled;
   AdherenceReminderFrequency adherenceReminderFrequency;
   String adherenceReminderTime;
-  String adherenceReminderMessage;
+  AdherenceReminderMessage adherenceReminderMessage;
   bool artRefillReminderEnabled;
   int artRefillReminderDaysBefore;
   bool vlNotificationEnabled;
-  String vlNotificationMessageSuppressed;
-  String vlNotificationMessageUnsuppressed;
+  VLSuppressedMessage vlNotificationMessageSuppressed;
+  VLUnsuppressedMessage vlNotificationMessageUnsuppressed;
   String pePhoneNumber;
   SupportPreferencesSelection supportPreferences = SupportPreferencesSelection();
   EACOption eacOption;
@@ -100,7 +100,7 @@ class PreferenceAssessment {
     }
     this.adherenceReminderFrequency = map[colAdherenceReminderFrequency] == null ? null : AdherenceReminderFrequency.values[map[colAdherenceReminderFrequency]];
     this.adherenceReminderTime = map[colAdherenceReminderTime];
-    this.adherenceReminderMessage = map[colAdherenceReminderMessage];
+    this.adherenceReminderMessage = map[colAdherenceReminderMessage] == null ? null : AdherenceReminderMessage.values[map[colAdherenceReminderMessage]];
     if (map[colARTRefillReminderEnabled] != null) {
       this.artRefillReminderEnabled = map[colARTRefillReminderEnabled] == 1;
     }
@@ -108,8 +108,8 @@ class PreferenceAssessment {
     if (map[colVLNotificationEnabled] != null) {
       this.vlNotificationEnabled = map[colVLNotificationEnabled] == 1;
     }
-    this.vlNotificationMessageSuppressed = map[colVLNotificationMessageSuppressed];
-    this.vlNotificationMessageUnsuppressed = map[colVLNotificationMessageUnsuppressed];
+    this.vlNotificationMessageSuppressed = map[colVLNotificationMessageSuppressed] == null ? null : VLSuppressedMessage.values[map[colVLNotificationMessageSuppressed]];
+    this.vlNotificationMessageUnsuppressed = map[colVLNotificationMessageUnsuppressed] == null ? null : VLUnsuppressedMessage.values[map[colVLNotificationMessageUnsuppressed]];
     this.pePhoneNumber = map[colPEPhoneNumber];
     this.supportPreferences = SupportPreferencesSelection.deserializeFromJSON(map[colSupportPreferences]);
     this.eacOption = map[colEACOption] == null ? null : EACOption.values[map[colEACOption]];

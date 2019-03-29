@@ -693,10 +693,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         Expanded(
             flex: _answersFlex,
             child: DropdownButtonFormField<VLSuppressedMessage>(
-              value: null, // TODO
+              value: _pa.vlNotificationMessageSuppressed,
               onChanged: (VLSuppressedMessage newValue) {
                 setState(() {
-                  // TODO
+                  _pa.vlNotificationMessageSuppressed = newValue;
                 });
               },
               validator: (value) {
@@ -729,10 +729,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         Expanded(
             flex: _answersFlex,
             child: DropdownButtonFormField<VLUnsuppressedMessage>(
-              value: null, // TODO
+              value: _pa.vlNotificationMessageUnsuppressed,
               onChanged: (VLUnsuppressedMessage newValue) {
                 setState(() {
-                  // TODO
+                  _pa.vlNotificationMessageUnsuppressed = newValue;
                 });
               },
               validator: (value) {
