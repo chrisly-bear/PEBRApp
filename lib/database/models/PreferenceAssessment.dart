@@ -19,6 +19,8 @@ class PreferenceAssessment {
   static final colAdherenceReminderFrequency = 'adherence_reminder_frequency'; // nullable
   static final colAdherenceReminderTime = 'adherence_reminder_time'; // nullable
   static final colAdherenceReminderMessage = 'adherence_reminder_message'; // nullable
+  static final colARTRefillReminderEnabled = 'art_refill_reminder_enabled'; // nullable
+  static final colARTRefillReminderDaysBefore = 'art_refill_reminder_days_before'; // nullable
   static final colVLNotificationEnabled = 'vl_notification_enabled'; // nullable
   static final colVLNotificationMessageSuppressed = 'vl_notification_message_suppressed'; // nullable
   static final colVLNotificationMessageUnsuppressed = 'vl_notification_message_unsuppressed'; // nullable
@@ -40,6 +42,8 @@ class PreferenceAssessment {
   AdherenceReminderFrequency adherenceReminderFrequency;
   String adherenceReminderTime;
   String adherenceReminderMessage;
+  bool artRefillReminderEnabled;
+  int artRefillReminderDaysBefore;
   bool vlNotificationEnabled;
   String vlNotificationMessageSuppressed;
   String vlNotificationMessageUnsuppressed;
@@ -68,6 +72,8 @@ class PreferenceAssessment {
         AdherenceReminderFrequency adherenceReminderFrequency,
         String adherenceReminderTime,
         String adherenceReminderMessage,
+        bool artRefillReminderEnabled,
+        int artRefillReminderDaysBefore,
         bool vlNotificationEnabled,
         String vlNotificationMessageSuppressed,
         String vlNotificationMessageUnsuppressed,
@@ -95,6 +101,10 @@ class PreferenceAssessment {
     this.adherenceReminderFrequency = map[colAdherenceReminderFrequency] == null ? null : AdherenceReminderFrequency.values[map[colAdherenceReminderFrequency]];
     this.adherenceReminderTime = map[colAdherenceReminderTime];
     this.adherenceReminderMessage = map[colAdherenceReminderMessage];
+    if (map[colARTRefillReminderEnabled] != null) {
+      this.artRefillReminderEnabled = map[colARTRefillReminderEnabled] == 1;
+    }
+    this.artRefillReminderDaysBefore = map[colARTRefillReminderDaysBefore];
     if (map[colVLNotificationEnabled] != null) {
       this.vlNotificationEnabled = map[colVLNotificationEnabled] == 1;
     }
@@ -121,6 +131,8 @@ class PreferenceAssessment {
     map[colAdherenceReminderFrequency] = adherenceReminderFrequency;
     map[colAdherenceReminderTime] = adherenceReminderTime;
     map[colAdherenceReminderMessage] = adherenceReminderMessage;
+    map[colARTRefillReminderEnabled] = artRefillReminderEnabled;
+    map[colARTRefillReminderDaysBefore] = artRefillReminderDaysBefore;
     map[colVLNotificationEnabled] = vlNotificationEnabled;
     map[colVLNotificationMessageSuppressed] = vlNotificationMessageSuppressed;
     map[colVLNotificationMessageUnsuppressed] = vlNotificationMessageUnsuppressed;

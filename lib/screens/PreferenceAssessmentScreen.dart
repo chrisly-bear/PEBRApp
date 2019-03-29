@@ -579,10 +579,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         Expanded(
             flex: _answersFlex,
             child: DropdownButtonFormField<bool>(
-              value: null, // TODO
+              value: _pa.artRefillReminderEnabled, // TODO
               onChanged: (bool newValue) {
                 setState(() {
-                  // TODO
+                  _pa.artRefillReminderEnabled = newValue;
                 });
               },
               validator: (value) {
@@ -610,7 +610,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _artRefillReminderDaysBeforeQuestion() {
-    if (_pa.phoneAvailable == null || !_pa.phoneAvailable) {
+    if (_pa.phoneAvailable == null || !_pa.phoneAvailable ||
+        _pa.artRefillReminderEnabled == null || !_pa.artRefillReminderEnabled) {
       return Container();
     }
     return Row(
