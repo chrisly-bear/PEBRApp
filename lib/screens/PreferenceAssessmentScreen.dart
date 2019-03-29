@@ -538,10 +538,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         Expanded(
             flex: _answersFlex,
             child: DropdownButtonFormField<AdherenceReminderMessage>(
-              value: null, // TODO
+              value: _pa.adherenceReminderMessage, // TODO
               onChanged: (AdherenceReminderMessage newValue) {
                 setState(() {
-                  // TODO
+                  _pa.adherenceReminderMessage = newValue;
                 });
               },
               validator: (value) {
