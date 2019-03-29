@@ -48,6 +48,27 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     _pa.patientART = patientART;
   }
 
+  /// Returns true if the previously selected ART Refill Option is one of VHW,
+  /// Treatment Buddy, or Community Adherence Club and that option has been
+  /// selected as not available.
+  bool _additionalARTRefillOptionRequired(int currentOption) {
+    if (currentOption < 1) {
+      return true;
+    }
+    final availabilityRequiredOptions = [
+      ARTRefillOption.VHW,
+      ARTRefillOption.TREATMENT_BUDDY,
+      ARTRefillOption.COMMUNITY_ADHERENCE_CLUB,
+    ];
+    final previousOptionSelection = _artRefillOptionSelections[currentOption - 1];
+    final previousOptionAvailable = _artRefillOptionPersonAvailableSelections[currentOption - 1];
+    if (previousOptionSelection == null || previousOptionAvailable == null) {
+      return false;
+    }
+    return (availabilityRequiredOptions.contains(previousOptionSelection) &&
+        !previousOptionAvailable);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -114,7 +135,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             )));
   }
 
-  Row _artRefillOption(int optionNumber) {
+  Widget _artRefillOption(int optionNumber) {
+    if (optionNumber > 0 && !_additionalARTRefillOptionRequired(optionNumber)) {
+      return Container();
+    }
     var displayValue = _artRefillOptionSelections[optionNumber];
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -122,7 +146,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         Expanded(
             flex: _questionsFlex,
             child:
-            optionNumber == 1 ?
+            optionNumber == 0 ?
             Text('How and where do you want to refill your ART mainly?') :
             Text('Choose another option additionally')),
         Expanded(
@@ -155,7 +179,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     );
   }
 
-  Row _artRefillOptionPersonAvailableRow(int optionNumber) {
+  Widget _artRefillOptionPersonAvailableRow(int optionNumber) {
+    if (optionNumber > 0 && !_additionalARTRefillOptionRequired(optionNumber)) {
+      return Container();
+    }
     var displayValue = _artRefillOptionPersonAvailableSelections[optionNumber];
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
