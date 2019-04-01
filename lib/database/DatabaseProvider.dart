@@ -9,8 +9,9 @@ import 'package:path/path.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 3;
+  static const int _DB_VERSION = 4;
   static Database _database;
+  static const String _dbFilename = "PEBRApp.db";
 
   // private constructor for Singleton pattern
   DatabaseProvider._();
@@ -29,7 +30,7 @@ class DatabaseProvider {
   }
 
   _initDB() async {
-    String path = join(await getDatabasesPath(), "PEBRApp.db");
+    String path = join(await getDatabasesPath(), _dbFilename);
     print('DATABASE PATH: $path');
     return await openDatabase(path, version: _DB_VERSION, onCreate: _onCreate, onUpgrade: _onUpgrade);
   }
@@ -65,10 +66,12 @@ class DatabaseProvider {
           ${PreferenceAssessment.colAdherenceReminderEnabled} BIT,
           ${PreferenceAssessment.colAdherenceReminderFrequency} INTEGER,
           ${PreferenceAssessment.colAdherenceReminderTime} TEXT,
-          ${PreferenceAssessment.colAdherenceReminderMessage} TEXT,
+          ${PreferenceAssessment.colAdherenceReminderMessage} INTEGER,
+          ${PreferenceAssessment.colARTRefillReminderEnabled} BIT,
+          ${PreferenceAssessment.colARTRefillReminderDaysBefore} INTEGER,
           ${PreferenceAssessment.colVLNotificationEnabled} BIT,
-          ${PreferenceAssessment.colVLNotificationMessageSuppressed} TEXT,
-          ${PreferenceAssessment.colVLNotificationMessageUnsuppressed} TEXT,
+          ${PreferenceAssessment.colVLNotificationMessageSuppressed} INTEGER,
+          ${PreferenceAssessment.colVLNotificationMessageUnsuppressed} INTEGER,
           ${PreferenceAssessment.colPEPhoneNumber} TEXT,
           ${PreferenceAssessment.colSupportPreferences} TEXT,
           ${PreferenceAssessment.colEACOption} INTEGER NOT NULL
@@ -190,6 +193,13 @@ class DatabaseProvider {
       // assessments done under previous database versions (< 3) will have the
       // "Nurse at Clinic" EAC option selected.
       await db.execute("ALTER TABLE PreferenceAssessment ADD eac_option INTEGER NOT NULL DEFAULT 0;");
+    }
+    if (oldVersion < 4) {
+      print('Upgrading to database version 4...');
+      print('NOT IMPLEMENTED, DATA WILL BE RESET!');
+      await db.execute("DROP TABLE ${Patient.tableName};");
+      await db.execute("DROP TABLE ${PreferenceAssessment.tableName};");
+      _onCreate(db, newVersion);
     }
   }
 
