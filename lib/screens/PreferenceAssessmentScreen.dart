@@ -972,6 +972,9 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       _pa.artRefillOption2 = _artRefillOptionSelections[1];
       _pa.artRefillOption3 = _artRefillOptionSelections[2];
       _pa.artRefillOption4 = _artRefillOptionSelections[3];
+      _pa.patientPhoneNumber = _patientPhoneNumberCtr.text;
+      _pa.adherenceReminderTime = _adherenceReminderTimeCtr.text;
+      _pa.pePhoneNumber = _pePhoneNumberCtr.text;
       print(
           'NEW PREFERENCE ASSESSMENT (_id will be given by SQLite database):\n$_pa');
       await PatientBloc.instance.sinkPreferenceAssessmentData(_pa);

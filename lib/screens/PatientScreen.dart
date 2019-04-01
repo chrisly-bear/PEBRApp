@@ -162,7 +162,8 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     }
 
     _buildAdherenceReminderMessageText() {
-      String text = _patient.latestPreferenceAssessment.adherenceReminderMessage ?? '—';
+      AdherenceReminderMessage message = _patient.latestPreferenceAssessment.adherenceReminderMessage;
+      String text = message == null ? '—' : adherenceReminderMessageToString(message);
       return Text(text);
     }
 
@@ -178,12 +179,14 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     }
 
     _buildVLMessageSuppressedText() {
-      String text = _patient.latestPreferenceAssessment.vlNotificationMessageSuppressed ?? '—';
+      VLSuppressedMessage message = _patient.latestPreferenceAssessment.vlNotificationMessageSuppressed;
+      String text = message == null ? '—' : vlSuppressedMessageToString(message);
       return Text(text);
     }
 
     _buildVLMessageUnsuppressedText() {
-      String text = _patient.latestPreferenceAssessment.vlNotificationMessageUnsuppressed ?? '—';
+      VLUnsuppressedMessage message = _patient.latestPreferenceAssessment.vlNotificationMessageUnsuppressed;
+      String text = message == null ? '—' : vlUnsuppressedMessageToString(message);
       return Text(text);
     }
 
