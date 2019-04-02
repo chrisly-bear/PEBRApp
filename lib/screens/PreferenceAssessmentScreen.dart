@@ -583,6 +583,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               onChanged: (bool newValue) {
                 setState(() {
                   _pa.artRefillReminderEnabled = newValue;
+                  // initialize the artRefillReminderDaysBefore object
+                  _pa.artRefillReminderDaysBefore = newValue ? ARTRefillReminderDaysBeforeSelection() : null;
                 });
               },
               validator: (value) {
@@ -614,18 +616,57 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         _pa.artRefillReminderEnabled == null || !_pa.artRefillReminderEnabled) {
       return Container();
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child: Text('How many days before would you like to receive the reminder?')),
-        Expanded(
+    return Column(children: <Widget>[
+      Row(
+        children: <Widget>[
+          Expanded(
+              flex: _questionsFlex,
+              child: Text(
+                  'How many days before would you like to receive the reminder? (tick all that apply)')),
+          Expanded(
             flex: _answersFlex,
-            // TODO: replace with a number picker dropdown
-            child: Container(height: 45,))
-      ],
-    );
+            child: CheckboxListTile(
+                title: Text(ARTRefillReminderDaysBeforeSelection.sevenDaysBeforeDescription),
+                value: _pa.artRefillReminderDaysBefore.sevenDaysBeforeSelected,
+                onChanged: (bool newValue) => this.setState(() {
+                  _pa.artRefillReminderDaysBefore.sevenDaysBeforeSelected =
+                      newValue;
+                })),
+          )
+        ],
+      ),
+      Row(
+        children: <Widget>[
+          Expanded(flex: _questionsFlex, child: Container()),
+          Expanded(
+            flex: _answersFlex,
+            child: CheckboxListTile(
+                title: Text(ARTRefillReminderDaysBeforeSelection.twoDaysBeforeDescription),
+                value: _pa.artRefillReminderDaysBefore.twoDaysBeforeSelected,
+                onChanged: (bool newValue) => this.setState(() {
+                  _pa.artRefillReminderDaysBefore.twoDaysBeforeSelected =
+                      newValue;
+                })),
+          )
+        ],
+      ),
+      Row(
+        children: <Widget>[
+          Expanded(flex: _questionsFlex, child: Container()),
+          Expanded(
+            flex: _answersFlex,
+            child: CheckboxListTile(
+              // secondary: const Icon(Icons.local_hospital),
+                title: Text(ARTRefillReminderDaysBeforeSelection.oneDayBeforeDescription),
+//                  dense: true,
+                value: _pa.artRefillReminderDaysBefore.oneDayBeforeSelected,
+                onChanged: (bool newValue) => this.setState(() {
+                  _pa.artRefillReminderDaysBefore.oneDayBeforeSelected = newValue;
+                })),
+          )
+        ],
+      ),
+    ]);
   }
 
   Widget _viralLoadNotificationSubtitle() {

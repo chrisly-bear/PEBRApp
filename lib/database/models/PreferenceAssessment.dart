@@ -43,7 +43,7 @@ class PreferenceAssessment {
   String adherenceReminderTime;
   AdherenceReminderMessage adherenceReminderMessage;
   bool artRefillReminderEnabled;
-  int artRefillReminderDaysBefore;
+  ARTRefillReminderDaysBeforeSelection artRefillReminderDaysBefore;
   bool vlNotificationEnabled;
   VLSuppressedMessage vlNotificationMessageSuppressed;
   VLUnsuppressedMessage vlNotificationMessageUnsuppressed;
@@ -73,7 +73,7 @@ class PreferenceAssessment {
         String adherenceReminderTime,
         String adherenceReminderMessage,
         bool artRefillReminderEnabled,
-        int artRefillReminderDaysBefore,
+        ARTRefillReminderDaysBeforeSelection artRefillReminderDaysBeforeSelection,
         bool vlNotificationEnabled,
         String vlNotificationMessageSuppressed,
         String vlNotificationMessageUnsuppressed,
@@ -104,7 +104,7 @@ class PreferenceAssessment {
     if (map[colARTRefillReminderEnabled] != null) {
       this.artRefillReminderEnabled = map[colARTRefillReminderEnabled] == 1;
     }
-    this.artRefillReminderDaysBefore = map[colARTRefillReminderDaysBefore];
+    this.artRefillReminderDaysBefore = map[colARTRefillReminderDaysBefore] == null ? null : ARTRefillReminderDaysBeforeSelection.deserializeFromJSON(map[colARTRefillReminderDaysBefore]);
     if (map[colVLNotificationEnabled] != null) {
       this.vlNotificationEnabled = map[colVLNotificationEnabled] == 1;
     }
@@ -132,7 +132,7 @@ class PreferenceAssessment {
     map[colAdherenceReminderTime] = adherenceReminderTime;
     map[colAdherenceReminderMessage] = adherenceReminderMessage?.index;
     map[colARTRefillReminderEnabled] = artRefillReminderEnabled;
-    map[colARTRefillReminderDaysBefore] = artRefillReminderDaysBefore;
+    map[colARTRefillReminderDaysBefore] = artRefillReminderDaysBefore?.serializeToJSON();
     map[colVLNotificationEnabled] = vlNotificationEnabled;
     map[colVLNotificationMessageSuppressed] = vlNotificationMessageSuppressed?.index;
     map[colVLNotificationMessageUnsuppressed] = vlNotificationMessageUnsuppressed?.index;
@@ -209,17 +209,59 @@ class SupportPreferencesSelection {
 
 }
 
+class ARTRefillReminderDaysBeforeSelection {
+  bool sevenDaysBeforeSelected = false;
+  bool twoDaysBeforeSelected = false;
+  bool oneDayBeforeSelected = false;
+
+  static String get sevenDaysBeforeDescription => "7 Days Before";
+  static String get twoDaysBeforeDescription => "2 Days Before";
+  static String get oneDayBeforeDescription => "1 Day Before";
+
+  void deselectAll() {
+    sevenDaysBeforeSelected = false;
+    twoDaysBeforeSelected = false;
+    oneDayBeforeSelected = false;
+  }
+
+  bool get areAllDeselected {
+    return !(sevenDaysBeforeSelected ||
+        twoDaysBeforeSelected ||
+        oneDayBeforeSelected);
+  }
+
+  String serializeToJSON() {
+    var map = Map<String, bool>();
+    map['sevenDaysBeforeSelected'] = sevenDaysBeforeSelected;
+    map['twoDaysBeforeSelected'] = twoDaysBeforeSelected;
+    map['oneDayBeforeSelected'] = oneDayBeforeSelected;
+    return jsonEncode(map);
+  }
+
+  static ARTRefillReminderDaysBeforeSelection deserializeFromJSON(String json) {
+    final map = jsonDecode(json) as Map<String, dynamic>;
+    var obj = ARTRefillReminderDaysBeforeSelection();
+    obj.sevenDaysBeforeSelected = map['sevenDaysBeforeSelected'] ?? false;
+    obj.twoDaysBeforeSelected = map['twoDaysBeforeSelected'] ?? false;
+    obj.oneDayBeforeSelected = map['oneDayBeforeSelected'] ?? false;
+    return obj;
+  }
+
+}
+
 // Do not change the order of the enums as their index is used to store the instance in the database!
 enum ARTRefillOption { CLINIC, PE_HOME_DELIVERY, VHW, TREATMENT_BUDDY, COMMUNITY_ADHERENCE_CLUB }
 
 // Do not change the order of the enums as their index is used to store the instance in the database!
 enum AdherenceReminderFrequency { DAILY, WEEKLY, MONTHLY }
 
-// TODO: create database schema stuff
+// Do not change the order of the enums as their index is used to store the instance in the database!
 enum AdherenceReminderMessage { MESSAGE_1, MESSAGE_2 }
 
+// Do not change the order of the enums as their index is used to store the instance in the database!
 enum VLSuppressedMessage { MESSAGE_1, MESSAGE_2 }
 
+// Do not change the order of the enums as their index is used to store the instance in the database!
 enum VLUnsuppressedMessage { MESSAGE_1, MESSAGE_2 }
 
 // Do not change the order of the enums as their index is used to store the instance in the database!
