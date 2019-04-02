@@ -189,13 +189,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               validator: (value) {
                 if (value == null) { return 'Please answer this question'; }
               },
-              items: <ARTRefillOption>[
-                ARTRefillOption.CLINIC,
-                ARTRefillOption.COMMUNITY_ADHERENCE_CLUB,
-                ARTRefillOption.PE_HOME_DELIVERY,
-                ARTRefillOption.TREATMENT_BUDDY,
-                ARTRefillOption.VHW
-              ].map<DropdownMenuItem<ARTRefillOption>>((ARTRefillOption value) {
+              items: ARTRefillOption.values.map<DropdownMenuItem<ARTRefillOption>>((ARTRefillOption value) {
                 String description = artRefillOptionToString(value);
                 return DropdownMenuItem<ARTRefillOption>(
                   value: value,
