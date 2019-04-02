@@ -290,7 +290,7 @@ class _MainScreenState extends State<MainScreen> {
                   Expanded(child: _formatHeaderRowText('NEXT REFILL')),
                   Expanded(child: _formatHeaderRowText('REFILL BY')),
                   Expanded(flex: 2, child: _formatHeaderRowText('SUPPORT')),
-                  Expanded(child: _formatHeaderRowText('VIRAL LOAD (EAC)')),
+                  Expanded(child: _formatHeaderRowText('VIRAL LOAD')),
                   Expanded(child: _formatHeaderRowText('NEXT ASSESSMENT')),
                 ],
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
