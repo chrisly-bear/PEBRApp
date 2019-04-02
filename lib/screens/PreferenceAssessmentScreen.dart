@@ -37,7 +37,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   final _artRefillOptionPersonAvailableSelections = List<bool>(3);
   int _questionsFlex = 3;
   int _answersFlex = 1;
-  // TODO: add all necessary controller that we need to get the text from the form fields
   var _artRefillOptionPersonNameCtr = TextEditingController();
   var _artRefillOptionPersonPhoneNumberCtr = TextEditingController();
   var _patientPhoneNumberCtr = TextEditingController();
@@ -579,7 +578,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         Expanded(
             flex: _answersFlex,
             child: DropdownButtonFormField<bool>(
-              value: _pa.artRefillReminderEnabled, // TODO
+              value: _pa.artRefillReminderEnabled,
               onChanged: (bool newValue) {
                 setState(() {
                   _pa.artRefillReminderEnabled = newValue;
