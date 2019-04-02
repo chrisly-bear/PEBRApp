@@ -9,7 +9,7 @@ import 'package:path/path.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 5;
+  static const int _DB_VERSION = 6;
   static Database _database;
   static const String _dbFilename = "PEBRApp.db";
 
@@ -73,8 +73,7 @@ class DatabaseProvider {
           ${PreferenceAssessment.colVLNotificationMessageSuppressed} INTEGER,
           ${PreferenceAssessment.colVLNotificationMessageUnsuppressed} INTEGER,
           ${PreferenceAssessment.colPEPhoneNumber} TEXT,
-          ${PreferenceAssessment.colSupportPreferences} TEXT,
-          ${PreferenceAssessment.colEACOption} INTEGER NOT NULL
+          ${PreferenceAssessment.colSupportPreferences} TEXT
         );
         """);
         // TODO: set colLatestPreferenceAssessment as foreign key to `PreferenceAssessment` table
@@ -194,7 +193,7 @@ class DatabaseProvider {
       // "Nurse at Clinic" EAC option selected.
       await db.execute("ALTER TABLE PreferenceAssessment ADD eac_option INTEGER NOT NULL DEFAULT 0;");
     }
-    if (oldVersion < 5) {
+    if (oldVersion < 6) {
       print('Upgrading to database version 5...');
       print('NOT IMPLEMENTED, DATA WILL BE RESET!');
       await db.execute("DROP TABLE ${Patient.tableName};");

@@ -114,8 +114,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             children: [SizedButton('Export')]),
         _buildTitle('Support'),
         _buildSupportCard(),
-        _buildTitle('EAC (Enhanced Adherence Counseling)'),
-        _buildEACCard(),
 
         Center(child: _buildTitle('Next Preference Assessment')),
         Center(child: Text(formatDate(calculateNextAssessment(DateTime.now())))),
@@ -959,51 +957,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         ],
       ),
     ]);
-  }
-
-  _buildEACCard() {
-    return Card(
-        margin: EdgeInsets.symmetric(horizontal: 15),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          child: Column(
-          children: [
-            _eacSupportOption(),
-      ],
-    ),
-        ));
-  }
-
-  Row _eacSupportOption() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            Text('In case of unsuppressed VL, how do you want your EAC?')),
-        Expanded(
-            flex: _answersFlex,
-            child: DropdownButtonFormField<EACOption>(
-              value: _pa.eacOption,
-              onChanged: (EACOption newValue) {
-                setState(() {
-                  _pa.eacOption = newValue;
-                });
-              },
-              validator: (value) {
-                if (value == null) { return 'Please answer this question'; }
-              },
-              items: EACOption.values.map<DropdownMenuItem<EACOption>>((EACOption value) {
-                String description = eacOptionToString(value);
-                return DropdownMenuItem<EACOption>(
-                  value: value,
-                  child: Text(description),
-                );
-              }).toList(),
-            ))
-      ],
-    );
   }
 
   _onSubmitForm() async {

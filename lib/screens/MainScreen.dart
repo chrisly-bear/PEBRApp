@@ -228,20 +228,6 @@ class _MainScreenState extends State<MainScreen> {
               )));
     }
 
-    Widget _buildEACSupportIcon(EACOption eacOption) {
-      if (eacOption == null) {
-        return _formatPatientRowText('—');
-      }
-      switch (eacOption) {
-        case EACOption.NURSE_AT_CLINIC:
-          return _getPaddedIcon('assets/icons/nurse_clinic_fett.png');
-        case EACOption.HOME_VISIT_PE:
-          return _getPaddedIcon('assets/icons/phonecall_pe_black.png');
-        case EACOption.PHONE_CALL_PE:
-          return _getPaddedIcon('assets/icons/homevisit_pe_black.png');
-      }
-    }
-
     Widget _buildSupportIcons(SupportPreferencesSelection sps) {
       List<Widget> icons = List<Widget>();
       final Container spacer = Container(width: 3);
@@ -328,14 +314,6 @@ class _MainScreenState extends State<MainScreen> {
         }
         return viralLoadIcon;
 //        return viralLoadBadge;
-      }
-
-      Widget eacSupportIndicator;
-      // only show EAC support icon if patient is unsuppressed
-      if (curPatient?.vlSuppressed == null || curPatient.vlSuppressed) {
-        eacSupportIndicator = Container();
-      } else {
-        eacSupportIndicator = _buildEACSupportIcon(curPatient?.latestPreferenceAssessment?.eacOption);
       }
 
       String refillByText = '—';
@@ -429,11 +407,8 @@ class _MainScreenState extends State<MainScreen> {
                         child: _buildSupportIcons(curPatient?.latestPreferenceAssessment?.supportPreferences),
                     ),
                     Expanded(
-                        child: Row(children: [
-                          _getViralLoadIndicator(),
-                          Container(width: 5),
-                          eacSupportIndicator,
-                    ])),
+                        child: _getViralLoadIndicator(),
+                    ),
                     Expanded(child: _formatPatientRowText(nextAssessmentText)),
                   ],
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -26,7 +26,6 @@ class PreferenceAssessment {
   static final colVLNotificationMessageUnsuppressed = 'vl_notification_message_unsuppressed'; // nullable
   static final colPEPhoneNumber = 'pe_phone_number'; // nullable
   static final colSupportPreferences = 'support_preferences';
-  static final colEACOption = 'eac_option';
 
   String patientART;
   DateTime _createdDate;
@@ -49,7 +48,6 @@ class PreferenceAssessment {
   VLUnsuppressedMessage vlNotificationMessageUnsuppressed;
   String pePhoneNumber;
   SupportPreferencesSelection supportPreferences = SupportPreferencesSelection();
-  EACOption eacOption;
 
 
   // Constructors
@@ -60,7 +58,6 @@ class PreferenceAssessment {
       this.artRefillOption1,
       this.phoneAvailable,
       this.supportPreferences,
-      this.eacOption,
       {
         ARTRefillOption artRefillOption2,
         ARTRefillOption artRefillOption3,
@@ -112,7 +109,6 @@ class PreferenceAssessment {
     this.vlNotificationMessageUnsuppressed = map[colVLNotificationMessageUnsuppressed] == null ? null : VLUnsuppressedMessage.values[map[colVLNotificationMessageUnsuppressed]];
     this.pePhoneNumber = map[colPEPhoneNumber];
     this.supportPreferences = SupportPreferencesSelection.deserializeFromJSON(map[colSupportPreferences]);
-    this.eacOption = map[colEACOption] == null ? null : EACOption.values[map[colEACOption]];
   }
 
   toMap() {
@@ -138,7 +134,6 @@ class PreferenceAssessment {
     map[colVLNotificationMessageUnsuppressed] = vlNotificationMessageUnsuppressed?.index;
     map[colPEPhoneNumber] = pePhoneNumber;
     map[colSupportPreferences] = supportPreferences.serializeToJSON();
-    map[colEACOption] = eacOption.index;
     return map;
   }
 
@@ -263,6 +258,3 @@ enum VLSuppressedMessage { MESSAGE_1, MESSAGE_2 }
 
 // Do not change the order of the enums as their index is used to store the instance in the database!
 enum VLUnsuppressedMessage { MESSAGE_1, MESSAGE_2 }
-
-// Do not change the order of the enums as their index is used to store the instance in the database!
-enum EACOption { NURSE_AT_CLINIC, PHONE_CALL_PE, HOME_VISIT_PE }

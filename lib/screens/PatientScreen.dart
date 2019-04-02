@@ -268,11 +268,6 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       }, children: supportOptions);
     }
 
-    _buildEACText() {
-      String text = eacOptionToString(_patient.latestPreferenceAssessment.eacOption) ?? '—';
-      return Text(text);
-    }
-
     if (_patient.latestPreferenceAssessment == null) {
       return Card(
           margin: EdgeInsets.symmetric(horizontal: 15),
@@ -386,20 +381,6 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
                         vertical: _tableRowPaddingVertical),
                     child: _buildSupportOptions(),
                   ),
-                ),
-              ]),
-              TableRow(children: [
-                TableCell(
-                  child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: _tableRowPaddingVertical),
-                      child: Text('EAC (Enhanced Adherence Counseling)')),
-                ),
-                TableCell(
-                  child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: _tableRowPaddingVertical),
-                      child: _buildEACText()),
                 ),
               ]),
             ],

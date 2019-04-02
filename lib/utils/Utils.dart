@@ -103,22 +103,6 @@ String vlUnsuppressedMessageToString(VLUnsuppressedMessage message) {
   return returnString;
 }
 
-String eacOptionToString(EACOption option) {
-  String returnString;
-  switch (option) {
-    case EACOption.HOME_VISIT_PE:
-      returnString = "Home Visit from PE";
-      break;
-    case EACOption.NURSE_AT_CLINIC:
-      returnString = "Nurse at the Clinic";
-      break;
-    case EACOption.PHONE_CALL_PE:
-      returnString = "Phone Call from PE";
-      break;
-  }
-  return returnString;
-}
-
 /// Takes a date and returns a date at the beginning (midnight) of the same day.
 DateTime _roundToDays(DateTime date) {
   final day = date.day;
