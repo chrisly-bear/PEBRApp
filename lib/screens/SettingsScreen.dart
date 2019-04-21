@@ -50,6 +50,13 @@ class _LoginBodyState extends State<LoginBody> {
   TextEditingController _firstNameCreateAccountCtr = TextEditingController();
   TextEditingController _lastNameCreateAccountCtr = TextEditingController();
 
+  String _selectedHealthCenter;
+  static final healthCenters = [
+    'Maseru',
+    'Morija',
+    'Butha-Buthe',
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -99,6 +106,23 @@ class _LoginBodyState extends State<LoginBody> {
                       }
                     },
                   ),
+                  DropdownButtonFormField<String>(
+                    value: _selectedHealthCenter,
+                    onChanged: (String newValue) {
+                      setState(() {
+                        _selectedHealthCenter = newValue;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null) { return 'Please select the health center at which you work'; }
+                    },
+                    items: healthCenters.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  )
                 ],
               ),
             ),
