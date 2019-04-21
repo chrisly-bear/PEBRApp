@@ -42,25 +42,29 @@ class LoginBody extends StatefulWidget {
 }
 
 class _LoginBodyState extends State<LoginBody> {
-  final _formKey = GlobalKey<FormState>();
-  TextEditingController _firstNameCtr = TextEditingController();
-  TextEditingController _lastNameCtr = TextEditingController();
+  final _loginFormKey = GlobalKey<FormState>();
+  final _createAccountFormKey = GlobalKey<FormState>();
+  bool _createAccountMode = false;
+  TextEditingController _firstNameLoginCtr = TextEditingController();
+  TextEditingController _lastNameLoginCtr = TextEditingController();
+  TextEditingController _firstNameCreateAccountCtr = TextEditingController();
+  TextEditingController _lastNameCreateAccountCtr = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Form(
-      key: _formKey,
+      key: _createAccountMode ? _createAccountFormKey : _loginFormKey,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          _loginForm(),
-          _createAccountBlock(),
+          _formBlock(),
+          _switchModeBlock(),
         ],
       ),
     );
   }
 
-  _loginForm() {
+  _formBlock() {
     return Column(
       children: <Widget>[
         Container(
@@ -74,7 +78,9 @@ class _LoginBodyState extends State<LoginBody> {
                   Text('First Name'),
                   TextFormField(
                     textAlign: TextAlign.center,
-                    controller: _firstNameCtr,
+                    controller: _createAccountMode
+                        ? _firstNameCreateAccountCtr
+                        : _firstNameLoginCtr,
                     validator: (value) {
                       if (value.isEmpty) {
                         return 'Please enter your first name';
@@ -84,7 +90,9 @@ class _LoginBodyState extends State<LoginBody> {
                   Text('Last Name'),
                   TextFormField(
                     textAlign: TextAlign.center,
-                    controller: _lastNameCtr,
+                    controller: _createAccountMode
+                        ? _lastNameCreateAccountCtr
+                        : _lastNameLoginCtr,
                     validator: (value) {
                       if (value.isEmpty) {
                         return 'Please enter your last name';
@@ -100,8 +108,10 @@ class _LoginBodyState extends State<LoginBody> {
           padding: const EdgeInsets.symmetric(vertical: 16.0),
           child: Center(
             child: SizedButton(
-              'Login',
-              onPressed: _onSubmitForm,
+              _createAccountMode ? 'Create Account' : 'Login',
+              onPressed: _createAccountMode
+                  ? _onSubmitCreateAccountForm
+                  : _onSubmitLoginForm,
             ),
           ),
         ),
@@ -109,16 +119,16 @@ class _LoginBodyState extends State<LoginBody> {
     );
   }
 
-  _createAccountBlock() {
+  _switchModeBlock() {
     return Column(
       children: <Widget>[
-        Text("No account yet?"),
+        _createAccountMode ? Text("Already have an account?") : Text("Don't have an account yet?"),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 16.0),
           child: Center(
             child: SizedButton(
-              'Create Account',
-              onPressed: null, // TODO: show create account screen
+              _createAccountMode ? 'Log In' : 'Create Account',
+              onPressed: () => {setState(() => _createAccountMode = !_createAccountMode)},
             ),
           ),
         ),
@@ -126,11 +136,20 @@ class _LoginBodyState extends State<LoginBody> {
     );
   }
 
-  _onSubmitForm() async {
+  _onSubmitLoginForm() async {
     // Validate will return true if the form is valid, or false if the form is invalid.
-    if (_formKey.currentState.validate()) {
+    if (_loginFormKey.currentState.validate()) {
       await Future.delayed(Duration(seconds: 1)); // TODO: perform login
       final String finishNotification = 'Logged in successfully';
+      showFlushBar(context, finishNotification);
+    }
+  }
+
+  _onSubmitCreateAccountForm() async {
+    // Validate will return true if the form is valid, or false if the form is invalid.
+    if (_createAccountFormKey.currentState.validate()) {
+      await Future.delayed(Duration(seconds: 1)); // TODO: create account
+      final String finishNotification = 'Created account successfully';
       showFlushBar(context, finishNotification);
     }
   }
