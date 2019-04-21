@@ -1,14 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
 import 'package:pebrapp/utils/Utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+const FIRSTNAME_KEY = "FirstName";
+const LASTNAME_KEY = "LastName";
+const HEALTHCENTER_KEY = "HealthCenter";
 
 class SettingsScreen extends StatefulWidget {
   @override
   createState() => _SettingsScreenState();
 }
 
+class LoginData {
+  String firstName, lastName, healthCenter;
+  LoginData(this.firstName, this.lastName, this.healthCenter);
+}
+
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _loggedIn = false; // TODO: get login state
+  bool _isLoading = true;
+  LoginData _loginData;
+
+  @override
+  void initState() {
+    SharedPreferences.getInstance().then((SharedPreferences prefs) {
+      setState(() {
+        this._isLoading = false;
+        final firstName = prefs.getString(FIRSTNAME_KEY);
+        final lastName = prefs.getString(LASTNAME_KEY);
+        final healthCenter = prefs.getString(HEALTHCENTER_KEY);
+        this._loginData = LoginData(firstName, lastName, healthCenter);
+      });
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,12 +42,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         title: const Text('Settings'),
       ),
-      body: _loggedIn ? Center(child: SettingsBody()) : LoginBody(),
+      body: _isLoading
+          ? Center(child: Text('Loading...'))
+          : (_loginData == null
+              ? LoginBody()
+              : Center(child: SettingsBody(_loginData))),
     );
   }
 }
 
 class SettingsBody extends StatelessWidget {
+  final LoginData loginData;
+  SettingsBody(this.loginData);
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -31,6 +64,8 @@ class SettingsBody extends StatelessWidget {
         SizedButton('Start Backup'),
         Text("last backup: never"),
         SizedButton('Logout'),
+        Text('${loginData.firstName} ${loginData.lastName}'),
+        Text(loginData.healthCenter),
       ],
     );
   }
@@ -114,9 +149,12 @@ class _LoginBodyState extends State<LoginBody> {
                       });
                     },
                     validator: (value) {
-                      if (value == null) { return 'Please select the health center at which you work'; }
+                      if (value == null) {
+                        return 'Please select the health center at which you work';
+                      }
                     },
-                    items: healthCenters.map<DropdownMenuItem<String>>((String value) {
+                    items: healthCenters
+                        .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
                         child: Text(value),
@@ -146,13 +184,16 @@ class _LoginBodyState extends State<LoginBody> {
   _switchModeBlock() {
     return Column(
       children: <Widget>[
-        _createAccountMode ? Text("Already have an account?") : Text("Don't have an account yet?"),
+        _createAccountMode
+            ? Text("Already have an account?")
+            : Text("Don't have an account yet?"),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 16.0),
           child: Center(
             child: SizedButton(
               _createAccountMode ? 'Log In' : 'Create Account',
-              onPressed: () => {setState(() => _createAccountMode = !_createAccountMode)},
+              onPressed: () =>
+                  {setState(() => _createAccountMode = !_createAccountMode)},
             ),
           ),
         ),
@@ -172,8 +213,18 @@ class _LoginBodyState extends State<LoginBody> {
   _onSubmitCreateAccountForm() async {
     // Validate will return true if the form is valid, or false if the form is invalid.
     if (_createAccountFormKey.currentState.validate()) {
-      await Future.delayed(Duration(seconds: 1)); // TODO: create account
-      final String finishNotification = 'Created account successfully';
+      // TODO: check if user already exists!!!
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      bool firstNameResult =
+          await prefs.setString(FIRSTNAME_KEY, _firstNameCreateAccountCtr.text);
+      bool lastNameResult =
+          await prefs.setString(LASTNAME_KEY, _lastNameCreateAccountCtr.text);
+      bool healthCenterResult =
+          await prefs.setString(HEALTHCENTER_KEY, _selectedHealthCenter);
+      final String finishNotification =
+          firstNameResult && lastNameResult && healthCenterResult
+              ? 'Created account successfully'
+              : 'Something went wrong';
       showFlushBar(context, finishNotification);
     }
   }

@@ -25,6 +25,7 @@ dependencies:
   url_launcher: ^5.0.2
   intl: ^0.15.7
   html: ^0.13.4+1
+  shared_preferences: ^0.5.2
 
 dev_dependencies:
   flutter_launcher_icons: ^0.7.0
