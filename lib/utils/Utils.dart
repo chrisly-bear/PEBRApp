@@ -213,13 +213,13 @@ Future<void> uploadFileToSWITCHdrive(File sourceFile, String targetFolder,
   print("end of upload (status code: $statusCode)");
 }
 
-Future<void> uploadFileToSWITCHtoolbox(File sourceFile, String targetFolder,
-    String targetFilename, String username, String password) async {
+Future<void> uploadFileToSWITCHtoolbox(File sourceFile, String toolboxProject, String targetFolderId,
+    String username, String password, {String filename}) async {
 
   final _shibsessionCookie = await authenticateWithSWITCHtoolboxServiceProvider(username, password);
 
   // get mydms_session cookie (required to access toolbox file storage service)
-  final _req0 = http.Request('GET', Uri.parse('https://letodms.toolbox.switch.ch/pebrapp-data/op/op.Login.php?referuri='))
+  final _req0 = http.Request('GET', Uri.parse('https://letodms.toolbox.switch.ch/$toolboxProject/op/op.Login.php?referuri='))
     ..headers['Cookie'] = _shibsessionCookie
     ..followRedirects = false;
   final _resp0 = await _req0.send();
@@ -228,12 +228,12 @@ Future<void> uploadFileToSWITCHtoolbox(File sourceFile, String targetFolder,
   final _cookieHeaderString = '${_mydmsSessionCookie.split(' ').first} ${_shibsessionCookie.split(' ').first}';
 
   // upload file
-  final _req1 = http.MultipartRequest('POST', Uri.parse('https://letodms.toolbox.switch.ch/pebrapp-data/op/op.AddDocument.php'))
+  final _req1 = http.MultipartRequest('POST', Uri.parse('https://letodms.toolbox.switch.ch/$toolboxProject/op/op.AddDocument.php'))
     ..headers['Cookie'] = _cookieHeaderString
     ..files.add(await http.MultipartFile.fromPath('userfile[]', sourceFile.path))
     ..fields.addAll({
-      'name': '${sourceFile.path.split('/').last}',
-      'folderid': '1',
+      'name': filename == null ? '${sourceFile.path.split('/').last}' : filename,
+      'folderid': targetFolderId,
       'sequence': '1',
     });
 
