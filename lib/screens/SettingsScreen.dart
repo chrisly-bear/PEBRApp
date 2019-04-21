@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
+import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-const FIRSTNAME_KEY = "FirstName";
-const LASTNAME_KEY = "LastName";
-const HEALTHCENTER_KEY = "HealthCenter";
+import 'package:pebrapp/config/SharedPreferencesConfig.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -24,13 +22,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     SharedPreferences.getInstance().then((SharedPreferences prefs) {
-      setState(() {
-        this._isLoading = false;
+      final prefKeys = prefs.getKeys();
+      if (prefKeys.contains(FIRSTNAME_KEY) && prefKeys.contains(LASTNAME_KEY) && prefKeys.contains(HEALTHCENTER_KEY)) {
         final firstName = prefs.getString(FIRSTNAME_KEY);
         final lastName = prefs.getString(LASTNAME_KEY);
         final healthCenter = prefs.getString(HEALTHCENTER_KEY);
         this._loginData = LoginData(firstName, lastName, healthCenter);
-      });
+      }
+      setState(() {this._isLoading = false;});
     });
     super.initState();
   }
@@ -42,17 +41,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         title: const Text('Settings'),
       ),
-      body: _isLoading
-          ? Center(child: Text('Loading...'))
-          : (_loginData == null
-              ? LoginBody()
-              : Center(child: SettingsBody(_loginData))),
+      body: _isLoading ? Center(child: Text('Loading...')) : (
+          _loginData == null ? LoginBody() : Center(child: SettingsBody(this._loginData))
+      ),
     );
   }
 }
 
 class SettingsBody extends StatelessWidget {
   final LoginData loginData;
+
+  @override
   SettingsBody(this.loginData);
 
   @override
@@ -61,13 +60,19 @@ class SettingsBody extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         SizedButton('Set PIN'),
-        SizedButton('Start Backup'),
+        SizedButton('Start Backup', onPressed: () {_runBackup(context);},),
         Text("last backup: never"),
         SizedButton('Logout'),
         Text('${loginData.firstName} ${loginData.lastName}'),
-        Text(loginData.healthCenter),
+        Text('${loginData.healthCenter}'),
       ],
     );
+  }
+
+  _runBackup(BuildContext context) async {
+    final success = await DatabaseProvider.instance.backupToSWITCH();
+    final message = success ? 'Backup completed' : 'Something went wrong, make sure you are connected to the internet';
+    showFlushBar(context, message);
   }
 }
 
@@ -226,6 +231,7 @@ class _LoginBodyState extends State<LoginBody> {
               ? 'Created account successfully'
               : 'Something went wrong';
       showFlushBar(context, finishNotification);
+      // TODO: refresh settings screen to show the logged in state -> use the BloC
     }
   }
 }

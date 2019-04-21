@@ -3,6 +3,11 @@ import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pebrapp/config/SharedPreferencesConfig.dart';
+import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
+import 'package:pebrapp/config/SwitchConfig.dart';
 
 /// Access to the SQFLite database.
 /// Get an instance either via `DatabaseProvider.instance` or via the singleton constructor `DatabaseProvider()`.
@@ -27,6 +32,30 @@ class DatabaseProvider {
     // if _database is null we instantiate it
     _database = await _initDB();
     return _database;
+  }
+
+  Future<File> get _databaseFile async {
+    String path = join(await getDatabasesPath(), _dbFilename);
+    return File(path);
+  }
+
+  Future<bool> backupToSWITCH() async {
+    final DateTime now = DateTime.now();
+    final File dbFile = await _databaseFile;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final firstName = prefs.getString(FIRSTNAME_KEY);
+    final lastName = prefs.getString(LASTNAME_KEY);
+    final healthCenter = prefs.getString(HEALTHCENTER_KEY);
+    final String filename = '${firstName}_${lastName}_${healthCenter}_${now.toIso8601String()}';
+    try {
+      await uploadFileToSWITCHtoolbox(
+          dbFile, SWITCH_TOOLBOX_PROJECT, SWITCH_TOOLBOX_BACKUP_FOLDER_ID,
+          SWITCH_USERNAME, SWITCH_PASSWORD, filename: filename);
+    } catch (e) {
+      print(e);
+      return false;
+    }
+    return true;
   }
 
   _initDB() async {
