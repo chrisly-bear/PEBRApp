@@ -226,6 +226,18 @@ class DatabaseProvider {
     return getDatabasesPath();
   }
 
+  /// Erases all data from the database.
+  Future<void> resetDatabase() async {
+    // close database
+    final Database db = await _databaseInstance;
+    await db.close();
+    // delete database file
+    final File dbFile = await _databaseFile;
+    await dbFile.delete();
+    // initialize new empty database
+    await _initDB();
+  }
+
   Future<void> backupToSWITCH() async {
     final DateTime now = DateTime.now();
     final File dbFile = await _databaseFile;

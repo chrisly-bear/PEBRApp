@@ -99,8 +99,11 @@ class SettingsBody extends StatelessWidget {
     await prefs.remove(FIRSTNAME_KEY);
     await prefs.remove(LASTNAME_KEY);
     await prefs.remove(HEALTHCENTER_KEY);
+    await DatabaseProvider().resetDatabase();
+    await PatientBloc.instance.sinkAllPatientsFromDatabase();
     showFlushBar(context, 'Logged out');
-    // TODO: reset database & show login screen
+    // TODO: show login screen
+
   }
 }
 
