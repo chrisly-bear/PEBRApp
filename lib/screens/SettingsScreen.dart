@@ -259,19 +259,44 @@ class _LoginBodyState extends State<LoginBody> {
   _onSubmitCreateAccountForm() async {
     // Validate will return true if the form is valid, or false if the form is invalid.
     if (_createAccountFormKey.currentState.validate()) {
-      // TODO: check if user already exists!!!
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      bool firstNameResult =
-          await prefs.setString(FIRSTNAME_KEY, _firstNameCreateAccountCtr.text);
-      bool lastNameResult =
-          await prefs.setString(LASTNAME_KEY, _lastNameCreateAccountCtr.text);
-      bool healthCenterResult =
-          await prefs.setString(HEALTHCENTER_KEY, _selectedHealthCenter);
-      final String finishNotification =
-          firstNameResult && lastNameResult && healthCenterResult
-              ? 'Created account successfully'
-              : 'Something went wrong';
-      showFlushBar(context, finishNotification);
+      String notificationMessage = 'Account created successfully';
+      bool error = false;
+      final LoginData loginData = LoginData(
+          _firstNameCreateAccountCtr.text,
+          _lastNameCreateAccountCtr.text,
+          _selectedHealthCenter
+      );
+      try {
+        final bool userExists = await existsBackupForUser(loginData);
+        if (userExists) {
+          notificationMessage = 'User already exists';
+          error = true;
+        } else {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          bool firstNameResult =
+          await prefs.setString(FIRSTNAME_KEY, loginData.firstName);
+          bool lastNameResult =
+          await prefs.setString(LASTNAME_KEY, loginData.lastName);
+          bool healthCenterResult =
+          await prefs.setString(HEALTHCENTER_KEY, loginData.healthCenter);
+          if (!firstNameResult || !lastNameResult || !healthCenterResult) {
+            error = true;
+            notificationMessage = 'Something went wrong when storing the login data on the device';
+          }
+          // TODO: create a first backup on SWITCHtoolbox
+        }
+      } catch (e) {
+        error = true;
+        switch (e.runtimeType) {
+          case SocketException:
+            notificationMessage = 'Account could not be created: Make sure you are connected to the internet';
+            break;
+          default:
+            notificationMessage = 'Account could not be created: $e';
+        }
+      }
+      if (!error) { Navigator.of(context).pop(); }
+      showFlushBar(context, notificationMessage, error: error);
       // TODO: refresh settings screen to show the logged in state -> use the BloC
     }
   }
