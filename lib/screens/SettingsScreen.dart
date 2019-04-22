@@ -76,9 +76,11 @@ class SettingsBody extends StatelessWidget {
 
   _runBackup(BuildContext context) async {
     String message = 'Backup complete';
+    bool error = false;
     try {
       await DatabaseProvider().backupToSWITCH();
     } catch (e) {
+      error = true;
       switch (e.runtimeType) {
         case SocketException:
           message = 'Backup failed: Make sure you are connected to the internet';
@@ -87,21 +89,24 @@ class SettingsBody extends StatelessWidget {
           message = 'Backup failed: $e';
       }
     }
-    showFlushBar(context, message);
+    showFlushBar(context, message, error: error);
   }
 
   _runRestore(BuildContext context) async {
     String resultMessage = 'Restore successful';
+    bool error = false;
     try {
       final LoginData loginData = await loginDataFromSharedPrefs;
       final File backupFile = await downloadLatestBackup(loginData);
       if (backupFile == null) {
+        error = true;
         resultMessage = 'Restore failed: No backup file found';
       } else {
         await DatabaseProvider().restoreFromFile(backupFile);
         await PatientBloc.instance.sinkAllPatientsFromDatabase();
       }
     } catch (e) {
+      error = true;
       switch (e.runtimeType) {
         case SocketException:
           resultMessage = 'Restore failed: Make sure you are connected to the internet';
@@ -110,7 +115,7 @@ class SettingsBody extends StatelessWidget {
           resultMessage = 'Restore failed: $e';
       }
     }
-    showFlushBar(context, resultMessage);
+    showFlushBar(context, resultMessage, error: error);
   }
 }
 

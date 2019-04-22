@@ -9,7 +9,7 @@ import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
-void showFlushBar(BuildContext context, String message, {String title}) {
+void showFlushBar(BuildContext context, String message, {String title, bool error=false}) {
   Flushbar(
       flushbarPosition: FlushbarPosition.TOP,
     title: title,
@@ -20,7 +20,10 @@ void showFlushBar(BuildContext context, String message, {String title}) {
             fontSize: 18.0,
         ),
     ),
-    duration: Duration(seconds: 5),
+    borderRadius: 5,
+    backgroundColor: error ? Colors.redAccent : Colors.black.withAlpha(200),
+    aroundPadding: EdgeInsets.symmetric(horizontal: 80.0),
+    duration: error ? null : Duration(seconds: 5),
   ).show(context);
 }
 
