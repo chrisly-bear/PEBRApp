@@ -19,15 +19,17 @@ class DatabaseProvider {
   // uninitialized
   static Database _database;
   static const String _dbFilename = "PEBRApp.db";
+  static final DatabaseProvider _instance = DatabaseProvider._();
 
   // private constructor for Singleton pattern
   DatabaseProvider._();
-
-  static final DatabaseProvider _instance = DatabaseProvider._();
-
   factory DatabaseProvider() {
     return _instance;
   }
+
+  
+  // Private Methods
+  // ---------------
 
   get _databaseInstance async {
     if (_database != null) return _database;
@@ -38,30 +40,6 @@ class DatabaseProvider {
 
   Future<File> get _databaseFile async {
     return File(await databaseFilePath);
-  }
-
-  Future<void> backupToSWITCH() async {
-    final DateTime now = DateTime.now();
-    final File dbFile = await _databaseFile;
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final firstName = prefs.getString(FIRSTNAME_KEY);
-    final lastName = prefs.getString(LASTNAME_KEY);
-    final healthCenter = prefs.getString(HEALTHCENTER_KEY);
-    final String filename = '${firstName}_${lastName}_${healthCenter}_${now.toIso8601String()}';
-    await uploadFileToSWITCHtoolbox(dbFile, filename: filename);
-  }
-
-  Future<void> restoreFromFile(File backup) async {
-    // close database
-    final Database db = await _databaseInstance;
-    await db.close();
-    // move new database file into place
-    final String dbFilePath = await databaseFilePath;
-    await backup.copy(dbFilePath);
-    // load new database
-    await _initDB();
-    // remove backup file
-    await backup.delete();
   }
 
   _initDB() async {
@@ -110,13 +88,9 @@ class DatabaseProvider {
           ${PreferenceAssessment.colSupportPreferences} TEXT
         );
         """);
-        // TODO: set colLatestPreferenceAssessment as foreign key to `PreferenceAssessment` table
-        //       set colPatientART as foreign key to `Patient` table
+    // TODO: set colLatestPreferenceAssessment as foreign key to `PreferenceAssessment` table
+    //       set colPatientART as foreign key to `Patient` table
   }
-
-  
-  // Private Methods
-  // ---------------
 
   FutureOr<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
 
@@ -250,6 +224,30 @@ class DatabaseProvider {
   /// are stored, e.g., /data/user/0/org.pebrapp.pebrapp/databases
   Future<String> get databasesDirectoryPath async {
     return getDatabasesPath();
+  }
+
+  Future<void> backupToSWITCH() async {
+    final DateTime now = DateTime.now();
+    final File dbFile = await _databaseFile;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final firstName = prefs.getString(FIRSTNAME_KEY);
+    final lastName = prefs.getString(LASTNAME_KEY);
+    final healthCenter = prefs.getString(HEALTHCENTER_KEY);
+    final String filename = '${firstName}_${lastName}_${healthCenter}_${now.toIso8601String()}';
+    await uploadFileToSWITCHtoolbox(dbFile, filename: filename);
+  }
+
+  Future<void> restoreFromFile(File backup) async {
+    // close database
+    final Database db = await _databaseInstance;
+    await db.close();
+    // move new database file into place
+    final String dbFilePath = await databaseFilePath;
+    await backup.copy(dbFilePath);
+    // load new database
+    await _initDB();
+    // remove backup file
+    await backup.delete();
   }
 
   Future<void> insertPatient(Patient newPatient) async {
