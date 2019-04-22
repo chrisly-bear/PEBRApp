@@ -25,14 +25,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   void initState() {
-    SharedPreferences.getInstance().then((SharedPreferences prefs) {
-      final prefKeys = prefs.getKeys();
-      if (prefKeys.contains(FIRSTNAME_KEY) && prefKeys.contains(LASTNAME_KEY) && prefKeys.contains(HEALTHCENTER_KEY)) {
-        final firstName = prefs.getString(FIRSTNAME_KEY);
-        final lastName = prefs.getString(LASTNAME_KEY);
-        final healthCenter = prefs.getString(HEALTHCENTER_KEY);
-        this._loginData = LoginData(firstName, lastName, healthCenter);
-      }
+    loginDataFromSharedPrefs.then((LoginData loginData) {
+      this._loginData = loginData;
       setState(() {this._isLoading = false;});
     });
     super.initState();
