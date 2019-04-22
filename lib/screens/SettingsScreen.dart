@@ -17,6 +17,14 @@ class SettingsScreen extends StatefulWidget {
 class LoginData {
   String firstName, lastName, healthCenter;
   LoginData(this.firstName, this.lastName, this.healthCenter);
+
+  @override
+  bool operator ==(other) {
+    return (firstName == other.firstName && lastName == other.lastName && healthCenter == other.healthCenter);
+  }
+
+  @override
+  int get hashCode => firstName.hashCode^lastName.hashCode^healthCenter.hashCode;
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
@@ -60,8 +68,8 @@ class SettingsBody extends StatelessWidget {
         SizedButton('Set PIN'),
         SizedButton('Start Backup', onPressed: () {_runBackup(context);},),
         Text("last backup: never"),
-        SizedButton('Restore', onPressed: () {_runRestore(context);},),
-        SizedButton('Logout'),
+        SizedButton('Restore', onPressed: () {restoreFromSWITCHtoolbox(context);},),
+        SizedButton('Logout', onPressed: () {_onPressLogout(context);},),
         Text('${loginData.firstName} ${loginData.lastName}'),
         Text('${loginData.healthCenter}'),
       ],
@@ -86,30 +94,13 @@ class SettingsBody extends StatelessWidget {
     showFlushBar(context, message, error: error);
   }
 
-  _runRestore(BuildContext context) async {
-    String resultMessage = 'Restore successful';
-    bool error = false;
-    try {
-      final LoginData loginData = await loginDataFromSharedPrefs;
-      final File backupFile = await downloadLatestBackup(loginData);
-      if (backupFile == null) {
-        error = true;
-        resultMessage = 'Restore failed: No backup file found';
-      } else {
-        await DatabaseProvider().restoreFromFile(backupFile);
-        await PatientBloc.instance.sinkAllPatientsFromDatabase();
-      }
-    } catch (e) {
-      error = true;
-      switch (e.runtimeType) {
-        case SocketException:
-          resultMessage = 'Restore failed: Make sure you are connected to the internet';
-          break;
-        default:
-          resultMessage = 'Restore failed: $e';
-      }
-    }
-    showFlushBar(context, resultMessage, error: error);
+  _onPressLogout(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove(FIRSTNAME_KEY);
+    await prefs.remove(LASTNAME_KEY);
+    await prefs.remove(HEALTHCENTER_KEY);
+    showFlushBar(context, 'Logged out');
+    // TODO: reset database & show login screen
   }
 }
 
@@ -215,7 +206,7 @@ class _LoginBodyState extends State<LoginBody> {
               _createAccountMode ? 'Create Account' : 'Login',
               onPressed: _createAccountMode
                   ? _onSubmitCreateAccountForm
-                  : _onSubmitLoginForm,
+                  : () {_onSubmitLoginForm(LoginData(_firstNameLoginCtr.text, _lastNameLoginCtr.text, _selectedHealthCenter));},
             ),
           ),
         ),
@@ -243,12 +234,20 @@ class _LoginBodyState extends State<LoginBody> {
     );
   }
 
-  _onSubmitLoginForm() async {
+  _onSubmitLoginForm(LoginData loginData) async {
     // Validate will return true if the form is valid, or false if the form is invalid.
     if (_loginFormKey.currentState.validate()) {
-      await Future.delayed(Duration(seconds: 1)); // TODO: perform login
-      final String finishNotification = 'Logged in successfully';
-      showFlushBar(context, finishNotification);
+      final bool backupExists = await existsBackupForUser(loginData);
+      if (!backupExists) {
+        showFlushBar(context, 'User not found, please check your login data or create a new account', error: true);
+      } else {
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString(FIRSTNAME_KEY, loginData.firstName);
+        await prefs.setString(LASTNAME_KEY, loginData.lastName);
+        await prefs.setString(HEALTHCENTER_KEY, loginData.healthCenter);
+        showFlushBar(context, 'Logged in successfully');
+        await restoreFromSWITCHtoolbox(context);
+      }
     }
   }
 

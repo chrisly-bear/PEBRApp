@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart' as dom;
@@ -8,6 +9,8 @@ import 'package:pebrapp/config/SwitchConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:path/path.dart';
+import 'package:pebrapp/state/PatientBloc.dart';
+import 'package:pebrapp/utils/Utils.dart';
 
 Future<void> uploadFileToSWITCHtoolbox(File sourceFile, {String filename}) async {
 
@@ -31,18 +34,82 @@ Future<void> uploadFileToSWITCHtoolbox(File sourceFile, {String filename}) async
   // TODO: return something to indicate whether the upload was successful or not
 }
 
+Future<void> restoreFromSWITCHtoolbox(BuildContext context) async {
+  String resultMessage = 'Restore successful';
+  bool error = false;
+  try {
+    final LoginData loginData = await loginDataFromSharedPrefs;
+    final File backupFile = await _downloadLatestBackup(loginData);
+    if (backupFile == null) {
+      error = true;
+      resultMessage = 'Restore failed: No backup file found';
+    } else {
+      await DatabaseProvider().restoreFromFile(backupFile);
+      await PatientBloc.instance.sinkAllPatientsFromDatabase();
+    }
+  } catch (e) {
+    error = true;
+    switch (e.runtimeType) {
+      case SocketException:
+        resultMessage = 'Restore failed: Make sure you are connected to the internet';
+        break;
+      default:
+        resultMessage = 'Restore failed: $e';
+    }
+  }
+  showFlushBar(context, resultMessage, error: error);
+}
+
 /// Downloads the latest backup file that matches the loginData from SWITCHtoolbox.
 /// Returns null if no matching backup is found.
-Future<File> downloadLatestBackup(LoginData loginData) async {
+Future<File> _downloadLatestBackup(LoginData loginData) async {
   
   // get necessary cookies
-  final _shibsessionCookie = await _getShibSession(SWITCH_USERNAME, SWITCH_PASSWORD);
-  String _mydmssessionCookie = await _getMydmsSession(_shibsessionCookie);
+  final String _shibsessionCookie = await _getShibSession(SWITCH_USERNAME, SWITCH_PASSWORD);
+  final String _mydmssessionCookie = await _getMydmsSession(_shibsessionCookie);
+  
+  List<BackupLink> backupLinks = await _getAllBackupLinks(_shibsessionCookie, _mydmssessionCookie);
+
+  BackupLink mostRecentMatchingBackup;
+  for (BackupLink backupLink in backupLinks) {
+    if (backupLink.loginData == loginData
+          && (mostRecentMatchingBackup == null || backupLink.date.isAfter(mostRecentMatchingBackup.date))) {
+        mostRecentMatchingBackup = backupLink;
+    }
+  }
+  if (mostRecentMatchingBackup == null) {
+    return null;
+  }
+
+  // download file
+  final resp = await http.get(
+    mostRecentMatchingBackup.downloadUri,
+    headers: {'Cookie': '$_shibsessionCookie; $_mydmssessionCookie'},
+  );
+
+  // store file in database directory
+  final String filepath = join(await DatabaseProvider().databasesDirectoryPath, 'PEBRApp-backup.db');
+  File backupFile = File(filepath);
+  backupFile = await backupFile.writeAsBytes(resp.bodyBytes, flush: true);
+  return backupFile;
+}
+
+Future<bool> existsBackupForUser(LoginData loginData) async {
+  final String _shibsessionCookie = await _getShibSession(SWITCH_USERNAME, SWITCH_PASSWORD);
+  final String _mydmssessionCookie = await _getMydmsSession(_shibsessionCookie);
+  List<BackupLink> backupLinks = await _getAllBackupLinks(_shibsessionCookie, _mydmssessionCookie);
+  for (BackupLink backupLink in backupLinks) {
+    if (backupLink.loginData == loginData) { return true; }
+  }
+  return false;
+}
+
+Future<List<BackupLink>> _getAllBackupLinks(String _shibsessionCookie, String _mydmssessionCookie) async {
 
   // get list of files
   final resp = await http.get(
-      Uri.parse('https://letodms.toolbox.switch.ch/$SWITCH_TOOLBOX_PROJECT/out/out.ViewFolder.php?folderid=$SWITCH_TOOLBOX_BACKUP_FOLDER_ID'),
-      headers: {'Cookie': '$_shibsessionCookie; $_mydmssessionCookie'},
+    Uri.parse('https://letodms.toolbox.switch.ch/$SWITCH_TOOLBOX_PROJECT/out/out.ViewFolder.php?folderid=$SWITCH_TOOLBOX_BACKUP_FOLDER_ID'),
+    headers: {'Cookie': '$_shibsessionCookie; $_mydmssessionCookie'},
   );
 
   // parse html
@@ -50,40 +117,27 @@ Future<File> downloadLatestBackup(LoginData loginData) async {
   final dom.Element _tableBody = _doc.querySelector('table[class="folderView"] > tbody');
   final aElements = _tableBody.getElementsByTagName('a');
 
-  DateTime mostRecentDate = DateTime.fromMillisecondsSinceEpoch(0);
-  String downloadLink = '';
-  for (dom.Element a in aElements) {
-    if (a.text.length > 0) {
-      final textSplitted = a.text.split('_');
-      if (textSplitted.length != 4) { return null; }
+  // create BackupLink objects
+  List<BackupLink> backupLinks = [];
+  aElements.forEach((dom.Element a) {
+    final textSplitted = a.text.split('_');
+    if (textSplitted.length == 4) {
       final String firstName = textSplitted[0];
       final String lastName = textSplitted[1];
       final String healthCenter = textSplitted[2];
+      final LoginData loginData = LoginData(firstName, lastName, healthCenter);
       final DateTime date = DateTime.parse(textSplitted[3]);
-      if (firstName == loginData.firstName && lastName == loginData.lastName && healthCenter == loginData.healthCenter && date.isAfter(mostRecentDate)) {
-        downloadLink = a.attributes['href'];
-        mostRecentDate = date;
-      }
+      final relativeLink = a.attributes['href'];
+      final Uri relativeUri = Uri.parse(relativeLink);
+      final String switchDocumentId = relativeUri.queryParameters['documentid'];
+      final String absoluteLink = 'https://letodms.toolbox.switch.ch/pebrapp-data/op/op.Download.php?documentid=$switchDocumentId&version=1';
+      final Uri absoluteUri = Uri.parse(absoluteLink);
+      final BackupLink backupLink = BackupLink(loginData, date, absoluteUri);
+      backupLinks.add(backupLink);
     }
-  }
-  if (downloadLink == '') {
-    return null;
-  }
-  final Uri uri = Uri.parse(downloadLink);
-  final String switchDocumentId = uri.queryParameters['documentid'];
-  downloadLink = 'https://letodms.toolbox.switch.ch/pebrapp-data/op/op.Download.php?documentid=$switchDocumentId&version=1';
+  });
 
-  // download file
-  final _resp2 = await http.get(
-    Uri.parse(downloadLink),
-    headers: {'Cookie': '$_shibsessionCookie; $_mydmssessionCookie'},
-  );
-
-  // store file in database directory
-  final String filepath = join(await DatabaseProvider().databasesDirectoryPath, 'PEBRApp-backup.db');
-  File backupFile = File(filepath);
-  backupFile = await backupFile.writeAsBytes(_resp2.bodyBytes, flush: true);
-  return backupFile;
+  return backupLinks.toList(growable: false);
 }
 
 Future<String> _getShibSession(String username, String password) async {
@@ -186,4 +240,17 @@ Future<String> _getMydmsSession(String shibsessionCookie) async {
   final resp = await req.send();
   final mydmssessionCookie = resp.headers['set-cookie'];
   return mydmssessionCookie;
+}
+
+class BackupLink {
+  final LoginData _loginData;
+  final DateTime _date;
+  final Uri _downloadUri;
+  BackupLink(this._loginData, this._date, this._downloadUri);
+
+  LoginData get loginData => _loginData;
+
+  Uri get downloadUri => _downloadUri;
+
+  DateTime get date => _date;
 }
