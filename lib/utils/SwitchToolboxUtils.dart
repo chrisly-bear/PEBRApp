@@ -62,6 +62,7 @@ Future<File> downloadLatestBackup(LoginData loginData) async {
       final DateTime date = DateTime.parse(textSplitted[3]);
       if (firstName == loginData.firstName && lastName == loginData.lastName && healthCenter == loginData.healthCenter && date.isAfter(mostRecentDate)) {
         downloadLink = a.attributes['href'];
+        mostRecentDate = date;
       }
     }
   }
