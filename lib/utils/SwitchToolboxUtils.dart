@@ -4,28 +4,25 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart' as dom;
+import 'package:pebrapp/config/SwitchConfig.dart';
+import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/screens/SettingsScreen.dart';
+import 'package:path/path.dart';
 
-Future<void> uploadFileToSWITCHtoolbox(File sourceFile, String toolboxProject, String targetFolderId,
-    String username, String password, {String filename}) async {
+Future<void> uploadFileToSWITCHtoolbox(File sourceFile, {String filename}) async {
 
-  final _shibsessionCookie = await authenticateWithSWITCHtoolboxServiceProvider(username, password);
-
-  // get mydms_session cookie (required to access toolbox file storage service)
-  final _req0 = http.Request('GET', Uri.parse('https://letodms.toolbox.switch.ch/$toolboxProject/op/op.Login.php?referuri='))
-    ..headers['Cookie'] = _shibsessionCookie
-    ..followRedirects = false;
-  final _resp0 = await _req0.send();
-
-  final _mydmsSessionCookie = _resp0.headers['set-cookie'];
+  // get necessary cookies
+  final String _shibsessionCookie = await _getShibSession(SWITCH_USERNAME, SWITCH_PASSWORD);
+  final String _mydmsSessionCookie = await _getMydmsSession(_shibsessionCookie);
   final _cookieHeaderString = '${_mydmsSessionCookie.split(' ').first} ${_shibsessionCookie.split(' ').first}';
 
   // upload file
-  final _req1 = http.MultipartRequest('POST', Uri.parse('https://letodms.toolbox.switch.ch/$toolboxProject/op/op.AddDocument.php'))
+  final _req1 = http.MultipartRequest('POST', Uri.parse('https://letodms.toolbox.switch.ch/$SWITCH_TOOLBOX_PROJECT/op/op.AddDocument.php'))
     ..headers['Cookie'] = _cookieHeaderString
     ..files.add(await http.MultipartFile.fromPath('userfile[]', sourceFile.path))
     ..fields.addAll({
       'name': filename == null ? '${sourceFile.path.split('/').last}' : filename,
-      'folderid': targetFolderId,
+      'folderid': SWITCH_TOOLBOX_BACKUP_FOLDER_ID,
       'sequence': '1',
     });
 
@@ -34,7 +31,61 @@ Future<void> uploadFileToSWITCHtoolbox(File sourceFile, String toolboxProject, S
   // TODO: return something to indicate whether the upload was successful or not
 }
 
-Future<String> authenticateWithSWITCHtoolboxServiceProvider(String username, String password) async {
+/// Downloads the latest backup file that matches the loginData from SWITCHtoolbox.
+/// Returns null if no matching backup is found.
+Future<File> downloadLatestBackup(LoginData loginData) async {
+  
+  // get necessary cookies
+  final _shibsessionCookie = await _getShibSession(SWITCH_USERNAME, SWITCH_PASSWORD);
+  String _mydmssessionCookie = await _getMydmsSession(_shibsessionCookie);
+
+  // get list of files
+  final resp = await http.get(
+      Uri.parse('https://letodms.toolbox.switch.ch/$SWITCH_TOOLBOX_PROJECT/out/out.ViewFolder.php?folderid=$SWITCH_TOOLBOX_BACKUP_FOLDER_ID'),
+      headers: {'Cookie': '$_shibsessionCookie; $_mydmssessionCookie'},
+  );
+
+  // parse html
+  final dom.Document _doc = parse(resp.body);
+  final dom.Element _tableBody = _doc.querySelector('table[class="folderView"] > tbody');
+  final aElements = _tableBody.getElementsByTagName('a');
+
+  DateTime mostRecentDate = DateTime.fromMillisecondsSinceEpoch(0);
+  String downloadLink = '';
+  for (dom.Element a in aElements) {
+    if (a.text.length > 0) {
+      final textSplitted = a.text.split('_');
+      if (textSplitted.length != 4) { return null; }
+      final String firstName = textSplitted[0];
+      final String lastName = textSplitted[1];
+      final String healthCenter = textSplitted[2];
+      final DateTime date = DateTime.parse(textSplitted[3]);
+      if (firstName == loginData.firstName && lastName == loginData.lastName && healthCenter == loginData.healthCenter && date.isAfter(mostRecentDate)) {
+        downloadLink = a.attributes['href'];
+      }
+    }
+  }
+  if (downloadLink == '') {
+    return null;
+  }
+  final Uri uri = Uri.parse(downloadLink);
+  final String switchDocumentId = uri.queryParameters['documentid'];
+  downloadLink = 'https://letodms.toolbox.switch.ch/pebrapp-data/op/op.Download.php?documentid=$switchDocumentId&version=1';
+
+  // download file
+  final _resp2 = await http.get(
+    Uri.parse(downloadLink),
+    headers: {'Cookie': '$_shibsessionCookie; $_mydmssessionCookie'},
+  );
+
+  // store file in database directory
+  final String filepath = join(await DatabaseProvider().databasesDirectoryPath, 'PEBRApp-backup.db');
+  File backupFile = File(filepath);
+  backupFile = await backupFile.writeAsBytes(_resp2.bodyBytes, flush: true);
+  return backupFile;
+}
+
+Future<String> _getShibSession(String username, String password) async {
 
   /// debug helper method: print the response object to console
   void _printHTMLResponse(http.Response r, {printBody = true}) {
@@ -125,4 +176,13 @@ Future<String> authenticateWithSWITCHtoolboxServiceProvider(String username, Str
   final _shibsessionCookie = _resp5.headers['set-cookie'];
 
   return _shibsessionCookie;
+}
+
+Future<String> _getMydmsSession(String shibsessionCookie) async {
+  final req = http.Request('GET', Uri.parse('https://letodms.toolbox.switch.ch/$SWITCH_TOOLBOX_PROJECT/op/op.Login.php?referuri='))
+    ..headers['Cookie'] = shibsessionCookie
+    ..followRedirects = false;
+  final resp = await req.send();
+  final mydmssessionCookie = resp.headers['set-cookie'];
+  return mydmssessionCookie;
 }

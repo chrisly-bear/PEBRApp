@@ -7,7 +7,6 @@ import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pebrapp/config/SharedPreferencesConfig.dart';
 import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
-import 'package:pebrapp/config/SwitchConfig.dart';
 
 /// Access to the SQFLite database.
 /// Get an instance either via `DatabaseProvider.instance` or via the singleton constructor `DatabaseProvider()`.
@@ -15,28 +14,30 @@ class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
   static const int _DB_VERSION = 6;
+  // Do not access the _database directly (it might be null), instead use the
+  // _databaseInstance getter which will initialize the database if it is
+  // uninitialized
   static Database _database;
   static const String _dbFilename = "PEBRApp.db";
 
   // private constructor for Singleton pattern
   DatabaseProvider._();
 
-  static final DatabaseProvider instance = DatabaseProvider._();
+  static final DatabaseProvider _instance = DatabaseProvider._();
 
   factory DatabaseProvider() {
-    return instance;
+    return _instance;
   }
 
   get _databaseInstance async {
     if (_database != null) return _database;
     // if _database is null we instantiate it
-    _database = await _initDB();
+    await _initDB();
     return _database;
   }
 
   Future<File> get _databaseFile async {
-    String path = join(await getDatabasesPath(), _dbFilename);
-    return File(path);
+    return File(await databaseFilePath);
   }
 
   Future<bool> backupToSWITCH() async {
@@ -47,10 +48,9 @@ class DatabaseProvider {
     final lastName = prefs.getString(LASTNAME_KEY);
     final healthCenter = prefs.getString(HEALTHCENTER_KEY);
     final String filename = '${firstName}_${lastName}_${healthCenter}_${now.toIso8601String()}';
+    // TODO: do not catch exceptions and do not return bool, let client handle exceptions
     try {
-      await uploadFileToSWITCHtoolbox(
-          dbFile, SWITCH_TOOLBOX_PROJECT, SWITCH_TOOLBOX_BACKUP_FOLDER_ID,
-          SWITCH_USERNAME, SWITCH_PASSWORD, filename: filename);
+      await uploadFileToSWITCHtoolbox(dbFile, filename: filename);
     } catch (e) {
       print(e);
       return false;
@@ -58,10 +58,22 @@ class DatabaseProvider {
     return true;
   }
 
+  Future<void> restoreFromFile(File backup) async {
+    // close database
+    final Database db = await _databaseInstance;
+    await db.close();
+    // move new database file into place
+    final String dbFilePath = await databaseFilePath;
+    await backup.copy(dbFilePath);
+    // load new database
+    await _initDB();
+    // remove backup file
+    await backup.delete();
+  }
+
   _initDB() async {
-    String path = join(await getDatabasesPath(), _dbFilename);
-    print('DATABASE PATH: $path');
-    return await openDatabase(path, version: _DB_VERSION, onCreate: _onCreate, onUpgrade: _onUpgrade);
+    String path = await databaseFilePath;
+    _database = await openDatabase(path, version: _DB_VERSION, onCreate: _onCreate, onUpgrade: _onUpgrade);
   }
 
   FutureOr<void> _onCreate(Database db, int version) async {
@@ -235,10 +247,16 @@ class DatabaseProvider {
   // Public Methods
   // --------------
 
-  /// Get the file system path of the sql lite database file.
+  /// Get the full file system path of the sql lite database file,
+  /// e.g., /data/user/0/org.pebrapp.pebrapp/databases/PEBRApp.db
   Future<String> get databaseFilePath async {
-    final Database db = await _databaseInstance;
-    return db.path;
+    return join(await databasesDirectoryPath, _dbFilename);
+  }
+
+  /// Get the system path of the directory where the sql lite databases
+  /// are stored, e.g., /data/user/0/org.pebrapp.pebrapp/databases
+  Future<String> get databasesDirectoryPath async {
+    return getDatabasesPath();
   }
 
   Future<void> insertPatient(Patient newPatient) async {

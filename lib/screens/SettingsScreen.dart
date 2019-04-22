@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/state/PatientBloc.dart';
+import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pebrapp/config/SharedPreferencesConfig.dart';
@@ -62,6 +66,7 @@ class SettingsBody extends StatelessWidget {
         SizedButton('Set PIN'),
         SizedButton('Start Backup', onPressed: () {_runBackup(context);},),
         Text("last backup: never"),
+        SizedButton('Restore', onPressed: () {_runRestore(context);},),
         SizedButton('Logout'),
         Text('${loginData.firstName} ${loginData.lastName}'),
         Text('${loginData.healthCenter}'),
@@ -70,9 +75,32 @@ class SettingsBody extends StatelessWidget {
   }
 
   _runBackup(BuildContext context) async {
-    final success = await DatabaseProvider.instance.backupToSWITCH();
-    final message = success ? 'Backup completed' : 'Something went wrong, make sure you are connected to the internet';
+    final success = await DatabaseProvider().backupToSWITCH();
+    final message = success ? 'Backup completed' : 'Backup failed, make sure you are connected to the internet';
     showFlushBar(context, message);
+  }
+
+  _runRestore(BuildContext context) async {
+    String resultMessage = 'Restore successful';
+    try {
+      final LoginData loginData = await loginDataFromSharedPrefs;
+      final File backupFile = await downloadLatestBackup(loginData);
+      if (backupFile == null) {
+        resultMessage = 'Restore failed: No backup file found';
+      } else {
+        await DatabaseProvider().restoreFromFile(backupFile);
+        await PatientBloc.instance.sinkAllPatientsFromDatabase();
+      }
+    } catch (e) {
+      switch (e.runtimeType) {
+        case SocketException:
+          resultMessage = 'Restore failed: Make sure you are connected to the internet';
+          break;
+        default:
+          resultMessage = 'Restore failed: $e';
+      }
+    }
+    showFlushBar(context, resultMessage);
   }
 }
 

@@ -1,14 +1,12 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flushbar/flushbar.dart';
+import 'package:pebrapp/config/SharedPreferencesConfig.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:intl/intl.dart';
-import 'package:http/http.dart' as http;
-import 'package:html/parser.dart' show parse;
-import 'package:html/dom.dart' as dom;
+import 'package:pebrapp/screens/SettingsScreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 void showFlushBar(BuildContext context, String message, {String title}) {
@@ -152,4 +150,20 @@ DateTime calculateNextAssessment(DateTime lastAssessment) {
 DateTime calculateNextARTRefill(DateTime lastARTRefill) {
   // TODO: implement proper calculation of adding three months
   return lastARTRefill.add(Duration(days: 90));
+}
+
+/// Loads the login data from the on-device storage (SharedPreferences). Returns
+/// null if there are no login data.
+Future<LoginData> get loginDataFromSharedPrefs async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  final prefKeys = prefs.getKeys();
+  if (prefKeys.contains(FIRSTNAME_KEY)
+      && prefKeys.contains(LASTNAME_KEY)
+      && prefKeys.contains(HEALTHCENTER_KEY)) {
+    final firstName = prefs.get(FIRSTNAME_KEY);
+    final lastName = prefs.get(LASTNAME_KEY);
+    final healthCenter = prefs.get(HEALTHCENTER_KEY);
+    return LoginData(firstName, lastName, healthCenter);
+  }
+  return null;
 }
