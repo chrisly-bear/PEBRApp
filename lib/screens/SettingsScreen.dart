@@ -101,9 +101,10 @@ class SettingsBody extends StatelessWidget {
     await prefs.remove(HEALTHCENTER_KEY);
     await DatabaseProvider().resetDatabase();
     await PatientBloc.instance.sinkAllPatientsFromDatabase();
+    // TODO: show login screen instead of leaving settings screen
+    // workaround for now: pop settings screen (return to main screen)
+    Navigator.of(context).pop();
     showFlushBar(context, 'Logged out');
-    // TODO: show login screen
-
   }
 }
 
@@ -248,6 +249,7 @@ class _LoginBodyState extends State<LoginBody> {
         await prefs.setString(FIRSTNAME_KEY, loginData.firstName);
         await prefs.setString(LASTNAME_KEY, loginData.lastName);
         await prefs.setString(HEALTHCENTER_KEY, loginData.healthCenter);
+        Navigator.of(context).pop();
         showFlushBar(context, 'Logged in successfully');
         await restoreFromSWITCHtoolbox(context);
       }
