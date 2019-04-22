@@ -75,8 +75,18 @@ class SettingsBody extends StatelessWidget {
   }
 
   _runBackup(BuildContext context) async {
-    final success = await DatabaseProvider().backupToSWITCH();
-    final message = success ? 'Backup completed' : 'Backup failed, make sure you are connected to the internet';
+    String message = 'Backup complete';
+    try {
+      await DatabaseProvider().backupToSWITCH();
+    } catch (e) {
+      switch (e.runtimeType) {
+        case SocketException:
+          message = 'Backup failed: Make sure you are connected to the internet';
+          break;
+        default:
+          message = 'Backup failed: $e';
+      }
+    }
     showFlushBar(context, message);
   }
 

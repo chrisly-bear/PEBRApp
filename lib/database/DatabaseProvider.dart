@@ -40,7 +40,7 @@ class DatabaseProvider {
     return File(await databaseFilePath);
   }
 
-  Future<bool> backupToSWITCH() async {
+  Future<void> backupToSWITCH() async {
     final DateTime now = DateTime.now();
     final File dbFile = await _databaseFile;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -48,14 +48,7 @@ class DatabaseProvider {
     final lastName = prefs.getString(LASTNAME_KEY);
     final healthCenter = prefs.getString(HEALTHCENTER_KEY);
     final String filename = '${firstName}_${lastName}_${healthCenter}_${now.toIso8601String()}';
-    // TODO: do not catch exceptions and do not return bool, let client handle exceptions
-    try {
-      await uploadFileToSWITCHtoolbox(dbFile, filename: filename);
-    } catch (e) {
-      print(e);
-      return false;
-    }
-    return true;
+    await uploadFileToSWITCHtoolbox(dbFile, filename: filename);
   }
 
   Future<void> restoreFromFile(File backup) async {
