@@ -24,7 +24,7 @@ void showFlushBar(BuildContext context, String message, {String title, bool erro
         message, textAlign: TextAlign.center,
         style: TextStyle(
             color: Colors.white,
-            fontSize: 16.0,
+            fontSize: title == null ? 18.0 : 16.0,
         ),
     ),
     boxShadow: BoxShadow(color: Colors.black, blurRadius: 5.0, offset: Offset(0.0, 0.0), spreadRadius: 0.0),
