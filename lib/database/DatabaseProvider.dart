@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'dart:io';
@@ -238,14 +239,10 @@ class DatabaseProvider {
     await _initDB();
   }
 
-  Future<void> backupToSWITCH() async {
+  Future<void> backupToSWITCH(LoginData loginData) async {
     final DateTime now = DateTime.now();
     final File dbFile = await _databaseFile;
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final firstName = prefs.getString(FIRSTNAME_KEY);
-    final lastName = prefs.getString(LASTNAME_KEY);
-    final healthCenter = prefs.getString(HEALTHCENTER_KEY);
-    final String filename = '${firstName}_${lastName}_${healthCenter}_${now.toIso8601String()}';
+    final String filename = '${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}_${now.toIso8601String()}';
     await uploadFileToSWITCHtoolbox(dbFile, filename: filename);
   }
 

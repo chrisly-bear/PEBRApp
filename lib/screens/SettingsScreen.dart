@@ -81,7 +81,8 @@ class SettingsBody extends StatelessWidget {
     String title;
     bool error = false;
     try {
-      await DatabaseProvider().backupToSWITCH();
+      LoginData loginData = await loginDataFromSharedPrefs;
+      await DatabaseProvider().backupToSWITCH(loginData);
     } catch (e) {
       error = true;
       title = 'Backup Failed';
@@ -299,7 +300,8 @@ class _LoginBodyState extends State<LoginBody> {
   _onSubmitCreateAccountForm() async {
     // Validate will return true if the form is valid, or false if the form is invalid.
     if (_createAccountFormKey.currentState.validate()) {
-      String notificationMessage = 'Account created successfully';
+      String notificationMessage = 'Account Created';
+      String title;
       bool error = false;
       final LoginData loginData = LoginData(
           _firstNameCreateAccountCtr.text,
@@ -309,9 +311,12 @@ class _LoginBodyState extends State<LoginBody> {
       try {
         final bool userExists = await existsBackupForUser(loginData);
         if (userExists) {
-          notificationMessage = 'User already exists';
           error = true;
+          title = 'Account could not be created';
+          notificationMessage = 'User \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\' already exists.';
         } else {
+          await DatabaseProvider().backupToSWITCH(loginData);
+          // if backup was successful we store the login data on the device
           SharedPreferences prefs = await SharedPreferences.getInstance();
           bool firstNameResult =
           await prefs.setString(FIRSTNAME_KEY, loginData.firstName);
@@ -321,22 +326,23 @@ class _LoginBodyState extends State<LoginBody> {
           await prefs.setString(HEALTHCENTER_KEY, loginData.healthCenter);
           if (!firstNameResult || !lastNameResult || !healthCenterResult) {
             error = true;
-            notificationMessage = 'Something went wrong when storing the login data on the device';
+            title = 'Something went wrong';
+            notificationMessage = 'The account was created successfully. However, the login data could not be stored on the device. Please log in manually.';
           }
-          // TODO: create a first backup on SWITCHtoolbox
         }
       } catch (e) {
         error = true;
+        title = 'Account could not be created';
         switch (e.runtimeType) {
           case SocketException:
-            notificationMessage = 'Account could not be created: Make sure you are connected to the internet';
+            notificationMessage = 'Make sure you are connected to the internet.';
             break;
           default:
-            notificationMessage = 'Account could not be created: $e';
+            notificationMessage = '$e';
         }
       }
       if (!error) { Navigator.of(context).pop(); }
-      showFlushBar(context, notificationMessage, error: error);
+      showFlushBar(context, notificationMessage, title: title, error: error);
       // TODO: refresh settings screen to show the logged in state -> use the BloC
     }
   }
