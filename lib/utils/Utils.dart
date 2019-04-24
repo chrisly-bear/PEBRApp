@@ -12,14 +12,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 void showFlushBar(BuildContext context, String message, {String title, bool error=false}) {
   Flushbar(
       flushbarPosition: FlushbarPosition.TOP,
-    title: title,
+    titleText: title == null ? null : Text(title,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 18.0,
+          fontWeight: FontWeight.bold,
+        ),
+    ),
     messageText: Text(
         message, textAlign: TextAlign.center,
         style: TextStyle(
             color: Colors.white,
-            fontSize: 18.0,
+            fontSize: 16.0,
         ),
     ),
+    boxShadow: BoxShadow(color: Colors.black, blurRadius: 5.0, offset: Offset(0.0, 0.0), spreadRadius: 0.0),
     borderRadius: 5,
     backgroundColor: error ? Colors.redAccent : Colors.black.withAlpha(200),
     aroundPadding: EdgeInsets.symmetric(horizontal: 80.0),

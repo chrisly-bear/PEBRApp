@@ -34,30 +34,16 @@ Future<void> uploadFileToSWITCHtoolbox(File sourceFile, {String filename}) async
   // TODO: return something to indicate whether the upload was successful or not
 }
 
-Future<void> restoreFromSWITCHtoolbox(BuildContext context) async {
-  String resultMessage = 'Restore successful';
-  bool error = false;
-  try {
-    final LoginData loginData = await loginDataFromSharedPrefs;
+class BackupNotAvailableException implements Exception {}
+
+Future<void> restoreFromSWITCHtoolbox(LoginData loginData) async {
     final File backupFile = await _downloadLatestBackup(loginData);
     if (backupFile == null) {
-      error = true;
-      resultMessage = 'Restore failed: No backup file found';
+      throw BackupNotAvailableException();
     } else {
       await DatabaseProvider().restoreFromFile(backupFile);
       await PatientBloc.instance.sinkAllPatientsFromDatabase();
     }
-  } catch (e) {
-    error = true;
-    switch (e.runtimeType) {
-      case SocketException:
-        resultMessage = 'Restore failed: Make sure you are connected to the internet';
-        break;
-      default:
-        resultMessage = 'Restore failed: $e';
-    }
-  }
-  showFlushBar(context, resultMessage, error: error);
 }
 
 /// Downloads the latest backup file that matches the loginData from SWITCHtoolbox.

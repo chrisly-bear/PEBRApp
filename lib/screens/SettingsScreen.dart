@@ -68,7 +68,7 @@ class SettingsBody extends StatelessWidget {
         SizedButton('Set PIN'),
         SizedButton('Start Backup', onPressed: () {_runBackup(context);},),
         Text("last backup: never"),
-        SizedButton('Restore', onPressed: () {restoreFromSWITCHtoolbox(context);},),
+        SizedButton('Restore', onPressed: () {_runRestore(context);},),
         SizedButton('Logout', onPressed: () {_onPressLogout(context);},),
         Text('${loginData.firstName} ${loginData.lastName}'),
         Text('${loginData.healthCenter}'),
@@ -77,21 +77,47 @@ class SettingsBody extends StatelessWidget {
   }
 
   _runBackup(BuildContext context) async {
-    String message = 'Backup complete';
+    String message = 'Backup Successful';
+    String title;
     bool error = false;
     try {
       await DatabaseProvider().backupToSWITCH();
     } catch (e) {
       error = true;
+      title = 'Backup Failed';
       switch (e.runtimeType) {
         case SocketException:
-          message = 'Backup failed: Make sure you are connected to the internet';
+          message = 'Make sure you are connected to the internet.';
           break;
         default:
-          message = 'Backup failed: $e';
+          message = '$e';
       }
     }
-    showFlushBar(context, message, error: error);
+    showFlushBar(context, message, title: title, error: error);
+  }
+
+  _runRestore(BuildContext context) async {
+      String resultMessage = 'Restore Successful';
+      String title;
+      bool error = false;
+      final LoginData loginData = await loginDataFromSharedPrefs;
+      try {
+        await restoreFromSWITCHtoolbox(loginData);
+      } catch (e) {
+        error = true;
+        title = 'Restore Failed';
+        switch (e.runtimeType) {
+          case SocketException:
+            resultMessage = 'Make sure you are connected to the internet.';
+            break;
+          case BackupNotAvailableException:
+            resultMessage = 'No backup found for user \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\'.';
+            break;
+          default:
+            resultMessage = '$e';
+        }
+      }
+      showFlushBar(context, resultMessage, title: title, error: error);
   }
 
   _onPressLogout(BuildContext context) async {
@@ -104,7 +130,7 @@ class SettingsBody extends StatelessWidget {
     // TODO: show login screen instead of leaving settings screen
     // workaround for now: pop settings screen (return to main screen)
     Navigator.of(context).pop();
-    showFlushBar(context, 'Logged out');
+    showFlushBar(context, 'Logged Out');
   }
 }
 
@@ -241,18 +267,32 @@ class _LoginBodyState extends State<LoginBody> {
   _onSubmitLoginForm(LoginData loginData) async {
     // Validate will return true if the form is valid, or false if the form is invalid.
     if (_loginFormKey.currentState.validate()) {
-      final bool backupExists = await existsBackupForUser(loginData);
-      if (!backupExists) {
-        showFlushBar(context, 'User not found, please check your login data or create a new account', error: true);
-      } else {
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString(FIRSTNAME_KEY, loginData.firstName);
-        await prefs.setString(LASTNAME_KEY, loginData.lastName);
-        await prefs.setString(HEALTHCENTER_KEY, loginData.healthCenter);
-        Navigator.of(context).pop();
-        showFlushBar(context, 'Logged in successfully');
-        await restoreFromSWITCHtoolbox(context);
+      String title;
+      String notificationMessage = 'Login Successful';
+      bool error = false;
+      try {
+          await restoreFromSWITCHtoolbox(loginData);
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          // if the restore was successful we store the login data on the device
+          await prefs.setString(FIRSTNAME_KEY, loginData.firstName);
+          await prefs.setString(LASTNAME_KEY, loginData.lastName);
+          await prefs.setString(HEALTHCENTER_KEY, loginData.healthCenter);
+          Navigator.of(context).pop();
+      } catch (e) {
+        error = true;
+        title = 'Login Failed';
+        switch (e.runtimeType) {
+          case SocketException:
+            notificationMessage = 'Make sure you are connected to the internet.';
+            break;
+          case BackupNotAvailableException:
+            notificationMessage = 'User \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\' not found. Check your login data or create a new account.';
+            break;
+          default:
+            notificationMessage = '$e';
+        }
       }
+      showFlushBar(context, notificationMessage, title: title, error: error);
     }
   }
 
