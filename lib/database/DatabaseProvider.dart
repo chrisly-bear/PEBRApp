@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:pebrapp/config/SwitchConfig.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/screens/SettingsScreen.dart';
@@ -33,9 +34,10 @@ class DatabaseProvider {
   // ---------------
 
   get _databaseInstance async {
-    if (_database != null) return _database;
-    // if _database is null we instantiate it
-    await _initDB();
+    if (_database == null) {
+      // if _database is null we instantiate it
+      await _initDB();
+    }
     return _database;
   }
 
@@ -243,7 +245,7 @@ class DatabaseProvider {
     final DateTime now = DateTime.now();
     final File dbFile = await _databaseFile;
     final String filename = '${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}_${now.toIso8601String()}';
-    await uploadFileToSWITCHtoolbox(dbFile, filename: filename);
+    await uploadFileToSWITCHtoolbox(dbFile, filename: filename, folderID: SWITCH_TOOLBOX_BACKUP_FOLDER_ID);
   }
 
   Future<void> restoreFromFile(File backup) async {

@@ -12,7 +12,12 @@ import 'package:path/path.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
-Future<void> uploadFileToSWITCHtoolbox(File sourceFile, {String filename}) async {
+/// Uploads `sourceFile` to SWITCHtoolbox.
+///
+/// If `filename` is not provided the `sourceFile`'s file name will be used.
+///
+/// If `folderID` is not provided the file will be uploaded to the root folder (folderID = 1).
+Future<void> uploadFileToSWITCHtoolbox(File sourceFile, {String filename, int folderID = 1}) async {
 
   // get necessary cookies
   final String _shibsessionCookie = await _getShibSession(SWITCH_USERNAME, SWITCH_PASSWORD);
@@ -25,7 +30,7 @@ Future<void> uploadFileToSWITCHtoolbox(File sourceFile, {String filename}) async
     ..files.add(await http.MultipartFile.fromPath('userfile[]', sourceFile.path))
     ..fields.addAll({
       'name': filename == null ? '${sourceFile.path.split('/').last}' : filename,
-      'folderid': SWITCH_TOOLBOX_BACKUP_FOLDER_ID,
+      'folderid': '$folderID',
       'sequence': '1',
     });
 

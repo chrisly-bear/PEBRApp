@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
+import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
@@ -72,6 +73,7 @@ class SettingsBody extends StatelessWidget {
         SizedButton('Logout', onPressed: () {_onPressLogout(context);},),
         Text('${loginData.firstName} ${loginData.lastName}'),
         Text('${loginData.healthCenter}'),
+        SizedButton('Upload CSV', onPressed: () {_uploadCSV(context);},),
       ],
     );
   }
@@ -132,6 +134,26 @@ class SettingsBody extends StatelessWidget {
     // workaround for now: pop settings screen (return to main screen)
     Navigator.of(context).pop();
     showFlushBar(context, 'Logged Out');
+  }
+
+  _uploadCSV(BuildContext context) async {
+    String resultMessage = 'Upload Successful';
+    String title;
+    bool error = false;
+    try {
+      await DatabaseExporter.exportDatabaseToCSVFileAndUploadToSwitch();
+    } catch (e) {
+      error = true;
+      title = 'Upload Failed';
+      switch (e.runtimeType) {
+        case SocketException:
+          resultMessage = 'Make sure you are connected to the internet.';
+          break;
+        default:
+          resultMessage = '$e';
+      }
+    }
+    showFlushBar(context, resultMessage, title: title, error: error);
   }
 }
 
