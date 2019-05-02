@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
-import 'package:pebrapp/exceptions/BackupNotAvailableException.dart';
+import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
@@ -68,9 +68,9 @@ class SettingsBody extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         SizedButton('Set PIN'),
-        SizedButton('Start Backup', onPressed: () {_runBackup(context);},),
+        SizedButton('Start Backup', onPressed: () {_onPressBackupButton(context);},),
         Text("last backup: never"),
-        SizedButton('Restore', onPressed: () {_runRestore(context);},),
+        SizedButton('Restore', onPressed: () {_onPressRestoreButton(context);},),
         SizedButton('Logout', onPressed: () {_onPressLogout(context);},),
         Text('${loginData.firstName} ${loginData.lastName}'),
         Text('${loginData.healthCenter}'),
@@ -78,19 +78,21 @@ class SettingsBody extends StatelessWidget {
     );
   }
 
-  _runBackup(BuildContext context) async {
+  _onPressBackupButton(BuildContext context) async {
     String message = 'Backup Successful';
     String title;
     bool error = false;
     try {
-      LoginData loginData = await loginDataFromSharedPrefs;
-      await DatabaseProvider().backupToSWITCH(loginData);
+      await DatabaseProvider().createAdditionalBackupOnSWITCH(loginData);
     } catch (e) {
       error = true;
       title = 'Backup Failed';
       switch (e.runtimeType) {
         // case NoLoginDataException should never occur because we don't show
         // the backup button when the user is not logged in
+        case DocumentNotFoundException:
+          message = 'No existing backup found for user \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\'';
+          break;
         case SocketException:
           message = 'Make sure you are connected to the internet.';
           break;
@@ -101,7 +103,7 @@ class SettingsBody extends StatelessWidget {
     showFlushBar(context, message, title: title, error: error);
   }
 
-  _runRestore(BuildContext context) async {
+  _onPressRestoreButton(BuildContext context) async {
       String resultMessage = 'Restore Successful';
       String title;
       bool error = false;
@@ -120,7 +122,7 @@ class SettingsBody extends StatelessWidget {
           case SocketException:
             resultMessage = 'Make sure you are connected to the internet.';
             break;
-          case BackupNotAvailableException:
+          case DocumentNotFoundException:
             resultMessage = 'No backup found for user \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\'.';
             break;
           default:
@@ -299,7 +301,7 @@ class _LoginBodyState extends State<LoginBody> {
           case SocketException:
             notificationMessage = 'Make sure you are connected to the internet.';
             break;
-          case BackupNotAvailableException:
+          case DocumentNotFoundException:
             notificationMessage = 'User \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\' not found. Check your login data or create a new account.';
             break;
           default:
@@ -328,7 +330,7 @@ class _LoginBodyState extends State<LoginBody> {
           title = 'Account could not be created';
           notificationMessage = 'User \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\' already exists.';
         } else {
-          await DatabaseProvider().backupToSWITCH(loginData);
+          await DatabaseProvider().createFirstBackupOnSWITCH(loginData);
           // if backup was successful we store the login data on the device
           SharedPreferences prefs = await SharedPreferences.getInstance();
           bool firstNameResult =

@@ -1,18 +1,16 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart' as dom;
 import 'package:pebrapp/config/SwitchConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
-import 'package:pebrapp/exceptions/BackupNotAvailableException.dart';
+import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:path/path.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
-import 'package:pebrapp/utils/Utils.dart';
 
 /// Uploads `sourceFile` to SWITCHtoolbox.
 ///
@@ -47,44 +45,34 @@ Future<void> uploadFileToSWITCHtoolbox(File sourceFile, {String filename, int fo
 ///
 /// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
 ///
-/// Throws `BackupNotAvailableException` if backup for the loginData is not available.
+/// Throws `DocumentNotFoundException` if backup for the loginData is not available.
 Future<void> restoreFromSWITCHtoolbox(LoginData loginData) async {
   if (loginData == null) {
     throw NoLoginDataException();
   }
   final File backupFile = await _downloadLatestBackup(loginData);
-  if (backupFile == null) {
-    throw BackupNotAvailableException();
-  } else {
-    await DatabaseProvider().restoreFromFile(backupFile);
-    await PatientBloc.instance.sinkAllPatientsFromDatabase();
-  }
+  await DatabaseProvider().restoreFromFile(backupFile);
+  await PatientBloc.instance.sinkAllPatientsFromDatabase();
 }
 
 /// Downloads the latest backup file that matches the loginData from SWITCHtoolbox.
 /// Returns null if no matching backup is found.
+///
+/// Throws `DocumentNotFoundException` if no backup is available for the loginData.
 Future<File> _downloadLatestBackup(LoginData loginData) async {
   
   // get necessary cookies
   final String _shibsessionCookie = await _getShibSession(SWITCH_USERNAME, SWITCH_PASSWORD);
   final String _mydmssessionCookie = await _getMydmsSession(_shibsessionCookie);
-  
-  List<BackupLink> backupLinks = await _getAllBackupLinks(_shibsessionCookie, _mydmssessionCookie);
 
-  BackupLink mostRecentMatchingBackup;
-  for (BackupLink backupLink in backupLinks) {
-    if (backupLink.loginData == loginData
-          && (mostRecentMatchingBackup == null || backupLink.date.isAfter(mostRecentMatchingBackup.date))) {
-        mostRecentMatchingBackup = backupLink;
-    }
-  }
-  if (mostRecentMatchingBackup == null) {
-    return null;
-  }
+  final String documentName = '${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}';
+  final int switchDocumentId = await _getFirstDocumentIdForDocumentWithName(documentName, SWITCH_TOOLBOX_BACKUP_FOLDER_ID, _shibsessionCookie, _mydmssessionCookie);
+  final int latestVersion = await _getLatestVersionOfDocument(switchDocumentId, _shibsessionCookie, _mydmssessionCookie);
+  final String absoluteLink = 'https://letodms.toolbox.switch.ch/$SWITCH_TOOLBOX_PROJECT/op/op.Download.php?documentid=$switchDocumentId&version=$latestVersion';
+  final Uri downloadUri = Uri.parse(absoluteLink);
 
   // download file
-  final resp = await http.get(
-    mostRecentMatchingBackup.downloadUri,
+  final resp = await http.get(downloadUri,
     headers: {'Cookie': '$_shibsessionCookie; $_mydmssessionCookie'},
   );
 
@@ -98,47 +86,104 @@ Future<File> _downloadLatestBackup(LoginData loginData) async {
 Future<bool> existsBackupForUser(LoginData loginData) async {
   final String _shibsessionCookie = await _getShibSession(SWITCH_USERNAME, SWITCH_PASSWORD);
   final String _mydmssessionCookie = await _getMydmsSession(_shibsessionCookie);
-  List<BackupLink> backupLinks = await _getAllBackupLinks(_shibsessionCookie, _mydmssessionCookie);
-  for (BackupLink backupLink in backupLinks) {
-    if (backupLink.loginData == loginData) { return true; }
+
+  final String documentName = '${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}';
+  try {
+    await _getFirstDocumentIdForDocumentWithName(documentName, SWITCH_TOOLBOX_BACKUP_FOLDER_ID, _shibsessionCookie, _mydmssessionCookie);
+  } catch (DocumentNotFoundException) {
+    return false;
   }
-  return false;
+  return true;
 }
 
-Future<List<BackupLink>> _getAllBackupLinks(String _shibsessionCookie, String _mydmssessionCookie) async {
+/// Uploads a new version of the document with name `sourceFile` on SWITCHtoolbox.
+/// Update only works if a document with the name `documentName` is already in the specified folder on SWITCHtoolbox.
+///
+/// If `folderID` is not provided the update will be attempted in the root folder (folderId = 1).
+///
+/// Throws 'DocumentNotFoundException' if no matching document was found.
+Future<void> updateFileOnSWITCHtoolbox(File sourceFile, String documentName, {int folderId = 1}) async {
+  final String _shibsessionCookie = await _getShibSession(SWITCH_USERNAME, SWITCH_PASSWORD);
+  final String _mydmssessionCookie = await _getMydmsSession(_shibsessionCookie);
+  final _cookieHeaderString = '${_mydmssessionCookie.split(' ').first} ${_shibsessionCookie.split(' ').first}';
+  final int docId = await _getFirstDocumentIdForDocumentWithName(documentName, folderId, _shibsessionCookie, _mydmssessionCookie);
+
+  // upload file
+  final _req1 = http.MultipartRequest('POST', Uri.parse('https://letodms.toolbox.switch.ch/$SWITCH_TOOLBOX_PROJECT/op/op.UpdateDocument.php'))
+    ..headers['Cookie'] = _cookieHeaderString
+    ..files.add(await http.MultipartFile.fromPath('userfile', sourceFile.path))
+    ..fields.addAll({
+      'documentid': '$docId',
+//      'expires': 'false',
+    });
+
+  final _resp2Stream = await _req1.send();
+  final _resp2 = await http.Response.fromStream(_resp2Stream);
+  // TODO: return something to indicate whether the upload was successful or not
+}
+
+/// Finds the document id of a document that matches `documentName` in the folder `folderId`.
+/// If there are several documents with a matching name, it will return the id of the first one.
+///
+/// Throws 'DocumentNotFoundException' if no matching document was found.
+Future<int> _getFirstDocumentIdForDocumentWithName(String documentName, int folderId, String _shibsessionCookie, String _mydmssessionCookie) async {
 
   // get list of files
   final resp = await http.get(
-    Uri.parse('https://letodms.toolbox.switch.ch/$SWITCH_TOOLBOX_PROJECT/out/out.ViewFolder.php?folderid=$SWITCH_TOOLBOX_BACKUP_FOLDER_ID'),
+    Uri.parse('https://letodms.toolbox.switch.ch/$SWITCH_TOOLBOX_PROJECT/out/out.ViewFolder.php?folderid=$folderId'),
     headers: {'Cookie': '$_shibsessionCookie; $_mydmssessionCookie'},
   );
 
   // parse html
   final dom.Document _doc = parse(resp.body);
   final dom.Element _tableBody = _doc.querySelector('table[class="folderView"] > tbody');
+  if (_tableBody == null) {
+    // no documents are in SWITCHtoolbox
+    throw DocumentNotFoundException();
+  }
   final aElements = _tableBody.getElementsByTagName('a');
 
-  // create BackupLink objects
-  List<BackupLink> backupLinks = [];
-  aElements.forEach((dom.Element a) {
-    final textSplitted = a.text.split('_');
-    if (textSplitted.length == 4) {
-      final String firstName = textSplitted[0];
-      final String lastName = textSplitted[1];
-      final String healthCenter = textSplitted[2];
-      final LoginData loginData = LoginData(firstName, lastName, healthCenter);
-      final DateTime date = DateTime.parse(textSplitted[3]);
+  // find first matching document
+  for (dom.Element a in aElements) {
+    final String linkText = a.text;
+    if (linkText == documentName) {
       final relativeLink = a.attributes['href'];
       final Uri relativeUri = Uri.parse(relativeLink);
       final String switchDocumentId = relativeUri.queryParameters['documentid'];
-      final String absoluteLink = 'https://letodms.toolbox.switch.ch/pebrapp-data/op/op.Download.php?documentid=$switchDocumentId&version=1';
-      final Uri absoluteUri = Uri.parse(absoluteLink);
-      final BackupLink backupLink = BackupLink(loginData, date, absoluteUri);
-      backupLinks.add(backupLink);
+      return int.parse(switchDocumentId);
     }
-  });
+  }
+  // no matching document found
+  throw DocumentNotFoundException();
+}
 
-  return backupLinks.toList(growable: false);
+/// Finds the latest version of the document with `documentId`.
+///
+/// Throws `DocumentNotFoundException` if document with `documentId` does not exist.
+Future<int> _getLatestVersionOfDocument(int documentId, String _shibsessionCookie, String _mydmssessionCookie) async {
+  // get list of files
+  final resp = await http.get(
+    Uri.parse('https://letodms.toolbox.switch.ch/$SWITCH_TOOLBOX_PROJECT/out/out.ViewDocument.php?documentid=$documentId&showtree=1'),
+    headers: {'Cookie': '$_shibsessionCookie; $_mydmssessionCookie'},
+  );
+
+  // parse html
+  final dom.Document _doc = parse(resp.body);
+  final List<dom.Element> _contentHeadings = _doc.querySelectorAll('div[class="contentHeading"]');
+  if (_contentHeadings.length == 0) {
+    throw DocumentNotFoundException();
+  }
+  for (dom.Element el in _contentHeadings) {
+    if (el.text == 'Current version') {
+      final dom.Element sibling = el.nextElementSibling;
+      final dom.Element versionEl = sibling.querySelectorAll('table[class="folderView"] > tbody > tr > td')[1];
+      final String version = versionEl.text;
+      return int.parse(version);
+    }
+  }
+
+  // we should never reach this point -> maybe throw an exception instead?
+  return null;
 }
 
 Future<String> _getShibSession(String username, String password) async {
@@ -241,17 +286,4 @@ Future<String> _getMydmsSession(String shibsessionCookie) async {
   final resp = await req.send();
   final mydmssessionCookie = resp.headers['set-cookie'];
   return mydmssessionCookie;
-}
-
-class BackupLink {
-  final LoginData _loginData;
-  final DateTime _date;
-  final Uri _downloadUri;
-  BackupLink(this._loginData, this._date, this._downloadUri);
-
-  LoginData get loginData => _loginData;
-
-  Uri get downloadUri => _downloadUri;
-
-  DateTime get date => _date;
 }

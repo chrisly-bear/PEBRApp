@@ -6,6 +6,7 @@ import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'dart:ui';
 
@@ -36,7 +37,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     print('~~~ MainScreenState.initState ~~~');
     // listen to changes in the app lifecycle
     WidgetsBinding.instance.addObserver(this);
-    _runBackupAndUploadCSVToSWITCH();
+    _onAppResume();
     _appStateStream = PatientBloc.instance.appState;
 
     /*
@@ -103,7 +104,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _runBackupAndUploadCSVToSWITCH();
+      _onAppResume();
     }
   }
 
@@ -133,16 +134,18 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         ));
   }
 
-  Future<void> _runBackupAndUploadCSVToSWITCH() async {
+  // Gets called when the application comes to the foreground.
+  Future<void> _onAppResume() async {
     print("### Attempting backup... ###");
     // TODO: run backup if the last successful backup dates back more than a day
 
     String resultMessage = 'Backup Successful';
     String title;
     bool error = false;
+    LoginData loginData;
     try {
-      LoginData loginData = await loginDataFromSharedPrefs;
-      await DatabaseProvider().backupToSWITCH(loginData);
+      loginData = await loginDataFromSharedPrefs;
+      await DatabaseProvider().createAdditionalBackupOnSWITCH(loginData);
     } catch (e) {
       error = true;
       title = 'Backup Failed';
@@ -150,6 +153,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         case NoLoginDataException:
           // TODO: what should we do when there is no login data on the device yet (i.e. the user is not logged in)?
           resultMessage = 'Not logged in. Please log in first.';
+          break;
+        case DocumentNotFoundException:
+          resultMessage = 'No existing backup found for user \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\'';
           break;
         case SocketException:
           resultMessage = 'Make sure you are connected to the internet.';

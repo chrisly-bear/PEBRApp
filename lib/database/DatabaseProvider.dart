@@ -244,21 +244,43 @@ class DatabaseProvider {
   }
 
   /// Backs up the SQLite database file and exports the data as CSV to SWITCH.
+  /// Use this if no previous backup for this user exists yet. This creates
+  /// version 1 of the backup documents on SWITCHtoolbox.
   /// 
   /// Throws `NoLoginDataException` if the loginData object is null.
   ///
   /// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
-  Future<void> backupToSWITCH(LoginData loginData) async {
+  Future<void> createFirstBackupOnSWITCH(LoginData loginData) async {
     if (loginData == null) {
       throw NoLoginDataException();
     }
-    final DateTime now = DateTime.now();
     final File dbFile = await _databaseFile;
     final File csvFile = await DatabaseExporter.exportDatabaseToCSVFile();
     // upload SQLite and CSV file
-    final String filename = '${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}_${now.toIso8601String()}';
+    final String filename = '${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}';
     await uploadFileToSWITCHtoolbox(dbFile, filename: filename, folderID: SWITCH_TOOLBOX_BACKUP_FOLDER_ID);
     await uploadFileToSWITCHtoolbox(csvFile, filename: filename, folderID: SWITCH_TOOLBOX_DATA_FOLDER_ID);
+  }
+
+  /// Backs up the SQLite database file and exports the data as CSV to SWITCH.
+  /// Use this only if a previous backup for this user exists. This creates a
+  /// new version of the document on SWITCHtoolbox.
+  ///
+  /// Throws `NoLoginDataException` if the loginData object is null.
+  ///
+  /// Throws 'DocumentNotFoundException' if no matching backup was found.
+  ///
+  /// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
+  Future<void> createAdditionalBackupOnSWITCH(LoginData loginData) async {
+    if (loginData == null) {
+      throw NoLoginDataException();
+    }
+    final File dbFile = await _databaseFile;
+    final File csvFile = await DatabaseExporter.exportDatabaseToCSVFile();
+    // update SQLite and CSV file with new version
+    final String docName = '${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}';
+    await updateFileOnSWITCHtoolbox(dbFile, docName, folderId: SWITCH_TOOLBOX_BACKUP_FOLDER_ID);
+    await updateFileOnSWITCHtoolbox(csvFile, docName, folderId: SWITCH_TOOLBOX_DATA_FOLDER_ID);
   }
 
   Future<void> restoreFromFile(File backup) async {
