@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
+import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'dart:ui';
@@ -19,7 +21,7 @@ class MainScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   final _appBarHeight = 115.0;
   // TODO: remove _context field and pass context via args if necessary
   BuildContext _context;
@@ -31,6 +33,9 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     print('~~~ MainScreenState.initState ~~~');
+    // listen to changes in the app lifecycle
+    WidgetsBinding.instance.addObserver(this);
+    _runBackupAndUploadCSVToSWITCH();
     _appStateStream = PatientBloc.instance.appState;
 
     /*
@@ -89,6 +94,19 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _runBackupAndUploadCSVToSWITCH();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     _context = context;
     return Scaffold(
@@ -112,6 +130,33 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ],
         ));
+  }
+
+  Future<void> _runBackupAndUploadCSVToSWITCH() async {
+    print("### Attempting backup... ###");
+    // TODO: run backup if the last successful backup dates back more than a day
+
+    String resultMessage = 'Backup and Upload Successful';
+    String title;
+    bool error = false;
+    try {
+      LoginData loginData = await loginDataFromSharedPrefs;
+      await DatabaseProvider().backupToSWITCH(loginData);
+      await DatabaseExporter.exportDatabaseToCSVFileAndUploadToSwitch();
+    } catch (e) {
+      error = true;
+      title = 'Backup and/or Upload Failed';
+      switch (e.runtimeType) {
+        case SocketException:
+          resultMessage = 'Make sure you are connected to the internet.';
+          break;
+        default:
+          resultMessage = '$e';
+      }
+    }
+    showFlushBar(_context, resultMessage, title: title, error: error);
+
+    print("### Backup complete! ###");
   }
 
   Widget _bodyToDisplayBasedOnState() {
