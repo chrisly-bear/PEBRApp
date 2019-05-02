@@ -1,0 +1,1 @@
+class BackupNotAvailableException implements Exception {}

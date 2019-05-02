@@ -1,13 +1,8 @@
 import 'dart:async';
-import 'package:pebrapp/config/SwitchConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/Patient.dart';
-import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:path/path.dart';
-import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'dart:io';
-import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
-import 'package:pebrapp/utils/Utils.dart';
 
 /// Exports the database as a CSV file an uploads it to SWITCH.
 class DatabaseExporter {
@@ -32,15 +27,6 @@ class DatabaseExporter {
 
     await csvFile.writeAsString(csvString, flush: true);
     return csvFile;
-  }
-
-  /// Creates a CSV file of the database data and uploads the file to SWITCHtoolbox.
-  static Future<void> exportDatabaseToCSVFileAndUploadToSwitch() async {
-    final File csvFile = await exportDatabaseToCSVFile();
-    final DateTime now = DateTime.now();
-    final LoginData loginData = await loginDataFromSharedPrefs;
-    final String filename = '${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}_${now.toIso8601String()}';
-    await uploadFileToSWITCHtoolbox(csvFile, filename: filename, folderID: SWITCH_TOOLBOX_DATA_FOLDER_ID);
   }
 
 }

@@ -2,8 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
-import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/exceptions/BackupNotAvailableException.dart';
+import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 import 'package:pebrapp/utils/Utils.dart';
@@ -73,7 +74,6 @@ class SettingsBody extends StatelessWidget {
         SizedButton('Logout', onPressed: () {_onPressLogout(context);},),
         Text('${loginData.firstName} ${loginData.lastName}'),
         Text('${loginData.healthCenter}'),
-        SizedButton('Upload CSV', onPressed: () {_uploadCSV(context);},),
       ],
     );
   }
@@ -89,6 +89,8 @@ class SettingsBody extends StatelessWidget {
       error = true;
       title = 'Backup Failed';
       switch (e.runtimeType) {
+        // case NoLoginDataException should never occur because we don't show
+        // the backup button when the user is not logged in
         case SocketException:
           message = 'Make sure you are connected to the internet.';
           break;
@@ -110,6 +112,11 @@ class SettingsBody extends StatelessWidget {
         error = true;
         title = 'Restore Failed';
         switch (e.runtimeType) {
+          case NoLoginDataException:
+            // this case should never occur because we only show the 'Restore'
+            // button when the user is logged in
+            resultMessage = 'Not logged in. Please log in first.';
+            break;
           case SocketException:
             resultMessage = 'Make sure you are connected to the internet.';
             break;
@@ -136,25 +143,6 @@ class SettingsBody extends StatelessWidget {
     showFlushBar(context, 'Logged Out');
   }
 
-  _uploadCSV(BuildContext context) async {
-    String resultMessage = 'Upload Successful';
-    String title;
-    bool error = false;
-    try {
-      await DatabaseExporter.exportDatabaseToCSVFileAndUploadToSwitch();
-    } catch (e) {
-      error = true;
-      title = 'Upload Failed';
-      switch (e.runtimeType) {
-        case SocketException:
-          resultMessage = 'Make sure you are connected to the internet.';
-          break;
-        default:
-          resultMessage = '$e';
-      }
-    }
-    showFlushBar(context, resultMessage, title: title, error: error);
-  }
 }
 
 class LoginBody extends StatefulWidget {
@@ -259,7 +247,7 @@ class _LoginBodyState extends State<LoginBody> {
               _createAccountMode ? 'Create Account' : 'Login',
               onPressed: _createAccountMode
                   ? _onSubmitCreateAccountForm
-                  : () {_onSubmitLoginForm(LoginData(_firstNameLoginCtr.text, _lastNameLoginCtr.text, _selectedHealthCenter));},
+                  : () {_onSubmitLoginForm();},
             ),
           ),
         ),
@@ -287,16 +275,17 @@ class _LoginBodyState extends State<LoginBody> {
     );
   }
 
-  _onSubmitLoginForm(LoginData loginData) async {
+  _onSubmitLoginForm() async {
     // Validate will return true if the form is valid, or false if the form is invalid.
     if (_loginFormKey.currentState.validate()) {
+      LoginData loginData = LoginData(_firstNameLoginCtr.text, _lastNameLoginCtr.text, _selectedHealthCenter);
       String title;
       String notificationMessage = 'Login Successful';
       bool error = false;
       try {
           await restoreFromSWITCHtoolbox(loginData);
-          final SharedPreferences prefs = await SharedPreferences.getInstance();
           // if the restore was successful we store the login data on the device
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setString(FIRSTNAME_KEY, loginData.firstName);
           await prefs.setString(LASTNAME_KEY, loginData.lastName);
           await prefs.setString(HEALTHCENTER_KEY, loginData.healthCenter);
@@ -305,6 +294,8 @@ class _LoginBodyState extends State<LoginBody> {
         error = true;
         title = 'Login Failed';
         switch (e.runtimeType) {
+          // NoLoginDataException case should never occur because we create the
+          // LoginData object at the beginning of this method
           case SocketException:
             notificationMessage = 'Make sure you are connected to the internet.';
             break;
@@ -356,6 +347,8 @@ class _LoginBodyState extends State<LoginBody> {
         error = true;
         title = 'Account could not be created';
         switch (e.runtimeType) {
+          // case NoLoginDataException should never occur because we create the
+          // loginData object at the beginning of this method
           case SocketException:
             notificationMessage = 'Make sure you are connected to the internet.';
             break;

@@ -7,6 +7,8 @@ import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart' as dom;
 import 'package:pebrapp/config/SwitchConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/exceptions/BackupNotAvailableException.dart';
+import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:path/path.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
@@ -39,16 +41,24 @@ Future<void> uploadFileToSWITCHtoolbox(File sourceFile, {String filename, int fo
   // TODO: return something to indicate whether the upload was successful or not
 }
 
-class BackupNotAvailableException implements Exception {}
-
+/// Downloads the latest SQLite file from SWITCH and replaces the one on the devices.
+///
+/// Throws `NoLoginDataException` if loginData object is null.
+///
+/// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
+///
+/// Throws `BackupNotAvailableException` if backup for the loginData is not available.
 Future<void> restoreFromSWITCHtoolbox(LoginData loginData) async {
-    final File backupFile = await _downloadLatestBackup(loginData);
-    if (backupFile == null) {
-      throw BackupNotAvailableException();
-    } else {
-      await DatabaseProvider().restoreFromFile(backupFile);
-      await PatientBloc.instance.sinkAllPatientsFromDatabase();
-    }
+  if (loginData == null) {
+    throw NoLoginDataException();
+  }
+  final File backupFile = await _downloadLatestBackup(loginData);
+  if (backupFile == null) {
+    throw BackupNotAvailableException();
+  } else {
+    await DatabaseProvider().restoreFromFile(backupFile);
+    await PatientBloc.instance.sinkAllPatientsFromDatabase();
+  }
 }
 
 /// Downloads the latest backup file that matches the loginData from SWITCHtoolbox.

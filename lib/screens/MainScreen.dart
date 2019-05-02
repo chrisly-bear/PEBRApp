@@ -6,6 +6,7 @@ import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'dart:ui';
 
 import 'package:pebrapp/screens/SettingsScreen.dart';
@@ -136,17 +137,20 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     print("### Attempting backup... ###");
     // TODO: run backup if the last successful backup dates back more than a day
 
-    String resultMessage = 'Backup and Upload Successful';
+    String resultMessage = 'Backup Successful';
     String title;
     bool error = false;
     try {
       LoginData loginData = await loginDataFromSharedPrefs;
       await DatabaseProvider().backupToSWITCH(loginData);
-      await DatabaseExporter.exportDatabaseToCSVFileAndUploadToSwitch();
     } catch (e) {
       error = true;
-      title = 'Backup and/or Upload Failed';
+      title = 'Backup Failed';
       switch (e.runtimeType) {
+        case NoLoginDataException:
+          // TODO: what should we do when there is no login data on the device yet (i.e. the user is not logged in)?
+          resultMessage = 'Not logged in. Please log in first.';
+          break;
         case SocketException:
           resultMessage = 'Make sure you are connected to the internet.';
           break;

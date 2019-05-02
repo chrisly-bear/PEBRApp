@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:pebrapp/config/SwitchConfig.dart';
+import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -241,11 +243,22 @@ class DatabaseProvider {
     await _initDB();
   }
 
+  /// Backs up the SQLite database file and exports the data as CSV to SWITCH.
+  /// 
+  /// Throws `NoLoginDataException` if the loginData object is null.
+  ///
+  /// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
   Future<void> backupToSWITCH(LoginData loginData) async {
+    if (loginData == null) {
+      throw NoLoginDataException();
+    }
     final DateTime now = DateTime.now();
     final File dbFile = await _databaseFile;
+    final File csvFile = await DatabaseExporter.exportDatabaseToCSVFile();
+    // upload SQLite and CSV file
     final String filename = '${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}_${now.toIso8601String()}';
     await uploadFileToSWITCHtoolbox(dbFile, filename: filename, folderID: SWITCH_TOOLBOX_BACKUP_FOLDER_ID);
+    await uploadFileToSWITCHtoolbox(csvFile, filename: filename, folderID: SWITCH_TOOLBOX_DATA_FOLDER_ID);
   }
 
   Future<void> restoreFromFile(File backup) async {
