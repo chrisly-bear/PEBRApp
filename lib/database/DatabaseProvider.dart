@@ -5,6 +5,7 @@ import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/screens/SettingsScreen.dart';
+import 'package:pebrapp/utils/Utils.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'dart:io';
@@ -260,6 +261,7 @@ class DatabaseProvider {
     final String filename = '${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}';
     await uploadFileToSWITCHtoolbox(dbFile, filename: filename, folderID: SWITCH_TOOLBOX_BACKUP_FOLDER_ID);
     await uploadFileToSWITCHtoolbox(csvFile, filename: filename, folderID: SWITCH_TOOLBOX_DATA_FOLDER_ID);
+    await storeLatestBackupInSharedPrefs();
   }
 
   /// Backs up the SQLite database file and exports the data as CSV to SWITCH.
@@ -281,6 +283,7 @@ class DatabaseProvider {
     final String docName = '${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}';
     await updateFileOnSWITCHtoolbox(dbFile, docName, folderId: SWITCH_TOOLBOX_BACKUP_FOLDER_ID);
     await updateFileOnSWITCHtoolbox(csvFile, docName, folderId: SWITCH_TOOLBOX_DATA_FOLDER_ID);
+    await storeLatestBackupInSharedPrefs();
   }
 
   Future<void> restoreFromFile(File backup) async {

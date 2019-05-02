@@ -149,6 +149,20 @@ String formatDate(DateTime date) {
   }
 }
 
+/// Turns a date into a formatted String. If the date is within 3 days from now
+/// it will return "In x days". If the date is today it will return "Today". If
+/// the date is in the past, it will return "x days ago".
+String formatDateAndTime(DateTime date) {
+  final int daysFromToday = _differenceInDays(DateTime.now(), date);
+  if (daysFromToday == -1) {
+    return "Yesterday, ${DateFormat("HH:mm").format(date.toLocal())}";
+  } else if (daysFromToday == 0) {
+    return "Today, ${DateFormat("HH:mm").format(date.toLocal())}";
+  } else {
+    return "${-daysFromToday} days ago";
+  }
+}
+
 /// Calculates the due date of the next preference assessment based on the date
 /// of the last preference assessment (+60 days).
 DateTime calculateNextAssessment(DateTime lastAssessment) {
@@ -177,4 +191,15 @@ Future<LoginData> get loginDataFromSharedPrefs async {
     return LoginData(firstName, lastName, healthCenter);
   }
   return null;
+}
+
+Future<void> storeLatestBackupInSharedPrefs() async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setString(LAST_SUCCESSFUL_BACKUP_KEY, DateTime.now().toIso8601String());
+}
+
+Future<DateTime> get latestBackupFromSharedPrefs async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  final String dateTimeString = prefs.getString(LAST_SUCCESSFUL_BACKUP_KEY);
+  return DateTime.parse(dateTimeString);
 }

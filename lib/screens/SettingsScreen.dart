@@ -56,11 +56,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 }
 
-class SettingsBody extends StatelessWidget {
+class SettingsBody extends StatefulWidget {
+
   final LoginData loginData;
 
   @override
   SettingsBody(this.loginData);
+
+  @override
+  _SettingsBodyState createState() => _SettingsBodyState(loginData);
+}
+
+class _SettingsBodyState extends State<SettingsBody> {
+
+  final LoginData loginData;
+  String lastBackup = 'loading...';
+
+  @override
+  _SettingsBodyState(this.loginData);
+
+  @override
+  void initState() {
+    super.initState();
+    latestBackupFromSharedPrefs.then((DateTime value) {
+      setState(() {
+        lastBackup = value == null ? 'never' : formatDateAndTime(value);
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +92,8 @@ class SettingsBody extends StatelessWidget {
       children: <Widget>[
         SizedButton('Set PIN'),
         SizedButton('Start Backup', onPressed: () {_onPressBackupButton(context);},),
-        Text("last backup: never"),
+        Text("last backup:"),
+        Text(lastBackup),
         SizedButton('Restore', onPressed: () {_onPressRestoreButton(context);},),
         SizedButton('Logout', onPressed: () {_onPressLogout(context);},),
         Text('${loginData.firstName} ${loginData.lastName}'),
@@ -84,6 +108,9 @@ class SettingsBody extends StatelessWidget {
     bool error = false;
     try {
       await DatabaseProvider().createAdditionalBackupOnSWITCH(loginData);
+      setState(() {
+        lastBackup = formatDateAndTime(DateTime.now());
+      });
     } catch (e) {
       error = true;
       title = 'Backup Failed';
