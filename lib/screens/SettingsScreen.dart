@@ -182,6 +182,7 @@ class _SettingsBodyState extends State<SettingsBody> {
     await prefs.remove(FIRSTNAME_KEY);
     await prefs.remove(LASTNAME_KEY);
     await prefs.remove(HEALTHCENTER_KEY);
+    await prefs.remove(LAST_SUCCESSFUL_BACKUP_KEY);
     await DatabaseProvider().resetDatabase();
     await PatientBloc.instance.sinkAllPatientsFromDatabase();
     // TODO (not super important): the pushReplacement results in a jerky animation
