@@ -136,22 +136,38 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
   // Gets called when the application comes to the foreground.
   Future<void> _onAppResume() async {
-    print("### Attempting backup... ###");
-    // TODO: run backup if the last successful backup dates back more than a day
+
+    // make user log in if he/she isn't already
+    LoginData loginData = await loginDataFromSharedPrefs;
+    if (loginData == null) {
+      _pushSettingsScreen();
+      return;
+    }
+
+    // check if backup is due
+    int daysSinceLastBackup = -1; // -1 means one day from today, i.e. tomorrow
+    final DateTime lastBackup = await latestBackupFromSharedPrefs;
+    if (lastBackup != null) {
+      daysSinceLastBackup = differenceInDays(lastBackup, DateTime.now());
+      print('days since last backup: $daysSinceLastBackup');
+      if (daysSinceLastBackup == 0) {
+        return; // don't run a backup, we have already backed up today
+      }
+    }
 
     String resultMessage = 'Backup Successful';
     String title;
     bool error = false;
-    LoginData loginData;
     try {
-      loginData = await loginDataFromSharedPrefs;
       await DatabaseProvider().createAdditionalBackupOnSWITCH(loginData);
     } catch (e) {
+      // TODO: if last successful backup is more than 7 days ago show a warning
       error = true;
       title = 'Backup Failed';
       switch (e.runtimeType) {
         case NoLoginDataException:
-          // TODO: what should we do when there is no login data on the device yet (i.e. the user is not logged in)?
+          // this case should never occur since we force the user to login when
+          // resuming the app
           resultMessage = 'Not logged in. Please log in first.';
           break;
         case DocumentNotFoundException:
@@ -166,7 +182,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     }
     showFlushBar(_context, resultMessage, title: title, error: error);
 
-    print("### Backup complete! ###");
   }
 
   Widget _bodyToDisplayBasedOnState() {
@@ -204,8 +219,15 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
   void _pushSettingsScreen() {
     Navigator.of(_context).push(
-      new MaterialPageRoute<void>(
-        builder: (BuildContext context) {
+      new PageRouteBuilder<void>(
+        opaque: false,
+        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
+          return FadeTransition(
+            opacity: anim1,
+            child: widget, // child is the value returned by pageBuilder
+          );
+        },
+        pageBuilder: (BuildContext context, _, __) {
           return SettingsScreen();
         },
       ),

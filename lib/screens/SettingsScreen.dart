@@ -44,14 +44,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    Widget _body = Center(
+      child: Card(
+        color: Color.fromARGB(255, 224, 224, 224),
+        child: Container(
+          width: 400,
+          height: 600,
+          child: _isLoading ? Center(child: Text('Loading...')) : (
+              _loginData == null ? LoginBody() : Center(child: SettingsBody(this._loginData))),
+        ),
+      ),
+    );
+
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 224, 224, 224),
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
-      body: _isLoading ? Center(child: Text('Loading...')) : (
-          _loginData == null ? LoginBody() : Center(child: SettingsBody(this._loginData))
-      ),
+      backgroundColor: Colors.black.withOpacity(0.50),
+      body: _body
     );
   }
 }
@@ -88,16 +96,26 @@ class _SettingsBodyState extends State<SettingsBody> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        SizedButton('Set PIN'),
-        SizedButton('Start Backup', onPressed: () {_onPressBackupButton(context);},),
-        Text("last backup:"),
-        Text(lastBackup),
-        SizedButton('Restore', onPressed: () {_onPressRestoreButton(context);},),
-        SizedButton('Logout', onPressed: () {_onPressLogout(context);},),
-        Text('${loginData.firstName} ${loginData.lastName}'),
-        Text('${loginData.healthCenter}'),
+        Container(
+          alignment: Alignment.centerRight,
+          child: IconButton(icon: Icon(Icons.close), onPressed: () {Navigator.of(context).pop();}),
+        ),
+        Expanded(child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+              SizedButton('Set PIN'),
+              SizedButton('Start Backup', onPressed: () {_onPressBackupButton(context);},),
+              Text("last backup:"),
+              Text(lastBackup),
+              SizedButton('Restore', onPressed: () {_onPressRestoreButton(context);},),
+              SizedButton('Logout', onPressed: () {_onPressLogout(context);},),
+              Text('${loginData.firstName} ${loginData.lastName}'),
+              Text('${loginData.healthCenter}'),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -166,9 +184,26 @@ class _SettingsBodyState extends State<SettingsBody> {
     await prefs.remove(HEALTHCENTER_KEY);
     await DatabaseProvider().resetDatabase();
     await PatientBloc.instance.sinkAllPatientsFromDatabase();
-    // TODO: show login screen instead of leaving settings screen
-    // workaround for now: pop settings screen (return to main screen)
-    Navigator.of(context).pop();
+    // TODO (not super important): the pushReplacement results in a jerky animation
+    //       -> We should call `setState` and set the loginData to null (or some
+    //       other state variable such as `isLoggedIn`) and react to it by auto-
+    //       matically rendering the login screen. We should only use one State
+    //       component (namely _SettingsScreenState), LoginBody and SettingsBody
+    //       should only be methods to call to render the Login UI /Settings UI.
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        opaque: false,
+        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
+          return FadeTransition(
+            opacity: anim1,
+            child: widget, // child is the value returned by pageBuilder
+          );
+        },
+        pageBuilder: (BuildContext context, _, __) {
+          return SettingsScreen();
+        },
+      ),
+    );
     showFlushBar(context, 'Logged Out');
   }
 

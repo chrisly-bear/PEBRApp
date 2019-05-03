@@ -127,7 +127,7 @@ DateTime _roundToDays(DateTime date) {
 ///
 /// - E.g. 2: if date1 is 2019-12-30 00:05:00.000 and date2 is
 /// 2019-12-31 23:55:00.000 the difference will be 1 (day).
-int _differenceInDays(DateTime date1, DateTime date2) {
+int differenceInDays(DateTime date1, DateTime date2) {
   date1 = _roundToDays(date1);
   date2 = _roundToDays(date2);
   return date2.difference(date1).inDays;
@@ -137,7 +137,7 @@ int _differenceInDays(DateTime date1, DateTime date2) {
 /// it will return "In x days". If the date is today it will return "Today". If
 /// the date is in the past, it will return "x days ago".
 String formatDate(DateTime date) {
-  final int daysFromToday = _differenceInDays(DateTime.now(), date);
+  final int daysFromToday = differenceInDays(DateTime.now(), date);
   if (daysFromToday > 3) {
     return DateFormat("dd.MM.yyyy").format(date.toLocal());
   } else if (daysFromToday > 0 && daysFromToday <= 3) {
@@ -153,7 +153,7 @@ String formatDate(DateTime date) {
 /// it will return "In x days". If the date is today it will return "Today". If
 /// the date is in the past, it will return "x days ago".
 String formatDateAndTime(DateTime date) {
-  final int daysFromToday = _differenceInDays(DateTime.now(), date);
+  final int daysFromToday = differenceInDays(DateTime.now(), date);
   if (daysFromToday == -1) {
     return "Yesterday, ${DateFormat("HH:mm").format(date.toLocal())}";
   } else if (daysFromToday == 0) {
@@ -193,13 +193,16 @@ Future<LoginData> get loginDataFromSharedPrefs async {
   return null;
 }
 
+/// Updates the date of the last successful backup to now (local time).
 Future<void> storeLatestBackupInSharedPrefs() async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setString(LAST_SUCCESSFUL_BACKUP_KEY, DateTime.now().toIso8601String());
 }
 
+/// Gets the date of the last successful backup. Returns `null` if no date has
+/// been stored in SharedPreferences yet.
 Future<DateTime> get latestBackupFromSharedPrefs async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   final String dateTimeString = prefs.getString(LAST_SUCCESSFUL_BACKUP_KEY);
-  return DateTime.parse(dateTimeString);
+  return dateTimeString == null ? null : DateTime.parse(dateTimeString);
 }
