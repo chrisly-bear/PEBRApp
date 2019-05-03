@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
+import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
@@ -150,7 +151,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     if (lastBackup != null) {
       daysSinceLastBackup = differenceInDays(lastBackup, DateTime.now());
       print('days since last backup: $daysSinceLastBackup');
-      if (daysSinceLastBackup == 0) {
+      if (daysSinceLastBackup < AUTO_BACKUP_EVERY_X_DAYS && daysSinceLastBackup >= 0) {
+        print("backup not due yet (only due after $AUTO_BACKUP_EVERY_X_DAYS days)");
         return; // don't run a backup, we have already backed up today
       }
     }
@@ -161,7 +163,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     try {
       await DatabaseProvider().createAdditionalBackupOnSWITCH(loginData);
     } catch (e) {
-      // TODO: if last successful backup is more than 7 days ago show a warning
       error = true;
       title = 'Backup Failed';
       switch (e.runtimeType) {
@@ -178,6 +179,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           break;
         default:
           resultMessage = '$e';
+      }
+      // show additional warning if backup wasn't successful for a long time
+      if (daysSinceLastBackup >= SHOW_WARNING_AFTER_X_DAYS) {
+        showFlushBar(_context, "Last backup was $daysSinceLastBackup days ago.\nPlease perform a manual backup from the settings screen.", title: "Warning", error: true);
       }
     }
     showFlushBar(_context, resultMessage, title: title, error: error);
