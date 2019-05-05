@@ -79,6 +79,7 @@ class _SettingsBodyState extends State<SettingsBody> {
 
   final LoginData loginData;
   String lastBackup = 'loading...';
+  bool _isLoading = false;
 
   @override
   _SettingsBodyState(this.loginData);
@@ -88,7 +89,7 @@ class _SettingsBodyState extends State<SettingsBody> {
     super.initState();
     latestBackupFromSharedPrefs.then((DateTime value) {
       setState(() {
-        lastBackup = value == null ? 'never' : formatDateAndTime(value);
+        lastBackup = value == null ? 'unknown' : formatDateAndTime(value);
       });
     });
   }
@@ -112,12 +113,14 @@ class _SettingsBodyState extends State<SettingsBody> {
               Text('${loginData.healthCenter}',
                 style: TextStyle(fontSize: 24.0),
               ),
-              SizedBox(height: 50,),
+            _isLoading
+                ? Padding(padding: EdgeInsets.symmetric(vertical: 17.5), child: SizedBox(width: 15.0, height: 15.0, child: CircularProgressIndicator()))
+                : SizedBox(height: 50,),
               SizedButton('Set PIN'),
-              SizedButton('Start Backup', onPressed: () {_onPressBackupButton(context);},),
+              SizedButton('Start Backup', onPressed: _isLoading ? null : () {_onPressBackupButton(context);},),
               Text("last backup:"),
               Text(lastBackup),
-              SizedButton('Restore', onPressed: () {_onPressRestoreButton(context);},),
+              SizedButton('Restore', onPressed: _isLoading ? null : () {_onPressRestoreButton(context);},),
               SizedButton('Logout', onPressed: () {_onPressLogout(context);},),
               SizedButton('Transfer Tablet', onPressed: () {_onPressTransferTablet(context);},),
               Text('Use this option if you want to keep the patient data on the device but change the user or health center.', textAlign: TextAlign.center,),
@@ -132,6 +135,7 @@ class _SettingsBodyState extends State<SettingsBody> {
     String message = 'Backup Successful';
     String title;
     bool error = false;
+    setState(() { _isLoading = true; });
     try {
       await DatabaseProvider().createAdditionalBackupOnSWITCH(loginData);
       setState(() {
@@ -153,6 +157,7 @@ class _SettingsBodyState extends State<SettingsBody> {
           message = '$e';
       }
     }
+    setState(() { _isLoading = false; });
     showFlushBar(context, message, title: title, error: error);
   }
 
@@ -160,6 +165,7 @@ class _SettingsBodyState extends State<SettingsBody> {
       String resultMessage = 'Restore Successful';
       String title;
       bool error = false;
+      setState(() { _isLoading = true; });
       final LoginData loginData = await loginDataFromSharedPrefs;
       try {
         await restoreFromSWITCHtoolbox(loginData);
@@ -182,6 +188,7 @@ class _SettingsBodyState extends State<SettingsBody> {
             resultMessage = '$e';
         }
       }
+      setState(() { _isLoading = false; });
       showFlushBar(context, resultMessage, title: title, error: error);
   }
 
@@ -416,7 +423,6 @@ class _LoginBodyState extends State<LoginBody> {
       } catch (e) {
         error = true;
         title = 'Login Failed';
-        setState(() { _isLoading = false; });
         switch (e.runtimeType) {
           // NoLoginDataException case should never occur because we create the
           // LoginData object at the beginning of this method
@@ -430,6 +436,7 @@ class _LoginBodyState extends State<LoginBody> {
             notificationMessage = '$e';
         }
       }
+      setState(() { _isLoading = false; });
       showFlushBar(context, notificationMessage, title: title, error: error);
     }
   }
@@ -452,7 +459,6 @@ class _LoginBodyState extends State<LoginBody> {
           error = true;
           title = 'Account could not be created';
           notificationMessage = 'User \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\' already exists.';
-          setState(() { _isLoading = false; });
         } else {
           await DatabaseProvider().createFirstBackupOnSWITCH(loginData);
           // if backup was successful we store the login data on the device
@@ -472,7 +478,6 @@ class _LoginBodyState extends State<LoginBody> {
       } catch (e) {
         error = true;
         title = 'Account could not be created';
-        setState(() { _isLoading = false; });
         switch (e.runtimeType) {
           // case NoLoginDataException should never occur because we create the
           // loginData object at the beginning of this method
@@ -483,6 +488,7 @@ class _LoginBodyState extends State<LoginBody> {
             notificationMessage = '$e';
         }
       }
+      setState(() { _isLoading = false; });
       if (!error) { Navigator.of(context).pop(); }
       showFlushBar(context, notificationMessage, title: title, error: error);
       // TODO: refresh settings screen to show the logged in state -> use the BloC
