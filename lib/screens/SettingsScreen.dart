@@ -119,6 +119,8 @@ class _SettingsBodyState extends State<SettingsBody> {
               Text(lastBackup),
               SizedButton('Restore', onPressed: () {_onPressRestoreButton(context);},),
               SizedButton('Logout', onPressed: () {_onPressLogout(context);},),
+              SizedButton('Transfer Tablet', onPressed: () {_onPressTransferTablet(context);},),
+              Text('Use this option if you want to keep the patient data on the device but change the user or health center.', textAlign: TextAlign.center,),
             ],
           ),
         ),
@@ -214,6 +216,36 @@ class _SettingsBodyState extends State<SettingsBody> {
     showFlushBar(context, 'Logged Out');
   }
 
+  _onPressTransferTablet(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove(FIRSTNAME_KEY);
+    await prefs.remove(LASTNAME_KEY);
+    await prefs.remove(HEALTHCENTER_KEY);
+    await prefs.remove(LAST_SUCCESSFUL_BACKUP_KEY);
+    // Do not remove database data (otherwise this function is the same as the logout function)
+    // TODO (not super important): the pushReplacement results in a jerky animation
+    //       -> We should call `setState` and set the loginData to null (or some
+    //       other state variable such as `isLoggedIn`) and react to it by auto-
+    //       matically rendering the login screen. We should only use one State
+    //       component (namely _SettingsScreenState), LoginBody and SettingsBody
+    //       should only be methods to call to render the Login UI /Settings UI.
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        opaque: false,
+        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
+          return FadeTransition(
+            opacity: anim1,
+            child: widget, // child is the value returned by pageBuilder
+          );
+        },
+        pageBuilder: (BuildContext context, _, __) {
+          return SettingsScreen();
+        },
+      ),
+    );
+    showFlushBar(context, 'Logged out. Enter the name and health center of the new user now.');
+  }
+
 }
 
 class LoginBody extends StatefulWidget {
@@ -224,7 +256,7 @@ class LoginBody extends StatefulWidget {
 class _LoginBodyState extends State<LoginBody> {
   final _loginFormKey = GlobalKey<FormState>();
   final _createAccountFormKey = GlobalKey<FormState>();
-  bool _createAccountMode = false;
+  bool _createAccountMode = true;
   TextEditingController _firstNameLoginCtr = TextEditingController();
   TextEditingController _lastNameLoginCtr = TextEditingController();
   TextEditingController _firstNameCreateAccountCtr = TextEditingController();
@@ -320,6 +352,14 @@ class _LoginBodyState extends State<LoginBody> {
                   ? _onSubmitCreateAccountForm
                   : () {_onSubmitLoginForm();},
             ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25.0),
+          child: Text(_createAccountMode
+              ? 'Creating an account will store the name and health center on the server.'
+              : 'Logging in will replace all data on this device with the data from the latest backup.',
+            textAlign: TextAlign.center,
           ),
         ),
       ],
