@@ -261,6 +261,7 @@ class _LoginBodyState extends State<LoginBody> {
   TextEditingController _lastNameLoginCtr = TextEditingController();
   TextEditingController _firstNameCreateAccountCtr = TextEditingController();
   TextEditingController _lastNameCreateAccountCtr = TextEditingController();
+  bool _isLoading = false;
 
   String _selectedHealthCenter;
   static final healthCenters = [
@@ -352,9 +353,15 @@ class _LoginBodyState extends State<LoginBody> {
           child: Center(
             child: SizedButton(
               _createAccountMode ? 'Create Account' : 'Login',
-              onPressed: _createAccountMode
+              widget: _isLoading
+                  ? Container(
+                      height: 10.0,
+                      child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                    )
+                  : null,
+              onPressed: _isLoading ? null : (_createAccountMode
                   ? _onSubmitCreateAccountForm
-                  : () {_onSubmitLoginForm();},
+                  : _onSubmitLoginForm),
             ),
           ),
         ),
@@ -397,6 +404,7 @@ class _LoginBodyState extends State<LoginBody> {
       String title;
       String notificationMessage = 'Login Successful';
       bool error = false;
+      setState(() { _isLoading = true; });
       try {
           await restoreFromSWITCHtoolbox(loginData);
           // if the restore was successful we store the login data on the device
@@ -408,6 +416,7 @@ class _LoginBodyState extends State<LoginBody> {
       } catch (e) {
         error = true;
         title = 'Login Failed';
+        setState(() { _isLoading = false; });
         switch (e.runtimeType) {
           // NoLoginDataException case should never occur because we create the
           // LoginData object at the beginning of this method
@@ -431,6 +440,7 @@ class _LoginBodyState extends State<LoginBody> {
       String notificationMessage = 'Account Created';
       String title;
       bool error = false;
+      setState(() { _isLoading = true; });
       final LoginData loginData = LoginData(
           _firstNameCreateAccountCtr.text,
           _lastNameCreateAccountCtr.text,
@@ -442,6 +452,7 @@ class _LoginBodyState extends State<LoginBody> {
           error = true;
           title = 'Account could not be created';
           notificationMessage = 'User \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\' already exists.';
+          setState(() { _isLoading = false; });
         } else {
           await DatabaseProvider().createFirstBackupOnSWITCH(loginData);
           // if backup was successful we store the login data on the device
@@ -461,6 +472,7 @@ class _LoginBodyState extends State<LoginBody> {
       } catch (e) {
         error = true;
         title = 'Account could not be created';
+        setState(() { _isLoading = false; });
         switch (e.runtimeType) {
           // case NoLoginDataException should never occur because we create the
           // loginData object at the beginning of this method

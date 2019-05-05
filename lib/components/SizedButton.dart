@@ -4,8 +4,12 @@ class SizedButton extends StatelessWidget {
 
   final String _buttonText;
   final onPressed;
+  final Widget widget;
 
-  const SizedButton(this._buttonText, {this.onPressed}) : super();
+  /// If `onPressed` is null then the button is painted gray to show that it's
+  /// deactivated. If a `widget` is passed, the `_buttonText` is ignored and the
+  /// `widget` is displayed instead.
+  const SizedButton(this._buttonText, {this.onPressed, this.widget}) : super();
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +22,7 @@ class SizedButton extends StatelessWidget {
       child: RaisedButton(
         onPressed: this.onPressed,
         color: Color.fromRGBO(37, 55, 208, 1.0),
-        child: Text(
+        child: widget != null ? widget : Text(
           this._buttonText.toUpperCase(),
           style: TextStyle(
             color: Colors.white,
