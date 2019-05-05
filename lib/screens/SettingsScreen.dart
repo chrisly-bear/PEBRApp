@@ -286,6 +286,10 @@ class _LoginBodyState extends State<LoginBody> {
   _formBlock() {
     return Column(
       children: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(top: 25.0, bottom: 10.0),
+          child: Text(_createAccountMode ? 'Create Account' : 'Login', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0),),
+        ),
         Container(
           width: 500,
           child: Card(
