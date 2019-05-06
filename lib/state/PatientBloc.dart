@@ -43,10 +43,10 @@ class PatientBloc {
   }
 
   /// Trigger an [AppStatePatientData] stream event.
-  Future<void> sinkPatientData(Patient newPatient) async {
-    await DatabaseProvider().insertPatient(newPatient);
-    print('Putting patient ${newPatient.artNumber} down the sink');
-    _appStateStreamController.sink.add(AppStatePatientData(newPatient));
+  Future<void> sinkPatientData(Patient patient) async {
+    await DatabaseProvider().insertPatient(patient);
+    print('Putting patient ${patient.artNumber} down the sink');
+    _appStateStreamController.sink.add(AppStatePatientData(patient));
   }
 
   /// Trigger an [AppStatePreferenceAssessmentData] stream event.

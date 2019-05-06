@@ -95,6 +95,10 @@ class Patient {
 
   bool get vlSuppressed => _vlSuppressed;
 
+  // ignore: unnecessary_getters_setters
+  set isActivated(bool isActivated) => _isActivated = isActivated;
+
+  // ignore: unnecessary_getters_setters
   bool get isActivated => _isActivated;
 
 }
