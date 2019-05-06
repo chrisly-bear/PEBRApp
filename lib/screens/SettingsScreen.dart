@@ -264,10 +264,8 @@ class _LoginBodyState extends State<LoginBody> {
   final _loginFormKey = GlobalKey<FormState>();
   final _createAccountFormKey = GlobalKey<FormState>();
   bool _createAccountMode = true;
-  TextEditingController _firstNameLoginCtr = TextEditingController();
-  TextEditingController _lastNameLoginCtr = TextEditingController();
-  TextEditingController _firstNameCreateAccountCtr = TextEditingController();
-  TextEditingController _lastNameCreateAccountCtr = TextEditingController();
+  TextEditingController _firstNameCtr = TextEditingController();
+  TextEditingController _lastNameCtr = TextEditingController();
   bool _isLoading = false;
 
   String _selectedHealthCenter;
@@ -309,9 +307,7 @@ class _LoginBodyState extends State<LoginBody> {
                   Text('First Name'),
                   TextFormField(
                     textAlign: TextAlign.center,
-                    controller: _createAccountMode
-                        ? _firstNameCreateAccountCtr
-                        : _firstNameLoginCtr,
+                    controller: _firstNameCtr,
                     validator: (value) {
                       if (value.isEmpty) {
                         return 'Please enter your first name';
@@ -321,9 +317,7 @@ class _LoginBodyState extends State<LoginBody> {
                   Text('Last Name'),
                   TextFormField(
                     textAlign: TextAlign.center,
-                    controller: _createAccountMode
-                        ? _lastNameCreateAccountCtr
-                        : _lastNameLoginCtr,
+                    controller: _lastNameCtr,
                     validator: (value) {
                       if (value.isEmpty) {
                         return 'Please enter your last name';
@@ -407,7 +401,7 @@ class _LoginBodyState extends State<LoginBody> {
   _onSubmitLoginForm() async {
     // Validate will return true if the form is valid, or false if the form is invalid.
     if (_loginFormKey.currentState.validate()) {
-      LoginData loginData = LoginData(_firstNameLoginCtr.text, _lastNameLoginCtr.text, _selectedHealthCenter);
+      LoginData loginData = LoginData(_firstNameCtr.text, _lastNameCtr.text, _selectedHealthCenter);
       String title;
       String notificationMessage = 'Login Successful';
       bool error = false;
@@ -449,8 +443,8 @@ class _LoginBodyState extends State<LoginBody> {
       bool error = false;
       setState(() { _isLoading = true; });
       final LoginData loginData = LoginData(
-          _firstNameCreateAccountCtr.text,
-          _lastNameCreateAccountCtr.text,
+          _firstNameCtr.text,
+          _lastNameCtr.text,
           _selectedHealthCenter
       );
       try {
