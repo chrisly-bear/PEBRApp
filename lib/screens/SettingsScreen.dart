@@ -101,7 +101,7 @@ class _SettingsBodyState extends State<SettingsBody> {
       children: <Widget>[
         Container(
           alignment: Alignment.centerRight,
-          child: IconButton(icon: Icon(Icons.close), onPressed: () {Navigator.of(context).pop();}),
+          child: IconButton(icon: Icon(Icons.close), onPressed: () {Navigator.of(context).popUntil(ModalRoute.withName('/'));}),
         ),
         Expanded(child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -413,7 +413,7 @@ class _LoginBodyState extends State<LoginBody> {
           await prefs.setString(FIRSTNAME_KEY, loginData.firstName);
           await prefs.setString(LASTNAME_KEY, loginData.lastName);
           await prefs.setString(HEALTHCENTER_KEY, loginData.healthCenter);
-          Navigator.of(context).pop();
+          Navigator.of(context).popUntil(ModalRoute.withName('/'));
       } catch (e) {
         error = true;
         title = 'Login Failed';
@@ -483,7 +483,7 @@ class _LoginBodyState extends State<LoginBody> {
         }
       }
       setState(() { _isLoading = false; });
-      if (!error) { Navigator.of(context).pop(); }
+      if (!error) { Navigator.of(context).popUntil(ModalRoute.withName('/')); }
       showFlushBar(context, notificationMessage, title: title, error: error);
       // TODO: refresh settings screen to show the logged in state -> use the BloC
     }
