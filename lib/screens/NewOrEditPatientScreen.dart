@@ -154,7 +154,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
                   controller: _villageCtr,
                   validator: (value) {
                     if (value.isEmpty) {
-                      return 'Please enter an village';
+                      return 'Please enter a village';
                     }
                   },
                 ),
