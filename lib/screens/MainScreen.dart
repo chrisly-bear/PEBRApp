@@ -252,6 +252,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   void _pushPatientScreen(Patient patient) {
     Navigator.of(_context).push(
       new MaterialPageRoute<void>(
+        settings: RouteSettings(name: '/patient'),
         builder: (BuildContext context) {
           return PatientScreen(patient);
         },

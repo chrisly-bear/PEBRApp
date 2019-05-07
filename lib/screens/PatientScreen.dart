@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/screens/ARTRefillScreen.dart';
 import 'package:pebrapp/screens/NewOrEditPatientScreen.dart';
 import 'package:pebrapp/screens/PreferenceAssessmentScreen.dart';
 import 'package:pebrapp/utils/Utils.dart';
@@ -67,7 +68,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         Center(child: Text('02.02.2019')),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [SizedButton('Manage Refill')]),
+            children: [SizedButton('Manage Refill', onPressed: () { _pushARTRefillScreen(_context, _patient.artNumber); })]),
         Container(height: 50), // padding at bottom
       ],
     );
@@ -394,6 +395,23 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
           return PreferenceAssessmentScreen(patientART);
+        },
+      ),
+    );
+  }
+
+  void _pushARTRefillScreen(BuildContext context, String patientART) {
+    Navigator.of(_context).push(
+      new PageRouteBuilder<void>(
+        opaque: false,
+        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
+          return FadeTransition(
+            opacity: anim1,
+            child: widget, // child is the value returned by pageBuilder
+          );
+        },
+        pageBuilder: (BuildContext context, _, __) {
+          return ARTRefillScreen(patientART);
         },
       ),
     );
