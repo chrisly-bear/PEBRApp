@@ -210,7 +210,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
     } else if (await canLaunch(marketUrl)) {
       await launch(marketUrl);
     } else {
-      showFlushBar(context, "Could not finde KoBoCollect app. Make sure KoBoCollect is installed.");
+      showFlushBar(context, "Could not find KoBoCollect app. Make sure KoBoCollect is installed.");
     }
   }
 
