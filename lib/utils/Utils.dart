@@ -133,20 +133,27 @@ int differenceInDays(DateTime date1, DateTime date2) {
   return date2.difference(date1).inDays;
 }
 
-/// Turns a date into a formatted String. If the date is within 3 days from now
-/// it will return "In x days". If the date is today it will return "Today". If
-/// the date is in the past, it will return "x days ago".
+/// Turns a date into a formatted String. If the date is
+///
+/// * today it will return "Today"
+/// * tomorrow it will return "Tomorrow"
+/// * within 3 days from now it will return "x days from now"
+/// * yesterday it will return "Yesterday"
+/// * in the past it will return "x days ago".
 String formatDate(DateTime date) {
   final int daysFromToday = differenceInDays(DateTime.now(), date);
-  if (daysFromToday > 3) {
-    return DateFormat("dd.MM.yyyy").format(date.toLocal());
-  } else if (daysFromToday > 0 && daysFromToday <= 3) {
-    return "In $daysFromToday days";
-  } else if (daysFromToday == 0) {
+  if (daysFromToday == 0) {
     return "Today";
-  } else {
+  } else if (daysFromToday == 1) {
+      return "Tomorrow";
+  } else if (daysFromToday > 1 && daysFromToday <= 3) {
+    return "$daysFromToday days from now";
+  } else if (daysFromToday == -1) {
+    return "Yesterday";
+  } else if (daysFromToday < -1) {
     return "${-daysFromToday} days ago";
   }
+  return DateFormat("dd.MM.yyyy").format(date.toLocal());
 }
 
 /// Turns a date into a formatted String. If the date is within 3 days from now
