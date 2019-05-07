@@ -4,11 +4,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/config/PEBRAConfig.dart';
-import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
+import 'package:pebrapp/screens/DebugScreen.dart';
 import 'dart:ui';
 
 import 'package:pebrapp/screens/SettingsScreen.dart';
@@ -211,6 +211,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       flexibleSpace: PageHeader(title: 'Patients', subtitle: 'Overview'),
       actions: <Widget>[
         IconButton(
+          icon: Icon(Icons.bug_report),
+          onPressed: _pushDebugScreen,
+        ),
+        IconButton(
           icon: Icon(Icons.refresh),
           onPressed: PatientBloc.instance.sinkAllPatientsFromDatabase
         ),
@@ -219,6 +223,23 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           onPressed: _pushSettingsScreen,
         ),
       ],
+    );
+  }
+
+  void _pushDebugScreen() {
+    Navigator.of(_context).push(
+      PageRouteBuilder<void>(
+        opaque: false,
+        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
+          return FadeTransition(
+            opacity: anim1,
+            child: widget,
+          );
+        },
+        pageBuilder: (BuildContext context, _, __) {
+          return DebugScreen();
+        },
+      ),
     );
   }
 

@@ -193,24 +193,6 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
           padding: const EdgeInsets.symmetric(vertical: 16.0),
           child: Center(
             child: SizedButton(
-              'Get DB Info',
-              onPressed: _getDBInfo,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: Center(
-            child: SizedButton(
-              'Get All Patients',
-              onPressed: _getAllPatients,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: Center(
-            child: SizedButton(
               'Open KoBoCollect',
               onPressed: _openKoBoCollect,
             ),
@@ -253,24 +235,6 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
           : 'New patient created successfully';
       showFlushBar(context, finishNotification);
     }
-  }
-
-  _getDBInfo() async {
-    final columns = await DatabaseProvider().getTableInfo(Patient.tableName);
-    print('### TABLE \'${Patient.tableName}\' INFO <START> ###');
-    for (final column in columns) {
-      print(column);
-    }
-    print('### TABLE \'${Patient.tableName}\' INFO <END> ###');
-  }
-
-  _getAllPatients() async {
-    final List<Patient> patients = await DatabaseProvider().retrieveLatestPatients();
-    if (patients.length == 0) { print('No patients in Patient table'); }
-    for (final patient in patients) {
-      print(patient);
-    }
-    showFlushBar(context, "${patients.length} patients in database");
   }
 
   bool _artNumberExists(artNumber) {
