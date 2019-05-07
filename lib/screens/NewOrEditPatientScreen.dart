@@ -61,6 +61,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
 
   final Patient _existingPatient;
   bool _editModeOn;
+  bool _patientIsActivated = false;
   TextEditingController _artNumberCtr = TextEditingController();
   TextEditingController _villageCtr = TextEditingController();
   TextEditingController _districtCtr = TextEditingController();
@@ -68,6 +69,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
 
   _NewOrEditPatientFormState(this._existingPatient) {
     _editModeOn = _existingPatient != null;
+    _patientIsActivated = _existingPatient?.isActivated ?? false;
     _artNumberCtr.text = _editModeOn ? _existingPatient?.artNumber : null;
     _villageCtr.text = _editModeOn ? _existingPatient?.village : null;
     _districtCtr.text = _editModeOn ? _existingPatient?.district : null;
@@ -176,6 +178,15 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
                     }
                   },
                 ),
+                CheckboxListTile(
+                  title: Text(
+                    'Activate Patient',
+                  ),
+                  value: _patientIsActivated,
+                  onChanged: (bool newState) {
+                    setState(() { _patientIsActivated = newState; });
+                  },
+                ),
               ],
             ),
           ),
@@ -215,17 +226,18 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   }
 
   _onSubmitForm() async {
-    // Validate will return true if the form is valid, or false if the form is invalid.
     Patient newPatient;
+    // Validate will return true if the form is valid, or false if the form is invalid.
     if (_formKey.currentState.validate()) {
       if (_editModeOn) { // editing an existing patient
         newPatient = _existingPatient;
         newPatient.village = _villageCtr.text;
         newPatient.district = _districtCtr.text;
         newPatient.phoneNumber = _phoneNumberCtr.text;
+        newPatient.isActivated = _patientIsActivated;
         print('EDITED PATIENT:\n$newPatient');
       } else { // creating a new patient
-        newPatient = Patient(_artNumberCtr.text, _districtCtr.text, _phoneNumberCtr.text, _villageCtr.text);
+        newPatient = Patient(_artNumberCtr.text, _districtCtr.text, _phoneNumberCtr.text, _villageCtr.text, _patientIsActivated);
         print('NEW PATIENT:\n$newPatient');
       }
       await PatientBloc.instance.sinkPatientData(newPatient);

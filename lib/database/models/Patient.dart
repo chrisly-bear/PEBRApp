@@ -33,9 +33,7 @@ class Patient {
   // Constructors
   // ------------
 
-  Patient(this._artNumber, this.district, this.phoneNumber, this.village) {
-    this._isActivated = true;
-  }
+  Patient(this._artNumber, this.district, this.phoneNumber, this.village, this._isActivated);
 
   Patient.fromMap(map) {
     this._artNumber = map[colARTNumber];
