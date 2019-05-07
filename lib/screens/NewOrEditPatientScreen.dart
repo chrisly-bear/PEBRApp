@@ -241,7 +241,9 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
         print('NEW PATIENT:\n$newPatient');
       }
       await PatientBloc.instance.sinkPatientData(newPatient);
-      Navigator.of(context).popUntil(ModalRoute.withName('/')); // close New Patient screen
+      Navigator.of(context).popUntil((Route<dynamic> route) {
+        return (route.settings.name == '/patient' || route.settings.name == '/');
+      });
       final String finishNotification = _editModeOn
           ? 'Changes saved'
           : 'New patient created successfully';
