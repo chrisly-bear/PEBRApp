@@ -38,6 +38,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   final BuildContext _context;
   Patient _patient;
   String _nextAssessmentText = '—';
+  String _nextRefillText = '—';
 
   _PatientScreenBodyState(this._context, this._patient);
   
@@ -48,6 +49,11 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     if (lastAssessmentDate != null) {
       DateTime nextAssessmentDate = calculateNextAssessment(lastAssessmentDate);
       _nextAssessmentText = formatDate(nextAssessmentDate);
+    }
+
+    DateTime nextRefillDate = _patient.latestARTRefill?.nextRefillDate;
+    if (nextRefillDate != null) {
+      _nextRefillText = formatDate(nextRefillDate);
     }
 
     return ListView(
@@ -65,7 +71,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [SizedButton('Start Assessment', onPressed: () { _pushPreferenceAssessmentScreen(_context, _patient.artNumber); })]),
         Center(child: _buildTitle('Next ART Refill')),
-        Center(child: Text('02.02.2019')),
+        Center(child: Text(_nextRefillText)),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [SizedButton('Manage Refill', onPressed: () { _pushARTRefillScreen(_context, _patient.artNumber); })]),
