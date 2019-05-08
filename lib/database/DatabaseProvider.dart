@@ -50,7 +50,7 @@ class DatabaseProvider {
 
   _initDB() async {
     String path = await databaseFilePath;
-    _database = await openDatabase(path, version: _DB_VERSION, onCreate: _onCreate, onUpgrade: _onUpgrade);
+    _database = await openDatabase(path, version: _DB_VERSION, onCreate: _onCreate, onUpgrade: _onUpgrade, onDowngrade: _onDowngrade);
   }
 
   FutureOr<void> _onCreate(Database db, int version) async {
@@ -214,6 +214,15 @@ class DatabaseProvider {
       await db.execute("DROP TABLE ${PreferenceAssessment.tableName};");
       _onCreate(db, newVersion);
     }
+  }
+
+  FutureOr<void> _onDowngrade(Database db, int oldVersion, int newVersion) async {
+    print('Downgrading database from version $oldVersion to version $newVersion');
+    print('NOT IMPLEMENTED, DATA WILL BE RESET!');
+    await db.execute("DROP TABLE IF EXISTS Patient;");
+    await db.execute("DROP TABLE IF EXISTS PreferenceAssessment;");
+    await db.execute("DROP TABLE IF EXISTS ARTRefill;");
+    _onCreate(db, newVersion);
   }
 
 
