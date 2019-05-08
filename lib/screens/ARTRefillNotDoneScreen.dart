@@ -36,14 +36,14 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
   final int _questionsFlex = 1;
   final int _answersFlex = 1;
 
-  ARTRefill _artRefill = ARTRefill.uninitialized();
+  ARTRefill _artRefill;
   TextEditingController _otherClinicLesothoCtr = TextEditingController();
   TextEditingController _otherClinicSouthAfricaCtr = TextEditingController();
   TextEditingController _notTakingARTAnymoreCtr = TextEditingController();
 
   // constructor
   _ARTRefillNotDoneFormState(String patientART) {
-    _artRefill.patientART = patientART;
+    _artRefill = ARTRefill(patientART, RefillType.NOT_DONE);
   }
 
   @override
@@ -214,14 +214,14 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
 
   _onSubmitForm() async {
     if (_formKey.currentState.validate()) {
-
       _artRefill.otherClinicLesotho = _otherClinicLesothoCtr.text;
       _artRefill.otherClinicSouthAfrica = _otherClinicSouthAfricaCtr.text;
       _artRefill.notTakingARTReason = _notTakingARTAnymoreCtr.text;
-      print(
-          'NEW ART REFILL (_id will be given by SQLite database):\n$_artRefill');
-//      await PatientBloc.instance.sinkPreferenceAssessmentData(_pa); // TODO: sink ARTRefillData
-//      Navigator.of(context).pop(); // close Preference Assessment screen
+      print('NEW ART REFILL (_id will be given by SQLite database):\n$_artRefill');
+      await PatientBloc.instance.sinkARTRefillData(_artRefill);
+      Navigator.of(context).popUntil((Route<dynamic> route) {
+        return route.settings.name == '/patient';
+      });
       showFlushBar(context, 'ART Refill saved');
     } else {
       showFlushBar(context, "Errors exist in the form. Please check the form.");

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:pebrapp/config/SwitchConfig.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
+import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
@@ -9,8 +10,6 @@ import 'package:pebrapp/utils/Utils.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'dart:io';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:pebrapp/config/SharedPreferencesConfig.dart';
 import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 
 /// Access to the SQFLite database.
@@ -18,7 +17,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 6;
+  static const int _DB_VERSION = 7;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -50,9 +49,11 @@ class DatabaseProvider {
 
   _initDB() async {
     String path = await databaseFilePath;
+    print('opening database at $path');
     _database = await openDatabase(path, version: _DB_VERSION, onCreate: _onCreate, onUpgrade: _onUpgrade);
   }
 
+  /// Gets called if the database does not exist.
   FutureOr<void> _onCreate(Database db, int version) async {
     print('Creating database with version $version');
     await db.execute("""
@@ -94,10 +95,25 @@ class DatabaseProvider {
           ${PreferenceAssessment.colSupportPreferences} TEXT
         );
         """);
+    await db.execute("""
+        CREATE TABLE ${ARTRefill.tableName} (
+          ${ARTRefill.colId} INTEGER PRIMARY KEY,
+          ${ARTRefill.colPatientART} TEXT NOT NULL,
+          ${ARTRefill.colCreatedDate} TEXT NOT NULL,
+          ${ARTRefill.colRefillType} INTEGER NOT NULL,
+          ${ARTRefill.colNextRefillDate} TEXT,
+          ${ARTRefill.colNotDoneReason} INTEGER,
+          ${ARTRefill.colOtherClinicLesotho} TEXT,
+          ${ARTRefill.colOtherClinicSouthAfrica} TEXT,
+          ${ARTRefill.colNotTakingARTReason} TEXT
+        );
+        """);
     // TODO: set colLatestPreferenceAssessment as foreign key to `PreferenceAssessment` table
     //       set colPatientART as foreign key to `Patient` table
   }
 
+  /// Gets called if the defined database version is higher than the current
+  /// database version on the device.
   FutureOr<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
 
     print('Upgrading database from version $oldVersion to version $newVersion');
@@ -208,11 +224,27 @@ class DatabaseProvider {
       await db.execute("ALTER TABLE PreferenceAssessment ADD eac_option INTEGER NOT NULL DEFAULT 0;");
     }
     if (oldVersion < 6) {
-      print('Upgrading to database version 5...');
-      print('NOT IMPLEMENTED, DATA WILL BE RESET!');
+      print('Upgrading to database version 6...');
+      print('UPGRADE NOT IMPLEMENTED, DATA WILL BE RESET!');
       await db.execute("DROP TABLE ${Patient.tableName};");
       await db.execute("DROP TABLE ${PreferenceAssessment.tableName};");
       _onCreate(db, newVersion);
+    }
+    if (oldVersion < 7) {
+      print('Upgrading to database version 7...');
+      await db.execute("""
+        CREATE TABLE ARTRefill (
+          id INTEGER PRIMARY KEY,
+          patient_art TEXT NOT NULL,
+          created_date_utc TEXT NOT NULL,
+          refill_type INTEGER NOT NULL,
+          next_refill_date_utc TEXT,
+          not_done_reason INTEGER,
+          other_clinic_lesotho TEXT,
+          other_clinic_south_africa TEXT,
+          not_taking_art_reason TEXT
+        );
+        """);
     }
   }
 
@@ -356,6 +388,13 @@ class DatabaseProvider {
       return PreferenceAssessment.fromMap(res.first);
     }
     return null;
+  }
+
+  Future<void> insertARTRefill(ARTRefill newARTRefill) async {
+    final Database db = await _databaseInstance;
+    newARTRefill.createdDate = DateTime.now().toUtc();
+    final res = await db.insert(ARTRefill.tableName, newARTRefill.toMap());
+    return res;
   }
 
 

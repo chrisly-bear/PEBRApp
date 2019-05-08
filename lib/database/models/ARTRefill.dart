@@ -55,8 +55,8 @@ class ARTRefill {
     map[colPatientART] = patientART;
     map[colCreatedDate] = createdDate.toIso8601String();
     map[colRefillType] = _refillType.index;
-    map[colNextRefillDate] = nextRefillDate.toIso8601String();
-    map[colNotDoneReason] = notDoneReason.index;
+    map[colNextRefillDate] = nextRefillDate?.toIso8601String();
+    map[colNotDoneReason] = notDoneReason?.index;
     map[colOtherClinicLesotho] = otherClinicLesotho;
     map[colOtherClinicSouthAfrica] = otherClinicSouthAfrica;
     map[colNotTakingARTReason] = notTakingARTReason;
