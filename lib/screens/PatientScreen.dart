@@ -74,7 +74,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         Center(child: Text(_nextRefillText)),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [SizedButton('Manage Refill', onPressed: () { _pushARTRefillScreen(_context, _patient.artNumber); })]),
+            children: [SizedButton('Manage Refill', onPressed: () { _pushARTRefillScreen(_context, _patient.artNumber, _nextRefillText); })]),
         Container(height: 50), // padding at bottom
       ],
     );
@@ -401,7 +401,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     );
   }
 
-  void _pushARTRefillScreen(BuildContext context, String patientART) {
+  void _pushARTRefillScreen(BuildContext context, String patientART, String nextRefillDate) {
     Navigator.of(_context).push(
       new PageRouteBuilder<void>(
         opaque: false,
@@ -412,7 +412,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           );
         },
         pageBuilder: (BuildContext context, _, __) {
-          return ARTRefillScreen(patientART);
+          return ARTRefillScreen(patientART, nextRefillDate);
         },
       ),
     ).then((_) {

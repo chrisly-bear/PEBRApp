@@ -8,8 +8,9 @@ import 'package:pebrapp/utils/Utils.dart';
 
 class ARTRefillScreen extends StatelessWidget {
   final String _patientART;
+  final String _nextRefillDate;
 
-  ARTRefillScreen(this._patientART);
+  ARTRefillScreen(this._patientART, this._nextRefillDate);
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +59,7 @@ class ARTRefillScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 24.0),
               ),
               SizedBox(height: 50),
-              Text('31.12.2000'),
+              Text(_nextRefillDate),
               SizedButton('Change Date', onPressed: () { _onPressChangeDate(context); },),
               SizedBox(height: 50,),
               SizedButton('Refill Done', onPressed: () { _onPressRefillDone(context); },),
