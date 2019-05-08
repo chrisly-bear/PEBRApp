@@ -60,7 +60,7 @@ class DatabaseProvider {
         CREATE TABLE ${Patient.tableName} (
           ${Patient.colId} INTEGER PRIMARY KEY,
           ${Patient.colARTNumber} TEXT NOT NULL,
-          ${Patient.colCreatedDate} INTEGER NOT NULL,
+          ${Patient.colCreatedDate} TEXT NOT NULL,
           ${Patient.colIsActivated} BIT NOT NULL,
           ${Patient.colIsVLSuppressed} BIT,
           ${Patient.colVillage} TEXT,
@@ -73,7 +73,7 @@ class DatabaseProvider {
         CREATE TABLE ${PreferenceAssessment.tableName} (
           ${PreferenceAssessment.colId} INTEGER PRIMARY KEY,
           ${PreferenceAssessment.colPatientART} TEXT NOT NULL, 
-          ${PreferenceAssessment.colCreatedDate} INTEGER NOT NULL,
+          ${PreferenceAssessment.colCreatedDate} TEXT NOT NULL,
           ${PreferenceAssessment.colARTRefillOption1} INTEGER NOT NULL,
           ${PreferenceAssessment.colARTRefillOption2} INTEGER,
           ${PreferenceAssessment.colARTRefillOption3} INTEGER,
