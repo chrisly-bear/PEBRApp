@@ -17,7 +17,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 7;
+  static const int _DB_VERSION = 8;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -65,8 +65,7 @@ class DatabaseProvider {
           ${Patient.colIsVLSuppressed} BIT,
           ${Patient.colVillage} TEXT,
           ${Patient.colDistrict} TEXT,
-          ${Patient.colPhoneNumber} TEXT,
-          ${Patient.colLatestPreferenceAssessment} INTEGER
+          ${Patient.colPhoneNumber} TEXT
         );
         """);
     await db.execute("""
@@ -245,6 +244,19 @@ class DatabaseProvider {
           not_taking_art_reason TEXT
         );
         """);
+    }
+    if (oldVersion < 8) {
+      print('Upgrading to database version 8...');
+      // We want to remove the column 'latest_preference_assessment' in the
+      // Patient table. But SQLite does not support removing of columns (we
+      // would have to create a new table, copy all data and drop the old
+      // table). For simplicity (and because the app is not released at this
+      // point) we just drop all data and create the tables anew.
+      print('UPGRADE NOT IMPLEMENTED, DATA WILL BE RESET!');
+      await db.execute("DROP TABLE ${Patient.tableName};");
+      await db.execute("DROP TABLE ${PreferenceAssessment.tableName};");
+      await db.execute("DROP TABLE ${ARTRefill.tableName};");
+      _onCreate(db, newVersion);
     }
   }
 
