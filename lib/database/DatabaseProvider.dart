@@ -72,7 +72,7 @@ class DatabaseProvider {
     await db.execute("""
         CREATE TABLE ${PreferenceAssessment.tableName} (
           ${PreferenceAssessment.colId} INTEGER PRIMARY KEY,
-          ${PreferenceAssessment.colPatientART} TEXT NOT NULL, 
+          ${PreferenceAssessment.colPatientART} TEXT NOT NULL,
           ${PreferenceAssessment.colCreatedDate} TEXT NOT NULL,
           ${PreferenceAssessment.colARTRefillOption1} INTEGER NOT NULL,
           ${PreferenceAssessment.colARTRefillOption2} INTEGER,
