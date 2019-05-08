@@ -57,7 +57,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
      * https://github.com/flutter/flutter/issues/11655#issuecomment-348287396
      */
     _appStateStream.listen( (streamEvent) {
-      print('*** stream.listen received data: ${streamEvent.runtimeType} ***');
+      print('*** MainScreen received data: ${streamEvent.runtimeType} ***');
       if (streamEvent is AppStateLoading) {
         setState(() {
           this._isLoading = true;
@@ -89,6 +89,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           final newPreferenceAssessment = streamEvent.preferenceAssessment;
           Patient changedPatient = this._patients.singleWhere((p) => p.artNumber == newPreferenceAssessment.patientART);
           changedPatient.latestPreferenceAssessment = newPreferenceAssessment;
+        });
+      }
+      if (streamEvent is AppStateARTRefillData) {
+        setState(() {
+          final newARTRefill = streamEvent.artRefill;
+          Patient changedPatient = this._patients.singleWhere((p) => p.artNumber == newARTRefill.patientART);
+          changedPatient.latestARTRefill = newARTRefill;
         });
       }
     });
@@ -424,6 +431,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 //        return viralLoadBadge;
       }
 
+      String nextRefillText = '—';
+      DateTime nextARTRefillDate = curPatient.latestARTRefill?.nextRefillDate;
+      if (nextARTRefillDate != null) {
+        nextRefillText = formatDate(nextARTRefillDate);
+      }
+
       String refillByText = '—';
       ARTRefillOption aro = curPatient.latestPreferenceAssessment?.artRefillOption1;
       if (aro != null) {
@@ -524,16 +537,22 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                     horizontal: _rowPaddingHorizontal),
                 child: Row(
                   children: <Widget>[
+                    // ART Nr.
                     Expanded(child: _formatPatientRowText(patientART, isActivated: curPatient.isActivated)),
-                    Expanded(child: _formatPatientRowText('02.02.2019', isActivated: curPatient.isActivated)),
+                    // Next Refill
+                    Expanded(child: _formatPatientRowText(nextRefillText, isActivated: curPatient.isActivated)),
+                    // Refill By
                     Expanded(child: _formatPatientRowText(refillByText, isActivated: curPatient.isActivated)),
+                    // Support
                     Expanded(
                       flex: 2,
                         child: _buildSupportIcons(curPatient?.latestPreferenceAssessment?.supportPreferences, isActivated: curPatient.isActivated),
                     ),
+                    // Viral Load
                     Expanded(
                         child: _getViralLoadIndicator(isActivated: curPatient.isActivated),
                     ),
+                    // Next Assessment
                     Expanded(child: _formatPatientRowText(nextAssessmentText, isActivated: curPatient.isActivated)),
                   ],
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

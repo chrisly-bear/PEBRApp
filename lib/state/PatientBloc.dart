@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 
@@ -56,6 +57,13 @@ class PatientBloc {
     _appStateStreamController.sink.add(AppStatePreferenceAssessmentData(newPreferenceAssessment));
   }
 
+  /// Trigger an [AppStateARTRefillData] stream event.
+  Future<void> sinkARTRefillData(ARTRefill newARTRefill) async {
+    await DatabaseProvider().insertARTRefill(newARTRefill);
+    print('Putting ART Refill for patient ${newARTRefill.patientART} down the sink');
+    _appStateStreamController.sink.add(AppStateARTRefillData(newARTRefill));
+  }
+
   void dispose() {
     _appStateStreamController.close();
   }
@@ -68,11 +76,16 @@ class AppStateLoading extends AppState {}
 class AppStateNoData extends AppState {}
 
 class AppStatePatientData extends AppState {
-  AppStatePatientData(this.patient);
   final Patient patient;
+  AppStatePatientData(this.patient);
 }
 
 class AppStatePreferenceAssessmentData extends AppState {
-  AppStatePreferenceAssessmentData(this.preferenceAssessment);
   final PreferenceAssessment preferenceAssessment;
+  AppStatePreferenceAssessmentData(this.preferenceAssessment);
+}
+
+class AppStateARTRefillData extends AppState {
+  final ARTRefill artRefill;
+  AppStateARTRefillData(this.artRefill);
 }
