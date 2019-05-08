@@ -415,7 +415,11 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           return ARTRefillScreen(patientART);
         },
       ),
-    );
+    ).then((_) {
+      // calling setState to trigger a re-render of the page and display the new
+      // ART Refill Date
+      setState(() {});
+    });
   }
 
 }
