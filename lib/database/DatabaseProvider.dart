@@ -375,6 +375,7 @@ class DatabaseProvider {
       for (Map<String, dynamic> map in res) {
         Patient p = Patient.fromMap(map);
         await p.initializePreferenceAssessmentField();
+        await p.initializeARTRefillField();
         list.add(p);
       }
     }
@@ -407,6 +408,20 @@ class DatabaseProvider {
     newARTRefill.createdDate = DateTime.now().toUtc();
     final res = await db.insert(ARTRefill.tableName, newARTRefill.toMap());
     return res;
+  }
+
+  Future<ARTRefill> retrieveLatestARTRefillForPatient(String patientART) async {
+    final Database db = await _databaseInstance;
+    final List<Map> res = await db.query(
+        ARTRefill.tableName,
+        where: '${ARTRefill.colPatientART} = ?',
+        whereArgs: [patientART],
+        orderBy: ARTRefill.colCreatedDate
+    );
+    if (res.length > 0) {
+      return ARTRefill.fromMap(res.first);
+    }
+    return null;
   }
 
 

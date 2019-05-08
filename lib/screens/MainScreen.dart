@@ -91,6 +91,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           changedPatient.latestPreferenceAssessment = newPreferenceAssessment;
         });
       }
+      if (streamEvent is AppStateARTRefillData) {
+        setState(() {
+          final newARTRefill = streamEvent.artRefill;
+          Patient changedPatient = this._patients.singleWhere((p) => p.artNumber == newARTRefill.patientART);
+          changedPatient.latestARTRefill = newARTRefill;
+        });
+      }
     });
 
     PatientBloc.instance.sinkAllPatientsFromDatabase();
@@ -399,6 +406,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 //        return viralLoadBadge;
       }
 
+      String nextRefillText = '—';
+      DateTime nextARTRefillDate = curPatient.latestARTRefill?.nextRefillDate;
+      if (nextARTRefillDate != null) {
+        nextRefillText = formatDate(nextARTRefillDate);
+      }
+
       String refillByText = '—';
       ARTRefillOption aro = curPatient.latestPreferenceAssessment?.artRefillOption1;
       if (aro != null) {
@@ -482,16 +495,22 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                     horizontal: _rowPaddingHorizontal),
                 child: Row(
                   children: <Widget>[
+                    // ART Nr.
                     Expanded(child: _formatPatientRowText(patientART)),
-                    Expanded(child: _formatPatientRowText('02.02.2019')),
+                    // Next Refill
+                    Expanded(child: _formatPatientRowText(nextRefillText)),
+                    // Refill By
                     Expanded(child: _formatPatientRowText(refillByText)),
+                    // Support
                     Expanded(
                       flex: 2,
                         child: _buildSupportIcons(curPatient?.latestPreferenceAssessment?.supportPreferences),
                     ),
+                    // Viral Load
                     Expanded(
                         child: _getViralLoadIndicator(),
                     ),
+                    // Next Assessment
                     Expanded(child: _formatPatientRowText(nextAssessmentText)),
                   ],
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

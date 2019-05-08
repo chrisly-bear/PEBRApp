@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 
 class Patient {
@@ -23,9 +24,12 @@ class Patient {
   String village;
   String district;
   String phoneNumber;
-  // The following is not a column in the database, just the object for easier access to the latest PreferenceAssessment.
-  // Will be null until the [initializePreferenceAssessmentField] method was called.
+  // The following are not columns in the database, just the objects for easier
+  // access to the latest PreferenceAssessment/ARTRefill.
+  // Will be null until the [initializePreferenceAssessmentField]/
+  // [initializeARTRefillField] method was called.
   PreferenceAssessment latestPreferenceAssessment;
+  ARTRefill latestARTRefill;
 
 
   // Constructors
@@ -76,6 +80,12 @@ class Patient {
   Future<void> initializePreferenceAssessmentField() async {
     PreferenceAssessment pa = await DatabaseProvider().retrieveLatestPreferenceAssessmentForPatient(_artNumber);
     this.latestPreferenceAssessment = pa;
+  }
+
+  /// Initializes the field [latestARTRefill] with the latest data from the database.
+  Future<void> initializeARTRefillField() async {
+    ARTRefill artRefill = await DatabaseProvider().retrieveLatestARTRefillForPatient(_artNumber);
+    this.latestARTRefill = artRefill;
   }
 
   /// Do not set the createdDate manually! The DatabaseProvider sets the date
