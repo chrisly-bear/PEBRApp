@@ -80,19 +80,14 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     );
   }
 
-  void _pushEditPatientScreen(Patient patient) async {
-    Patient newPatient = await Navigator.of(_context).push(
+  void _pushEditPatientScreen(Patient patient) {
+    Navigator.of(_context).push(
       new MaterialPageRoute<Patient>(
         builder: (BuildContext context) {
           return NewOrEditPatientScreen(existingPatient: patient);
         },
       ),
     );
-    if (newPatient != null) {
-      setState(() {
-        this._patient = newPatient;
-      });
-    }
   }
 
   _buildTitle(String title) {

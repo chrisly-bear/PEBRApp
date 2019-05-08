@@ -57,7 +57,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
      * https://github.com/flutter/flutter/issues/11655#issuecomment-348287396
      */
     _appStateStream.listen( (streamEvent) {
-      print('*** stream.listen received data: ${streamEvent.runtimeType} ***');
+      print('*** MainScreen received data: ${streamEvent.runtimeType} ***');
       if (streamEvent is AppStateLoading) {
         setState(() {
           this._isLoading = true;
