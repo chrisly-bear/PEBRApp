@@ -54,6 +54,8 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     DateTime nextRefillDate = _patient.latestARTRefill?.nextRefillDate;
     if (nextRefillDate != null) {
       _nextRefillText = formatDate(nextRefillDate);
+    } else {
+      _nextRefillText = '—';
     }
 
     return ListView(
