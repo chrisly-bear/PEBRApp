@@ -303,10 +303,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   }
 
   _buildPatientCards() {
-    final _cardPaddingVertical = 10.0;
-    final _cardPaddingHorizontal = 10.0;
-    final _rowPaddingVertical = 20.0;
-    final _rowPaddingHorizontal = 15.0;
+    const _cardPaddingVertical = 10.0;
+    const _cardPaddingHorizontal = 10.0;
+    const _rowPaddingVertical = 20.0;
+    const _rowPaddingHorizontal = 15.0;
     const _cardHeight = 100.0;
     const _colorBarWidth = 15.0;
 
