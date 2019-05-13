@@ -4,11 +4,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/config/PEBRAConfig.dart';
-import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
+import 'package:pebrapp/screens/DebugScreen.dart';
 import 'dart:ui';
 
 import 'package:pebrapp/screens/SettingsScreen.dart';
@@ -57,7 +57,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
      * https://github.com/flutter/flutter/issues/11655#issuecomment-348287396
      */
     _appStateStream.listen( (streamEvent) {
-      print('*** stream.listen received data: ${streamEvent.runtimeType} ***');
+      print('*** MainScreen received data: ${streamEvent.runtimeType} ***');
       if (streamEvent is AppStateLoading) {
         setState(() {
           this._isLoading = true;
@@ -89,6 +89,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           final newPreferenceAssessment = streamEvent.preferenceAssessment;
           Patient changedPatient = this._patients.singleWhere((p) => p.artNumber == newPreferenceAssessment.patientART);
           changedPatient.latestPreferenceAssessment = newPreferenceAssessment;
+        });
+      }
+      if (streamEvent is AppStateARTRefillData) {
+        setState(() {
+          final newARTRefill = streamEvent.artRefill;
+          Patient changedPatient = this._patients.singleWhere((p) => p.artNumber == newARTRefill.patientART);
+          changedPatient.latestARTRefill = newARTRefill;
         });
       }
     });
@@ -211,6 +218,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       flexibleSpace: PageHeader(title: 'Patients', subtitle: 'Overview'),
       actions: <Widget>[
         IconButton(
+          icon: Icon(Icons.bug_report),
+          onPressed: _pushDebugScreen,
+        ),
+        IconButton(
           icon: Icon(Icons.refresh),
           onPressed: PatientBloc.instance.sinkAllPatientsFromDatabase
         ),
@@ -219,6 +230,23 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           onPressed: _pushSettingsScreen,
         ),
       ],
+    );
+  }
+
+  void _pushDebugScreen() {
+    Navigator.of(_context).push(
+      PageRouteBuilder<void>(
+        opaque: false,
+        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
+          return FadeTransition(
+            opacity: anim1,
+            child: widget,
+          );
+        },
+        pageBuilder: (BuildContext context, _, __) {
+          return DebugScreen();
+        },
+      ),
     );
   }
 
@@ -252,6 +280,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   void _pushPatientScreen(Patient patient) {
     Navigator.of(_context).push(
       new MaterialPageRoute<void>(
+        settings: RouteSettings(name: '/patient'),
         builder: (BuildContext context) {
           return PatientScreen(patient);
         },
@@ -289,62 +318,65 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       );
     }
 
-    _formatPatientRowText(String text) {
+    _formatPatientRowText(String text, {bool isActivated: true}) {
       return Text(
         text,
         style: TextStyle(
           fontSize: 18,
+          color: isActivated ? Colors.black : Colors.grey,
         ),
       );
     }
 
-    ClipRect _getPaddedIcon(String assetLocation) {
+    ClipRect _getPaddedIcon(String assetLocation, {Color color}) {
       return ClipRect(
           clipBehavior: Clip.antiAlias,
           child: SizedOverflowBox(
               size: Size(32.0, 30.0),
               child: Image(
                 height: 30.0,
+                color: color,
                 image: AssetImage(
                     assetLocation),
               )));
     }
 
-    Widget _buildSupportIcons(SupportPreferencesSelection sps) {
+    Widget _buildSupportIcons(SupportPreferencesSelection sps, {bool isActivated: true}) {
       List<Widget> icons = List<Widget>();
+      Color iconColor = isActivated ? Colors.black : Colors.grey;
       final Container spacer = Container(width: 3);
       if (sps == null) {
-        return _formatPatientRowText('—');
+        return _formatPatientRowText('—', isActivated: isActivated);
       }
       if (sps.homeVisitPESelected) {
 //        icons.add(Icon(Icons.home));
-        icons.add(_getPaddedIcon('assets/icons/homevisit_pe_black.png'));
+        icons.add(_getPaddedIcon('assets/icons/homevisit_pe_black.png', color: iconColor));
         icons.add(spacer);
       }
       if (sps.nurseAtClinicSelected) {
-        icons.add(_getPaddedIcon('assets/icons/nurse_clinic_fett.png'));
+        icons.add(_getPaddedIcon('assets/icons/nurse_clinic_fett.png', color: iconColor));
         icons.add(spacer);
       }
       if (sps.saturdayClinicClubSelected) {
-        icons.add(_getPaddedIcon('assets/icons/saturday_clinic_club_black.png'));
+        icons.add(_getPaddedIcon('assets/icons/saturday_clinic_club_black.png', color: iconColor));
         icons.add(spacer);
       }
       if (sps.schoolTalkPESelected) {
 //        icons.add(Icon(Icons.school));
-        icons.add(_getPaddedIcon('assets/icons/schooltalk_pe_black.png'));
+        icons.add(_getPaddedIcon('assets/icons/schooltalk_pe_black.png', color: iconColor));
         icons.add(spacer);
       }
       if (sps.communityYouthClubSelected) {
-        icons.add(_getPaddedIcon('assets/icons/youth_club_black.png'));
+        icons.add(_getPaddedIcon('assets/icons/youth_club_black.png', color: iconColor));
         icons.add(spacer);
       }
       if (sps.phoneCallPESelected) {
 //        icons.add(Icon(Icons.phone));
-        icons.add(_getPaddedIcon('assets/icons/phonecall_pe_black.png'));
+        icons.add(_getPaddedIcon('assets/icons/phonecall_pe_black.png', color: iconColor));
         icons.add(spacer);
       }
       if (sps.areAllDeselected) {
-        icons.add(_getPaddedIcon('assets/icons/no_support_fett.png'));
+        icons.add(_getPaddedIcon('assets/icons/no_support_fett.png', color: iconColor));
         icons.add(spacer);
       }
       if (icons.last == spacer) {
@@ -383,19 +415,26 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       final Patient curPatient = _patients[i];
       final patientART = curPatient.artNumber;
 
-      Widget _getViralLoadIndicator() {
-        Widget viralLoadIcon = _formatPatientRowText('—');
+      Widget _getViralLoadIndicator({bool isActivated: true}) {
+        Widget viralLoadIcon = _formatPatientRowText('—', isActivated: isActivated);
         ViralLoadBadge viralLoadBadge = ViralLoadBadge(ViralLoad.NA, smallSize: true);
+        Color iconColor = isActivated ? Colors.black : Colors.grey;
         if (curPatient.vlSuppressed != null && curPatient.vlSuppressed) {
-          viralLoadIcon = _getPaddedIcon('assets/icons/viralload_suppressed.png');
-          viralLoadBadge = ViralLoadBadge(ViralLoad.SUPPRESSED, smallSize: true);
+          viralLoadIcon = _getPaddedIcon('assets/icons/viralload_suppressed.png', color: iconColor);
+          viralLoadBadge = ViralLoadBadge(ViralLoad.SUPPRESSED, smallSize: true); // TODO: show greyed out version if isActivated is false
         } else
         if (curPatient.vlSuppressed != null && !curPatient.vlSuppressed) {
-          viralLoadIcon = _getPaddedIcon('assets/icons/viralload_unsuppressed.png');
-          viralLoadBadge = ViralLoadBadge(ViralLoad.UNSUPPRESSED, smallSize: true);
+          viralLoadIcon = _getPaddedIcon('assets/icons/viralload_unsuppressed.png', color: iconColor);
+          viralLoadBadge = ViralLoadBadge(ViralLoad.UNSUPPRESSED, smallSize: true); // TODO: show greyed out version if isActivated is false
         }
         return viralLoadIcon;
 //        return viralLoadBadge;
+      }
+
+      String nextRefillText = '—';
+      DateTime nextARTRefillDate = curPatient.latestARTRefill?.nextRefillDate;
+      if (nextARTRefillDate != null) {
+        nextRefillText = formatDate(nextARTRefillDate);
       }
 
       String refillByText = '—';
@@ -427,23 +466,39 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       // deactivating a patient)
       _patientCards.add(Dismissible(
           key: Key(curPatient.artNumber),
+          confirmDismiss: (DismissDirection direction) {
+            if (direction == DismissDirection.startToEnd) {
+              // deactivate gesture, do not dismiss but deactivate patient
+              curPatient.isActivated = !curPatient.isActivated;
+              PatientBloc.instance.sinkPatientData(curPatient);
+              return Future<bool>.value(false);
+            }
+            return Future<bool>.value(true);
+          },
           onDismissed: (direction) {
-            print('removing patient with ART number ${curPatient.artNumber}');
-            DatabaseProvider().deletePatient(curPatient).then((int rowsAffected) {
-              showFlushBar(context, 'Removed patient ${curPatient.artNumber} ($rowsAffected rows deleted in DB)');
-              _patients.removeWhere((p) => p.artNumber == curPatient.artNumber);
-            });
+            if (direction == DismissDirection.endToStart) {
+              print('removing patient with ART number ${curPatient.artNumber}');
+              DatabaseProvider().deletePatient(curPatient).then((int rowsAffected) {
+                showFlushBar(context, 'Removed patient ${curPatient.artNumber} ($rowsAffected rows deleted in DB)');
+                _patients.removeWhere((p) => p.artNumber == curPatient.artNumber);
+              });
+            }
           },
           background: Container(
             margin: _curCardMargin,
             padding: EdgeInsets.symmetric(horizontal: 10.0),
-            color: Colors.red,
-//            alignment: Alignment.centerLeft,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [Colors.black, Colors.red],
+              ),
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
               Text(
-                "DELETE",
+                curPatient.isActivated ? 'DEACTIVATE' : 'ACTIVATE',
                 style: TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.bold,
@@ -462,6 +517,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
             ),
           ),
           child: Card(
+            color: curPatient.isActivated ? Colors.white : Colors.grey[300],
         elevation: 5.0,
         margin: _curCardMargin,
         clipBehavior: Clip.antiAlias,
@@ -481,17 +537,23 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                     horizontal: _rowPaddingHorizontal),
                 child: Row(
                   children: <Widget>[
-                    Expanded(child: _formatPatientRowText(patientART)),
-                    Expanded(child: _formatPatientRowText('02.02.2019')),
-                    Expanded(child: _formatPatientRowText(refillByText)),
+                    // ART Nr.
+                    Expanded(child: _formatPatientRowText(patientART, isActivated: curPatient.isActivated)),
+                    // Next Refill
+                    Expanded(child: _formatPatientRowText(nextRefillText, isActivated: curPatient.isActivated)),
+                    // Refill By
+                    Expanded(child: _formatPatientRowText(refillByText, isActivated: curPatient.isActivated)),
+                    // Support
                     Expanded(
                       flex: 2,
-                        child: _buildSupportIcons(curPatient?.latestPreferenceAssessment?.supportPreferences),
+                        child: _buildSupportIcons(curPatient?.latestPreferenceAssessment?.supportPreferences, isActivated: curPatient.isActivated),
                     ),
+                    // Viral Load
                     Expanded(
-                        child: _getViralLoadIndicator(),
+                        child: _getViralLoadIndicator(isActivated: curPatient.isActivated),
                     ),
-                    Expanded(child: _formatPatientRowText(nextAssessmentText)),
+                    // Next Assessment
+                    Expanded(child: _formatPatientRowText(nextAssessmentText, isActivated: curPatient.isActivated)),
                   ],
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 ))),

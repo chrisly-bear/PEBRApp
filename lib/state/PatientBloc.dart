@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 
@@ -42,18 +43,25 @@ class PatientBloc {
     }
   }
 
-  /// Trigger an [AppStatePatientData] stream event.
-  Future<void> sinkPatientData(Patient newPatient) async {
-    await DatabaseProvider().insertPatient(newPatient);
-    print('Putting patient ${newPatient.artNumber} down the sink');
-    _appStateStreamController.sink.add(AppStatePatientData(newPatient));
+  /// Store a new row in the Patient table and trigger an [AppStatePatientData] stream event.
+  Future<void> sinkPatientData(Patient patient) async {
+    await DatabaseProvider().insertPatient(patient);
+    print('Putting patient ${patient.artNumber} down the sink');
+    _appStateStreamController.sink.add(AppStatePatientData(patient));
   }
 
-  /// Trigger an [AppStatePreferenceAssessmentData] stream event.
+  /// Store a new row in the PreferenceAssessment table and trigger an [AppStatePreferenceAssessmentData] stream event.
   Future<void> sinkPreferenceAssessmentData(PreferenceAssessment newPreferenceAssessment) async {
     await DatabaseProvider().insertPreferenceAssessment(newPreferenceAssessment);
     print('Putting preference assessment for patient ${newPreferenceAssessment.patientART} down the sink');
     _appStateStreamController.sink.add(AppStatePreferenceAssessmentData(newPreferenceAssessment));
+  }
+
+  /// Store a new row in the ARTRefill table and trigger an [AppStateARTRefillData] stream event.
+  Future<void> sinkARTRefillData(ARTRefill newARTRefill) async {
+    await DatabaseProvider().insertARTRefill(newARTRefill);
+    print('Putting ART Refill for patient ${newARTRefill.patientART} down the sink');
+    _appStateStreamController.sink.add(AppStateARTRefillData(newARTRefill));
   }
 
   void dispose() {
@@ -68,11 +76,16 @@ class AppStateLoading extends AppState {}
 class AppStateNoData extends AppState {}
 
 class AppStatePatientData extends AppState {
-  AppStatePatientData(this.patient);
   final Patient patient;
+  AppStatePatientData(this.patient);
 }
 
 class AppStatePreferenceAssessmentData extends AppState {
-  AppStatePreferenceAssessmentData(this.preferenceAssessment);
   final PreferenceAssessment preferenceAssessment;
+  AppStatePreferenceAssessmentData(this.preferenceAssessment);
+}
+
+class AppStateARTRefillData extends AppState {
+  final ARTRefill artRefill;
+  AppStateARTRefillData(this.artRefill);
 }

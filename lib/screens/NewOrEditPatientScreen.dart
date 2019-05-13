@@ -61,6 +61,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
 
   final Patient _existingPatient;
   bool _editModeOn;
+  bool _patientIsActivated = false;
   TextEditingController _artNumberCtr = TextEditingController();
   TextEditingController _villageCtr = TextEditingController();
   TextEditingController _districtCtr = TextEditingController();
@@ -68,6 +69,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
 
   _NewOrEditPatientFormState(this._existingPatient) {
     _editModeOn = _existingPatient != null;
+    _patientIsActivated = _existingPatient?.isActivated ?? false;
     _artNumberCtr.text = _editModeOn ? _existingPatient?.artNumber : null;
     _villageCtr.text = _editModeOn ? _existingPatient?.village : null;
     _districtCtr.text = _editModeOn ? _existingPatient?.district : null;
@@ -176,6 +178,15 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
                     }
                   },
                 ),
+                CheckboxListTile(
+                  title: Text(
+                    'Activate Patient',
+                  ),
+                  value: _patientIsActivated,
+                  onChanged: (bool newState) {
+                    setState(() { _patientIsActivated = newState; });
+                  },
+                ),
               ],
             ),
           ),
@@ -186,24 +197,6 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
             child: SizedButton(
               'Save',
               onPressed: _isLoading ? null : _onSubmitForm,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: Center(
-            child: SizedButton(
-              'Get DB Info',
-              onPressed: _getDBInfo,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: Center(
-            child: SizedButton(
-              'Get All Patients',
-              onPressed: _getAllPatients,
             ),
           ),
         ),
@@ -228,49 +221,34 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
     } else if (await canLaunch(marketUrl)) {
       await launch(marketUrl);
     } else {
-      showFlushBar(context, "Could not finde KoBoCollect app. Make sure KoBoCollect is installed.");
+      showFlushBar(context, "Could not find KoBoCollect app. Make sure KoBoCollect is installed.");
     }
   }
 
   _onSubmitForm() async {
-    // Validate will return true if the form is valid, or false if the form is invalid.
     Patient newPatient;
+    // Validate will return true if the form is valid, or false if the form is invalid.
     if (_formKey.currentState.validate()) {
       if (_editModeOn) { // editing an existing patient
         newPatient = _existingPatient;
         newPatient.village = _villageCtr.text;
         newPatient.district = _districtCtr.text;
         newPatient.phoneNumber = _phoneNumberCtr.text;
+        newPatient.isActivated = _patientIsActivated;
         print('EDITED PATIENT:\n$newPatient');
       } else { // creating a new patient
-        newPatient = Patient(_artNumberCtr.text, _districtCtr.text, _phoneNumberCtr.text, _villageCtr.text);
+        newPatient = Patient(_artNumberCtr.text, _districtCtr.text, _phoneNumberCtr.text, _villageCtr.text, _patientIsActivated);
         print('NEW PATIENT:\n$newPatient');
       }
       await PatientBloc.instance.sinkPatientData(newPatient);
-      Navigator.of(context).popUntil(ModalRoute.withName('/')); // close New Patient screen
+      Navigator.of(context).popUntil((Route<dynamic> route) {
+        return (route.settings.name == '/patient' || route.settings.name == '/');
+      });
       final String finishNotification = _editModeOn
           ? 'Changes saved'
           : 'New patient created successfully';
       showFlushBar(context, finishNotification);
     }
-  }
-
-  _getDBInfo() async {
-    final columns = await DatabaseProvider().getTableInfo(Patient.tableName);
-    print('### TABLE \'${Patient.tableName}\' INFO <START> ###');
-    for (final column in columns) {
-      print(column);
-    }
-    print('### TABLE \'${Patient.tableName}\' INFO <END> ###');
-  }
-
-  _getAllPatients() async {
-    final List<Patient> patients = await DatabaseProvider().retrieveLatestPatients();
-    if (patients.length == 0) { print('No patients in Patient table'); }
-    for (final patient in patients) {
-      print(patient);
-    }
-    showFlushBar(context, "${patients.length} patients in database");
   }
 
   bool _artNumberExists(artNumber) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/screens/ARTRefillScreen.dart';
 import 'package:pebrapp/screens/NewOrEditPatientScreen.dart';
 import 'package:pebrapp/screens/PreferenceAssessmentScreen.dart';
 import 'package:pebrapp/utils/Utils.dart';
@@ -37,6 +38,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   final BuildContext _context;
   Patient _patient;
   String _nextAssessmentText = '—';
+  String _nextRefillText = '—';
 
   _PatientScreenBodyState(this._context, this._patient);
   
@@ -47,6 +49,13 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     if (lastAssessmentDate != null) {
       DateTime nextAssessmentDate = calculateNextAssessment(lastAssessmentDate);
       _nextAssessmentText = formatDate(nextAssessmentDate);
+    }
+
+    DateTime nextRefillDate = _patient.latestARTRefill?.nextRefillDate;
+    if (nextRefillDate != null) {
+      _nextRefillText = formatDate(nextRefillDate);
+    } else {
+      _nextRefillText = '—';
     }
 
     return ListView(
@@ -64,28 +73,23 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [SizedButton('Start Assessment', onPressed: () { _pushPreferenceAssessmentScreen(_context, _patient.artNumber); })]),
         Center(child: _buildTitle('Next ART Refill')),
-        Center(child: Text('02.02.2019')),
+        Center(child: Text(_nextRefillText)),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [SizedButton('Manage Refill')]),
+            children: [SizedButton('Manage Refill', onPressed: () { _pushARTRefillScreen(_context, _patient, _nextRefillText); })]),
         Container(height: 50), // padding at bottom
       ],
     );
   }
 
-  void _pushEditPatientScreen(Patient patient) async {
-    Patient newPatient = await Navigator.of(_context).push(
+  void _pushEditPatientScreen(Patient patient) {
+    Navigator.of(_context).push(
       new MaterialPageRoute<Patient>(
         builder: (BuildContext context) {
           return NewOrEditPatientScreen(existingPatient: patient);
         },
       ),
     );
-    if (newPatient != null) {
-      setState(() {
-        this._patient = newPatient;
-      });
-    }
   }
 
   _buildTitle(String title) {
@@ -397,6 +401,27 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         },
       ),
     );
+  }
+
+  void _pushARTRefillScreen(BuildContext context, Patient patient, String nextRefillDate) {
+    Navigator.of(_context).push(
+      new PageRouteBuilder<void>(
+        opaque: false,
+        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
+          return FadeTransition(
+            opacity: anim1,
+            child: widget, // child is the value returned by pageBuilder
+          );
+        },
+        pageBuilder: (BuildContext context, _, __) {
+          return ARTRefillScreen(patient, nextRefillDate);
+        },
+      ),
+    ).then((_) {
+      // calling setState to trigger a re-render of the page and display the new
+      // ART Refill Date
+      setState(() {});
+    });
   }
 
 }
