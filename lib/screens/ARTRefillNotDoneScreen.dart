@@ -1,32 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
+import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 class ARTRefillNotDoneScreen extends StatelessWidget {
-  final String _patientART;
+  final Patient _patient;
 
-  ARTRefillNotDoneScreen(this._patientART);
+  ARTRefillNotDoneScreen(this._patient);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Color.fromARGB(255, 224, 224, 224),
         appBar: AppBar(
-          title: Text('ART Refill Not Done: ${this._patientART}'),
+          title: Text('ART Refill Not Done: ${this._patient.artNumber}'),
         ),
-        body: Center(child: ARTRefillNotDoneForm(_patientART)));
+        body: Center(child: ARTRefillNotDoneForm(_patient)));
   }
 }
 
 class ARTRefillNotDoneForm extends StatefulWidget {
-  final String _patientART;
+  final Patient _patient;
 
-  ARTRefillNotDoneForm(this._patientART);
+  ARTRefillNotDoneForm(this._patient);
 
   @override
-  createState() => _ARTRefillNotDoneFormState(_patientART);
+  createState() => _ARTRefillNotDoneFormState(_patient);
 }
 
 class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
@@ -35,14 +36,18 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
   final int _questionsFlex = 1;
   final int _answersFlex = 1;
 
+  Patient _patient;
   ARTRefill _artRefill;
+  bool _deactivatePatient;
   TextEditingController _otherClinicLesothoCtr = TextEditingController();
   TextEditingController _otherClinicSouthAfricaCtr = TextEditingController();
   TextEditingController _notTakingARTAnymoreCtr = TextEditingController();
 
   // constructor
-  _ARTRefillNotDoneFormState(String patientART) {
-    _artRefill = ARTRefill(patientART, RefillType.NOT_DONE);
+  _ARTRefillNotDoneFormState(Patient patient) {
+    _patient = patient;
+    _artRefill = ARTRefill(patient.artNumber, RefillType.NOT_DONE);
+    _deactivatePatient = !patient.isActivated;
   }
 
   @override
@@ -77,6 +82,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
             _otherClinicLesothoQuestion(),
             _otherClinicSouthAfricaQuestion(),
             _notTakingARTAnymoreQuestion(),
+            _deactivatePatientQuestion(),
           ],
         ),
       ),
@@ -211,6 +217,27 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
     );
   }
 
+  Widget _deactivatePatientQuestion() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child:
+            Text('Deactivate Patient?')),
+        Expanded(
+          flex: _answersFlex,
+          child: CheckboxListTile(
+                  value: _deactivatePatient,
+                  onChanged: (bool newState) {
+                    setState(() { _deactivatePatient = newState; });
+                  },
+                ),
+          ),
+      ],
+    );
+  }
+
   _onSubmitForm() async {
     if (_formKey.currentState.validate()) {
       _artRefill.otherClinicLesotho = _otherClinicLesothoCtr.text;
@@ -218,6 +245,13 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
       _artRefill.notTakingARTReason = _notTakingARTAnymoreCtr.text;
       print('NEW ART REFILL (_id will be given by SQLite database):\n$_artRefill');
       await PatientBloc.instance.sinkARTRefillData(_artRefill);
+      if (patientActivatedWillChange(_patient, !_deactivatePatient)) {
+        print('patient will change activation status, sinking patient data...');
+        print('current: ${_patient.isActivated}, new: ${!_deactivatePatient}');
+        _patient.isActivated = !_deactivatePatient;
+        PatientBloc.instance.sinkPatientData(_patient);
+      }
+      // we will also have to sink a PatientData event in case the patient's isActivated state changes
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return route.settings.name == '/patient';
       });
@@ -226,4 +260,9 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
       showFlushBar(context, "Errors exist in the form. Please check the form.");
     }
   }
+
+  patientActivatedWillChange(Patient patient, bool newStatus) {
+    return patient.isActivated != newStatus;
+  }
+
 }

@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
-import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/screens/ARTRefillNotDoneScreen.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
-import 'package:pebrapp/utils/Utils.dart';
 
 class ARTRefillScreen extends StatelessWidget {
-  final String _patientART;
+  final Patient _patient;
   final String _nextRefillDate;
 
-  ARTRefillScreen(this._patientART, this._nextRefillDate);
+  ARTRefillScreen(this._patient, this._nextRefillDate);
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +20,7 @@ class ARTRefillScreen extends StatelessWidget {
         child: Container(
           width: 400,
           height: 600,
-          child: _buildBody(context, _patientART),
+          child: _buildBody(context, _patient),
         ),
       ),
     );
@@ -32,7 +31,7 @@ class ARTRefillScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, String patientART) {
+  Widget _buildBody(BuildContext context, Patient patient) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -55,7 +54,7 @@ class ARTRefillScreen extends StatelessWidget {
               Text('Next ART Refill',
                 style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),
               ),
-              Text('$patientART',
+              Text('${patient.artNumber}',
                 style: TextStyle(fontSize: 24.0),
               ),
               SizedBox(height: 50),
@@ -64,7 +63,7 @@ class ARTRefillScreen extends StatelessWidget {
               SizedBox(height: 50,),
               SizedButton('Refill Done', onPressed: () { _onPressRefillDone(context); },),
               SizedBox(height: 10,),
-              SizedButton('Refill Not Done', onPressed: () { _pushARTRefillNotDoneScreen(context, patientART); },),
+              SizedButton('Refill Not Done', onPressed: () { _pushARTRefillNotDoneScreen(context, patient); },),
             ],
           ),
         ),
@@ -75,7 +74,7 @@ class ARTRefillScreen extends StatelessWidget {
   void _onPressChangeDate(BuildContext context) async {
     DateTime newDate = await _showDatePicker(context);
     if (newDate != null) {
-      final ARTRefill artRefill = ARTRefill(this._patientART, RefillType.CHANGE_DATE, nextRefillDate: newDate);
+      final ARTRefill artRefill = ARTRefill(this._patient.artNumber, RefillType.CHANGE_DATE, nextRefillDate: newDate);
       await PatientBloc.instance.sinkARTRefillData(artRefill);
       // TODO: upload the new date to the viral load database and if it didn't work show a message that the upload has to be retried manually
       Navigator.of(context).popUntil((Route<dynamic> route) {
@@ -87,7 +86,7 @@ class ARTRefillScreen extends StatelessWidget {
   void _onPressRefillDone(BuildContext context) async {
     DateTime newDate = await _showDatePicker(context);
     if (newDate != null) {
-      final ARTRefill artRefill = ARTRefill(this._patientART, RefillType.DONE, nextRefillDate: newDate);
+      final ARTRefill artRefill = ARTRefill(this._patient.artNumber, RefillType.DONE, nextRefillDate: newDate);
       await PatientBloc.instance.sinkARTRefillData(artRefill);
       // TODO: upload the new date to the viral load database and if it didn't work show a message that the upload has to be retried manually
       Navigator.of(context).popUntil((Route<dynamic> route) {
@@ -126,11 +125,11 @@ class ARTRefillScreen extends StatelessWidget {
     });
   }
 
-  void _pushARTRefillNotDoneScreen(BuildContext context, String patientART) {
+  void _pushARTRefillNotDoneScreen(BuildContext context, Patient patient) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
-          return ARTRefillNotDoneScreen(patientART);
+          return ARTRefillNotDoneScreen(patient);
         },
       ),
     );

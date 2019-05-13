@@ -43,21 +43,21 @@ class PatientBloc {
     }
   }
 
-  /// Trigger an [AppStatePatientData] stream event.
+  /// Store a new row in the Patient table and trigger an [AppStatePatientData] stream event.
   Future<void> sinkPatientData(Patient patient) async {
     await DatabaseProvider().insertPatient(patient);
     print('Putting patient ${patient.artNumber} down the sink');
     _appStateStreamController.sink.add(AppStatePatientData(patient));
   }
 
-  /// Trigger an [AppStatePreferenceAssessmentData] stream event.
+  /// Store a new row in the PreferenceAssessment table and trigger an [AppStatePreferenceAssessmentData] stream event.
   Future<void> sinkPreferenceAssessmentData(PreferenceAssessment newPreferenceAssessment) async {
     await DatabaseProvider().insertPreferenceAssessment(newPreferenceAssessment);
     print('Putting preference assessment for patient ${newPreferenceAssessment.patientART} down the sink');
     _appStateStreamController.sink.add(AppStatePreferenceAssessmentData(newPreferenceAssessment));
   }
 
-  /// Trigger an [AppStateARTRefillData] stream event.
+  /// Store a new row in the ARTRefill table and trigger an [AppStateARTRefillData] stream event.
   Future<void> sinkARTRefillData(ARTRefill newARTRefill) async {
     await DatabaseProvider().insertARTRefill(newARTRefill);
     print('Putting ART Refill for patient ${newARTRefill.patientART} down the sink');
