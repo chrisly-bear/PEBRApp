@@ -172,14 +172,20 @@ String formatDateAndTime(DateTime date) {
 
 /// Calculates the due date of the next preference assessment based on the date
 /// of the last preference assessment (+60 days).
+/// 
+/// Returns `null` if [lastAssessment] is `null`.
 DateTime calculateNextAssessment(DateTime lastAssessment) {
+  if (lastAssessment == null) { return null; }
   // TODO: implement proper calculation of adding two months
   return lastAssessment.add(Duration(days: 60));
 }
 
 /// Calculates the due date of the next ART refill based on the date of the last
 /// ART refill (+90 days).
+///
+/// Returns `null` if [lastARTRefill] is `null`.
 DateTime calculateNextARTRefill(DateTime lastARTRefill) {
+  if (lastARTRefill == null) { return null; }
   // TODO: implement proper calculation of adding three months
   return lastARTRefill.add(Duration(days: 90));
 }

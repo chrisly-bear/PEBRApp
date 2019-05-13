@@ -307,6 +307,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     final _cardPaddingHorizontal = 10.0;
     final _rowPaddingVertical = 20.0;
     final _rowPaddingHorizontal = 15.0;
+    const _cardHeight = 100.0;
+    const _colorBarWidth = 15.0;
 
     _formatHeaderRowText(String text) {
       return Text(
@@ -400,6 +402,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
               padding: EdgeInsets.symmetric(horizontal: _rowPaddingHorizontal),
               child: Row(
                 children: <Widget>[
+                  SizedBox(width: _colorBarWidth),
                   Expanded(child: _formatHeaderRowText('ART NR.')),
                   Expanded(child: _formatHeaderRowText('NEXT REFILL')),
                   Expanded(child: _formatHeaderRowText('REFILL BY')),
@@ -516,7 +519,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
               ]
             ),
           ),
-          child: Card(
+          child: SizedBox(
+            height: _cardHeight,
+            child: Card(
             color: curPatient.isActivated ? Colors.white : Colors.grey[300],
         elevation: 5.0,
         margin: _curCardMargin,
@@ -531,7 +536,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 //                Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
             // Generally, material cards do not have a highlight overlay.
             highlightColor: Colors.transparent,
-            child: Padding(
+            child: Row(
+              children: [
+              // color bar
+              Container(width: _colorBarWidth, color: _calculateCardColor(curPatient)),
+              // patient info
+              Expanded(child: Padding(
                 padding: EdgeInsets.symmetric(
                     vertical: _rowPaddingVertical,
                     horizontal: _rowPaddingHorizontal),
@@ -557,9 +567,57 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                   ],
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 ))),
-      )));
+                ])))),
+      ));
     }
     return _patientCards;
+  }
+
+  /// Returns red, orange, yellow based on urgency of next action (next ART refill or next preference assessment).
+  /// Returns transparent color, if there is no urgency (next action lays more than a week in the future) or if
+  /// the patient is not activated.
+  /// 
+  /// Assumes that the [patient.latestARTRefill] and [patient.latestPreferenceAssessment] fields are initialized.
+  Color _calculateCardColor(Patient patient) {
+    if (!patient.isActivated) {
+      return Colors.transparent;
+    }
+
+    DateTime nextARTRefillDate = patient.latestARTRefill?.nextRefillDate;
+    DateTime nextPreferenceAssessmentDate = calculateNextAssessment(patient.latestPreferenceAssessment?.createdDate);
+    final DateTime dateOfNextAction = _getLesserDate(nextARTRefillDate, nextPreferenceAssessmentDate);
+
+    if (dateOfNextAction == null) {
+      return Colors.transparent;
+    }
+
+    final int daysUntilNextAction = differenceInDays(DateTime.now(), dateOfNextAction);
+    if (daysUntilNextAction <= 0) {
+      return Colors.red;
+    }
+    if (daysUntilNextAction <= 2) {
+      return Colors.orange;
+    }
+    if (daysUntilNextAction <= 7) {
+      return Colors.yellow;
+    }
+    return Colors.transparent;
+  }
+
+  /// Returns the older of the two dates.
+  /// 
+  /// Returns `null` if both dates are `null`.
+  DateTime _getLesserDate(DateTime date1, DateTime date2) {
+    if (date1 == null && date2 == null) {
+      return null;
+    }
+    if (date1 == null) {
+      return date2;
+    } else if (date2 == null) {
+      return date1;
+    } else {
+      return date1.isBefore(date2) ? date1 : date2;
+    }
   }
 
 }
