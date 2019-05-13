@@ -323,7 +323,7 @@ class DatabaseProvider {
   ///
   /// Throws `NoLoginDataException` if the loginData object is null.
   ///
-  /// Throws 'DocumentNotFoundException' if no matching backup was found.
+  /// Throws `DocumentNotFoundException` if no matching backup was found.
   ///
   /// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
   Future<void> createAdditionalBackupOnSWITCH(LoginData loginData) async {
