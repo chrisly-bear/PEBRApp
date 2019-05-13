@@ -8,6 +8,7 @@ import 'package:pebrapp/config/SwitchConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
+import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
 import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:path/path.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
@@ -42,6 +43,8 @@ Future<void> uploadFileToSWITCHtoolbox(File sourceFile, {String filename, int fo
 /// Downloads the latest SQLite file from SWITCH and replaces the one on the devices.
 ///
 /// Throws `NoLoginDataException` if loginData object is null.
+///
+/// Throws `SWITCHLoginFailedException` if the login to SWITCHtoolbox fails.
 ///
 /// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
 ///
@@ -83,6 +86,7 @@ Future<File> _downloadLatestBackup(LoginData loginData) async {
   return backupFile;
 }
 
+/// Throws `SWITCHLoginFailedException` if the login to SWITCHtoolbox fails.
 Future<bool> existsBackupForUser(LoginData loginData) async {
   final String _shibsessionCookie = await _getShibSession(SWITCH_USERNAME, SWITCH_PASSWORD);
   final String _mydmssessionCookie = await _getMydmsSession(_shibsessionCookie);
@@ -101,7 +105,9 @@ Future<bool> existsBackupForUser(LoginData loginData) async {
 ///
 /// If `folderID` is not provided the update will be attempted in the root folder (folderId = 1).
 ///
-/// Throws 'DocumentNotFoundException' if no matching document was found.
+/// Throws `SWITCHLoginFailedException` if the login to SWITCHtoolbox fails.
+/// 
+/// Throws `DocumentNotFoundException` if no matching document was found.
 Future<void> updateFileOnSWITCHtoolbox(File sourceFile, String documentName, {int folderId = 1}) async {
   final String _shibsessionCookie = await _getShibSession(SWITCH_USERNAME, SWITCH_PASSWORD);
   final String _mydmssessionCookie = await _getMydmsSession(_shibsessionCookie);
@@ -260,6 +266,10 @@ Future<String> _getShibSession(String username, String password) async {
 
   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% - 5 - %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   // get _shibsession_ cookie
+
+  if (_resp4.statusCode != 200) {
+    throw SWITCHLoginFailedException();
+  }
 
   final dom.Document _doc = parse(_resp4.body);
   final dom.Element _formEl = _doc.querySelector('form');

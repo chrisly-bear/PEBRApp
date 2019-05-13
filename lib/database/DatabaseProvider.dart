@@ -303,6 +303,8 @@ class DatabaseProvider {
   /// 
   /// Throws `NoLoginDataException` if the loginData object is null.
   ///
+  /// Throws `SWITCHLoginFailedException` if the login to SWITCHtoolbox fails.
+  ///
   /// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
   Future<void> createFirstBackupOnSWITCH(LoginData loginData) async {
     if (loginData == null) {
@@ -322,6 +324,8 @@ class DatabaseProvider {
   /// new version of the document on SWITCHtoolbox.
   ///
   /// Throws `NoLoginDataException` if the loginData object is null.
+  ///
+  /// Throws `SWITCHLoginFailedException` if the login to SWITCHtoolbox fails.
   ///
   /// Throws `DocumentNotFoundException` if no matching backup was found.
   ///

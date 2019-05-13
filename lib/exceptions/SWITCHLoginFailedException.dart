@@ -1,0 +1,1 @@
+class SWITCHLoginFailedException implements Exception {}

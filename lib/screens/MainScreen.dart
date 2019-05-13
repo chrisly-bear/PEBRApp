@@ -8,6 +8,7 @@ import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
+import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
 import 'package:pebrapp/screens/DebugScreen.dart';
 import 'dart:ui';
 
@@ -177,6 +178,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           // this case should never occur since we force the user to login when
           // resuming the app
           resultMessage = 'Not logged in. Please log in first.';
+          break;
+        case SWITCHLoginFailedException:
+          resultMessage = 'Login to SWITCH failed. Contact the development team.';
           break;
         case DocumentNotFoundException:
           resultMessage = 'No existing backup found for user \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\'';

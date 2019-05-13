@@ -5,6 +5,7 @@ import 'package:pebrapp/components/SizedButton.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
+import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 import 'package:pebrapp/utils/Utils.dart';
@@ -147,6 +148,9 @@ class _SettingsBodyState extends State<SettingsBody> {
       switch (e.runtimeType) {
         // case NoLoginDataException should never occur because we don't show
         // the backup button when the user is not logged in
+        case SWITCHLoginFailedException:
+          message = 'Login to SWITCH failed. Contact the development team.';
+          break;
         case DocumentNotFoundException:
           message = 'No existing backup found for user \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\'';
           break;
@@ -180,6 +184,9 @@ class _SettingsBodyState extends State<SettingsBody> {
             break;
           case SocketException:
             resultMessage = 'Make sure you are connected to the internet.';
+            break;
+          case SWITCHLoginFailedException:
+            resultMessage = 'Login to SWITCH failed. Contact the development team.';
             break;
           case DocumentNotFoundException:
             resultMessage = 'No backup found for user \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\'.';
@@ -423,6 +430,9 @@ class _LoginBodyState extends State<LoginBody> {
           case SocketException:
             notificationMessage = 'Make sure you are connected to the internet.';
             break;
+          case SWITCHLoginFailedException:
+            notificationMessage = 'Login to SWITCH failed. Contact the development team.';
+            break;
           case DocumentNotFoundException:
             notificationMessage = 'User \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\' not found. Check your login data or create a new account.';
             break;
@@ -477,6 +487,9 @@ class _LoginBodyState extends State<LoginBody> {
           // loginData object at the beginning of this method
           case SocketException:
             notificationMessage = 'Make sure you are connected to the internet.';
+            break;
+          case SWITCHLoginFailedException:
+            notificationMessage = 'Login to SWITCH failed. Contact the development team.';
             break;
           default:
             notificationMessage = '$e';
