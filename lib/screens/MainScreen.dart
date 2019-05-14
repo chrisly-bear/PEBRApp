@@ -575,12 +575,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
             onTap: () {
               _pushPatientScreen(curPatient);
             },
-            // Generally, material cards use onSurface with 12% opacity for the pressed state.
-            splashColor:
-                Colors.yellow,
-//                Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
-            // Generally, material cards do not have a highlight overlay.
-            highlightColor: Colors.transparent,
             child: Row(
               children: [
               // color bar
