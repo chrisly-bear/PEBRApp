@@ -72,7 +72,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       }
       if (streamEvent is AppStatePatientData) {
         final newPatient = streamEvent.patient;
-        print('*** stream.listen received AppStatePatientData: ${newPatient.artNumber} ***');
+        print('*** MainScreen received AppStatePatientData: ${newPatient.artNumber} ***');
         setState(() {
           this._isLoading = false;
           int indexOfExisting = this._patients.indexWhere((p) => p.artNumber == newPatient.artNumber);
