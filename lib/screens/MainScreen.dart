@@ -567,7 +567,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
               ]
             ),
           ),
-          child: SizedBox(
+          child: Stack(
+              alignment: Alignment.topRight,
+              children: <Widget>[
+            SizedBox(
             height: _cardHeight,
             child: Card(
             color: curPatient.isActivated ? Colors.white : Colors.grey[300],
@@ -610,6 +613,32 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 ))),
                 ])))),
+            Padding(
+              padding: EdgeInsets.only(left: 2.0, right: 3.0),
+              child: Container(
+                width: 35,
+                height: 35,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black,
+                  boxShadow: [BoxShadow(
+                    color: Colors.black45,
+                    blurRadius: 10.0,
+                  )],
+                ),
+                child: Center(
+                  child: Text(
+                    '!',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20.0,
+                    ),
+                  )
+                ),
+              ),
+            ),
+          ]),
       ));
     }
     return _patientCards;
