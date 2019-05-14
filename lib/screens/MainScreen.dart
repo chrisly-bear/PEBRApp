@@ -307,8 +307,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   }
 
   _buildPatientCards() {
-    const _cardPaddingVertical = 10.0;
-    const _cardPaddingHorizontal = 10.0;
+    const _cardMarginVertical = 5.0;
+    const _cardMarginHorizontal = 10.0;
     const _rowPaddingVertical = 20.0;
     const _rowPaddingHorizontal = 15.0;
     const _cardHeight = 100.0;
@@ -400,8 +400,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       ),
       Container(
           padding: EdgeInsets.symmetric(
-              vertical: _cardPaddingVertical,
-              horizontal: _cardPaddingHorizontal),
+              vertical: _cardMarginVertical,
+              horizontal: _cardMarginHorizontal),
           child: Padding(
               padding: EdgeInsets.symmetric(horizontal: _rowPaddingHorizontal),
               child: Row(
@@ -457,15 +457,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         nextAssessmentText = formatDate(nextAssessmentDate);
       }
 
-      final _curCardMargin = i == numberOfPatients - 1 // last element also has padding at the bottom
-          ? EdgeInsets.symmetric(
-          vertical: _cardPaddingVertical,
-          horizontal: _cardPaddingHorizontal)
-          : EdgeInsets.only(
-          top: _cardPaddingVertical,
-          bottom: 0,
-          left: _cardPaddingHorizontal,
-          right: _cardPaddingHorizontal);
+      final _curCardMargin = EdgeInsets.symmetric(
+          vertical: _cardMarginVertical,
+          horizontal: _cardMarginHorizontal);
 
       // TODO: for final release, the patients should not be deletable. Either
       // remove the Dismissible widget (return Card directly) or map the
@@ -493,7 +487,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           },
           background: Container(
             margin: _curCardMargin,
-            padding: EdgeInsets.symmetric(horizontal: 10.0),
+            padding: EdgeInsets.symmetric(horizontal: _cardMarginHorizontal),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.centerLeft,
