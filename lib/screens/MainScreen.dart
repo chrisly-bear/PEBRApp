@@ -339,7 +339,11 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   }
 
   _bodyLoading() {
-    return Center(child: Text("LOADING..."));
+    return Center(
+      child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.white)
+      ),
+    );
   }
 
   _bodyNoData() {
