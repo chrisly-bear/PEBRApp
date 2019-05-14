@@ -102,7 +102,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
       setState(() {
         _sortPatients(_patients);
-        this._isLoading = false;
       });
     });
 
