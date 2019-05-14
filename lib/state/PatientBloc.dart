@@ -29,7 +29,8 @@ class PatientBloc {
   // Event Triggers (Inputs)
   // -----------------------
 
-  /// Trigger an [AppStateLoading] stream event, followed by a [AppStatePatientListData] event.
+  /// Trigger an [AppStateLoading] stream event, followed by either a
+  /// [AppStateNoData] event or several [AppStatePatientData] events.
   Future<void> sinkAllPatientsFromDatabase() async {
     _appStateStreamController.sink.add(AppStateLoading());
     final List<Patient> patientList = await DatabaseProvider().retrieveLatestPatients();
