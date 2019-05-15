@@ -251,7 +251,7 @@ enum ARTRefillOption { CLINIC, PE_HOME_DELIVERY, VHW, TREATMENT_BUDDY, COMMUNITY
 enum AdherenceReminderFrequency { DAILY, WEEKLY, MONTHLY }
 
 // Do not change the order of the enums as their index is used to store the instance in the database!
-enum AdherenceReminderMessage { MESSAGE_1, MESSAGE_2 }
+enum AdherenceReminderMessage { MESSAGE_1, MESSAGE_2, MESSAGE_3, MESSAGE_4, MESSAGE_5, MESSAGE_6, MESSAGE_7, MESSAGE_8, MESSAGE_9 }
 
 // Do not change the order of the enums as their index is used to store the instance in the database!
 enum VLSuppressedMessage { MESSAGE_1, MESSAGE_2 }
