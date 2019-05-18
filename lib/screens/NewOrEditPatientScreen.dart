@@ -133,8 +133,8 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
           children: [
             _buildTitle('Personal Information'),
             _personalInformationCard(),
-            _buildTitle('Consent'),
-            _consentCard(),
+            _editModeOn ? Container() : _buildTitle('Consent'),
+            _editModeOn ? Container() : _consentCard(),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               SizedButton(
                 'Save',
