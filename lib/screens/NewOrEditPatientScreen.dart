@@ -62,9 +62,24 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   final _questionsFlex = 1;
   final _answersFlex = 1;
 
+  static final currentYear = DateTime.now().year;
+
+  static final int birthYearOptionsStart = 1980;
+  static final int birthYearOptionsEnd = currentYear;
+  List<int> birthYearOptions = List<int>.generate(birthYearOptionsEnd - birthYearOptionsStart + 1, (i) => birthYearOptionsStart + i);
+
+  static final int minAgeForEligibility = 16;
+  static final int maxAgeForEligibility = 30;
+  static final int minYearForEligibility = currentYear - maxAgeForEligibility;
+  static final int maxYearForEligibility = currentYear - minAgeForEligibility;
+  bool get _eligible => _birthYear != null && _birthYear >= minYearForEligibility && _birthYear <= maxYearForEligibility;
+
   final Patient _existingPatient;
   bool _editModeOn;
   bool _patientIsActivated = false;
+  int _birthYear;
+  bool _consentGiven;
+  bool _baselineViralLoadAvailable;
   TextEditingController _artNumberCtr = TextEditingController();
   TextEditingController _villageCtr = TextEditingController();
   TextEditingController _districtCtr = TextEditingController();
@@ -126,15 +141,14 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   @override
   Widget build(BuildContext context) {
     print('~~~ _NewOrEditPatientFormState.build ~~~');
-    // Build a Form widget using the _formKey we created above
     return Form(
       key: _formKey,
       child: ListView(
           children: [
-            _buildTitle('Personal Information'),
             _personalInformationCard(),
-            _editModeOn ? Container() : _buildTitle('Consent'),
-            _editModeOn ? Container() : _consentCard(),
+            _consentCard(),
+            _baselineViralLoadCard(),
+            _eligibilityDisclaimer(),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               SizedButton(
                 'Save',
@@ -153,46 +167,25 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   }
 
   Widget _personalInformationCard() {
-    return Card(
-      margin: EdgeInsets.symmetric(horizontal: 15),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-        child: Column(
-          children: [
-            _artNumberQuestion(),
-            _villageQuestion(),
-            _phoneNumberQuestion(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _consentCard() {
-    return Card(
-      margin: EdgeInsets.symmetric(horizontal: 15),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Expanded(
-                flex: _questionsFlex,
-                child:
-                Text('Patient has signed the consent form')),
-            Expanded(
-              flex: _answersFlex,
-              child: CheckboxListTile(
-                value: _patientIsActivated,
-                onChanged: (bool newState) {
-                  // TODO: change patients 'consentGiven' field, not 'isActivated' field
-                  setState(() { _patientIsActivated = newState; });
-                },
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTitle('Personal Information'),
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 15),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: Column(
+              children: [
+                _artNumberQuestion(),
+                _yearOfBirthQuestion(),
+                _villageQuestion(),
+                _phoneNumberQuestion(),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -228,7 +221,53 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
     );
   }
 
+  Widget _yearOfBirthQuestion() {
+    if (_editModeOn) {
+      return Container();
+    }
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child:
+            Text('Year of Birth')),
+        Expanded(
+          flex: _answersFlex,
+          child: DropdownButtonFormField<int>(
+            value: _birthYear,
+            onChanged: (int newValue) {
+              setState(() {
+                _birthYear = newValue;
+              });
+            },
+            validator: (value) {
+              if (value == null) { return 'Please select a year of birth.'; }
+            },
+            items: birthYearOptions.map<DropdownMenuItem<int>>((int value) {
+              String description = value.toString();
+              return DropdownMenuItem<int>(
+                value: value,
+                child: Text(
+                  description,
+                  style: TextStyle(
+                    color: value <= maxYearForEligibility && value >= minYearForEligibility ? Colors.black : Colors.grey,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        )
+      ],
+    );
+  }
+
   Widget _villageQuestion() {
+    // always show field in edit mode -> !editModeOn
+    // only show field if eligible -> !_eligible
+    if (!_editModeOn && (!_eligible || _consentGiven == null || !_consentGiven)) {
+      return Container();
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -252,6 +291,9 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   }
 
   Widget _phoneNumberQuestion() {
+    if (!_editModeOn && (!_eligible || _consentGiven == null || !_consentGiven)) {
+      return Container();
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -272,6 +314,138 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
         ),
       ],
     );
+  }
+
+  Widget _consentCard() {
+    if (_editModeOn || !_eligible) {
+      return Container();
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTitle('Consent'),
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 15),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: Column(
+              children: [
+                _consentGivenQuestion(),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _consentGivenQuestion() {
+    if (_editModeOn) {
+      return Container();
+    }
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child:
+            Text('Has the patient signed the consent form?')),
+        Expanded(
+          flex: _answersFlex,
+          child: DropdownButtonFormField<bool>(
+            value: _consentGiven,
+            onChanged: (bool newValue) {
+              setState(() {
+                _consentGiven = newValue;
+              });
+            },
+            validator: (value) {
+              if (value == null) { return 'Please answer this question.'; }
+            },
+            items: [true, false].map<DropdownMenuItem<bool>>((bool value) {
+              String description = value ? 'Yes' : 'No';
+              return DropdownMenuItem<bool>(
+                value: value,
+                child: Text(description),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _baselineViralLoadCard() {
+    if (!_eligible || _consentGiven == null || !_consentGiven) {
+      return Container();
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTitle('Baseline Viral Load'),
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 15),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: Column(
+              children: [
+                _baselineViralLoadAvailableQuestion(),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _baselineViralLoadAvailableQuestion() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+            flex: _questionsFlex,
+            child:
+            Text('Any VL within last 12 months available (laboratory report, bukana, patient file)?')),
+        Expanded(
+          flex: _answersFlex,
+          child: DropdownButtonFormField<bool>(
+            value: _baselineViralLoadAvailable,
+            onChanged: (bool newValue) {
+              setState(() {
+                _baselineViralLoadAvailable = newValue;
+              });
+            },
+            validator: (value) {
+              if (value == null) { return 'Please answer this question.'; }
+            },
+            items: [true, false].map<DropdownMenuItem<bool>>((bool value) {
+              String description = value ? 'Yes' : 'No';
+              return DropdownMenuItem<bool>(
+                value: value,
+                child: Text(description),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _eligibilityDisclaimer() {
+    if (_birthYear == null || _eligible) {
+      return Container();
+    }
+    return
+      Padding(
+        padding: EdgeInsets.all(15.0),
+        child:
+        Text('This patient is not eligible for the study. Only patients born '
+            'between $minYearForEligibility and $maxYearForEligibility are '
+            'eligible.\nPlease, save the patient anyway for study evaluation '
+            'reasons. The patient will not appear in the PEBRApp though.',
+          textAlign: TextAlign.center,
+        ),
+      );
   }
 
   _buildTitle(String title) {
