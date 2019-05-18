@@ -36,7 +36,7 @@ class _NewOrEditPatientScreenBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      Expanded(child: SingleChildScrollView(child: _NewOrEditPatientForm(_existingPatient))),
+      Expanded(child: _NewOrEditPatientForm(_existingPatient)),
     ]);
   }
 }
@@ -58,6 +58,9 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   // Create a global key that will uniquely identify the Form widget and allow
   // us to validate the form
   final _formKey = GlobalKey<FormState>();
+
+  final _questionsFlex = 1;
+  final _answersFlex = 1;
 
   final Patient _existingPatient;
   bool _editModeOn;
@@ -126,90 +129,161 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
     // Build a Form widget using the _formKey we created above
     return Form(
       key: _formKey,
-      child: Column(children: [
-        Card(
-          margin: EdgeInsets.all(20),
-          child: Padding(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text('ART Number'),
-                TextFormField(
-                  enabled: !_editModeOn,
-                  controller: _artNumberCtr,
-                  validator: (value) {
-                    if (_existingPatient != null) {
-                      return null;
-                    }
-                    if (value.isEmpty) {
-                      print('ART validation failed');
-                      return 'Please enter an ART number';
-                    } else if (_artNumberExists(value)) {
-                      print('ART validation failed');
-                      return 'This ART number exists already in the database';
-                    }
-                  },
-                ),
-                Text('Village'),
-                TextFormField(
-                  controller: _villageCtr,
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Please enter a village';
-                    }
-                  },
-                ),
-                Text('District'),
-                TextFormField(
-                  controller: _districtCtr,
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Please enter a district';
-                    }
-                  },
-                ),
-                Text('Phone Number'),
-                TextFormField(
-                  controller: _phoneNumberCtr,
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Please enter a phone number';
-                    }
-                  },
-                ),
-                CheckboxListTile(
-                  title: Text(
-                    'Activate Patient',
-                  ),
-                  value: _patientIsActivated,
-                  onChanged: (bool newState) {
-                    setState(() { _patientIsActivated = newState; });
-                  },
-                ),
-              ],
+      child: ListView(
+          children: [
+            _buildTitle('Personal Information'),
+            _personalInformationCard(),
+            _buildTitle('Consent'),
+            _consentCard(),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              SizedButton(
+                'Save',
+                onPressed: _isLoading ? null : _onSubmitForm,
+              ),
+            ]),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              SizedButton(
+                'Open KoBoCollect',
+                onPressed: _openKoBoCollect,
+              ),
+            ]),
+          ],
+      ),
+    );
+  }
+
+  Widget _personalInformationCard() {
+    return Card(
+      margin: EdgeInsets.symmetric(horizontal: 15),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        child: Column(
+          children: [
+            _artNumberQuestion(),
+            _villageQuestion(),
+            _phoneNumberQuestion(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _consentCard() {
+    return Card(
+      margin: EdgeInsets.symmetric(horizontal: 15),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Expanded(
+                flex: _questionsFlex,
+                child:
+                Text('Patient has signed the consent form')),
+            Expanded(
+              flex: _answersFlex,
+              child: CheckboxListTile(
+                value: _patientIsActivated,
+                onChanged: (bool newState) {
+                  // TODO: change patients 'consentGiven' field, not 'isActivated' field
+                  setState(() { _patientIsActivated = newState; });
+                },
+              ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _artNumberQuestion() {
+    if (_editModeOn) {
+      return Container();
+    }
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child:
+            Text('ART Number')),
+        Expanded(
+          flex: _answersFlex,
+          child: TextFormField(
+            enabled: !_editModeOn,
+            controller: _artNumberCtr,
+            validator: (value) {
+              if (_editModeOn) {
+                return null;
+              }
+              if (value.isEmpty) {
+                return 'Please enter an ART number';
+              } else if (_artNumberExists(value)) {
+                return 'This ART number exists already in the database';
+              }
+            },
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _villageQuestion() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child:
+            Text('Village')),
+        Expanded(
+          flex: _answersFlex,
+          child: TextFormField(
+            controller: _villageCtr,
+            validator: (value) {
+              if (value.isEmpty) {
+                return 'Please enter a village';
+              }
+            },
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _phoneNumberQuestion() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child:
+            Text('Phone Number')),
+        Expanded(
+          flex: _answersFlex,
+          child: TextFormField(
+            controller: _phoneNumberCtr,
+            validator: (value) {
+              if (value.isEmpty) {
+                return 'Please enter a phone number';
+              }
+            },
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: Center(
-            child: SizedButton(
-              'Save',
-              onPressed: _isLoading ? null : _onSubmitForm,
-            ),
-          ),
+      ],
+    );
+  }
+
+  _buildTitle(String title) {
+    return Padding(
+      padding: EdgeInsets.all(15),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: Center(
-            child: SizedButton(
-              'Open KoBoCollect',
-              onPressed: _openKoBoCollect,
-            ),
-          ),
-        ),
-      ]),
+      ),
     );
   }
 
