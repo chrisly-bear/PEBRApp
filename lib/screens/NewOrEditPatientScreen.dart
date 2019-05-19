@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
@@ -79,6 +80,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   bool _editModeOn;
   bool _patientIsActivated = false;
   int _birthYear;
+  Gender _gender;
   bool _consentGiven;
   NoConsentReason _noConsentReason;
   bool _baselineViralLoadAvailable;
@@ -188,6 +190,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
               children: [
                 _artNumberQuestion(),
                 _yearOfBirthQuestion(),
+                _genderQuestion(),
                 _villageQuestion(),
                 _phoneNumberQuestion(),
               ],
@@ -300,6 +303,34 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
             );
           }).toList(),
         ),
+    );
+  }
+
+  Widget _genderQuestion() {
+    // always show field in edit mode -> !editModeOn
+    // only show field if eligible -> !_eligible
+    if (!_editModeOn && (!_eligible || _consentGiven == null || !_consentGiven)) {
+      return Container();
+    }
+    return _makeQuestion(
+      'Gender',
+      child: DropdownButtonFormField<Gender>(
+        value: _gender,
+        onChanged: (Gender newValue) {
+          setState(() {
+            _gender = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) { return 'Please answer this question.'; }
+        },
+        items: Gender.allValues.map<DropdownMenuItem<Gender>>((Gender value) {
+          return DropdownMenuItem<Gender>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
     );
   }
 
