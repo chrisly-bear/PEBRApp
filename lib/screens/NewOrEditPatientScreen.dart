@@ -169,21 +169,9 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
     );
   }
 
-  Widget _makeQuestion(String question, {@required Widget child}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          flex: _questionsFlex,
-          child: Text(question),
-        ),
-        Expanded(
-          flex: _answersFlex,
-          child: child,
-        ),
-      ],
-    );
-  }
+  // ----------
+  // CARDS
+  // ----------
 
   Widget _personalInformationCard() {
     return Column(
@@ -207,6 +195,58 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
       ],
     );
   }
+
+  Widget _consentCard() {
+    if (_editModeOn || !_eligible) {
+      return Container();
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTitle('Consent'),
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 15),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: Column(
+              children: [
+                _consentGivenQuestion(),
+                _noConsentReasonQuestion(),
+                _noConsentReasonOtherQuestion(),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _baselineViralLoadCard() {
+    if (!_eligible || _consentGiven == null || !_consentGiven) {
+      return Container();
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTitle('Baseline Viral Load'),
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 15),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: Column(
+              children: [
+                _baselineViralLoadAvailableQuestion(),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ----------
+  // QUESTIONS
+  // ----------
 
   Widget _artNumberQuestion() {
     if (_editModeOn) {
@@ -296,31 +336,6 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
     );
   }
 
-  Widget _consentCard() {
-    if (_editModeOn || !_eligible) {
-      return Container();
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildTitle('Consent'),
-        Card(
-          margin: EdgeInsets.symmetric(horizontal: 15),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-            child: Column(
-              children: [
-                _consentGivenQuestion(),
-                _noConsentReasonQuestion(),
-                _noConsentReasonOtherQuestion(),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _consentGivenQuestion() {
     if (_editModeOn) {
       return Container();
@@ -388,29 +403,6 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
     );
   }
 
-  Widget _baselineViralLoadCard() {
-    if (!_eligible || _consentGiven == null || !_consentGiven) {
-      return Container();
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildTitle('Baseline Viral Load'),
-        Card(
-          margin: EdgeInsets.symmetric(horizontal: 15),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-            child: Column(
-              children: [
-                _baselineViralLoadAvailableQuestion(),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _baselineViralLoadAvailableQuestion() {
     return _makeQuestion('Any VL within last 12 months available (laboratory report, bukana, patient file)?',
       child: DropdownButtonFormField<bool>(
@@ -434,6 +426,10 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
     );
   }
 
+  // ----------
+  // OTHER
+  // ----------
+
   Widget _eligibilityDisclaimer() {
     if (_birthYear == null || _eligible) {
       return Container();
@@ -449,31 +445,6 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
           textAlign: TextAlign.center,
         ),
       );
-  }
-
-  _buildTitle(String title) {
-    return Padding(
-      padding: EdgeInsets.all(15),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  _openKoBoCollect() async {
-    const appUrl = 'android-app://org.koboc.collect.android';
-    const marketUrl = 'market://details?id=org.koboc.collect.android';
-    if (await canLaunch(appUrl)) {
-      await launch(appUrl);
-    } else if (await canLaunch(marketUrl)) {
-      await launch(marketUrl);
-    } else {
-      showFlushBar(context, "Could not find KoBoCollect app. Make sure KoBoCollect is installed.");
-    }
   }
 
   _onSubmitForm() async {
@@ -500,6 +471,47 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
           : 'New patient created successfully';
       showFlushBar(context, finishNotification);
     }
+  }
+
+  _openKoBoCollect() async {
+    const appUrl = 'android-app://org.koboc.collect.android';
+    const marketUrl = 'market://details?id=org.koboc.collect.android';
+    if (await canLaunch(appUrl)) {
+      await launch(appUrl);
+    } else if (await canLaunch(marketUrl)) {
+      await launch(marketUrl);
+    } else {
+      showFlushBar(context, "Could not find KoBoCollect app. Make sure KoBoCollect is installed.");
+    }
+  }
+
+  _buildTitle(String title) {
+    return Padding(
+      padding: EdgeInsets.all(15),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _makeQuestion(String question, {@required Widget child}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          flex: _questionsFlex,
+          child: Text(question),
+        ),
+        Expanded(
+          flex: _answersFlex,
+          child: child,
+        ),
+      ],
+    );
   }
 
   bool _artNumberExists(artNumber) {
