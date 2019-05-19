@@ -182,6 +182,11 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
                 onPressed: _openKoBoCollect,
               ),
             ]),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+              child: Text('Open the KoBoCollect app to fill in the baseline assessment form.', textAlign: TextAlign.center,),
+            ),
+            SizedBox(height: 16.0),
           ],
       ),
     );
