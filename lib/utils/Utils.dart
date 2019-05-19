@@ -154,6 +154,11 @@ int differenceInDays(DateTime date1, DateTime date2) {
   return date2.difference(date1).inDays;
 }
 
+/// Turns date into the format dd.MM.yyyy.
+String formatDateConsistent(DateTime date) {
+  return DateFormat("dd.MM.yyyy").format(date.toLocal());
+}
+
 /// Turns a date into a formatted String. If the date is
 ///
 /// * today it will return "Today"

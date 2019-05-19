@@ -87,13 +87,18 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   PhoneAvailability _phoneAvailable;
   bool _consentGiven;
   NoConsentReason _noConsentReason;
-  bool _baselineViralLoadAvailable;
+  bool _viralLoadBaselineAvailable;
+  DateTime _viralLoadBaselineDate;
   TextEditingController _artNumberCtr = TextEditingController();
   TextEditingController _stickerNumberCtr = TextEditingController();
   TextEditingController _villageCtr = TextEditingController();
   TextEditingController _districtCtr = TextEditingController();
   TextEditingController _phoneNumberCtr = TextEditingController();
   TextEditingController _noConsentReasonOtherCtr = TextEditingController();
+
+  // this field is used to display an error when the form is validated and if
+  // the viral load baseline date is not selected
+  bool _viralLoadBaselineDateValid = true;
 
   _NewOrEditPatientFormState(this._existingPatient) {
     _editModeOn = _existingPatient != null;
@@ -249,6 +254,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
             child: Column(
               children: [
                 _viralLoadBaselineAvailableQuestion(),
+                _viralLoadBaselineDateQuestion(),
               ],
             ),
           ),
@@ -522,13 +528,13 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   Widget _viralLoadBaselineAvailableQuestion() {
     return _makeQuestion('Is there any viral load within the last 12 months available (laboratory report, bukana, patient file)?',
       child: DropdownButtonFormField<bool>(
-        value: _baselineViralLoadAvailable,
+        value: _viralLoadBaselineAvailable,
         onChanged: (bool newValue) {
           if (!newValue) {
             _showDialog('No Viral Load Available', 'Send the participant to the nurse for blood draw today!');
           }
           setState(() {
-            _baselineViralLoadAvailable = newValue;
+            _viralLoadBaselineAvailable = newValue;
           });
         },
         validator: (value) {
@@ -541,6 +547,52 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
             child: Text(description),
           );
         }).toList(),
+      ),
+    );
+  }
+
+  Widget _viralLoadBaselineDateQuestion() {
+    if (_viralLoadBaselineAvailable == null || !_viralLoadBaselineAvailable) {
+      return Container();
+    }
+    return _makeQuestion('Date of most recent viral load (put the date when blood was taken)',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FlatButton(
+            padding: EdgeInsets.all(0.0),
+            child: SizedBox(
+              width: double.infinity,
+              child: Text(
+                _viralLoadBaselineDate == null ? 'Select Date' : formatDateConsistent(_viralLoadBaselineDate),
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+            ),
+            onPressed: () async {
+              DateTime date = await _showDatePicker(context, 'Viral Load Baseline Date', initialDate: _viralLoadBaselineDate);
+              if (date != null) {
+                setState(() {
+                  _viralLoadBaselineDate = date;
+                });
+              }
+            },
+          ),
+          Divider(color: Colors.black87, height: 1.0,),
+          _viralLoadBaselineDateValid ? Container() : Padding(
+            padding: const EdgeInsets.only(top: 5.0),
+            child: Text(
+              'Please select a date',
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 12.0,
+              ),
+            ),
+          ),
+        ]
       ),
     );
   }
@@ -566,10 +618,26 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
       );
   }
 
+  bool _validateViralLoadBaselineDate() {
+    // if the viral load baseline date is not selected when it should be show
+    // the error message under the viral load baseline date field and return
+    // false.
+    if (_eligible && _consentGiven != null && _consentGiven && _viralLoadBaselineAvailable != null && _viralLoadBaselineAvailable && _viralLoadBaselineDate == null) {
+      setState(() {
+        _viralLoadBaselineDateValid = false;
+      });
+      return false;
+    }
+    setState(() {
+      _viralLoadBaselineDateValid = true;
+    });
+    return true;
+  }
+
   _onSubmitForm() async {
     Patient newPatient;
     // Validate will return true if the form is valid, or false if the form is invalid.
-    if (_formKey.currentState.validate()) {
+    if (_formKey.currentState.validate() & _validateViralLoadBaselineDate()) {
       if (_editModeOn) { // editing an existing patient
         newPatient = _existingPatient;
         newPatient.village = _villageCtr.text;
@@ -655,6 +723,41 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
         );
       },
     );
+  }
+
+  Future<DateTime> _showDatePicker(BuildContext context, String title, {DateTime initialDate}) async {
+    DateTime now = DateTime.now();
+    return showDatePicker(
+      context: context,
+      initialDate: initialDate ?? now,
+      firstDate: DateTime(now.year - 1, now.month, now.day),
+      lastDate: DateTime.now(),
+      builder: (BuildContext context, Widget widget) {
+        return Center(
+          child: Card(
+            color: Color.fromARGB(255, 224, 224, 224),
+            child: Container(
+              width: 400,
+              height: 620,
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 24.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    widget,
+                  ]
+              ),
+            ),
+          ),
+        );
+      });
   }
 
 }
