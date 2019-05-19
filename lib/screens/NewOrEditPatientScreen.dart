@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pebrapp/components/SizedButton.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
@@ -89,12 +90,14 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   NoConsentReason _noConsentReason;
   bool _viralLoadBaselineAvailable;
   DateTime _viralLoadBaselineDate;
+  bool _viralLoadBaselineLowerThanDetectable;
   TextEditingController _artNumberCtr = TextEditingController();
   TextEditingController _stickerNumberCtr = TextEditingController();
   TextEditingController _villageCtr = TextEditingController();
   TextEditingController _districtCtr = TextEditingController();
   TextEditingController _phoneNumberCtr = TextEditingController();
   TextEditingController _noConsentReasonOtherCtr = TextEditingController();
+  TextEditingController _viralLoadBaselineResultCtr = TextEditingController();
 
   // this field is used to display an error when the form is validated and if
   // the viral load baseline date is not selected
@@ -255,6 +258,8 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
               children: [
                 _viralLoadBaselineAvailableQuestion(),
                 _viralLoadBaselineDateQuestion(),
+                _viralLoadBaselineLowerThanDetectableQuestion(),
+                _viralLoadBaselineResultQuestion(),
               ],
             ),
           ),
@@ -593,6 +598,53 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
             ),
           ),
         ]
+      ),
+    );
+  }
+
+  Widget _viralLoadBaselineLowerThanDetectableQuestion() {
+    if (_viralLoadBaselineAvailable == null || !_viralLoadBaselineAvailable) {
+      return Container();
+    }
+    return _makeQuestion('Was the viral load baseline result lower than detectable limit (<20 copies/mL)?',
+      child: DropdownButtonFormField<bool>(
+        value: _viralLoadBaselineLowerThanDetectable,
+        onChanged: (bool newValue) {
+          setState(() {
+            _viralLoadBaselineLowerThanDetectable = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) { return 'Please answer this question.'; }
+        },
+        items: [true, false].map<DropdownMenuItem<bool>>((bool value) {
+          String description = value ? 'Yes' : 'No';
+          return DropdownMenuItem<bool>(
+            value: value,
+            child: Text(description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _viralLoadBaselineResultQuestion() {
+    if (_viralLoadBaselineAvailable == null || !_viralLoadBaselineAvailable || _viralLoadBaselineLowerThanDetectable == null || _viralLoadBaselineLowerThanDetectable) {
+      return Container();
+    }
+    return _makeQuestion('What was the result of the viral load baseline (in c/mL)',
+      child: TextFormField(
+        inputFormatters: [
+          WhitelistingTextInputFormatter(RegExp('[0-9]')),
+//          LengthLimitingTextInputFormatter(5),
+        ],
+        keyboardType: TextInputType.numberWithOptions(),
+        controller: _viralLoadBaselineResultCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter the viral load baseline result';
+          }
+        },
       ),
     );
   }
