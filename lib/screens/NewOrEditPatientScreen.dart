@@ -86,6 +86,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   TextEditingController _villageCtr = TextEditingController();
   TextEditingController _districtCtr = TextEditingController();
   TextEditingController _phoneNumberCtr = TextEditingController();
+  TextEditingController _noConsentReasonOtherCtr = TextEditingController();
 
   _NewOrEditPatientFormState(this._existingPatient) {
     _editModeOn = _existingPatient != null;
@@ -311,6 +312,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
               children: [
                 _consentGivenQuestion(),
                 _noConsentReasonQuestion(),
+                _noConsentReasonOtherQuestion(),
               ],
             ),
           ),
@@ -366,6 +368,22 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
             child: Text(value.description),
           );
         }).toList(),
+      ),
+    );
+  }
+
+  Widget _noConsentReasonOtherQuestion() {
+    if (_editModeOn || _consentGiven == null || _consentGiven || _noConsentReason == null || _noConsentReason != NoConsentReason.OTHER()) {
+      return Container();
+    }
+    return _makeQuestion('Other, specify',
+      child: TextFormField(
+        controller: _noConsentReasonOtherCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please specify the reasons';
+          }
+        },
       ),
     );
   }
