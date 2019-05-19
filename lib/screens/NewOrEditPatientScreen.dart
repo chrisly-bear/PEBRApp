@@ -168,6 +168,22 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
     );
   }
 
+  Widget _makeQuestion(String question, {@required Widget child}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          flex: _questionsFlex,
+          child: Text(question),
+        ),
+        Expanded(
+          flex: _answersFlex,
+          child: child,
+        ),
+      ],
+    );
+  }
+
   Widget _personalInformationCard() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,31 +211,21 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
     if (_editModeOn) {
       return Container();
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            Text('ART Number')),
-        Expanded(
-          flex: _answersFlex,
-          child: TextFormField(
-            enabled: !_editModeOn,
-            controller: _artNumberCtr,
-            validator: (value) {
-              if (_editModeOn) {
-                return null;
-              }
-              if (value.isEmpty) {
-                return 'Please enter an ART number';
-              } else if (_artNumberExists(value)) {
-                return 'This ART number exists already in the database';
-              }
-            },
-          ),
-        )
-      ],
+    return _makeQuestion('ART Number',
+      child: TextFormField(
+        enabled: !_editModeOn,
+        controller: _artNumberCtr,
+        validator: (value) {
+          if (_editModeOn) {
+            return null;
+          }
+          if (value.isEmpty) {
+            return 'Please enter an ART number';
+          } else if (_artNumberExists(value)) {
+            return 'This ART number exists already in the database';
+          }
+        },
+      ),
     );
   }
 
@@ -227,40 +233,30 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
     if (_editModeOn) {
       return Container();
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            Text('Year of Birth')),
-        Expanded(
-          flex: _answersFlex,
-          child: DropdownButtonFormField<int>(
-            value: _birthYear,
-            onChanged: (int newValue) {
-              setState(() {
-                _birthYear = newValue;
-              });
-            },
-            validator: (value) {
-              if (value == null) { return 'Please select a year of birth.'; }
-            },
-            items: birthYearOptions.map<DropdownMenuItem<int>>((int value) {
-              String description = value.toString();
-              return DropdownMenuItem<int>(
-                value: value,
-                child: Text(
-                  description,
-                  style: TextStyle(
-                    color: value <= maxYearForEligibility && value >= minYearForEligibility ? Colors.black : Colors.grey,
-                  ),
+    return _makeQuestion('Year of Birth',
+        child: DropdownButtonFormField<int>(
+          value: _birthYear,
+          onChanged: (int newValue) {
+            setState(() {
+              _birthYear = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) { return 'Please select a year of birth.'; }
+          },
+          items: birthYearOptions.map<DropdownMenuItem<int>>((int value) {
+            String description = value.toString();
+            return DropdownMenuItem<int>(
+              value: value,
+              child: Text(
+                description,
+                style: TextStyle(
+                  color: value <= maxYearForEligibility && value >= minYearForEligibility ? Colors.black : Colors.grey,
                 ),
-              );
-            }).toList(),
-          ),
-        )
-      ],
+              ),
+            );
+          }).toList(),
+        ),
     );
   }
 
@@ -270,51 +266,32 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
     if (!_editModeOn && (!_eligible || _consentGiven == null || !_consentGiven)) {
       return Container();
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            Text('Village')),
-        Expanded(
-          flex: _answersFlex,
-          child: TextFormField(
-            controller: _villageCtr,
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter a village';
-              }
-            },
-          ),
-        )
-      ],
-    );
+    return _makeQuestion(
+      'Village',
+      child: TextFormField(
+          controller: _villageCtr,
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please enter a village';
+            }
+          },
+        ),
+      );
   }
 
   Widget _phoneNumberQuestion() {
     if (!_editModeOn && (!_eligible || _consentGiven == null || !_consentGiven)) {
       return Container();
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            Text('Phone Number')),
-        Expanded(
-          flex: _answersFlex,
-          child: TextFormField(
-            controller: _phoneNumberCtr,
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter a phone number';
-              }
-            },
-          ),
+    return _makeQuestion('Phone Number',
+        child: TextFormField(
+          controller: _phoneNumberCtr,
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please enter a phone number';
+            }
+          },
         ),
-      ],
     );
   }
 
@@ -346,35 +323,25 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
     if (_editModeOn) {
       return Container();
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            Text('Has the patient signed the consent form?')),
-        Expanded(
-          flex: _answersFlex,
-          child: DropdownButtonFormField<bool>(
-            value: _consentGiven,
-            onChanged: (bool newValue) {
-              setState(() {
-                _consentGiven = newValue;
-              });
-            },
-            validator: (value) {
-              if (value == null) { return 'Please answer this question.'; }
-            },
-            items: [true, false].map<DropdownMenuItem<bool>>((bool value) {
-              String description = value ? 'Yes' : 'No';
-              return DropdownMenuItem<bool>(
-                value: value,
-                child: Text(description),
-              );
-            }).toList(),
-          ),
-        ),
-      ],
+    return _makeQuestion('Has the patient signed the consent form?',
+      child: DropdownButtonFormField<bool>(
+        value: _consentGiven,
+        onChanged: (bool newValue) {
+          setState(() {
+            _consentGiven = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) { return 'Please answer this question.'; }
+        },
+        items: [true, false].map<DropdownMenuItem<bool>>((bool value) {
+          String description = value ? 'Yes' : 'No';
+          return DropdownMenuItem<bool>(
+            value: value,
+            child: Text(description),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -382,34 +349,24 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
     if (_editModeOn || _consentGiven == null || _consentGiven) {
       return Container();
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            Text('Reason for refusal')),
-        Expanded(
-          flex: _answersFlex,
-          child: DropdownButtonFormField<NoConsentReason>(
-            value: _noConsentReason,
-            onChanged: (NoConsentReason newValue) {
-              setState(() {
-                _noConsentReason = newValue;
-              });
-            },
-            validator: (value) {
-              if (value == null) { return 'Please answer this question.'; }
-            },
-            items: NoConsentReason.allValues.map<DropdownMenuItem<NoConsentReason>>((NoConsentReason value) {
-              return DropdownMenuItem<NoConsentReason>(
-                value: value,
-                child: Text(value.description),
-              );
-            }).toList(),
-          ),
-        ),
-      ],
+    return _makeQuestion('Reason for refusal',
+      child: DropdownButtonFormField<NoConsentReason>(
+        value: _noConsentReason,
+        onChanged: (NoConsentReason newValue) {
+          setState(() {
+            _noConsentReason = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) { return 'Please answer this question.'; }
+        },
+        items: NoConsentReason.allValues.map<DropdownMenuItem<NoConsentReason>>((NoConsentReason value) {
+          return DropdownMenuItem<NoConsentReason>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -437,35 +394,25 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   }
 
   Widget _baselineViralLoadAvailableQuestion() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            Text('Any VL within last 12 months available (laboratory report, bukana, patient file)?')),
-        Expanded(
-          flex: _answersFlex,
-          child: DropdownButtonFormField<bool>(
-            value: _baselineViralLoadAvailable,
-            onChanged: (bool newValue) {
-              setState(() {
-                _baselineViralLoadAvailable = newValue;
-              });
-            },
-            validator: (value) {
-              if (value == null) { return 'Please answer this question.'; }
-            },
-            items: [true, false].map<DropdownMenuItem<bool>>((bool value) {
-              String description = value ? 'Yes' : 'No';
-              return DropdownMenuItem<bool>(
-                value: value,
-                child: Text(description),
-              );
-            }).toList(),
-          ),
-        ),
-      ],
+    return _makeQuestion('Any VL within last 12 months available (laboratory report, bukana, patient file)?',
+      child: DropdownButtonFormField<bool>(
+        value: _baselineViralLoadAvailable,
+        onChanged: (bool newValue) {
+          setState(() {
+            _baselineViralLoadAvailable = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) { return 'Please answer this question.'; }
+        },
+        items: [true, false].map<DropdownMenuItem<bool>>((bool value) {
+          String description = value ? 'Yes' : 'No';
+          return DropdownMenuItem<bool>(
+            value: value,
+            child: Text(description),
+          );
+        }).toList(),
+      ),
     );
   }
 
