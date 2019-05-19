@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
+import 'package:pebrapp/database/beans/SexualOrientation.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
@@ -81,6 +82,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   bool _patientIsActivated = false;
   int _birthYear;
   Gender _gender;
+  SexualOrientation _sexualOrientation;
   bool _consentGiven;
   NoConsentReason _noConsentReason;
   bool _baselineViralLoadAvailable;
@@ -191,6 +193,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
                 _artNumberQuestion(),
                 _yearOfBirthQuestion(),
                 _genderQuestion(),
+                _sexualOrientationQuestion(),
                 _villageQuestion(),
                 _phoneNumberQuestion(),
               ],
@@ -326,6 +329,34 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
         },
         items: Gender.allValues.map<DropdownMenuItem<Gender>>((Gender value) {
           return DropdownMenuItem<Gender>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _sexualOrientationQuestion() {
+    // always show field in edit mode -> !editModeOn
+    // only show field if eligible -> !_eligible
+    if (!_editModeOn && (!_eligible || _consentGiven == null || !_consentGiven)) {
+      return Container();
+    }
+    return _makeQuestion(
+      'Sexual Orientation',
+      child: DropdownButtonFormField<SexualOrientation>(
+        value: _sexualOrientation,
+        onChanged: (SexualOrientation newValue) {
+          setState(() {
+            _sexualOrientation = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) { return 'Please answer this question.'; }
+        },
+        items: SexualOrientation.allValues.map<DropdownMenuItem<SexualOrientation>>((SexualOrientation value) {
+          return DropdownMenuItem<SexualOrientation>(
             value: value,
             child: Text(value.description),
           );
