@@ -98,6 +98,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   TextEditingController _phoneNumberCtr = TextEditingController();
   TextEditingController _noConsentReasonOtherCtr = TextEditingController();
   TextEditingController _viralLoadBaselineResultCtr = TextEditingController();
+  TextEditingController _viralLoadBaselineLabNumberCtr = TextEditingController();
 
   // this field is used to display an error when the form is validated and if
   // the viral load baseline date is not selected
@@ -260,6 +261,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
                 _viralLoadBaselineDateQuestion(),
                 _viralLoadBaselineLowerThanDetectableQuestion(),
                 _viralLoadBaselineResultQuestion(),
+                _viralLoadBaselineLabNumberQuestion(),
               ],
             ),
           ),
@@ -643,6 +645,22 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
         validator: (value) {
           if (value.isEmpty) {
             return 'Please enter the viral load baseline result';
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _viralLoadBaselineLabNumberQuestion() {
+    if (_viralLoadBaselineAvailable == null || !_viralLoadBaselineAvailable) {
+      return Container();
+    }
+    return _makeQuestion('Lab number of the viral load baseline',
+      child: TextFormField(
+        controller: _viralLoadBaselineLabNumberCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter the lab number of the viral load result';
           }
         },
       ),
