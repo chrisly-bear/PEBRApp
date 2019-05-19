@@ -20,7 +20,7 @@ class NoConsentReason {
     _Reason.NO_TIME: 'No time',
     _Reason.NO_INTEREST: 'No interest to participate',
     _Reason.MISTRUST: 'Mistrust',
-    _Reason.OTHER: 'Other reasons',
+    _Reason.OTHER: 'Other...',
   };
 
   _Reason _reason;
