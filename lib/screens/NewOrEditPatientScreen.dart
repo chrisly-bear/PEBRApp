@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
+import 'package:pebrapp/database/beans/PhoneAvailability.dart';
 import 'package:pebrapp/database/beans/SexualOrientation.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
@@ -83,10 +84,12 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   int _birthYear;
   Gender _gender;
   SexualOrientation _sexualOrientation;
+  PhoneAvailability _phoneAvailable;
   bool _consentGiven;
   NoConsentReason _noConsentReason;
   bool _baselineViralLoadAvailable;
   TextEditingController _artNumberCtr = TextEditingController();
+  TextEditingController _stickerNumberCtr = TextEditingController();
   TextEditingController _villageCtr = TextEditingController();
   TextEditingController _districtCtr = TextEditingController();
   TextEditingController _phoneNumberCtr = TextEditingController();
@@ -191,10 +194,12 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
             child: Column(
               children: [
                 _artNumberQuestion(),
+                _stickerNumberQuestion(),
                 _yearOfBirthQuestion(),
                 _genderQuestion(),
                 _sexualOrientationQuestion(),
                 _villageQuestion(),
+                _phoneAvailabilityQuestion(),
                 _phoneNumberQuestion(),
               ],
             ),
@@ -272,6 +277,26 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
             return 'Please enter an ART number';
           } else if (_artNumberExists(value)) {
             return 'This ART number exists already in the database';
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _stickerNumberQuestion() {
+    if (_editModeOn) {
+      return Container();
+    }
+    return _makeQuestion('Sticker Number',
+      child: TextFormField(
+        enabled: !_editModeOn,
+        controller: _stickerNumberCtr,
+        validator: (value) {
+          if (_editModeOn) {
+            return null;
+          }
+          if (value.isEmpty) {
+            return 'Please enter the sticker number';
           }
         },
       ),
@@ -384,8 +409,35 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
       );
   }
 
-  Widget _phoneNumberQuestion() {
+  Widget _phoneAvailabilityQuestion() {
+    // always show field in edit mode -> !editModeOn
+    // only show field if eligible -> !_eligible
     if (!_editModeOn && (!_eligible || _consentGiven == null || !_consentGiven)) {
+      return Container();
+    }
+    return _makeQuestion('Do you have regular access to a phone (with Lesotho number) where you can receive confidential information?',
+      child: DropdownButtonFormField<PhoneAvailability>(
+        value: _phoneAvailable,
+        onChanged: (PhoneAvailability newValue) {
+          setState(() {
+            _phoneAvailable = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) { return 'Please answer this question.'; }
+        },
+        items: PhoneAvailability.allValues.map<DropdownMenuItem<PhoneAvailability>>((PhoneAvailability value) {
+          return DropdownMenuItem<PhoneAvailability>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _phoneNumberQuestion() {
+    if (!_editModeOn && (!_eligible || _consentGiven == null || !_consentGiven || _phoneAvailable == null || _phoneAvailable != PhoneAvailability.YES())) {
       return Container();
     }
     return _makeQuestion('Phone Number',
