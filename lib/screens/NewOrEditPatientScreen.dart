@@ -152,12 +152,14 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
             _consentCard(),
             _baselineViralLoadCard(),
             _eligibilityDisclaimer(),
+            SizedBox(height: 16.0),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               SizedButton(
                 'Save',
                 onPressed: _isLoading ? null : _onSubmitForm,
               ),
             ]),
+            SizedBox(height: 16.0),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               SizedButton(
                 'Open KoBoCollect',
