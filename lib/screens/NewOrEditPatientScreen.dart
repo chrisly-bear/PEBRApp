@@ -5,6 +5,7 @@ import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:pebrapp/database/beans/NoConsentReason.dart';
 
 class NewOrEditPatientScreen extends StatelessWidget {
 
@@ -79,6 +80,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   bool _patientIsActivated = false;
   int _birthYear;
   bool _consentGiven;
+  NoConsentReason _noConsentReason;
   bool _baselineViralLoadAvailable;
   TextEditingController _artNumberCtr = TextEditingController();
   TextEditingController _villageCtr = TextEditingController();
@@ -331,6 +333,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
             child: Column(
               children: [
                 _consentGivenQuestion(),
+                _noConsentReasonQuestion(),
               ],
             ),
           ),
@@ -367,6 +370,41 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
               return DropdownMenuItem<bool>(
                 value: value,
                 child: Text(description),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _noConsentReasonQuestion() {
+    if (_editModeOn || _consentGiven == null || _consentGiven) {
+      return Container();
+    }
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Expanded(
+            flex: _questionsFlex,
+            child:
+            Text('Reason for refusal')),
+        Expanded(
+          flex: _answersFlex,
+          child: DropdownButtonFormField<NoConsentReason>(
+            value: _noConsentReason,
+            onChanged: (NoConsentReason newValue) {
+              setState(() {
+                _noConsentReason = newValue;
+              });
+            },
+            validator: (value) {
+              if (value == null) { return 'Please answer this question.'; }
+            },
+            items: NoConsentReason.allValues.map<DropdownMenuItem<NoConsentReason>>((NoConsentReason value) {
+              return DropdownMenuItem<NoConsentReason>(
+                value: value,
+                child: Text(value.description),
               );
             }).toList(),
           ),
