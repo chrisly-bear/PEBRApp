@@ -157,7 +157,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
           children: [
             _personalInformationCard(),
             _consentCard(),
-            _baselineViralLoadCard(),
+            _viralLoadBaselineCard(),
             _eligibilityDisclaimer(),
             SizedBox(height: 16.0),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -234,21 +234,21 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
     );
   }
 
-  Widget _baselineViralLoadCard() {
+  Widget _viralLoadBaselineCard() {
     if (!_eligible || _consentGiven == null || !_consentGiven) {
       return Container();
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildTitle('Baseline Viral Load'),
+        _buildTitle('Viral Load Baseline'),
         Card(
           margin: EdgeInsets.symmetric(horizontal: 15),
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             child: Column(
               children: [
-                _baselineViralLoadAvailableQuestion(),
+                _viralLoadBaselineAvailableQuestion(),
               ],
             ),
           ),
@@ -519,11 +519,14 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
     );
   }
 
-  Widget _baselineViralLoadAvailableQuestion() {
-    return _makeQuestion('Any VL within last 12 months available (laboratory report, bukana, patient file)?',
+  Widget _viralLoadBaselineAvailableQuestion() {
+    return _makeQuestion('Is there any viral load within the last 12 months available (laboratory report, bukana, patient file)?',
       child: DropdownButtonFormField<bool>(
         value: _baselineViralLoadAvailable,
         onChanged: (bool newValue) {
+          if (!newValue) {
+            _showDialog('No Viral Load Available', 'Send the participant to the nurse for blood draw today!');
+          }
           setState(() {
             _baselineViralLoadAvailable = newValue;
           });
@@ -632,6 +635,26 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
 
   bool _artNumberExists(artNumber) {
     return _artNumbersInDB.contains(artNumber);
+  }
+
+  void _showDialog(String title, String body) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(body),
+          actions: [
+            FlatButton(
+              child: Row(children: [Text('OK', textAlign: TextAlign.center)]),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
 }
