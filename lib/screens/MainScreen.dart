@@ -434,7 +434,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       Widget _getViralLoadIndicator({bool isActivated: true}) {
         Widget viralLoadIcon = _formatPatientRowText('—', isActivated: isActivated);
         ViralLoadBadge viralLoadBadge = ViralLoadBadge(ViralLoad.NA, smallSize: true);
-        Color iconColor = isActivated ? Colors.black : Colors.grey;
+        Color iconColor = isActivated ? null : Colors.grey;
         if (curPatient.viralLoadHistory.length > 0 && curPatient.viralLoadHistory.last.isSuppressed != null && curPatient.viralLoadHistory.last.isSuppressed) {
           viralLoadIcon = _getPaddedIcon('assets/icons/viralload_suppressed.png', color: iconColor);
           viralLoadBadge = ViralLoadBadge(ViralLoad.SUPPRESSED, smallSize: true); // TODO: show greyed out version if isActivated is false
