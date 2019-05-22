@@ -3,7 +3,7 @@ import 'package:pebrapp/components/SizedButton.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/screens/ARTRefillScreen.dart';
-import 'package:pebrapp/screens/NewOrEditPatientScreen.dart';
+import 'package:pebrapp/screens/EditPatientScreen.dart';
 import 'package:pebrapp/screens/PreferenceAssessmentScreen.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
@@ -86,7 +86,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     Navigator.of(_context).push(
       new MaterialPageRoute<Patient>(
         builder: (BuildContext context) {
-          return NewOrEditPatientScreen(existingPatient: patient);
+          return EditPatientScreen(patient);
         },
       ),
     );
@@ -126,18 +126,6 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
                           vertical: _tableRowPaddingVertical),
                       child: Text(_patient.village)),
                 ),
-              ]),
-              TableRow(children: [
-                TableCell(
-                    child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: _tableRowPaddingVertical),
-                        child: Text('District'))),
-                TableCell(
-                    child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: _tableRowPaddingVertical),
-                        child: Text(_patient.district))),
               ]),
               TableRow(children: [
                 TableCell(

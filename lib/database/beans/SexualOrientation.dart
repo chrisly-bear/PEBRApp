@@ -47,6 +47,18 @@ class SexualOrientation {
     _orientation = _SexualOrientation.NOT_SPECIFIED;
   }
 
+  static SexualOrientation fromCode(int code) {
+    if (code == null || !_encoding.containsValue(code)) {
+      return null;
+    }
+    final _SexualOrientation orientation = _encoding.entries.firstWhere((MapEntry<_SexualOrientation, int> entry) {
+      return entry.value == code;
+    }).key;
+    SexualOrientation object = SexualOrientation._();
+    object._orientation = orientation;
+    return object;
+  }
+
   // Public API
   // ----------
 

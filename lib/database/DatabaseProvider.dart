@@ -3,6 +3,7 @@ import 'package:pebrapp/config/SwitchConfig.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/screens/SettingsScreen.dart';
@@ -17,7 +18,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 8;
+  static const int _DB_VERSION = 9;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -59,13 +60,20 @@ class DatabaseProvider {
     await db.execute("""
         CREATE TABLE ${Patient.tableName} (
           ${Patient.colId} INTEGER PRIMARY KEY,
-          ${Patient.colARTNumber} TEXT NOT NULL,
           ${Patient.colCreatedDate} TEXT NOT NULL,
-          ${Patient.colIsActivated} BIT NOT NULL,
-          ${Patient.colIsVLSuppressed} BIT,
+          ${Patient.colARTNumber} TEXT NOT NULL,
+          ${Patient.colStickerNumber} TEXT NOT NULL,
+          ${Patient.colYearOfBirth} TEXT NOT NULL,
+          ${Patient.colIsEligible} BIT NOT NULL,
+          ${Patient.colGender} INTEGER,
+          ${Patient.colSexualOrientation} INTEGER,
           ${Patient.colVillage} TEXT,
-          ${Patient.colDistrict} TEXT,
-          ${Patient.colPhoneNumber} TEXT
+          ${Patient.colPhoneAvailability} INTEGER,
+          ${Patient.colPhoneNumber} TEXT,
+          ${Patient.colConsentGiven} BIT,
+          ${Patient.colNoConsentReason} INTEGER,
+          ${Patient.colNoConsentReasonOther} TEXT,
+          ${Patient.colIsActivated} BIT
         );
         """);
     await db.execute("""
@@ -105,6 +113,18 @@ class DatabaseProvider {
           ${ARTRefill.colOtherClinicLesotho} TEXT,
           ${ARTRefill.colOtherClinicSouthAfrica} TEXT,
           ${ARTRefill.colNotTakingARTReason} TEXT
+        );
+        """);
+    await db.execute("""
+        CREATE TABLE ${ViralLoad.tableName} (
+          ${ViralLoad.colId} INTEGER PRIMARY KEY,
+          ${ViralLoad.colPatientART} TEXT NOT NULL,
+          ${ViralLoad.colCreatedDate} TEXT NOT NULL,
+          ${ViralLoad.colViralLoadType} INTEGER NOT NULL,
+          ${ViralLoad.colDateOfBloodDraw} TEXT NOT NULL,
+          ${ViralLoad.colLabNumber} TEXT NOT NULL,
+          ${ViralLoad.colIsLowerThanDetectable} BIT NOT NULL,
+          ${ViralLoad.colViralLoad} INTEGER
         );
         """);
     // TODO: set colLatestPreferenceAssessment as foreign key to `PreferenceAssessment` table
@@ -258,6 +278,14 @@ class DatabaseProvider {
       await db.execute("DROP TABLE ${ARTRefill.tableName};");
       _onCreate(db, newVersion);
     }
+    if (oldVersion < 9) {
+      print('Upgrading to database version 9...');
+      print('UPGRADE NOT IMPLEMENTED, DATA WILL BE RESET!');
+      await db.execute("DROP TABLE ${Patient.tableName};");
+      await db.execute("DROP TABLE ${PreferenceAssessment.tableName};");
+      await db.execute("DROP TABLE ${ARTRefill.tableName};");
+      _onCreate(db, newVersion);
+    }
   }
 
   FutureOr<void> _onDowngrade(Database db, int oldVersion, int newVersion) async {
@@ -362,11 +390,41 @@ class DatabaseProvider {
     final res = await db.insert(Patient.tableName, newPatient.toMap());
     return res;
   }
+  
+  Future<void> insertViralLoad(ViralLoad viralLoad) async {
+    final Database db = await _databaseInstance;
+    viralLoad.createdDate = DateTime.now().toUtc();
+    final res = await db.insert(ViralLoad.tableName, viralLoad.toMap());
+    return res;
+  }
 
   /// Retrieves a list of all patient ART numbers in the database.
-  Future<List<String>> retrievePatientsART() async {
+  ///
+  /// retrieveNonEligibles: whether patients that are marked as 'not eligible'
+  /// should also be retrieved (default: true).
+  ///
+  /// retrieveNonConsents: whether patients that have not given consent should
+  /// also be retrieved (default: true).
+  Future<List<String>> retrievePatientsART({retrieveNonEligibles: true, retrieveNonConsents: true}) async {
     final Database db = await _databaseInstance;
-    final res = await db.rawQuery("SELECT DISTINCT ${Patient.colARTNumber} FROM ${Patient.tableName}");
+    List<Map<String, dynamic>> res;
+    if (!retrieveNonEligibles && !retrieveNonConsents) {
+      // don't retrieve non-eligible and don't retrieve non-consent patients
+      res = await db.rawQuery(
+          "SELECT DISTINCT ${Patient.colARTNumber} FROM ${Patient.tableName} WHERE ${Patient.colIsEligible}=1 AND ${Patient.colConsentGiven}=1");
+    } else if (!retrieveNonConsents) {
+      // don't retrieve non-consent patients
+      res = await db.rawQuery(
+          "SELECT DISTINCT ${Patient.colARTNumber} FROM ${Patient.tableName} WHERE ${Patient.colConsentGiven}=1");
+    } else if (!retrieveNonEligibles) {
+      // don't retrieve non-eligible patients
+      res = await db.rawQuery(
+          "SELECT DISTINCT ${Patient.colARTNumber} FROM ${Patient.tableName} WHERE ${Patient.colIsEligible}=1");
+    } else {
+      // retrieve all
+      res = await db.rawQuery(
+          "SELECT DISTINCT ${Patient.colARTNumber} FROM ${Patient.tableName}");
+    }
     return res.isNotEmpty ? res.map((entry) => entry[Patient.colARTNumber] as String).toList() : List<String>();
   }
 
@@ -387,6 +445,7 @@ class DatabaseProvider {
     if (res.isNotEmpty) {
       for (Map<String, dynamic> map in res) {
         Patient p = Patient.fromMap(map);
+        await p.initializeViralLoadHistoryField();
         await p.initializePreferenceAssessmentField();
         await p.initializeARTRefillField();
         list.add(p);
@@ -400,6 +459,21 @@ class DatabaseProvider {
     newPreferenceAssessment.createdDate = DateTime.now().toUtc();
     final res = await db.insert(PreferenceAssessment.tableName, newPreferenceAssessment.toMap());
     return res;
+  }
+
+  Future<List<ViralLoad>> retrieveAllViralLoadsForPatient(String patientART) async {
+    final Database db = await _databaseInstance;
+    final List<Map> res = await db.query(
+        ViralLoad.tableName,
+        where: '${ViralLoad.colPatientART} = ?',
+        whereArgs: [patientART],
+        orderBy: ViralLoad.colDateOfBloodDraw,
+    );
+    if (res.length > 0) {
+      print(res.runtimeType);
+      return res.map((Map<dynamic, dynamic> map) => ViralLoad.fromMap(map)).toList();
+    }
+    return [];
   }
 
   Future<PreferenceAssessment> retrieveLatestPreferenceAssessmentForPatient(String patientART) async {
@@ -465,13 +539,15 @@ class DatabaseProvider {
     return res;
   }
 
-  /// Deletes a patient from the Patient table and its corresponding entries from the PreferenceAssessment table.
+  /// Deletes a patient from the Patient table and its corresponding entries from all other tables.
   Future<int> deletePatient(Patient deletePatient) async {
     final Database db = await _databaseInstance;
     final String artNumber = deletePatient.artNumber;
     final int rowsDeletedPatientTable = await db.delete(Patient.tableName, where: '${Patient.colARTNumber} = ?', whereArgs: [artNumber]);
+    final int rowsDeletedViralLoadTable = await db.delete(ViralLoad.tableName, where: '${ViralLoad.colPatientART} = ?', whereArgs: [artNumber]);
     final int rowsDeletedPreferenceAssessmentTable = await db.delete(PreferenceAssessment.tableName, where: '${PreferenceAssessment.colPatientART} = ?', whereArgs: [artNumber]);
-    return rowsDeletedPatientTable + rowsDeletedPreferenceAssessmentTable;
+    final int rowsDeletedARTRefillTable = await db.delete(ARTRefill.tableName, where: '${ARTRefill.colPatientART} = ?', whereArgs: [artNumber]);
+    return rowsDeletedPatientTable + rowsDeletedViralLoadTable + rowsDeletedPreferenceAssessmentTable + rowsDeletedARTRefillTable;
   }
 
 }

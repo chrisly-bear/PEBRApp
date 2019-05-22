@@ -47,6 +47,18 @@ class PhoneAvailability {
     _availability = _PhoneAvailability.NO_NO_RECEIVE;
   }
 
+  static PhoneAvailability fromCode(int code) {
+    if (code == null || !_encoding.containsValue(code)) {
+      return null;
+    }
+    final _PhoneAvailability availability = _encoding.entries.firstWhere((MapEntry<_PhoneAvailability, int> entry) {
+      return entry.value == code;
+    }).key;
+    PhoneAvailability object = PhoneAvailability._();
+    object._availability = availability;
+    return object;
+  }
+
   // Public API
   // ----------
 

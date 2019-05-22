@@ -47,6 +47,18 @@ class NoConsentReason {
     _reason = _Reason.OTHER;
   }
 
+  static NoConsentReason fromCode(int code) {
+    if (code == null || !_encoding.containsValue(code)) {
+      return null;
+    }
+    final _Reason reason = _encoding.entries.firstWhere((MapEntry<_Reason, int> entry) {
+      return entry.value == code;
+    }).key;
+    NoConsentReason object = NoConsentReason._();
+    object._reason = reason;
+    return object;
+  }
+
   // Public API
   // ----------
 

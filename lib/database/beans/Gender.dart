@@ -41,6 +41,18 @@ class Gender {
     _gender = _Gender.TRANSGENDER;
   }
 
+  static Gender fromCode(int code) {
+    if (code == null || !_encoding.containsValue(code)) {
+      return null;
+    }
+    final _Gender gender = _encoding.entries.firstWhere((MapEntry<_Gender, int> entry) {
+      return entry.value == code;
+    }).key;
+    Gender object = Gender._();
+    object._gender = gender;
+    return object;
+  }
+
   // Public API
   // ----------
 

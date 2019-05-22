@@ -10,10 +10,10 @@ import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
 import 'package:pebrapp/screens/DebugScreen.dart';
+import 'package:pebrapp/screens/NewPatientScreen.dart';
 import 'dart:ui';
 
 import 'package:pebrapp/screens/SettingsScreen.dart';
-import 'package:pebrapp/screens/NewOrEditPatientScreen.dart';
 import 'package:pebrapp/screens/PatientScreen.dart';
 import 'package:pebrapp/components/PageHeader.dart';
 import 'package:pebrapp/database/models/Patient.dart';
@@ -81,8 +81,17 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
             this._patients[indexOfExisting] = newPatient;
           } else {
             // add if not exists (new patient was added)
-            this._patients.add(newPatient);
+            if (newPatient.isEligible && newPatient.consentGiven) {
+              this._patients.add(newPatient);
+            }
           }
+        });
+      }
+      if (streamEvent is AppStateViralLoadData) {
+        setState(() {
+          final newViralLoad = streamEvent.viralLoad;
+          Patient changedPatient = this._patients.singleWhere((p) => p.artNumber == newViralLoad.patientART);
+          changedPatient.viralLoadHistory.add(newViralLoad);
         });
       }
       if (streamEvent is AppStatePreferenceAssessmentData) {
@@ -275,7 +284,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     Navigator.of(_context).push(
       new MaterialPageRoute<void>(
         builder: (BuildContext context) {
-          return NewOrEditPatientScreen();
+          return NewPatientScreen();
         },
       ),
     );
@@ -426,11 +435,11 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         Widget viralLoadIcon = _formatPatientRowText('—', isActivated: isActivated);
         ViralLoadBadge viralLoadBadge = ViralLoadBadge(ViralLoad.NA, smallSize: true);
         Color iconColor = isActivated ? Colors.black : Colors.grey;
-        if (curPatient.vlSuppressed != null && curPatient.vlSuppressed) {
+        if (curPatient.viralLoadHistory.length > 0 && curPatient.viralLoadHistory.last.isSuppressed != null && curPatient.viralLoadHistory.last.isSuppressed) {
           viralLoadIcon = _getPaddedIcon('assets/icons/viralload_suppressed.png', color: iconColor);
           viralLoadBadge = ViralLoadBadge(ViralLoad.SUPPRESSED, smallSize: true); // TODO: show greyed out version if isActivated is false
-        } else
-        if (curPatient.vlSuppressed != null && !curPatient.vlSuppressed) {
+        }
+        else if (curPatient.viralLoadHistory.length > 0 && curPatient.viralLoadHistory.last.isSuppressed != null && !curPatient.viralLoadHistory.last.isSuppressed) {
           viralLoadIcon = _getPaddedIcon('assets/icons/viralload_unsuppressed.png', color: iconColor);
           viralLoadBadge = ViralLoadBadge(ViralLoad.UNSUPPRESSED, smallSize: true); // TODO: show greyed out version if isActivated is false
         }
@@ -558,7 +567,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                     ),
                     // Viral Load
                     Expanded(
-                        child: _getViralLoadIndicator(isActivated: curPatient.isActivated),
+                        child: Container(alignment: Alignment.centerLeft, child: _getViralLoadIndicator(isActivated: curPatient.isActivated)),
                     ),
                     // Next Assessment
                     Expanded(child: _formatPatientRowText(nextAssessmentText, isActivated: curPatient.isActivated)),

@@ -20,7 +20,8 @@ class DatabaseExporter {
     // TODO: use column names from codebook
     String csvString = 'sep=;\nART; CREATED; ACTIVATED; SUPPRESSED; VILLAGE; DISTRICT; PHONE\n';
     for (Patient p in patientRows) {
-      csvString += '${p.artNumber}; ${p.createdDate}; ${p.isActivated}; ${p.vlSuppressed}; ${p.village}; ${p.district}; ${p.phoneNumber};\n';
+      // TODO: write all variables
+      csvString += '${p.artNumber}; ${p.createdDate};\n';
     }
 
     // TODO: write CSV for other tables (PreferenceAssessment, ARTRefill, Settings...)

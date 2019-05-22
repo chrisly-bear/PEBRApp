@@ -5,61 +5,49 @@ import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/PhoneAvailability.dart';
 import 'package:pebrapp/database/beans/SexualOrientation.dart';
+import 'package:pebrapp/database/beans/ViralLoadType.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pebrapp/database/beans/NoConsentReason.dart';
 
-class NewOrEditPatientScreen extends StatelessWidget {
-
-  final Patient existingPatient;
-
-  NewOrEditPatientScreen({this.existingPatient});
+class NewPatientScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Color.fromARGB(255, 224, 224, 224),
         appBar: AppBar(
-          title: existingPatient == null ?
-          const Text('New Patient', key: Key('newOrEditPatientTitle'),) :
-          Text('Edit Patient: ${existingPatient.artNumber}', key: Key('newOrEditPatientTitle')),
+          title: const Text('New Patient', key: Key('newOrEditPatientTitle'),),
         ),
         body: Center(
-          child: _NewOrEditPatientScreenBody(existingPatient),
+          child: _NewPatientScreenBody(),
         ));
   }
 }
 
-class _NewOrEditPatientScreenBody extends StatelessWidget {
-
-  final Patient _existingPatient;
-
-  _NewOrEditPatientScreenBody(this._existingPatient);
+class _NewPatientScreenBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      Expanded(child: _NewOrEditPatientForm(_existingPatient)),
+      Expanded(child: _NewPatientForm()),
     ]);
   }
 }
 
 // https://flutter.dev/docs/cookbook/forms/validation
-class _NewOrEditPatientForm extends StatefulWidget {
-
-  final Patient _existingPatient;
-
-  _NewOrEditPatientForm(this._existingPatient);
+class _NewPatientForm extends StatefulWidget {
 
   @override
-  _NewOrEditPatientFormState createState() {
-    return _NewOrEditPatientFormState(_existingPatient);
+  _NewPatientFormState createState() {
+    return _NewPatientFormState();
   }
 }
 
-class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
+class _NewPatientFormState extends State<_NewPatientForm> {
   // Create a global key that will uniquely identify the Form widget and allow
   // us to validate the form
   final _formKey = GlobalKey<FormState>();
@@ -77,24 +65,15 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   static final int maxAgeForEligibility = 30;
   static final int minYearForEligibility = currentYear - maxAgeForEligibility;
   static final int maxYearForEligibility = currentYear - minAgeForEligibility;
-  bool get _eligible => _birthYear != null && _birthYear >= minYearForEligibility && _birthYear <= maxYearForEligibility;
+  bool get _eligible => _newPatient.yearOfBirth != null && _newPatient.yearOfBirth >= minYearForEligibility && _newPatient.yearOfBirth <= maxYearForEligibility;
 
-  final Patient _existingPatient;
-  bool _editModeOn;
-  bool _patientIsActivated = false;
-  int _birthYear;
-  Gender _gender;
-  SexualOrientation _sexualOrientation;
-  PhoneAvailability _phoneAvailable;
-  bool _consentGiven;
-  NoConsentReason _noConsentReason;
+  Patient _newPatient = Patient(isActivated: true);
+  ViralLoad _viralLoadBaseline = ViralLoad(type: ViralLoadType.MANUAL_ENTRY());
+
   bool _viralLoadBaselineAvailable;
-  DateTime _viralLoadBaselineDate;
-  bool _viralLoadBaselineLowerThanDetectable;
   TextEditingController _artNumberCtr = TextEditingController();
   TextEditingController _stickerNumberCtr = TextEditingController();
   TextEditingController _villageCtr = TextEditingController();
-  TextEditingController _districtCtr = TextEditingController();
   TextEditingController _phoneNumberCtr = TextEditingController();
   TextEditingController _noConsentReasonOtherCtr = TextEditingController();
   TextEditingController _viralLoadBaselineResultCtr = TextEditingController();
@@ -104,23 +83,13 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   // the viral load baseline date is not selected
   bool _viralLoadBaselineDateValid = true;
 
-  _NewOrEditPatientFormState(this._existingPatient) {
-    _editModeOn = _existingPatient != null;
-    _patientIsActivated = _existingPatient?.isActivated ?? false;
-    _artNumberCtr.text = _editModeOn ? _existingPatient?.artNumber : null;
-    _villageCtr.text = _editModeOn ? _existingPatient?.village : null;
-    _districtCtr.text = _editModeOn ? _existingPatient?.district : null;
-    _phoneNumberCtr.text = _editModeOn ? _existingPatient?.phoneNumber : null;
-  }
-
   List<String> _artNumbersInDB;
   bool get _isLoading { return _artNumbersInDB == null; }
 
   @override
   initState() {
-    print('~~~ _NewOrEditPatientFormState.initState ~~~');
     super.initState();
-    DatabaseProvider().retrievePatientsART().then((artNumbers) {
+    DatabaseProvider().retrievePatientsART(retrieveNonEligibles: false, retrieveNonConsents: false).then((artNumbers) {
       setState(() {
         _artNumbersInDB = artNumbers;
       });
@@ -128,38 +97,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   }
 
   @override
-  void didUpdateWidget(_NewOrEditPatientForm oldWidget) {
-    print('~~~ _NewOrEditPatientFormState.didUpdateWidget ~~~');
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
-  void reassemble() {
-    print('~~~ _NewOrEditPatientFormState.reassemble ~~~');
-    super.reassemble();
-  }
-
-  @override
-  void didChangeDependencies() {
-    print('~~~ _NewOrEditPatientFormState.didChangeDependencies ~~~');
-    super.didChangeDependencies();
-  }
-
-  @override
-  void deactivate() {
-    print('~~~ _NewOrEditPatientFormState.deactivate ~~~');
-    super.deactivate();
-  }
-
-  @override
-  void dispose() {
-    print('~~~ _NewOrEditPatientFormState.dispose ~~~');
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    print('~~~ _NewOrEditPatientFormState.build ~~~');
     return Form(
       key: _formKey,
       child: ListView(
@@ -224,7 +162,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   }
 
   Widget _consentCard() {
-    if (_editModeOn || !_eligible) {
+    if (!_eligible) {
       return Container();
     }
     return Column(
@@ -249,7 +187,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   }
 
   Widget _viralLoadBaselineCard() {
-    if (!_eligible || _consentGiven == null || !_consentGiven) {
+    if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
       return Container();
     }
     return Column(
@@ -280,17 +218,10 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   // ----------
 
   Widget _artNumberQuestion() {
-    if (_editModeOn) {
-      return Container();
-    }
     return _makeQuestion('ART Number',
       child: TextFormField(
-        enabled: !_editModeOn,
         controller: _artNumberCtr,
         validator: (value) {
-          if (_editModeOn) {
-            return null;
-          }
           if (value.isEmpty) {
             return 'Please enter an ART number';
           } else if (_artNumberExists(value)) {
@@ -302,17 +233,10 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   }
 
   Widget _stickerNumberQuestion() {
-    if (_editModeOn) {
-      return Container();
-    }
     return _makeQuestion('Sticker Number',
       child: TextFormField(
-        enabled: !_editModeOn,
         controller: _stickerNumberCtr,
         validator: (value) {
-          if (_editModeOn) {
-            return null;
-          }
           if (value.isEmpty) {
             return 'Please enter the sticker number';
           }
@@ -322,15 +246,12 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   }
 
   Widget _yearOfBirthQuestion() {
-    if (_editModeOn) {
-      return Container();
-    }
     return _makeQuestion('Year of Birth',
         child: DropdownButtonFormField<int>(
-          value: _birthYear,
+          value: _newPatient.yearOfBirth,
           onChanged: (int newValue) {
             setState(() {
-              _birthYear = newValue;
+              _newPatient.yearOfBirth = newValue;
             });
           },
           validator: (value) {
@@ -353,18 +274,16 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   }
 
   Widget _genderQuestion() {
-    // always show field in edit mode -> !editModeOn
-    // only show field if eligible -> !_eligible
-    if (!_editModeOn && (!_eligible || _consentGiven == null || !_consentGiven)) {
+    if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
       return Container();
     }
     return _makeQuestion(
       'Gender',
       child: DropdownButtonFormField<Gender>(
-        value: _gender,
+        value: _newPatient.gender,
         onChanged: (Gender newValue) {
           setState(() {
-            _gender = newValue;
+            _newPatient.gender = newValue;
           });
         },
         validator: (value) {
@@ -381,18 +300,16 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   }
 
   Widget _sexualOrientationQuestion() {
-    // always show field in edit mode -> !editModeOn
-    // only show field if eligible -> !_eligible
-    if (!_editModeOn && (!_eligible || _consentGiven == null || !_consentGiven)) {
+    if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
       return Container();
     }
     return _makeQuestion(
       'Sexual Orientation',
       child: DropdownButtonFormField<SexualOrientation>(
-        value: _sexualOrientation,
+        value: _newPatient.sexualOrientation,
         onChanged: (SexualOrientation newValue) {
           setState(() {
-            _sexualOrientation = newValue;
+            _newPatient.sexualOrientation = newValue;
           });
         },
         validator: (value) {
@@ -409,9 +326,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   }
 
   Widget _villageQuestion() {
-    // always show field in edit mode -> !editModeOn
-    // only show field if eligible -> !_eligible
-    if (!_editModeOn && (!_eligible || _consentGiven == null || !_consentGiven)) {
+    if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
       return Container();
     }
     return _makeQuestion(
@@ -428,17 +343,15 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   }
 
   Widget _phoneAvailabilityQuestion() {
-    // always show field in edit mode -> !editModeOn
-    // only show field if eligible -> !_eligible
-    if (!_editModeOn && (!_eligible || _consentGiven == null || !_consentGiven)) {
+    if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
       return Container();
     }
     return _makeQuestion('Do you have regular access to a phone (with Lesotho number) where you can receive confidential information?',
       child: DropdownButtonFormField<PhoneAvailability>(
-        value: _phoneAvailable,
+        value: _newPatient.phoneAvailability,
         onChanged: (PhoneAvailability newValue) {
           setState(() {
-            _phoneAvailable = newValue;
+            _newPatient.phoneAvailability = newValue;
           });
         },
         validator: (value) {
@@ -455,7 +368,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   }
 
   Widget _phoneNumberQuestion() {
-    if (!_editModeOn && (!_eligible || _consentGiven == null || !_consentGiven || _phoneAvailable == null || _phoneAvailable != PhoneAvailability.YES())) {
+    if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven || _newPatient.phoneAvailability == null || _newPatient.phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
     return _makeQuestion('Phone Number',
@@ -471,15 +384,12 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   }
 
   Widget _consentGivenQuestion() {
-    if (_editModeOn) {
-      return Container();
-    }
     return _makeQuestion('Has the patient signed the consent form?',
       child: DropdownButtonFormField<bool>(
-        value: _consentGiven,
+        value: _newPatient.consentGiven,
         onChanged: (bool newValue) {
           setState(() {
-            _consentGiven = newValue;
+            _newPatient.consentGiven = newValue;
           });
         },
         validator: (value) {
@@ -497,15 +407,15 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   }
 
   Widget _noConsentReasonQuestion() {
-    if (_editModeOn || _consentGiven == null || _consentGiven) {
+    if (_newPatient.consentGiven == null || _newPatient.consentGiven) {
       return Container();
     }
     return _makeQuestion('Reason for refusal',
       child: DropdownButtonFormField<NoConsentReason>(
-        value: _noConsentReason,
+        value: _newPatient.noConsentReason,
         onChanged: (NoConsentReason newValue) {
           setState(() {
-            _noConsentReason = newValue;
+            _newPatient.noConsentReason = newValue;
           });
         },
         validator: (value) {
@@ -522,7 +432,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   }
 
   Widget _noConsentReasonOtherQuestion() {
-    if (_editModeOn || _consentGiven == null || _consentGiven || _noConsentReason == null || _noConsentReason != NoConsentReason.OTHER()) {
+    if (_newPatient.consentGiven == null || _newPatient.consentGiven || _newPatient.noConsentReason == null || _newPatient.noConsentReason != NoConsentReason.OTHER()) {
       return Container();
     }
     return _makeQuestion('Other, specify',
@@ -576,7 +486,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
             child: SizedBox(
               width: double.infinity,
               child: Text(
-                _viralLoadBaselineDate == null ? 'Select Date' : formatDateConsistent(_viralLoadBaselineDate),
+                _viralLoadBaseline.dateOfBloodDraw == null ? 'Select Date' : formatDateConsistent(_viralLoadBaseline.dateOfBloodDraw),
                 textAlign: TextAlign.left,
                 style: TextStyle(
                   fontSize: 16.0,
@@ -585,10 +495,11 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
               ),
             ),
             onPressed: () async {
-              DateTime date = await _showDatePicker(context, 'Viral Load Baseline Date', initialDate: _viralLoadBaselineDate);
+              final now = DateTime.now();
+              DateTime date = await _showDatePicker(context, 'Viral Load Baseline Date', initialDate: _viralLoadBaseline.dateOfBloodDraw ?? DateTime(now.year, now.month, now.day));
               if (date != null) {
                 setState(() {
-                  _viralLoadBaselineDate = date;
+                  _viralLoadBaseline.dateOfBloodDraw = date;
                 });
               }
             },
@@ -615,10 +526,10 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
     }
     return _makeQuestion('Was the viral load baseline result lower than detectable limit (<20 copies/mL)?',
       child: DropdownButtonFormField<bool>(
-        value: _viralLoadBaselineLowerThanDetectable,
+        value: _viralLoadBaseline.isLowerThanDetectable,
         onChanged: (bool newValue) {
           setState(() {
-            _viralLoadBaselineLowerThanDetectable = newValue;
+            _viralLoadBaseline.isLowerThanDetectable = newValue;
           });
         },
         validator: (value) {
@@ -636,7 +547,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   }
 
   Widget _viralLoadBaselineResultQuestion() {
-    if (_viralLoadBaselineAvailable == null || !_viralLoadBaselineAvailable || _viralLoadBaselineLowerThanDetectable == null || _viralLoadBaselineLowerThanDetectable) {
+    if (_viralLoadBaselineAvailable == null || !_viralLoadBaselineAvailable || _viralLoadBaseline.isLowerThanDetectable == null || _viralLoadBaseline.isLowerThanDetectable) {
       return Container();
     }
     return _makeQuestion('What was the result of the viral load baseline (in c/mL)',
@@ -677,7 +588,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   // ----------
 
   Widget _eligibilityDisclaimer() {
-    if (_birthYear == null || _eligible) {
+    if (_newPatient.yearOfBirth == null || _eligible) {
       return Container();
     }
     return
@@ -697,7 +608,7 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
     // if the viral load baseline date is not selected when it should be show
     // the error message under the viral load baseline date field and return
     // false.
-    if (_eligible && _consentGiven != null && _consentGiven && _viralLoadBaselineAvailable != null && _viralLoadBaselineAvailable && _viralLoadBaselineDate == null) {
+    if (_eligible && _newPatient.consentGiven != null && _newPatient.consentGiven && _viralLoadBaselineAvailable != null && _viralLoadBaselineAvailable && _viralLoadBaseline.dateOfBloodDraw == null) {
       setState(() {
         _viralLoadBaselineDateValid = false;
       });
@@ -710,27 +621,36 @@ class _NewOrEditPatientFormState extends State<_NewOrEditPatientForm> {
   }
 
   _onSubmitForm() async {
-    Patient newPatient;
-    // Validate will return true if the form is valid, or false if the form is invalid.
     if (_formKey.currentState.validate() & _validateViralLoadBaselineDate()) {
-      if (_editModeOn) { // editing an existing patient
-        newPatient = _existingPatient;
-        newPatient.village = _villageCtr.text;
-        newPatient.district = _districtCtr.text;
-        newPatient.phoneNumber = _phoneNumberCtr.text;
-        newPatient.isActivated = _patientIsActivated;
-        print('EDITED PATIENT:\n$newPatient');
-      } else { // creating a new patient
-        newPatient = Patient(_artNumberCtr.text, _districtCtr.text, _phoneNumberCtr.text, _villageCtr.text, _patientIsActivated);
-        print('NEW PATIENT:\n$newPatient');
+
+      // TODO: only fill in the fields that make sense (e.g. if phoneAvailability is NO then don't store the phone number, even if something was entered there)
+      _newPatient.isEligible = _eligible;
+      _newPatient.artNumber = _artNumberCtr.text;
+      _newPatient.stickerNumber = _stickerNumberCtr.text;
+      _newPatient.village = _villageCtr.text;
+      _newPatient.phoneNumber = _phoneNumberCtr.text;
+      _newPatient.noConsentReasonOther = _noConsentReasonOtherCtr.text;
+      _newPatient.village = _villageCtr.text;
+      _newPatient.village = _villageCtr.text;
+      _newPatient.village = _villageCtr.text;
+      if (!_eligible || !_newPatient.consentGiven) {
+        _newPatient.isActivated = null;
       }
-      await PatientBloc.instance.sinkPatientData(newPatient);
+
+      // TODO: only fill in the fields that make sense (e.g. if lowerThanDetectable is true then don't store the viralLoad result, even if something was entered there)
+      if (_viralLoadBaselineAvailable != null && _viralLoadBaselineAvailable) {
+        _viralLoadBaseline.patientART = _artNumberCtr.text;
+        _viralLoadBaseline.viralLoad = _viralLoadBaseline.isLowerThanDetectable ? null : int.parse(_viralLoadBaselineResultCtr.text);
+        _viralLoadBaseline.labNumber = _viralLoadBaselineLabNumberCtr.text;
+        await PatientBloc.instance.sinkViralLoadData(_viralLoadBaseline);
+        _newPatient.viralLoadHistory.add(_viralLoadBaseline);
+      }
+
+      await PatientBloc.instance.sinkPatientData(_newPatient);
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return (route.settings.name == '/patient' || route.settings.name == '/');
       });
-      final String finishNotification = _editModeOn
-          ? 'Changes saved'
-          : 'New patient created successfully';
+      final String finishNotification = 'New patient created successfully';
       showFlushBar(context, finishNotification);
     }
   }
