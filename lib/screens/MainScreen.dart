@@ -6,6 +6,7 @@ import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
@@ -433,15 +434,15 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
       Widget _getViralLoadIndicator({bool isActivated: true}) {
         Widget viralLoadIcon = _formatPatientRowText('—', isActivated: isActivated);
-        ViralLoadBadge viralLoadBadge = ViralLoadBadge(ViralLoad.NA, smallSize: true);
+        Widget viralLoadBadge = _formatPatientRowText('—', isActivated: isActivated);
         Color iconColor = isActivated ? null : Colors.grey;
         if (curPatient.viralLoadHistory.length > 0 && curPatient.viralLoadHistory.last.isSuppressed != null && curPatient.viralLoadHistory.last.isSuppressed) {
           viralLoadIcon = _getPaddedIcon('assets/icons/viralload_suppressed.png', color: iconColor);
-          viralLoadBadge = ViralLoadBadge(ViralLoad.SUPPRESSED, smallSize: true); // TODO: show greyed out version if isActivated is false
+          viralLoadBadge = ViralLoadBadge(curPatient.viralLoadHistory.last, smallSize: true); // TODO: show greyed out version if isActivated is false
         }
         else if (curPatient.viralLoadHistory.length > 0 && curPatient.viralLoadHistory.last.isSuppressed != null && !curPatient.viralLoadHistory.last.isSuppressed) {
           viralLoadIcon = _getPaddedIcon('assets/icons/viralload_unsuppressed.png', color: iconColor);
-          viralLoadBadge = ViralLoadBadge(ViralLoad.UNSUPPRESSED, smallSize: true); // TODO: show greyed out version if isActivated is false
+          viralLoadBadge = ViralLoadBadge(curPatient.viralLoadHistory.last, smallSize: true); // TODO: show greyed out version if isActivated is false
         }
         return viralLoadIcon;
 //        return viralLoadBadge;

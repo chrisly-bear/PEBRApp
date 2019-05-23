@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pebrapp/database/models/ViralLoad.dart';
 
 class ViralLoadBadge extends StatelessWidget {
   final ViralLoad viralLoad;
@@ -10,23 +11,15 @@ class ViralLoadBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     String displayText;
     Color displayColor;
-    switch (viralLoad) {
-      case ViralLoad.SUPPRESSED:
-        displayText = smallSize ? "S" : "SUPPRESSED";
-        displayColor = Color.fromARGB(255, 36, 179, 124);
-        break;
-      case ViralLoad.UNSUPPRESSED:
-        displayText = smallSize ? "U" : "UNSUPPRESSED";
-        displayColor = Color.fromARGB(255, 255, 51, 102);
-        break;
-      case ViralLoad.NA:
-        displayText = "N/A";
-        displayColor = Colors.grey;
-        break;
-      default:
-        displayText = "N/A";
-        displayColor = Colors.grey;
-        break;
+    if (viralLoad.isLowerThanDetectable) {
+      displayText = "N/A";
+      displayColor = Colors.grey;
+    } else if (viralLoad.isSuppressed) {
+      displayText = smallSize ? "S" : "SUPPRESSED";
+      displayColor = Color.fromARGB(255, 36, 179, 124);
+    } else {
+      displayText = smallSize ? "U" : "UNSUPPRESSED";
+      displayColor = Color.fromARGB(255, 255, 51, 102);
     }
     return Card(
       color: displayColor,
@@ -51,5 +44,3 @@ class ViralLoadBadge extends StatelessWidget {
     );
   }
 }
-
-enum ViralLoad { SUPPRESSED, UNSUPPRESSED, NA }
