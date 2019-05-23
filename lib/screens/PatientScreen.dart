@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
+import 'package:pebrapp/database/beans/ViralLoadType.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/screens/ARTRefillScreen.dart';
 import 'package:pebrapp/screens/EditPatientScreen.dart';
 import 'package:pebrapp/screens/PreferenceAssessmentScreen.dart';
@@ -66,6 +68,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [SizedButton('Edit Characteristics', onPressed: () { _pushEditPatientScreen(_patient); })]),
+        _buildViralLoadHistoryCard(),
         _buildTitle('Preferences'),
         _buildPreferencesCard(),
         Center(child: _buildTitle('Next Preference Assessment')),
@@ -137,6 +140,62 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
                 _buildRow('Village', _patient.village),
                 _buildRow('Phone Number', _patient.phoneNumber),
               ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  _buildViralLoadHistoryCard() {
+
+    if (_patient.viralLoadHistory.length == 0) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTitle('Viral Load History'),
+          Card(
+            margin: EdgeInsets.symmetric(horizontal: 15),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              child: Center(
+                child: Text(
+                  "No viral load data available for this patient. Sync with the viral load database or add a new entry manually.",
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    final rows = _patient.viralLoadHistory.map((ViralLoad vl) {
+      Widget description = Text('${formatDateConsistent(vl.dateOfBloodDraw)}');
+      Widget content = Text(vl.isLowerThanDetectable
+          ? 'Lower than detectable limit'
+          : (vl.isSuppressed ? 'suppressed' : 'unsuppressed'));
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 5.0),
+        child: Row(
+          children: <Widget>[
+            Expanded(flex: _descriptionFlex, child: description),
+            Expanded(flex: _contentFlex, child: content),
+          ],
+        ),
+      );
+    }).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTitle('Viral Load History'),
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 15),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: Column(
+              children: rows,
             ),
           ),
         ),
