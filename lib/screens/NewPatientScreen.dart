@@ -623,7 +623,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   _onSubmitForm() async {
     if (_formKey.currentState.validate() & _validateViralLoadBaselineDate()) {
 
-      // TODO: only fill in the fields that make sense (e.g. if phoneAvailability is NO then don't store the phone number, even if something was entered there)
       _newPatient.isEligible = _eligible;
       _newPatient.artNumber = _artNumberCtr.text;
       _newPatient.stickerNumber = _stickerNumberCtr.text;
@@ -633,15 +632,13 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       _newPatient.village = _villageCtr.text;
       _newPatient.village = _villageCtr.text;
       _newPatient.village = _villageCtr.text;
-      if (!_eligible || !_newPatient.consentGiven) {
-        _newPatient.isActivated = null;
-      }
+      _newPatient.checkLogicAndResetUnusedFields();
 
-      // TODO: only fill in the fields that make sense (e.g. if lowerThanDetectable is true then don't store the viralLoad result, even if something was entered there)
-      if (_viralLoadBaselineAvailable != null && _viralLoadBaselineAvailable) {
+      if (_newPatient.isEligible && _newPatient.consentGiven && _viralLoadBaselineAvailable != null && _viralLoadBaselineAvailable) {
         _viralLoadBaseline.patientART = _artNumberCtr.text;
         _viralLoadBaseline.viralLoad = _viralLoadBaseline.isLowerThanDetectable ? null : int.parse(_viralLoadBaselineResultCtr.text);
         _viralLoadBaseline.labNumber = _viralLoadBaselineLabNumberCtr.text;
+        _viralLoadBaseline.checkLogicAndResetUnusedFields();
         await PatientBloc.instance.sinkViralLoadData(_viralLoadBaseline);
         _newPatient.viralLoadHistory.add(_viralLoadBaseline);
       }

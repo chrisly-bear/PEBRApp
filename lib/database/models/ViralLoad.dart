@@ -58,6 +58,14 @@ class ViralLoad {
     return map;
   }
 
+  /// Sets fields to null if they are not used. E.g. sets [viralLoad] to null
+  /// if [isLowerThanDetectable] is true.
+  void checkLogicAndResetUnusedFields() {
+    if (this.isLowerThanDetectable) {
+      this.viralLoad = null;
+    }
+  }
+
   /// Do not set the createdDate manually! The DatabaseProvider sets the date
   /// automatically on inserts into database.
   // ignore: unnecessary_getters_setters

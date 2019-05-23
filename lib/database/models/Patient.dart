@@ -121,6 +121,40 @@ class Patient {
     this.latestARTRefill = artRefill;
   }
 
+  /// Sets fields to null if they are not used. E.g. sets [phoneNumber] to null
+  /// if [phoneAvailability] is not YES.
+  void checkLogicAndResetUnusedFields() {
+    if (!this.isEligible) {
+      this.gender = null;
+      this.sexualOrientation = null;
+      this.village = null;
+      this.phoneAvailability = null;
+      this.phoneNumber = null;
+      this.consentGiven = null;
+      this.noConsentReason = null;
+      this.noConsentReasonOther = null;
+      this.isActivated = null;
+    }
+    if (this.consentGiven != null && !this.consentGiven) {
+      this.gender = null;
+      this.sexualOrientation = null;
+      this.village = null;
+      this.phoneAvailability = null;
+      this.phoneNumber = null;
+      this.isActivated = null;
+      if (this.noConsentReason != NoConsentReason.OTHER()) {
+        this.noConsentReasonOther = null;
+      }
+    }
+    if (this.phoneAvailability != null && this.phoneAvailability != PhoneAvailability.YES()) {
+      this.phoneNumber = null;
+    }
+    if (this.consentGiven != null && this.consentGiven) {
+      this.noConsentReason = null;
+      this.noConsentReasonOther = null;
+    }
+  }
+
   /// Do not set the createdDate manually! The DatabaseProvider sets the date
   /// automatically on inserts into database.
   // ignore: unnecessary_getters_setters
