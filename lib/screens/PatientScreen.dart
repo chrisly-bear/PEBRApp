@@ -34,6 +34,8 @@ class _PatientScreenBody extends StatefulWidget {
 }
 
 class _PatientScreenBodyState extends State<_PatientScreenBody> {
+  final int _descriptionFlex = 1;
+  final int _contentFlex = 1;
   final _tableRowPaddingVertical = 5.0;
   final BuildContext _context;
   Patient _patient;
@@ -60,7 +62,6 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
 
     return ListView(
       children: <Widget>[
-        _buildTitle('Patient Characteristics'),
         _buildPatientCharacteristicsCard(),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -92,6 +93,19 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     );
   }
 
+  Widget _buildRow(String description, String content) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 5.0),
+      child:
+        Row(
+          children: <Widget>[
+            Expanded(flex: _descriptionFlex, child: Text(description)),
+            Expanded(flex: _contentFlex, child: Text(content ?? '—')),
+          ],
+        ),
+    );
+  }
+
   _buildTitle(String title) {
     return Padding(
       padding: EdgeInsets.all(15),
@@ -106,43 +120,27 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   }
 
   _buildPatientCharacteristicsCard() {
-    return Card(
-      margin: EdgeInsets.symmetric(horizontal: 15),
-      child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          child: Table(
-            children: [
-              TableRow(children: [
-                TableCell(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: _tableRowPaddingVertical),
-                    child: Text('Village'),
-                  ),
-                ),
-                TableCell(
-                  child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: _tableRowPaddingVertical),
-                      child: Text(_patient.village)),
-                ),
-              ]),
-              TableRow(children: [
-                TableCell(
-                  child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: _tableRowPaddingVertical),
-                      child: Text('Phone Number')),
-                ),
-                TableCell(
-                  child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: _tableRowPaddingVertical),
-                      child: Text(_patient.phoneNumber)),
-                ),
-              ]),
-            ],
-          )),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTitle('Patient Characterstics'),
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 15),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: Column(
+              children: [
+                _buildRow('Sticker Number', _patient.stickerNumber),
+                _buildRow('Year of Birth', _patient.yearOfBirth.toString()),
+                _buildRow('Gender', _patient.gender.description),
+                _buildRow('Sexual Orientation', _patient.sexualOrientation.description),
+                _buildRow('Village', _patient.village),
+                _buildRow('Phone Number', _patient.phoneNumber),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
