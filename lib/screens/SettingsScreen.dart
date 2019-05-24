@@ -397,8 +397,9 @@ class _LoginBodyState extends State<LoginBody> {
           child: Center(
             child: PEBRAButtonFlat(
               _createAccountMode ? 'Log In' : 'Create Account',
-              onPressed: () =>
-                  {setState(() => _createAccountMode = !_createAccountMode)},
+              onPressed: () {
+                setState(() => _createAccountMode = !_createAccountMode);
+              },
             ),
           ),
         ),
