@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/SizedButton.dart';
+import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/database/beans/ViralLoadType.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
@@ -170,11 +171,38 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       );
     }
 
+    ClipRect _getPaddedIcon(String assetLocation, {Color color}) {
+      return ClipRect(
+        clipBehavior: Clip.antiAlias,
+        child: SizedOverflowBox(
+          size: Size(32.0, 30.0),
+          child: Image(
+            height: 30.0,
+            color: color,
+            image: AssetImage(assetLocation),
+          ),
+        ),
+      );
+    }
+
     final rows = _patient.viralLoadHistory.map((ViralLoad vl) {
       Widget description = Text('${formatDateConsistent(vl.dateOfBloodDraw)}');
-      Widget content = Text(vl.isLowerThanDetectable
-          ? 'Lower than detectable limit'
-          : (vl.isSuppressed ? 'suppressed' : 'unsuppressed'));
+      Widget viralLoadIcon = vl.isLowerThanDetectable
+          ? Text('LTDL')
+          : (vl.isSuppressed
+            ? _getPaddedIcon('assets/icons/viralload_suppressed.png')
+            : _getPaddedIcon('assets/icons/viralload_unsuppressed.png'));
+      Widget viralLoadBadge = ViralLoadBadge(vl, smallSize: false);
+      Widget content = Row(
+        children: <Widget>[
+//          viralLoadIcon,
+          viralLoadBadge,
+          SizedBox(width: 10.0),
+          Text(vl.labNumber),
+          SizedBox(width: 10.0),
+          Text(vl.type == ViralLoadType.MANUAL_ENTRY() ? 'manual' : 'database'),
+        ],
+      );
       return Padding(
         padding: EdgeInsets.symmetric(vertical: 5.0),
         child: Row(

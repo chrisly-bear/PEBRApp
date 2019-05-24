@@ -439,13 +439,14 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         if (curPatient.viralLoadHistory.length > 0 && curPatient.viralLoadHistory.last.isSuppressed != null && curPatient.viralLoadHistory.last.isSuppressed) {
           viralLoadIcon = _getPaddedIcon('assets/icons/viralload_suppressed.png', color: iconColor);
           viralLoadBadge = ViralLoadBadge(curPatient.viralLoadHistory.last, smallSize: true); // TODO: show greyed out version if isActivated is false
-        }
-        else if (curPatient.viralLoadHistory.length > 0 && curPatient.viralLoadHistory.last.isSuppressed != null && !curPatient.viralLoadHistory.last.isSuppressed) {
+        } else if (curPatient.viralLoadHistory.length > 0 && curPatient.viralLoadHistory.last.isSuppressed != null && !curPatient.viralLoadHistory.last.isSuppressed) {
           viralLoadIcon = _getPaddedIcon('assets/icons/viralload_unsuppressed.png', color: iconColor);
           viralLoadBadge = ViralLoadBadge(curPatient.viralLoadHistory.last, smallSize: true); // TODO: show greyed out version if isActivated is false
+        } else if (curPatient.viralLoadHistory.length > 0 && curPatient.viralLoadHistory.last.isLowerThanDetectable) {
+          viralLoadBadge = ViralLoadBadge(curPatient.viralLoadHistory.last, smallSize: true); // TODO: show greyed out version if isActivated is false
         }
-        return viralLoadIcon;
-//        return viralLoadBadge;
+//        return viralLoadIcon;
+        return viralLoadBadge;
       }
 
       String nextRefillText = '—';

@@ -5,14 +5,14 @@ class ViralLoadBadge extends StatelessWidget {
   final ViralLoad viralLoad;
   final bool smallSize;
 
-  const ViralLoadBadge(this.viralLoad, {this.smallSize}) : super();
+  const ViralLoadBadge(this.viralLoad, {this.smallSize = false}) : super();
 
   @override
   Widget build(BuildContext context) {
     String displayText;
     Color displayColor;
     if (viralLoad.isLowerThanDetectable) {
-      displayText = "N/A";
+      displayText = "LTDL";
       displayColor = Colors.grey;
     } else if (viralLoad.isSuppressed) {
       displayText = smallSize ? "S" : "SUPPRESSED";
@@ -25,18 +25,24 @@ class ViralLoadBadge extends StatelessWidget {
       color: displayColor,
       child: Padding(
         padding: EdgeInsets.all(3.0),
-        child: ConstrainedBox(
+        child: Container(
           constraints: BoxConstraints(
-            minWidth: 25,
-            maxWidth: 25,
+            minWidth: 40,
+            maxWidth: smallSize ? 40 : double.infinity,
+            minHeight: 25,
+            maxHeight: 25,
           ),
-          child: Text(
-            displayText.toUpperCase(),
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white,
-//              fontSize: 16.0,
-              fontWeight: FontWeight.w900,
+          child: Center(
+            child: Text(
+              displayText.toUpperCase(),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.white,
+  //              fontSize: 16.0,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
         ),
