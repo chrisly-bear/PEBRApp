@@ -111,7 +111,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         _buildNotificationsCard(),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [SizedButton('Export')]),
+            children: [PEBRAButtonRaised('Export')]),
         _buildTitle('Support'),
         _buildSupportCard(),
 
@@ -119,7 +119,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         Center(child: Text(formatDate(calculateNextAssessment(DateTime.now())))),
         Container(height: 50), // padding at bottom
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          SizedButton(
+          PEBRAButtonRaised(
             'Save',
             onPressed: _onSubmitForm,
           )

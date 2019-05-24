@@ -108,14 +108,14 @@ class _NewPatientFormState extends State<_NewPatientForm> {
             _eligibilityDisclaimer(),
             SizedBox(height: 16.0),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              SizedButton(
+              PEBRAButtonRaised(
                 'Save',
                 onPressed: _isLoading ? null : _onSubmitForm,
               ),
             ]),
             SizedBox(height: 16.0),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              SizedButton(
+              PEBRAButtonRaised(
                 'Open KoBoCollect',
                 onPressed: _openKoBoCollect,
               ),

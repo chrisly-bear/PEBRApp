@@ -81,12 +81,12 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         Center(child: Text(_nextAssessmentText)),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [SizedButton('Start Assessment', onPressed: () { _pushPreferenceAssessmentScreen(_context, _patient.artNumber); })]),
+            children: [PEBRAButtonRaised('Start Assessment', onPressed: () { _pushPreferenceAssessmentScreen(_context, _patient.artNumber); })]),
         Center(child: _buildTitle('Next ART Refill')),
         Center(child: Text(_nextRefillText)),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [SizedButton('Manage Refill', onPressed: () { _pushARTRefillScreen(_context, _patient, _nextRefillText); })]),
+            children: [PEBRAButtonRaised('Manage Refill', onPressed: () { _pushARTRefillScreen(_context, _patient, _nextRefillText); })]),
         Container(height: 50), // padding at bottom
       ],
     );

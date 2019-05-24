@@ -90,7 +90,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
           _buildQuestionCard(),
           SizedBox(height: 50),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            SizedButton(
+            PEBRAButtonRaised(
               'Save',
               onPressed: () { _onSubmitForm(context); },
             )

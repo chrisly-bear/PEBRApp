@@ -51,11 +51,11 @@ class _DebugScreenState extends State<DebugScreen> {
             _isLoading
                 ? Padding(padding: EdgeInsets.symmetric(vertical: 17.5), child: SizedBox(width: 15.0, height: 15.0, child: CircularProgressIndicator()))
                 : SizedBox(height: 50,),
-            SizedButton(
+            PEBRAButtonRaised(
               'Get DB Info',
               onPressed: _getDBInfo,
             ),
-            SizedButton(
+            PEBRAButtonRaised(
               'Get All Patients',
               onPressed: _getAllPatients,
             ),

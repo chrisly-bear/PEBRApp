@@ -60,7 +60,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
         _buildQuestionCard(),
         Container(height: 50), // padding at bottom
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          SizedButton(
+          PEBRAButtonRaised(
             'Save',
             onPressed: _onSubmitForm,
           )

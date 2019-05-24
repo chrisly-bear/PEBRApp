@@ -117,13 +117,13 @@ class _SettingsBodyState extends State<SettingsBody> {
             _isLoading
                 ? Padding(padding: EdgeInsets.symmetric(vertical: 17.5), child: SizedBox(width: 15.0, height: 15.0, child: CircularProgressIndicator()))
                 : SizedBox(height: 50,),
-              SizedButton('Set PIN'),
-              SizedButton('Start Backup', onPressed: _isLoading ? null : () {_onPressBackupButton(context);},),
+              PEBRAButtonRaised('Set PIN'),
+              PEBRAButtonRaised('Start Backup', onPressed: _isLoading ? null : () {_onPressBackupButton(context);},),
               Text("last backup:"),
               Text(lastBackup),
-              SizedButton('Restore', onPressed: _isLoading ? null : () {_onPressRestoreButton(context);},),
-              SizedButton('Logout', onPressed: () {_onPressLogout(context);},),
-              SizedButton('Transfer Tablet', onPressed: () {_onPressTransferTablet(context);},),
+              PEBRAButtonRaised('Restore', onPressed: _isLoading ? null : () {_onPressRestoreButton(context);},),
+              PEBRAButtonRaised('Logout', onPressed: () {_onPressLogout(context);},),
+              PEBRAButtonRaised('Transfer Tablet', onPressed: () {_onPressTransferTablet(context);},),
               Text('Use this option if you want to keep the patient data on the device but change the user or health center.', textAlign: TextAlign.center,),
             ],
           ),
@@ -359,7 +359,7 @@ class _LoginBodyState extends State<LoginBody> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 16.0),
           child: Center(
-            child: SizedButton(
+            child: PEBRAButtonRaised(
               _createAccountMode ? 'Create Account' : 'Login',
               widget: _isLoading
                   ? Container(
@@ -394,7 +394,7 @@ class _LoginBodyState extends State<LoginBody> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 16.0),
           child: Center(
-            child: SizedButton(
+            child: PEBRAButtonRaised(
               _createAccountMode ? 'Log In' : 'Create Account',
               onPressed: () =>
                   {setState(() => _createAccountMode = !_createAccountMode)},

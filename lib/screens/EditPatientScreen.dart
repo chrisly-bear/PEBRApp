@@ -86,7 +86,7 @@ class _EditPatientFormState extends State<_EditPatientForm> {
             _personalInformationCard(),
             SizedBox(height: 16.0),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              SizedButton(
+              PEBRAButtonRaised(
                 'Save',
                 onPressed: _isLoading ? null : _onSubmitForm,
               ),
