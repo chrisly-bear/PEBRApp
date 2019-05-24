@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/SizedButton.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/database/beans/ViralLoadType.dart';
@@ -6,6 +7,7 @@ import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/screens/ARTRefillScreen.dart';
+import 'package:pebrapp/screens/AddViralLoadScreen.dart';
 import 'package:pebrapp/screens/EditPatientScreen.dart';
 import 'package:pebrapp/screens/PreferenceAssessmentScreen.dart';
 import 'package:pebrapp/utils/Utils.dart';
@@ -68,8 +70,11 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         _buildPatientCharacteristicsCard(),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [SizedButton('Edit Characteristics', onPressed: () { _pushEditPatientScreen(_patient); })]),
+            children: [PEBRAButtonFlat('Edit Characteristics', onPressed: () { _pushEditPatientScreen(_patient); })]),
         _buildViralLoadHistoryCard(),
+        Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [PEBRAButtonFlat('add viral load', onPressed: () { _addViralLoadPressed(_context, _patient); })]),
         _buildTitle('Preferences'),
         _buildPreferencesCard(),
         Center(child: _buildTitle('Next Preference Assessment')),
@@ -95,6 +100,27 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         },
       ),
     );
+  }
+
+  void _addViralLoadPressed(BuildContext context, Patient patient) {
+    Navigator.of(context).push(
+      new PageRouteBuilder<void>(
+        opaque: false,
+        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
+          return FadeTransition(
+            opacity: anim1,
+            child: widget, // child is the value returned by pageBuilder
+          );
+        },
+        pageBuilder: (BuildContext context, _, __) {
+          return AddViralLoadScreen(patient);
+        },
+      ),
+    ).then((_) {
+      // calling setState to trigger a re-render of the page and display the new
+      // viral load history
+      setState(() {});
+    });
   }
 
   Widget _buildRow(String description, String content) {
@@ -477,7 +503,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   }
 
   void _pushARTRefillScreen(BuildContext context, Patient patient, String nextRefillDate) {
-    Navigator.of(_context).push(
+    Navigator.of(context).push(
       new PageRouteBuilder<void>(
         opaque: false,
         transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
