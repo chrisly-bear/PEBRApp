@@ -49,7 +49,9 @@ class Patient {
   // access to the latest PreferenceAssessment/ARTRefill.
   // Will be null until the [initializePreferenceAssessmentField]/
   // [initializeARTRefillField] method was called.
-  List<ViralLoad> viralLoadHistory = [];
+  ViralLoad viralLoadBaselineManual;
+  ViralLoad viralLoadBaselineDatabase;
+  List<ViralLoad> viralLoadFollowUps = [];
   PreferenceAssessment latestPreferenceAssessment;
   ARTRefill latestARTRefill;
 
@@ -103,10 +105,12 @@ class Patient {
     return map;
   }
 
-  /// Initializes the field [viralLoadHistory] with the latest data from the database.
-  Future<void> initializeViralLoadHistoryField() async {
-    List<ViralLoad> history = await DatabaseProvider().retrieveAllViralLoadsForPatient(artNumber);
-    this.viralLoadHistory = history;
+  /// Initializes the fields [viralLoadBaselineManual], [viralLoadBaselineDatabase], and
+  /// [viralLoadFollowUps] with the latest data from the database.
+  Future<void> initializeViralLoadFields() async {
+    this.viralLoadFollowUps = await DatabaseProvider().retrieveViralLoadFollowUpsForPatient(artNumber);
+    this.viralLoadBaselineManual = await DatabaseProvider().retrieveViralLoadBaselineManualForPatient(artNumber);
+    this.viralLoadBaselineDatabase = await DatabaseProvider().retrieveViralLoadBaselineDatabaseForPatient(artNumber);
   }
 
   /// Initializes the field [latestPreferenceAssessment] with the latest data from the database.
@@ -119,6 +123,31 @@ class Patient {
   Future<void> initializeARTRefillField() async {
     ARTRefill artRefill = await DatabaseProvider().retrieveLatestARTRefillForPatient(artNumber);
     this.latestARTRefill = artRefill;
+  }
+
+  /// Returns the viral load with the latest blood draw date.
+  ///
+  /// Might return null if no viral loads are available for this patient or the
+  /// viral load fields have not been initialized by calling
+  /// [initializeViralLoadFields].
+  ViralLoad get mostRecentViralLoad {
+    ViralLoad mostRecent;
+    if (this.viralLoadBaselineManual != null) {
+      if (mostRecent == null || !this.viralLoadBaselineManual.dateOfBloodDraw.isBefore(mostRecent.dateOfBloodDraw)) {
+        mostRecent = this.viralLoadBaselineManual;
+      }
+    }
+    if (this.viralLoadBaselineDatabase != null) {
+      if (mostRecent == null || !this.viralLoadBaselineDatabase.dateOfBloodDraw.isBefore(mostRecent.dateOfBloodDraw)) {
+        mostRecent = this.viralLoadBaselineDatabase;
+      }
+    }
+    for (ViralLoad vl in viralLoadFollowUps) {
+      if (mostRecent == null || !vl.dateOfBloodDraw.isBefore(mostRecent.dateOfBloodDraw)) {
+        mostRecent = vl;
+      }
+    }
+    return mostRecent;
   }
 
   /// Sets fields to null if they are not used. E.g. sets [phoneNumber] to null

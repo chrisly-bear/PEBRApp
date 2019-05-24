@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
-import 'package:pebrapp/database/beans/ViralLoadType.dart';
+import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
@@ -176,7 +176,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
 
   _buildViralLoadHistoryCard() {
 
-    if (_patient.viralLoadHistory.length == 0) {
+    if (_patient.mostRecentViralLoad == null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -197,6 +197,18 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       );
     }
 
+    Widget _makeSubtitle(String subtitle) {
+      return Padding(padding: EdgeInsets.only(top: 20, bottom: 10),
+          child:
+          Row(children: [
+            Text(subtitle, style: TextStyle(
+              color: Colors.grey,
+              fontStyle: FontStyle.italic,
+              fontSize: 15.0,
+            ),)
+          ]));
+    }
+
     ClipRect _getPaddedIcon(String assetLocation, {Color color}) {
       return ClipRect(
         clipBehavior: Clip.antiAlias,
@@ -211,7 +223,8 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       );
     }
 
-    final rows = _patient.viralLoadHistory.map((ViralLoad vl) {
+    Widget _buildViralLoadRow(vl) {
+      if (vl == null) { return Column(); }
       Widget description = Text('${formatDateConsistent(vl.dateOfBloodDraw)}');
       Widget viralLoadIcon = vl.isLowerThanDetectable
           ? Text('LTDL')
@@ -226,7 +239,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           SizedBox(width: 10.0),
           Text(vl.labNumber),
           SizedBox(width: 10.0),
-          Text(vl.type == ViralLoadType.MANUAL_ENTRY() ? 'manual' : 'database'),
+          Text(vl.source == ViralLoadSource.MANUAL_INPUT() ? 'manual' : 'database'),
         ],
       );
       return Padding(
@@ -238,6 +251,10 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           ],
         ),
       );
+    }
+
+    final vlFollowUps = _patient.viralLoadFollowUps.map((ViralLoad vl) {
+      return _buildViralLoadRow(vl);
     }).toList();
 
     return Column(
@@ -249,7 +266,13 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             child: Column(
-              children: rows,
+              children: [
+                _makeSubtitle('Baseline Viral Load'),
+                _buildViralLoadRow(_patient.viralLoadBaselineManual),
+                _buildViralLoadRow(_patient.viralLoadBaselineDatabase),
+                _makeSubtitle('Follow Up Viral Loads'),
+                ...vlFollowUps,
+              ],
             ),
           ),
         ),

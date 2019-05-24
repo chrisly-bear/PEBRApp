@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
-import 'package:pebrapp/database/beans/ViralLoadType.dart';
+import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
@@ -77,7 +77,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
 
   // constructor
   _AddViralLoadFormState(Patient patient) {
-    _viralLoad = ViralLoad(patientART: patient.artNumber, type: ViralLoadType.MANUAL_ENTRY());
+    _viralLoad = ViralLoad(patientART: patient.artNumber, source: ViralLoadSource.MANUAL_INPUT(), isBaseline: false);
   }
 
   @override

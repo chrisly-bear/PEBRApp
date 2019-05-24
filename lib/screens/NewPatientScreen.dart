@@ -5,7 +5,7 @@ import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/PhoneAvailability.dart';
 import 'package:pebrapp/database/beans/SexualOrientation.dart';
-import 'package:pebrapp/database/beans/ViralLoadType.dart';
+import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
@@ -68,7 +68,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   bool get _eligible => _newPatient.yearOfBirth != null && _newPatient.yearOfBirth >= minYearForEligibility && _newPatient.yearOfBirth <= maxYearForEligibility;
 
   Patient _newPatient = Patient(isActivated: true);
-  ViralLoad _viralLoadBaseline = ViralLoad(type: ViralLoadType.MANUAL_ENTRY());
+  ViralLoad _viralLoadBaseline = ViralLoad(source: ViralLoadSource.MANUAL_INPUT(), isBaseline: true);
 
   bool _viralLoadBaselineAvailable;
   TextEditingController _artNumberCtr = TextEditingController();
@@ -640,7 +640,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
         _viralLoadBaseline.labNumber = _viralLoadBaselineLabNumberCtr.text;
         _viralLoadBaseline.checkLogicAndResetUnusedFields();
         await PatientBloc.instance.sinkViralLoadData(_viralLoadBaseline);
-        _newPatient.viralLoadHistory.add(_viralLoadBaseline);
+        _newPatient.viralLoadBaselineManual = _viralLoadBaseline;
       }
 
       await PatientBloc.instance.sinkPatientData(_newPatient);

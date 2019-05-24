@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
@@ -92,7 +93,15 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         setState(() {
           final newViralLoad = streamEvent.viralLoad;
           Patient changedPatient = this._patients.singleWhere((p) => p.artNumber == newViralLoad.patientART);
-          changedPatient.viralLoadHistory.add(newViralLoad);
+          if (newViralLoad.isBaseline) {
+            if (newViralLoad.source == ViralLoadSource.DATABASE()) {
+              changedPatient.viralLoadBaselineDatabase = newViralLoad;
+            } else {
+              changedPatient.viralLoadBaselineManual = newViralLoad;
+            }
+          } else {
+            changedPatient.viralLoadFollowUps.add(newViralLoad);
+          }
         });
       }
       if (streamEvent is AppStatePreferenceAssessmentData) {
@@ -436,14 +445,14 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         Widget viralLoadIcon = _formatPatientRowText('—', isActivated: isActivated);
         Widget viralLoadBadge = _formatPatientRowText('—', isActivated: isActivated);
         Color iconColor = isActivated ? null : Colors.grey;
-        if (curPatient.viralLoadHistory.length > 0 && curPatient.viralLoadHistory.last.isSuppressed != null && curPatient.viralLoadHistory.last.isSuppressed) {
+        if (curPatient.mostRecentViralLoad?.isSuppressed != null && curPatient.mostRecentViralLoad.isSuppressed) {
           viralLoadIcon = _getPaddedIcon('assets/icons/viralload_suppressed.png', color: iconColor);
-          viralLoadBadge = ViralLoadBadge(curPatient.viralLoadHistory.last, smallSize: true); // TODO: show greyed out version if isActivated is false
-        } else if (curPatient.viralLoadHistory.length > 0 && curPatient.viralLoadHistory.last.isSuppressed != null && !curPatient.viralLoadHistory.last.isSuppressed) {
+          viralLoadBadge = ViralLoadBadge(curPatient.mostRecentViralLoad, smallSize: true); // TODO: show greyed out version if isActivated is false
+        } else if (curPatient.mostRecentViralLoad?.isSuppressed != null && !curPatient.mostRecentViralLoad.isSuppressed) {
           viralLoadIcon = _getPaddedIcon('assets/icons/viralload_unsuppressed.png', color: iconColor);
-          viralLoadBadge = ViralLoadBadge(curPatient.viralLoadHistory.last, smallSize: true); // TODO: show greyed out version if isActivated is false
-        } else if (curPatient.viralLoadHistory.length > 0 && curPatient.viralLoadHistory.last.isLowerThanDetectable) {
-          viralLoadBadge = ViralLoadBadge(curPatient.viralLoadHistory.last, smallSize: true); // TODO: show greyed out version if isActivated is false
+          viralLoadBadge = ViralLoadBadge(curPatient.mostRecentViralLoad, smallSize: true); // TODO: show greyed out version if isActivated is false
+        } else if (curPatient.mostRecentViralLoad != null && curPatient.mostRecentViralLoad.isLowerThanDetectable) {
+          viralLoadBadge = ViralLoadBadge(curPatient.mostRecentViralLoad, smallSize: true); // TODO: show greyed out version if isActivated is false
         }
 //        return viralLoadIcon;
         return viralLoadBadge;
