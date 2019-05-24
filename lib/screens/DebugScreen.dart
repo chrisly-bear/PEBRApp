@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:pebrapp/components/SizedButton.dart';
+import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/utils/Utils.dart';
