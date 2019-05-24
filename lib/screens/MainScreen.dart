@@ -92,15 +92,17 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       if (streamEvent is AppStateViralLoadData) {
         setState(() {
           final newViralLoad = streamEvent.viralLoad;
-          Patient changedPatient = this._patients.singleWhere((p) => p.artNumber == newViralLoad.patientART);
-          if (newViralLoad.isBaseline) {
-            if (newViralLoad.source == ViralLoadSource.DATABASE()) {
-              changedPatient.viralLoadBaselineDatabase = newViralLoad;
+          Patient changedPatient = this._patients.singleWhere((p) => p.artNumber == newViralLoad.patientART, orElse: () { return null; });
+          if (changedPatient != null) {
+            if (newViralLoad.isBaseline) {
+              if (newViralLoad.source == ViralLoadSource.DATABASE()) {
+                changedPatient.viralLoadBaselineDatabase = newViralLoad;
+              } else {
+                changedPatient.viralLoadBaselineManual = newViralLoad;
+              }
             } else {
-              changedPatient.viralLoadBaselineManual = newViralLoad;
+              changedPatient.viralLoadFollowUps.add(newViralLoad);
             }
-          } else {
-            changedPatient.viralLoadFollowUps.add(newViralLoad);
           }
         });
       }
