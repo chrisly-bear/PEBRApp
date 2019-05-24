@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
@@ -394,7 +395,7 @@ class _LoginBodyState extends State<LoginBody> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 16.0),
           child: Center(
-            child: PEBRAButtonRaised(
+            child: PEBRAButtonFlat(
               _createAccountMode ? 'Log In' : 'Create Account',
               onPressed: () =>
                   {setState(() => _createAccountMode = !_createAccountMode)},
