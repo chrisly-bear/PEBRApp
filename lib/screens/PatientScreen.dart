@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
+import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
@@ -342,23 +343,23 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         return Text('—');
       }
       List<TableRow> supportOptions = List<TableRow>();
-      if (sps.saturdayClinicClubSelected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.saturdayClinicClubDescription));
+      if (sps.SATURDAY_CLINIC_CLUB_selected) {
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.SATURDAY_CLINIC_CLUB_DESCRIPTION));
       }
-      if (sps.communityYouthClubSelected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.communityYouthClubDescription));
+      if (sps.COMMUNITY_YOUTH_CLUB_selected) {
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.COMMUNITY_YOUTH_CLUB_DESCRIPTION));
       }
-      if (sps.phoneCallPESelected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.phoneCallPEDescription));
+      if (sps.PHONE_CALL_PE_selected) {
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.PHONE_CALL_PE_DESCRIPTION));
       }
-      if (sps.homeVisitPESelected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.homeVisitPEDescription));
+      if (sps.HOME_VISIT_PE_selected) {
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.HOME_VISIT_PE_DESCRIPTION));
       }
-      if (sps.schoolTalkPESelected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.schoolTalkPEDescription));
+      if (sps.SCHOOL_VISIT_PE_selected) {
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.SCHOOL_VISIT_PE_DESCRIPTION));
       }
-      if (sps.nurseAtClinicSelected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.nurseAtClinicDescription));
+      if (sps.NURSE_CLINIC_selected) {
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.NURSE_CLINIC_DESCRIPTION));
       }
 
       // TODO: remove this demo option (it is just an idea how to display completed items)

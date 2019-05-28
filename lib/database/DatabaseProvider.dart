@@ -19,7 +19,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 11;
+  static const int _DB_VERSION = 12;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -86,8 +86,15 @@ class DatabaseProvider {
           ${PreferenceAssessment.colARTRefillOption2} INTEGER,
           ${PreferenceAssessment.colARTRefillOption3} INTEGER,
           ${PreferenceAssessment.colARTRefillOption4} INTEGER,
-          ${PreferenceAssessment.colARTRefillPersonName} TEXT,
-          ${PreferenceAssessment.colARTRefillPersonPhoneNumber} TEXT,
+          ${PreferenceAssessment.colARTRefillOption5} INTEGER,
+          ${PreferenceAssessment.colARTRefillPENotPossibleReason} INTEGER,
+          ${PreferenceAssessment.colARTRefillPENotPossibleReasonOther} TEXT,
+          ${PreferenceAssessment.colARTRefillVHWName} TEXT,
+          ${PreferenceAssessment.colARTRefillVHWVillage} TEXT,
+          ${PreferenceAssessment.colARTRefillVHWPhoneNumber} TEXT,
+          ${PreferenceAssessment.colARTRefillTreatmentBuddyART} TEXT,
+          ${PreferenceAssessment.colARTRefillTreatmentBuddyVillage} TEXT,
+          ${PreferenceAssessment.colARTRefillTreatmentBuddyPhoneNumber} TEXT,
           ${PreferenceAssessment.colPhoneAvailable} BIT NOT NULL,
           ${PreferenceAssessment.colPatientPhoneNumber} TEXT,
           ${PreferenceAssessment.colAdherenceReminderEnabled} BIT,
@@ -301,6 +308,12 @@ class DatabaseProvider {
       print('Upgrading to database version 11...');
       print('UPGRADE NOT IMPLEMENTED, ART REFILL DATA WILL BE RESET!');
       await db.execute("DROP TABLE ARTRefill;");
+      _onCreate(db, newVersion);
+    }
+    if (oldVersion < 12) {
+      print('Upgrading to database version 12...');
+      print('UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
+      await db.execute("DROP TABLE PreferenceAssessment;");
       _onCreate(db, newVersion);
     }
   }

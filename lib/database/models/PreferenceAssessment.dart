@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
+import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
+
 class PreferenceAssessment {
   static final tableName = 'PreferenceAssessment';
 
@@ -11,8 +14,15 @@ class PreferenceAssessment {
   static final colARTRefillOption2 = 'art_refill_option_2'; // nullable
   static final colARTRefillOption3 = 'art_refill_option_3'; // nullable
   static final colARTRefillOption4 = 'art_refill_option_4'; // nullable
-  static final colARTRefillPersonName = 'art_refill_person_name'; // nullable
-  static final colARTRefillPersonPhoneNumber = 'art_refill_person_phone_number'; // nullable
+  static final colARTRefillOption5 = 'art_refill_option_5'; // nullable
+  static final colARTRefillPENotPossibleReason = 'art_refill_pe_not_possible_reason'; // nullable
+  static final colARTRefillPENotPossibleReasonOther = 'art_refill_pe_not_possible_reason_other'; // nullable
+  static final colARTRefillVHWName = 'art_refill_vhw_name'; // nullable
+  static final colARTRefillVHWVillage = 'art_refill_vhw_village'; // nullable
+  static final colARTRefillVHWPhoneNumber = 'art_refill_vhw_phone_number'; // nullable
+  static final colARTRefillTreatmentBuddyART = 'art_refill_treatment_buddy_art'; // nullable
+  static final colARTRefillTreatmentBuddyVillage = 'art_refill_treatment_buddy_village'; // nullable
+  static final colARTRefillTreatmentBuddyPhoneNumber = 'art_refill_treatment_buddy_phone_number'; // nullable
   static final colPhoneAvailable = 'phone_available';
   static final colPatientPhoneNumber = 'patient_phone_number'; // nullable
   static final colAdherenceReminderEnabled = 'adherence_reminder_enabled'; // nullable
@@ -33,8 +43,15 @@ class PreferenceAssessment {
   ARTRefillOption artRefillOption2;
   ARTRefillOption artRefillOption3;
   ARTRefillOption artRefillOption4;
-  String artRefillPersonName;
-  String artRefillPersonPhoneNumber;
+  ARTRefillOption artRefillOption5;
+  PEHomeDeliveryNotPossibleReason artRefillPENotPossibleReason;
+  String artRefillPENotPossibleReasonOther;
+  String artRefillVHWName;
+  String artRefillVHWVillage;
+  String artRefillVHWPhoneNumber;
+  String artRefillTreatmentBuddyART;
+  String artRefillTreatmentBuddyVillage;
+  String artRefillTreatmentBuddyPhoneNumber;
   bool phoneAvailable;
   String patientPhoneNumber;
   bool adherenceReminderEnabled;
@@ -59,22 +76,29 @@ class PreferenceAssessment {
       this.phoneAvailable,
       this.supportPreferences,
       {
-        ARTRefillOption artRefillOption2,
-        ARTRefillOption artRefillOption3,
-        ARTRefillOption artRefillOption4,
-        String artRefillPersonName,
-        String artRefillPersonPhoneNumber,
-        String patientPhoneNumber,
-        bool adherenceReminderEnabled,
-        AdherenceReminderFrequency adherenceReminderFrequency,
-        String adherenceReminderTime,
-        String adherenceReminderMessage,
-        bool artRefillReminderEnabled,
-        ARTRefillReminderDaysBeforeSelection artRefillReminderDaysBeforeSelection,
-        bool vlNotificationEnabled,
-        String vlNotificationMessageSuppressed,
-        String vlNotificationMessageUnsuppressed,
-        String pePhoneNumber
+        this.artRefillOption2,
+        this.artRefillOption3,
+        this.artRefillOption4,
+        this.artRefillOption5,
+        this.artRefillPENotPossibleReason,
+        this.artRefillPENotPossibleReasonOther,
+        this.artRefillVHWName,
+        this.artRefillVHWVillage,
+        this.artRefillVHWPhoneNumber,
+        this.artRefillTreatmentBuddyART,
+        this.artRefillTreatmentBuddyVillage,
+        this.artRefillTreatmentBuddyPhoneNumber,
+        this.patientPhoneNumber,
+        this.adherenceReminderEnabled,
+        this.adherenceReminderFrequency,
+        this.adherenceReminderTime,
+        this.adherenceReminderMessage,
+        this.artRefillReminderEnabled,
+        this.artRefillReminderDaysBefore,
+        this.vlNotificationEnabled,
+        this.vlNotificationMessageSuppressed,
+        this.vlNotificationMessageUnsuppressed,
+        this.pePhoneNumber
       });
 
   PreferenceAssessment.uninitialized();
@@ -86,8 +110,15 @@ class PreferenceAssessment {
     this.artRefillOption2 = map[colARTRefillOption2] == null ? null : ARTRefillOption.values[map[colARTRefillOption2]];
     this.artRefillOption3 = map[colARTRefillOption3] == null ? null : ARTRefillOption.values[map[colARTRefillOption3]];
     this.artRefillOption4 = map[colARTRefillOption4] == null ? null : ARTRefillOption.values[map[colARTRefillOption4]];
-    this.artRefillPersonName = map[colARTRefillPersonName];
-    this.artRefillPersonPhoneNumber = map[colARTRefillPersonPhoneNumber];
+    this.artRefillOption5 = map[colARTRefillOption5] == null ? null : ARTRefillOption.values[map[colARTRefillOption5]];
+    this.artRefillPENotPossibleReason = PEHomeDeliveryNotPossibleReason.fromCode(map[colARTRefillPENotPossibleReason]);
+    this.artRefillPENotPossibleReasonOther = map[colARTRefillPENotPossibleReasonOther];
+    this.artRefillVHWName = map[colARTRefillVHWName];
+    this.artRefillVHWVillage = map[colARTRefillVHWVillage];
+    this.artRefillVHWPhoneNumber = map[colARTRefillVHWPhoneNumber];
+    this.artRefillTreatmentBuddyART = map[colARTRefillTreatmentBuddyART];
+    this.artRefillTreatmentBuddyVillage = map[colARTRefillTreatmentBuddyVillage];
+    this.artRefillTreatmentBuddyPhoneNumber = map[colARTRefillTreatmentBuddyPhoneNumber];
     if (map[colPhoneAvailable] != null) {
       this.phoneAvailable = map[colPhoneAvailable] == 1;
     }
@@ -119,8 +150,15 @@ class PreferenceAssessment {
     map[colARTRefillOption2] = artRefillOption2?.index;
     map[colARTRefillOption3] = artRefillOption3?.index;
     map[colARTRefillOption4] = artRefillOption4?.index;
-    map[colARTRefillPersonName] = artRefillPersonName;
-    map[colARTRefillPersonPhoneNumber] = artRefillPersonPhoneNumber;
+    map[colARTRefillOption5] = artRefillOption5?.index;
+    map[colARTRefillPENotPossibleReason] = artRefillPENotPossibleReason?.code;
+    map[colARTRefillPENotPossibleReasonOther] = artRefillPENotPossibleReasonOther;
+    map[colARTRefillVHWName] = artRefillVHWName;
+    map[colARTRefillVHWVillage] = artRefillVHWVillage;
+    map[colARTRefillVHWPhoneNumber] = artRefillVHWPhoneNumber;
+    map[colARTRefillTreatmentBuddyART] = artRefillTreatmentBuddyART;
+    map[colARTRefillTreatmentBuddyVillage] = artRefillTreatmentBuddyVillage;
+    map[colARTRefillTreatmentBuddyPhoneNumber] = artRefillTreatmentBuddyPhoneNumber;
     map[colPhoneAvailable] = phoneAvailable;
     map[colPatientPhoneNumber] = patientPhoneNumber;
     map[colAdherenceReminderEnabled] = adherenceReminderEnabled;
@@ -142,65 +180,6 @@ class PreferenceAssessment {
   set createdDate(DateTime date) => this._createdDate = date;
 
   DateTime get createdDate => this._createdDate;
-
-}
-
-class SupportPreferencesSelection {
-  bool saturdayClinicClubSelected = false;
-  bool communityYouthClubSelected = false;
-  bool phoneCallPESelected = false;
-  bool homeVisitPESelected = false;
-  bool nurseAtClinicSelected = false;
-  bool schoolTalkPESelected = false;
-
-  static String get saturdayClinicClubDescription => "Saturday Clinic Club";
-  static String get communityYouthClubDescription => "Community Youth Club";
-  static String get phoneCallPEDescription => "1x Phone Call from PE";
-  static String get homeVisitPEDescription => "1x Home Visit from PE";
-  static String get nurseAtClinicDescription => "Nurse at the Clinic";
-  static String get schoolTalkPEDescription => "School Talk PE";
-  static String get noneDescription => "None";
-
-  void deselectAll() {
-    saturdayClinicClubSelected = false;
-    communityYouthClubSelected = false;
-    phoneCallPESelected = false;
-    homeVisitPESelected = false;
-    nurseAtClinicSelected = false;
-    schoolTalkPESelected = false;
-  }
-
-  bool get areAllDeselected {
-    return !(saturdayClinicClubSelected ||
-        communityYouthClubSelected ||
-        phoneCallPESelected ||
-        homeVisitPESelected ||
-        nurseAtClinicSelected ||
-        schoolTalkPESelected);
-  }
-
-  String serializeToJSON() {
-    var map = Map<String, bool>();
-    map['saturdayClinicClubSelected'] = saturdayClinicClubSelected;
-    map['communityYouthClubSelected'] = communityYouthClubSelected;
-    map['phoneCallPESelected'] = phoneCallPESelected;
-    map['homeVisitPESelected'] = homeVisitPESelected;
-    map['nurseAtClinicSelected'] = nurseAtClinicSelected;
-    map['schoolTalkPESelected'] = schoolTalkPESelected;
-    return jsonEncode(map);
-  }
-
-  static SupportPreferencesSelection deserializeFromJSON(String json) {
-    final map = jsonDecode(json) as Map<String, dynamic>;
-    var obj = SupportPreferencesSelection();
-    obj.saturdayClinicClubSelected = map['saturdayClinicClubSelected'] ?? false;
-    obj.communityYouthClubSelected = map['communityYouthClubSelected'] ?? false;
-    obj.phoneCallPESelected = map['phoneCallPESelected'] ?? false;
-    obj.homeVisitPESelected = map['homeVisitPESelected'] ?? false;
-    obj.nurseAtClinicSelected = map['nurseAtClinicSelected'] ?? false;
-    obj.schoolTalkPESelected = map['schoolTalkPESelected'] ?? false;
-    return obj;
-  }
 
 }
 

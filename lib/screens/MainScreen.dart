@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
@@ -375,29 +376,29 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       if (sps == null) {
         return _formatPatientRowText('—', isActivated: isActivated);
       }
-      if (sps.homeVisitPESelected) {
+      if (sps.HOME_VISIT_PE_selected) {
 //        icons.add(Icon(Icons.home));
         icons.add(_getPaddedIcon('assets/icons/homevisit_pe_black.png', color: iconColor));
         icons.add(spacer);
       }
-      if (sps.nurseAtClinicSelected) {
+      if (sps.NURSE_CLINIC_selected) {
         icons.add(_getPaddedIcon('assets/icons/nurse_clinic_fett.png', color: iconColor));
         icons.add(spacer);
       }
-      if (sps.saturdayClinicClubSelected) {
+      if (sps.SATURDAY_CLINIC_CLUB_selected) {
         icons.add(_getPaddedIcon('assets/icons/saturday_clinic_club_black.png', color: iconColor));
         icons.add(spacer);
       }
-      if (sps.schoolTalkPESelected) {
+      if (sps.SCHOOL_VISIT_PE_selected) {
 //        icons.add(Icon(Icons.school));
         icons.add(_getPaddedIcon('assets/icons/schooltalk_pe_black.png', color: iconColor));
         icons.add(spacer);
       }
-      if (sps.communityYouthClubSelected) {
+      if (sps.COMMUNITY_YOUTH_CLUB_selected) {
         icons.add(_getPaddedIcon('assets/icons/youth_club_black.png', color: iconColor));
         icons.add(spacer);
       }
-      if (sps.phoneCallPESelected) {
+      if (sps.PHONE_CALL_PE_selected) {
 //        icons.add(Icon(Icons.phone));
         icons.add(_getPaddedIcon('assets/icons/phonecall_pe_black.png', color: iconColor));
         icons.add(spacer);

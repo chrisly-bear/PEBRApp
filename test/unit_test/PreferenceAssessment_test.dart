@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 
 void main() {
@@ -6,28 +7,28 @@ void main() {
 
     test('serialization', () {
       var sps = SupportPreferencesSelection();
-      sps.nurseAtClinicSelected = true;
-      sps.saturdayClinicClubSelected = false;
-      sps.homeVisitPESelected = true;
-      sps.phoneCallPESelected = false;
-      sps.communityYouthClubSelected = true;
-      sps.schoolTalkPESelected = false;
+      sps.NURSE_CLINIC_selected = true;
+      sps.SATURDAY_CLINIC_CLUB_selected = false;
+      sps.HOME_VISIT_PE_selected = true;
+      sps.PHONE_CALL_PE_selected = false;
+      sps.COMMUNITY_YOUTH_CLUB_selected = true;
+      sps.SCHOOL_VISIT_PE_selected = false;
 
       final json = sps.serializeToJSON();
-      final expectedJson = '{"saturdayClinicClubSelected":false,"communityYouthClubSelected":true,"phoneCallPESelected":false,"homeVisitPESelected":true,"nurseAtClinicSelected":true,"schoolTalkPESelected":false}';
+      final expectedJson = '[1,3,5]';
       expect(json, expectedJson);
     });
 
     test('deserialization', () {
-      final json = '{"saturdayClinicClubSelected":false,"communityYouthClubSelected":true,"phoneCallPESelected":false,"homeVisitPESelected":true,"nurseAtClinicSelected":true,"schoolTalkPESelected":false}';
+      final json = '[1,3,5]';
       final sps = SupportPreferencesSelection.deserializeFromJSON(json);
 
-      expect(sps.nurseAtClinicSelected, true);
-      expect(sps.saturdayClinicClubSelected, false);
-      expect(sps.homeVisitPESelected, true);
-      expect(sps.phoneCallPESelected, false);
-      expect(sps.communityYouthClubSelected, true);
-      expect(sps.schoolTalkPESelected, false);
+      expect(sps.NURSE_CLINIC_selected, true);
+      expect(sps.SATURDAY_CLINIC_CLUB_selected, false);
+      expect(sps.HOME_VISIT_PE_selected, true);
+      expect(sps.PHONE_CALL_PE_selected, false);
+      expect(sps.COMMUNITY_YOUTH_CLUB_selected, true);
+      expect(sps.SCHOOL_VISIT_PE_selected, false);
     });
 
   });

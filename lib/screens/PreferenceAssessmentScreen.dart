@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
+import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
@@ -31,7 +32,7 @@ class PreferenceAssessmentForm extends StatefulWidget {
 }
 
 class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
-  
+
   // fields
   final _formKey = GlobalKey<FormState>();
   PreferenceAssessment _pa = PreferenceAssessment.uninitialized();
@@ -1025,11 +1026,11 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             flex: _answersFlex,
             child: CheckboxListTile(
                 // secondary: const Icon(Icons.local_hospital),
-                title: Text(SupportPreferencesSelection.saturdayClinicClubDescription),
+                title: Text(SupportPreferencesSelection.SATURDAY_CLINIC_CLUB_DESCRIPTION),
 //                  dense: true,
-                value: _pa.supportPreferences.saturdayClinicClubSelected,
+                value: _pa.supportPreferences.SATURDAY_CLINIC_CLUB_selected,
                 onChanged: (bool newValue) => this.setState(() {
-                      _pa.supportPreferences.saturdayClinicClubSelected =
+                      _pa.supportPreferences.SATURDAY_CLINIC_CLUB_selected =
                           newValue;
                     })),
           )
@@ -1042,11 +1043,11 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             flex: _answersFlex,
             child: CheckboxListTile(
                 // secondary: const Icon(Icons.local_hospital),
-                title: Text(SupportPreferencesSelection.communityYouthClubDescription),
+                title: Text(SupportPreferencesSelection.COMMUNITY_YOUTH_CLUB_DESCRIPTION),
 //                  dense: true,
-                value: _pa.supportPreferences.communityYouthClubSelected,
+                value: _pa.supportPreferences.COMMUNITY_YOUTH_CLUB_selected,
                 onChanged: (bool newValue) => this.setState(() {
-                      _pa.supportPreferences.communityYouthClubSelected =
+                      _pa.supportPreferences.COMMUNITY_YOUTH_CLUB_selected =
                           newValue;
                     })),
           )
@@ -1059,11 +1060,11 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             flex: _answersFlex,
             child: CheckboxListTile(
                 // secondary: const Icon(Icons.local_hospital),
-                title: Text(SupportPreferencesSelection.phoneCallPEDescription),
+                title: Text(SupportPreferencesSelection.PHONE_CALL_PE_DESCRIPTION),
 //                  dense: true,
-                value: _pa.supportPreferences.phoneCallPESelected,
+                value: _pa.supportPreferences.PHONE_CALL_PE_selected,
                 onChanged: (bool newValue) => this.setState(() {
-                      _pa.supportPreferences.phoneCallPESelected = newValue;
+                      _pa.supportPreferences.PHONE_CALL_PE_selected = newValue;
                     })),
           )
         ],
@@ -1075,11 +1076,11 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             flex: _answersFlex,
             child: CheckboxListTile(
                 // secondary: const Icon(Icons.local_hospital),
-                title: Text(SupportPreferencesSelection.homeVisitPEDescription),
+                title: Text(SupportPreferencesSelection.HOME_VISIT_PE_DESCRIPTION),
 //                  dense: true,
-                value: _pa.supportPreferences.homeVisitPESelected,
+                value: _pa.supportPreferences.HOME_VISIT_PE_selected,
                 onChanged: (bool newValue) => this.setState(() {
-                      _pa.supportPreferences.homeVisitPESelected = newValue;
+                      _pa.supportPreferences.HOME_VISIT_PE_selected = newValue;
                     })),
           )
         ],
@@ -1091,11 +1092,11 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             flex: _answersFlex,
             child: CheckboxListTile(
                 // secondary: const Icon(Icons.local_hospital),
-                title: Text(SupportPreferencesSelection.nurseAtClinicDescription),
+                title: Text(SupportPreferencesSelection.NURSE_CLINIC_DESCRIPTION),
 //                  dense: true,
-                value: _pa.supportPreferences.nurseAtClinicSelected,
+                value: _pa.supportPreferences.NURSE_CLINIC_selected,
                 onChanged: (bool newValue) => this.setState(() {
-                      _pa.supportPreferences.nurseAtClinicSelected = newValue;
+                      _pa.supportPreferences.NURSE_CLINIC_selected = newValue;
                     })),
           )
         ],
@@ -1107,11 +1108,11 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             flex: _answersFlex,
             child: CheckboxListTile(
               // secondary: const Icon(Icons.local_hospital),
-                title: Text(SupportPreferencesSelection.schoolTalkPEDescription),
+                title: Text(SupportPreferencesSelection.SCHOOL_VISIT_PE_DESCRIPTION),
 //                  dense: true,
-                value: _pa.supportPreferences.schoolTalkPESelected,
+                value: _pa.supportPreferences.SCHOOL_VISIT_PE_selected,
                 onChanged: (bool newValue) => this.setState(() {
-                  _pa.supportPreferences.schoolTalkPESelected = newValue;
+                  _pa.supportPreferences.SCHOOL_VISIT_PE_selected = newValue;
                 })),
           )
         ],
@@ -1123,7 +1124,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             flex: _answersFlex,
             child: CheckboxListTile(
                 // secondary: const Icon(Icons.local_hospital),
-                title: Text(SupportPreferencesSelection.noneDescription),
+                title: Text(SupportPreferencesSelection.NONE_DESCRIPTION),
 //                  dense: true,
                 value: _pa.supportPreferences.areAllDeselected,
                 onChanged: (bool newValue) {
