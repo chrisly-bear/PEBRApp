@@ -33,9 +33,9 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   // fields
   final _formKey = GlobalKey<FormState>();
   PreferenceAssessment _pa = PreferenceAssessment.uninitialized();
-  final _artRefillOptionSelections = List<ARTRefillOption>(4);
-  final _artRefillOptionPersonAvailableSelections = List<bool>(3);
-  int _questionsFlex = 3;
+  final _artRefillOptionSelections = List<ARTRefillOption>(5);
+  final _artRefillOptionAvailable = List<bool>(4);
+  int _questionsFlex = 1;
   int _answersFlex = 1;
   var _artRefillOptionPersonNameCtr = TextEditingController();
   var _artRefillOptionPersonPhoneNumberCtr = TextEditingController();
@@ -51,6 +51,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   /// Returns true for VHW, Treatment Buddy, Community Adherence Club selections.
   bool _availabilityRequiredForSelection(int currentOption) {
     final availabilityRequiredOptions = [
+      ARTRefillOption.PE_HOME_DELIVERY,
       ARTRefillOption.VHW,
       ARTRefillOption.TREATMENT_BUDDY,
       ARTRefillOption.COMMUNITY_ADHERENCE_CLUB,
@@ -62,14 +63,14 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     return availabilityRequiredOptions.contains(currentSelection);
   }
 
-  /// Returns true if the previously selected ART Refill Option is one of VHW,
-  /// Treatment Buddy, or Community Adherence Club and that option has been
+  /// Returns true if the previously selected ART Refill Option is one of PE,
+  /// VHW, Treatment Buddy, or Community Adherence Club and that option has been
   /// selected as not available.
   bool _additionalARTRefillOptionRequired(int currentOption) {
     if (currentOption < 1) {
       return true;
     }
-    final previousOptionAvailable = _artRefillOptionPersonAvailableSelections[currentOption - 1];
+    final previousOptionAvailable = _artRefillOptionAvailable[currentOption - 1];
     if (previousOptionAvailable == null) {
       return false;
     }
@@ -92,7 +93,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       ARTRefillOption.COMMUNITY_ADHERENCE_CLUB,
     ];
     final lastSelectionPosition = _artRefillOptionSelections.indexOf(lastSelection);
-    final availabilityForLastSelection = _artRefillOptionPersonAvailableSelections[lastSelectionPosition] ?? false;
+    final availabilityForLastSelection = _artRefillOptionAvailable[lastSelectionPosition] ?? false;
     return (lastSelection != null &&
         namePhoneNumberRequiredSelections.contains(lastSelection) &&
         availabilityForLastSelection
@@ -151,14 +152,14 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             child: Column(
               children: [
                 _artRefillOption(0),
-                _artRefillOptionPersonAvailableRow(0),
+                _artRefillOptionFollowUpQuestions(0),
                 _artRefillOption(1),
-                _artRefillOptionPersonAvailableRow(1),
+                _artRefillOptionFollowUpQuestions(1),
                 _artRefillOption(2),
-                _artRefillOptionPersonAvailableRow(2),
+                _artRefillOptionFollowUpQuestions(2),
                 _artRefillOption(3),
-                _artRefillOptionPersonName(),
-                _artRefillOptionPersonNumber(),
+                _artRefillOptionFollowUpQuestions(3),
+                _artRefillOption(4),
               ],
             )));
   }
@@ -167,6 +168,14 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     if (!_additionalARTRefillOptionRequired(optionNumber)) {
       return Container();
     }
+
+    // remove options depending on previous selections
+    List<ARTRefillOption> remainingOptions = List<ARTRefillOption>();
+    remainingOptions.addAll(ARTRefillOption.values);
+    for (var i = 0; i < optionNumber; i++) {
+      remainingOptions.remove(_artRefillOptionSelections[i]);
+    }
+
     var displayValue = _artRefillOptionSelections[optionNumber];
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -184,12 +193,17 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               onChanged: (ARTRefillOption newValue) {
                 setState(() {
                   _artRefillOptionSelections[optionNumber] = newValue;
+                  // reset any following selections
+                  for (var i = optionNumber + 1; i < _artRefillOptionSelections.length; i++) {
+                    _artRefillOptionSelections[i] = null;
+                    _artRefillOptionAvailable[i-1] = null;
+                  }
                 });
               },
               validator: (value) {
                 if (value == null) { return 'Please answer this question'; }
               },
-              items: ARTRefillOption.values.map<DropdownMenuItem<ARTRefillOption>>((ARTRefillOption value) {
+              items: remainingOptions.map<DropdownMenuItem<ARTRefillOption>>((ARTRefillOption value) {
                 String description = artRefillOptionToString(value);
                 return DropdownMenuItem<ARTRefillOption>(
                   value: value,
@@ -201,24 +215,43 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     );
   }
 
-  Widget _artRefillOptionPersonAvailableRow(int optionNumber) {
+  Widget _artRefillOptionFollowUpQuestions(int optionNumber) {
     if (!_availabilityRequiredForSelection(optionNumber)) {
       return Container();
     }
-    var displayValue = _artRefillOptionPersonAvailableSelections[optionNumber];
+    var displayValue = _artRefillOptionAvailable[optionNumber];
+
+    String question;
+    switch (_artRefillOptionSelections[optionNumber]) {
+      case ARTRefillOption.PE_HOME_DELIVERY:
+        question = "This means, I, the PE, have to deliver the ART. Is this possible for me?";
+        break;
+      case ARTRefillOption.VHW:
+        question = "This means, you want to get your ART at the VHW's home. Is there a VHW available nearby your village where you would pick up ART?";
+        break;
+      case ARTRefillOption.COMMUNITY_ADHERENCE_CLUB:
+        question = "This means you want to get your ART mainly through a CAC. Is there currently a CAC in the participants' community available?";
+        break;
+      case ARTRefillOption.TREATMENT_BUDDY:
+        question = "This means you want to get your ART mainly through a Treatment Buddy. Do you have a Treatment Buddy?";
+        break;
+      default:
+        question = "Is this option available?";
+    }
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Expanded(
             flex: _questionsFlex,
-            child: Text('Is there a VHW available nearby?')),
+            child: Text(question)),
         Expanded(
             flex: _answersFlex,
             child: DropdownButtonFormField<bool>(
               value: displayValue,
               onChanged: (bool newValue) {
                 setState(() {
-                  _artRefillOptionPersonAvailableSelections[optionNumber] = newValue;
+                  _artRefillOptionAvailable[optionNumber] = newValue;
                 });
               },
               validator: (value) {
@@ -951,6 +984,22 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         ],
       ),
     ]);
+  }
+
+  Widget _makeQuestion(String question, {@required Widget child}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          flex: _questionsFlex,
+          child: Text(question),
+        ),
+        Expanded(
+          flex: _answersFlex,
+          child: child,
+        ),
+      ],
+    );
   }
 
   _onSubmitForm() async {

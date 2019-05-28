@@ -39,19 +39,19 @@ String artRefillOptionToString(ARTRefillOption option) {
   String returnString;
   switch (option) {
     case ARTRefillOption.CLINIC:
-      returnString = "Clinic";
+      returnString = "At the clinic";
       break;
     case ARTRefillOption.PE_HOME_DELIVERY:
-      returnString = "Home Delivery PE";
+      returnString = "PE (home delivery)";
       break;
     case ARTRefillOption.VHW:
-      returnString = "VHW";
+      returnString = "VHW (at the VHW's home)";
       break;
     case ARTRefillOption.TREATMENT_BUDDY:
       returnString = "Treatment Buddy";
       break;
     case ARTRefillOption.COMMUNITY_ADHERENCE_CLUB:
-      returnString = "Community Adherence Club";
+      returnString = "CAC (Community Adherence Club)";
       break;
   }
   return returnString;
