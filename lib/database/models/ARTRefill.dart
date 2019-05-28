@@ -9,8 +9,11 @@ class ARTRefill {
   static final colRefillType = 'refill_type';
   static final colNextRefillDate = 'next_refill_date_utc'; // nullable
   static final colNotDoneReason = 'not_done_reason'; // nullable
-  static final colOtherClinicLesotho = 'other_clinic_lesotho'; // nullable
-  static final colOtherClinicSouthAfrica = 'other_clinic_south_africa'; // nullable
+  static final colDateOfDeath = 'date_of_death'; // nullable
+  static final colCauseOfDeath = 'cause_of_death'; // nullable
+  static final colHospitalizedClinic = 'hospitalized_clinic'; // nullable
+  static final colOtherClinic = 'other_clinic'; // nullable
+  static final colTransferDate = 'transfer_date'; // nullable
   static final colNotTakingARTReason = 'not_taking_art_reason'; // nullable
 
   String patientART;
@@ -18,8 +21,11 @@ class ARTRefill {
   RefillType _refillType;
   DateTime nextRefillDate;
   ARTRefillNotDoneReason notDoneReason;
-  String otherClinicLesotho;
-  String otherClinicSouthAfrica;
+  DateTime dateOfDeath;
+  String causeOfDeath;
+  String hospitalizedClinic;
+  String otherClinic;
+  DateTime transferDate;
   String notTakingARTReason;
 
 
@@ -32,8 +38,11 @@ class ARTRefill {
       {
         this.nextRefillDate,
         this.notDoneReason,
-        this.otherClinicLesotho,
-        this.otherClinicSouthAfrica,
+        this.dateOfDeath,
+        this.causeOfDeath,
+        this.hospitalizedClinic,
+        this.otherClinic,
+        this.transferDate,
         this.notTakingARTReason,
       });
 
@@ -45,8 +54,11 @@ class ARTRefill {
     this._refillType = map[colRefillType] == null ? null : RefillType.values[map[colRefillType]];
     this.nextRefillDate = map[colNextRefillDate] == null ? null : DateTime.parse(map[colNextRefillDate]);
     this.notDoneReason = map[colNotDoneReason] == null ? null : ARTRefillNotDoneReason.values[map[colNotDoneReason]];
-    this.otherClinicLesotho = map[colOtherClinicLesotho];
-    this.otherClinicSouthAfrica = map[colOtherClinicSouthAfrica];
+    this.dateOfDeath = map[colDateOfDeath] == null ? null : DateTime.parse(map[colDateOfDeath]);
+    this.causeOfDeath = map[colCauseOfDeath];
+    this.hospitalizedClinic = map[colHospitalizedClinic];
+    this.otherClinic = map[colOtherClinic];
+    this.transferDate = map[colTransferDate] == null ? null : DateTime.parse(map[colTransferDate]);
     this.notTakingARTReason = map[colNotTakingARTReason];
   }
 
@@ -57,8 +69,11 @@ class ARTRefill {
     map[colRefillType] = _refillType.index;
     map[colNextRefillDate] = nextRefillDate?.toIso8601String();
     map[colNotDoneReason] = notDoneReason?.index;
-    map[colOtherClinicLesotho] = otherClinicLesotho;
-    map[colOtherClinicSouthAfrica] = otherClinicSouthAfrica;
+    map[colDateOfDeath] = dateOfDeath?.toIso8601String();
+    map[colCauseOfDeath] = causeOfDeath;
+    map[colHospitalizedClinic] = hospitalizedClinic;
+    map[colOtherClinic] = otherClinic;
+    map[colTransferDate] = transferDate?.toIso8601String();
     map[colNotTakingARTReason] = notTakingARTReason;
     return map;
   }
@@ -76,4 +91,4 @@ class ARTRefill {
 enum RefillType { DONE, NOT_DONE, CHANGE_DATE }
 
 // Do not change the order of the enums as their index is used to store the instance in the database!
-enum ARTRefillNotDoneReason { PATIENT_DIED, PATIENT_HOSPITALIZED, ART_FROM_OTHER_CLINIC_LESOTHO, ART_FROM_OTHER_CLINIC_SA, NOT_TAKING_ART_ANYMORE, STOCK_OUT_OR_FAILED_DELIVERY }
+enum ARTRefillNotDoneReason { PATIENT_DIED, PATIENT_HOSPITALIZED, ART_FROM_OTHER_CLINIC_LESOTHO, ART_FROM_OTHER_CLINIC_SA, NOT_TAKING_ART_ANYMORE, STOCK_OUT_OR_FAILED_DELIVERY, NO_INFORMATION }

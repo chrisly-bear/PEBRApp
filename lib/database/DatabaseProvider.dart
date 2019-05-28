@@ -19,7 +19,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 10;
+  static const int _DB_VERSION = 11;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -111,8 +111,11 @@ class DatabaseProvider {
           ${ARTRefill.colRefillType} INTEGER NOT NULL,
           ${ARTRefill.colNextRefillDate} TEXT,
           ${ARTRefill.colNotDoneReason} INTEGER,
-          ${ARTRefill.colOtherClinicLesotho} TEXT,
-          ${ARTRefill.colOtherClinicSouthAfrica} TEXT,
+          ${ARTRefill.colDateOfDeath} TEXT,
+          ${ARTRefill.colCauseOfDeath} TEXT,
+          ${ARTRefill.colHospitalizedClinic} TEXT,
+          ${ARTRefill.colOtherClinic} TEXT,
+          ${ARTRefill.colTransferDate} TEXT,
           ${ARTRefill.colNotTakingARTReason} TEXT
         );
         """);
@@ -247,8 +250,8 @@ class DatabaseProvider {
     if (oldVersion < 6) {
       print('Upgrading to database version 6...');
       print('UPGRADE NOT IMPLEMENTED, DATA WILL BE RESET!');
-      await db.execute("DROP TABLE ${Patient.tableName};");
-      await db.execute("DROP TABLE ${PreferenceAssessment.tableName};");
+      await db.execute("DROP TABLE Patient;");
+      await db.execute("DROP TABLE PreferenceAssessment;");
       _onCreate(db, newVersion);
     }
     if (oldVersion < 7) {
@@ -275,23 +278,29 @@ class DatabaseProvider {
       // table). For simplicity (and because the app is not released at this
       // point) we just drop all data and create the tables anew.
       print('UPGRADE NOT IMPLEMENTED, DATA WILL BE RESET!');
-      await db.execute("DROP TABLE ${Patient.tableName};");
-      await db.execute("DROP TABLE ${PreferenceAssessment.tableName};");
-      await db.execute("DROP TABLE ${ARTRefill.tableName};");
+      await db.execute("DROP TABLE Patient;");
+      await db.execute("DROP TABLE PreferenceAssessment;");
+      await db.execute("DROP TABLE ARTRefill;");
       _onCreate(db, newVersion);
     }
     if (oldVersion < 9) {
       print('Upgrading to database version 9...');
       print('UPGRADE NOT IMPLEMENTED, DATA WILL BE RESET!');
-      await db.execute("DROP TABLE ${Patient.tableName};");
-      await db.execute("DROP TABLE ${PreferenceAssessment.tableName};");
-      await db.execute("DROP TABLE ${ARTRefill.tableName};");
+      await db.execute("DROP TABLE Patient;");
+      await db.execute("DROP TABLE PreferenceAssessment;");
+      await db.execute("DROP TABLE ARTRefill;");
       _onCreate(db, newVersion);
     }
     if (oldVersion < 10) {
       print('Upgrading to database version 10...');
       print('UPGRADE NOT IMPLEMENTED, VIRAL LOAD DATA WILL BE RESET!');
-      await db.execute("DROP TABLE ${ViralLoad.tableName};");
+      await db.execute("DROP TABLE ViralLoad;");
+      _onCreate(db, newVersion);
+    }
+    if (oldVersion < 11) {
+      print('Upgrading to database version 11...');
+      print('UPGRADE NOT IMPLEMENTED, ART REFILL DATA WILL BE RESET!');
+      await db.execute("DROP TABLE ARTRefill;");
       _onCreate(db, newVersion);
     }
   }
@@ -302,6 +311,7 @@ class DatabaseProvider {
     await db.execute("DROP TABLE IF EXISTS Patient;");
     await db.execute("DROP TABLE IF EXISTS PreferenceAssessment;");
     await db.execute("DROP TABLE IF EXISTS ARTRefill;");
+    await db.execute("DROP TABLE IF EXISTS ViralLoad;");
     _onCreate(db, newVersion);
   }
 
