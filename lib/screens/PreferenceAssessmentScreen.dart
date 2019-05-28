@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
@@ -30,6 +31,7 @@ class PreferenceAssessmentForm extends StatefulWidget {
 }
 
 class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
+  
   // fields
   final _formKey = GlobalKey<FormState>();
   PreferenceAssessment _pa = PreferenceAssessment.uninitialized();
@@ -37,11 +39,19 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   final _artRefillOptionAvailable = List<bool>(4);
   int _questionsFlex = 1;
   int _answersFlex = 1;
-  var _artRefillOptionPersonNameCtr = TextEditingController();
-  var _artRefillOptionPersonPhoneNumberCtr = TextEditingController();
+  var _vhwNameCtr = TextEditingController();
+  var _vhwVillageCtr = TextEditingController();
+  var _vhwPhoneNumberCtr = TextEditingController();
   var _patientPhoneNumberCtr = TextEditingController();
   var _adherenceReminderTimeCtr = TextEditingController();
   var _pePhoneNumberCtr = TextEditingController();
+
+  PEHomeDeliveryNotPossibleReason _peHomeDeliveryNotPossibleReason;
+  var _peHomeDeliverWhyNotPossibleReasonOtherCtr = TextEditingController();
+  var _treatmentBuddyARTNumberCtr = TextEditingController();
+  var _treatmentBuddyVillageCtr = TextEditingController();
+  var _treatmentBuddyPhoneNumberCtr = TextEditingController();
+
 
   // constructor
   _PreferenceAssessmentFormState(String patientART) {
@@ -56,11 +66,13 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       ARTRefillOption.TREATMENT_BUDDY,
       ARTRefillOption.COMMUNITY_ADHERENCE_CLUB,
     ];
+    // not required if current refill option is not selected
     final currentSelection = _artRefillOptionSelections[currentOption];
     if (currentSelection == null) {
       return false;
     }
-    return availabilityRequiredOptions.contains(currentSelection);
+    final bool previousAvailable = currentOption == 0 ? false : (_artRefillOptionAvailable[currentOption - 1] == null ? false : _artRefillOptionAvailable[currentOption - 1]);
+    return (!previousAvailable && availabilityRequiredOptions.contains(currentSelection));
   }
 
   /// Returns true if the previously selected ART Refill Option is one of PE,
@@ -191,14 +203,17 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             child: DropdownButtonFormField<ARTRefillOption>(
               value: displayValue,
               onChanged: (ARTRefillOption newValue) {
-                setState(() {
-                  _artRefillOptionSelections[optionNumber] = newValue;
-                  // reset any following selections
-                  for (var i = optionNumber + 1; i < _artRefillOptionSelections.length; i++) {
-                    _artRefillOptionSelections[i] = null;
-                    _artRefillOptionAvailable[i-1] = null;
-                  }
-                });
+                if (newValue != _artRefillOptionSelections[optionNumber]) {
+                  setState(() {
+                    _artRefillOptionSelections[optionNumber] = newValue;
+                    // reset any following selections
+                    for (var i = optionNumber + 1; i <
+                        _artRefillOptionSelections.length; i++) {
+                      _artRefillOptionSelections[i] = null;
+                      _artRefillOptionAvailable[i - 1] = null;
+                    }
+                  });
+                }
               },
               validator: (value) {
                 if (value == null) { return 'Please answer this question'; }
@@ -219,113 +234,251 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     if (!_availabilityRequiredForSelection(optionNumber)) {
       return Container();
     }
-    var displayValue = _artRefillOptionAvailable[optionNumber];
 
-    String question;
-    switch (_artRefillOptionSelections[optionNumber]) {
-      case ARTRefillOption.PE_HOME_DELIVERY:
-        question = "This means, I, the PE, have to deliver the ART. Is this possible for me?";
-        break;
-      case ARTRefillOption.VHW:
-        question = "This means, you want to get your ART at the VHW's home. Is there a VHW available nearby your village where you would pick up ART?";
-        break;
-      case ARTRefillOption.COMMUNITY_ADHERENCE_CLUB:
-        question = "This means you want to get your ART mainly through a CAC. Is there currently a CAC in the participants' community available?";
-        break;
-      case ARTRefillOption.TREATMENT_BUDDY:
-        question = "This means you want to get your ART mainly through a Treatment Buddy. Do you have a Treatment Buddy?";
-        break;
-      default:
-        question = "Is this option available?";
+    Widget _availableQuestion() {
+
+      var displayValue = _artRefillOptionAvailable[optionNumber];
+
+      String question;
+      switch (_artRefillOptionSelections[optionNumber]) {
+        case ARTRefillOption.PE_HOME_DELIVERY:
+          question = "This means, I, the PE, have to deliver the ART. Is this possible for me?";
+          break;
+        case ARTRefillOption.VHW:
+          question = "This means, you want to get your ART at the VHW's home. Is there a VHW available nearby your village where you would pick up ART?";
+          break;
+        case ARTRefillOption.COMMUNITY_ADHERENCE_CLUB:
+          question = "This means you want to get your ART mainly through a CAC. Is there currently a CAC in the participants' community available?";
+          break;
+        case ARTRefillOption.TREATMENT_BUDDY:
+          question = "This means you want to get your ART mainly through a Treatment Buddy. Do you have a Treatment Buddy?";
+          break;
+        default:
+          question = "Is this option available?";
+      }
+
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Expanded(
+              flex: _questionsFlex,
+              child: Text(question)),
+          Expanded(
+              flex: _answersFlex,
+              child: DropdownButtonFormField<bool>(
+                value: displayValue,
+                onChanged: (bool newValue) {
+                    if (newValue != _artRefillOptionAvailable[optionNumber]) {
+                      setState(() {
+                        _artRefillOptionAvailable[optionNumber] = newValue;
+                        // reset any following selections
+                        _artRefillOptionSelections[optionNumber+1] = null;
+                        for (var i = optionNumber + 1; i < _artRefillOptionAvailable.length; i++) {
+                          _artRefillOptionAvailable[i] = null;
+                          _artRefillOptionSelections[i+1] = null;
+                        }
+                      });
+                    }
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please answer this question';
+                  }
+                },
+                items:
+                <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+                  String description;
+                  switch (value) {
+                    case true:
+                      description = 'Yes';
+                      break;
+                    case false:
+                      description = 'No';
+                      break;
+                  }
+                  return DropdownMenuItem<bool>(
+                    value: value,
+                    child: Text(description),
+                  );
+                }).toList(),
+              ),
+          ),
+        ],
+      );
     }
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child: Text(question)),
-        Expanded(
-            flex: _answersFlex,
-            child: DropdownButtonFormField<bool>(
-              value: displayValue,
-              onChanged: (bool newValue) {
-                setState(() {
-                  _artRefillOptionAvailable[optionNumber] = newValue;
-                });
-              },
-              validator: (value) {
-                if (value == null) { return 'Please answer this question'; }
-              },
-              items:
-                  <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
-                String description;
-                switch (value) {
-                  case true:
-                    description = 'Yes';
-                    break;
-                  case false:
-                    description = 'No';
-                    break;
-                }
-                return DropdownMenuItem<bool>(
-                  value: value,
-                  child: Text(description),
-                );
-              }).toList(),
-            ))
-      ],
-    );
-  }
-
-  _artRefillOptionPersonName() {
-    if (!_namePhoneNumberRequired()) {
-      return Container();
+    Widget _peHomeDeliverWhyNotPossibleQuestion() {
+      if (_artRefillOptionAvailable[optionNumber] == null
+          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.PE_HOME_DELIVERY
+          || _artRefillOptionAvailable[optionNumber]) {
+        return Container();
+      }
+      return _makeQuestion('Why is this not possible for me?',
+        child: DropdownButtonFormField<PEHomeDeliveryNotPossibleReason>(
+          value: _peHomeDeliveryNotPossibleReason,
+          onChanged: (PEHomeDeliveryNotPossibleReason newValue) {
+            setState(() {
+              _peHomeDeliveryNotPossibleReason = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question';
+            }
+          },
+          items:
+          PEHomeDeliveryNotPossibleReason.allValues.map<DropdownMenuItem<PEHomeDeliveryNotPossibleReason>>((PEHomeDeliveryNotPossibleReason value) {
+            return DropdownMenuItem<PEHomeDeliveryNotPossibleReason>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+      );
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            Text('VHW Name')),
-        Expanded(
-            flex: _answersFlex,
-            child: TextFormField(
-              controller: _artRefillOptionPersonNameCtr,
-              validator: (value) {
-                if (value.isEmpty) {
-                  return 'Please enter a name';
-                }
-              },
-            ),)
-      ],
-    );
-  }
 
-  _artRefillOptionPersonNumber() {
-    if (!_namePhoneNumberRequired()) {
-      return Container();
-    }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            Text('VHW Phone Number')),
-        Expanded(
-          flex: _answersFlex,
+    Widget _peHomeDeliverWhyNotPossibleReasonOtherQuestion() {
+      if (_artRefillOptionAvailable[optionNumber] == null
+          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.PE_HOME_DELIVERY
+          || _artRefillOptionAvailable[optionNumber]
+          || _peHomeDeliveryNotPossibleReason == null
+          || _peHomeDeliveryNotPossibleReason != PEHomeDeliveryNotPossibleReason.OTHER()) {
+        return Container();
+      }
+      return _makeQuestion('Other, specify',
           child: TextFormField(
-            controller: _artRefillOptionPersonPhoneNumberCtr,
+            controller: _peHomeDeliverWhyNotPossibleReasonOtherCtr,
             validator: (value) {
               if (value.isEmpty) {
-                return 'Please enter a phone number';
+                return 'Please specify the reason';
               }
             },
-          ),)
+          ),
+      );
+    }
+
+    Widget _vhwNameQuestion() {
+      if (_artRefillOptionAvailable[optionNumber] == null
+          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.VHW
+          || !_artRefillOptionAvailable[optionNumber]) {
+        return Container();
+      }
+      return _makeQuestion('What is the name of this VHW?',
+        child: TextFormField(
+          controller: _vhwNameCtr,
+          validator: (value) {
+            if (value.isEmpty) {
+              return "Please enter the VHW's name";
+            }
+          },
+        ),
+      );
+    }
+
+    Widget _vhwVillageQuestion() {
+      if (_artRefillOptionAvailable[optionNumber] == null
+          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.VHW
+          || !_artRefillOptionAvailable[optionNumber]) {
+        return Container();
+      }
+      return _makeQuestion("VHW's village",
+        child: TextFormField(
+          controller: _vhwVillageCtr,
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please specify the reason';
+            }
+          },
+        ),
+      );
+    }
+
+    Widget _vhwPhoneNumberQuestion() {
+      if (_artRefillOptionAvailable[optionNumber] == null
+          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.VHW
+          || !_artRefillOptionAvailable[optionNumber]) {
+        return Container();
+      }
+      return _makeQuestion("VHW's cellphone number",
+        child: TextFormField(
+          controller: _vhwPhoneNumberCtr,
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please enter the phone number';
+            }
+          },
+        ),
+      );
+    }
+
+    Widget _treatmentBuddyARTNumberQuestion() {
+      if (_artRefillOptionAvailable[optionNumber] == null
+          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.TREATMENT_BUDDY
+          || !_artRefillOptionAvailable[optionNumber]) {
+        return Container();
+      }
+      return _makeQuestion("What is your Treatment Buddy's ART number?",
+        child: TextFormField(
+          controller: _treatmentBuddyARTNumberCtr,
+          validator: (value) {
+            if (value.isEmpty) {
+              return "Please enter the Treatment Buddy's ART Number";
+            }
+          },
+        ),
+      );
+    }
+
+    Widget _treatmentBuddyVillageQuestion() {
+      if (_artRefillOptionAvailable[optionNumber] == null
+          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.TREATMENT_BUDDY
+          || !_artRefillOptionAvailable[optionNumber]) {
+        return Container();
+      }
+      return _makeQuestion("Where does your Treatment Buddy live?",
+        child: TextFormField(
+          controller: _treatmentBuddyVillageCtr,
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please enter the home town of the Treatment Buddy';
+            }
+          },
+        ),
+      );
+    }
+
+    Widget _treatmentBuddyPhoneNumberQuestion() {
+      if (_artRefillOptionAvailable[optionNumber] == null
+          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.TREATMENT_BUDDY
+          || !_artRefillOptionAvailable[optionNumber]) {
+        return Container();
+      }
+      return _makeQuestion("What is your Treatment Buddy's cellphone number?",
+        child: TextFormField(
+          controller: _treatmentBuddyPhoneNumberCtr,
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please enter the phone number';
+            }
+          },
+        ),
+      );
+    }
+
+    return Column(
+      children: <Widget>[
+        _availableQuestion(),
+        _peHomeDeliverWhyNotPossibleQuestion(),
+        _peHomeDeliverWhyNotPossibleReasonOtherQuestion(),
+        _vhwNameQuestion(),
+        _vhwVillageQuestion(),
+        _vhwPhoneNumberQuestion(),
+        _treatmentBuddyARTNumberQuestion(),
+        _treatmentBuddyVillageQuestion(),
+        _treatmentBuddyPhoneNumberQuestion(),
       ],
     );
+
   }
 
   _buildNotificationsCard() {
