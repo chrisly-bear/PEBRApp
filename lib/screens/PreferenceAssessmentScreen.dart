@@ -35,23 +35,22 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   // fields
   final _formKey = GlobalKey<FormState>();
+  int _questionsFlex = 1;
+  int _answersFlex = 1;
+
   PreferenceAssessment _pa = PreferenceAssessment.uninitialized();
   final _artRefillOptionSelections = List<ARTRefillOption>(5);
   final _artRefillOptionAvailable = List<bool>(4);
-  int _questionsFlex = 1;
-  int _answersFlex = 1;
+  var _peHomeDeliverWhyNotPossibleReasonOtherCtr = TextEditingController();
   var _vhwNameCtr = TextEditingController();
   var _vhwVillageCtr = TextEditingController();
   var _vhwPhoneNumberCtr = TextEditingController();
-  var _patientPhoneNumberCtr = TextEditingController();
-  var _adherenceReminderTimeCtr = TextEditingController();
-  var _pePhoneNumberCtr = TextEditingController();
-
-  PEHomeDeliveryNotPossibleReason _peHomeDeliveryNotPossibleReason;
-  var _peHomeDeliverWhyNotPossibleReasonOtherCtr = TextEditingController();
   var _treatmentBuddyARTNumberCtr = TextEditingController();
   var _treatmentBuddyVillageCtr = TextEditingController();
   var _treatmentBuddyPhoneNumberCtr = TextEditingController();
+  var _patientPhoneNumberCtr = TextEditingController();
+  var _adherenceReminderTimeCtr = TextEditingController();
+  var _pePhoneNumberCtr = TextEditingController();
 
 
   // constructor
@@ -316,10 +315,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       }
       return _makeQuestion('Why is this not possible for me?',
         child: DropdownButtonFormField<PEHomeDeliveryNotPossibleReason>(
-          value: _peHomeDeliveryNotPossibleReason,
+          value: _pa.artRefillPENotPossibleReason,
           onChanged: (PEHomeDeliveryNotPossibleReason newValue) {
             setState(() {
-              _peHomeDeliveryNotPossibleReason = newValue;
+              _pa.artRefillPENotPossibleReason = newValue;
             });
           },
           validator: (value) {
@@ -342,8 +341,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       if (_artRefillOptionAvailable[optionNumber] == null
           || _artRefillOptionSelections[optionNumber] != ARTRefillOption.PE_HOME_DELIVERY
           || _artRefillOptionAvailable[optionNumber]
-          || _peHomeDeliveryNotPossibleReason == null
-          || _peHomeDeliveryNotPossibleReason != PEHomeDeliveryNotPossibleReason.OTHER()) {
+          || _pa.artRefillPENotPossibleReason == null
+          || _pa.artRefillPENotPossibleReason != PEHomeDeliveryNotPossibleReason.OTHER()) {
         return Container();
       }
       return _makeQuestion('Other, specify',
@@ -1162,9 +1161,59 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       _pa.artRefillOption2 = _artRefillOptionSelections[1];
       _pa.artRefillOption3 = _artRefillOptionSelections[2];
       _pa.artRefillOption4 = _artRefillOptionSelections[3];
-      _pa.patientPhoneNumber = _patientPhoneNumberCtr.text;
-      _pa.adherenceReminderTime = _adherenceReminderTimeCtr.text;
-      _pa.pePhoneNumber = _pePhoneNumberCtr.text;
+      _pa.artRefillOption5 = _artRefillOptionSelections[4];
+
+      if (_artRefillOptionSelections.contains(ARTRefillOption.PE_HOME_DELIVERY)
+          && !_artRefillOptionAvailable[_artRefillOptionSelections.indexOf(ARTRefillOption.PE_HOME_DELIVERY)]
+          && _pa.artRefillPENotPossibleReason == PEHomeDeliveryNotPossibleReason.OTHER()) {
+        _pa.artRefillPENotPossibleReasonOther = _peHomeDeliverWhyNotPossibleReasonOtherCtr.text;
+      }
+      if (_artRefillOptionSelections.contains(ARTRefillOption.VHW)
+          && _artRefillOptionAvailable[_artRefillOptionSelections.indexOf(ARTRefillOption.VHW)]) {
+        _pa.artRefillVHWName = _vhwNameCtr.text;
+        _pa.artRefillVHWVillage = _vhwVillageCtr.text;
+        _pa.artRefillVHWPhoneNumber = _vhwPhoneNumberCtr.text;
+      }
+      if (_artRefillOptionSelections.contains(ARTRefillOption.TREATMENT_BUDDY)
+          && _artRefillOptionAvailable[_artRefillOptionSelections.indexOf(ARTRefillOption.TREATMENT_BUDDY)]) {
+        _pa.artRefillTreatmentBuddyART = _treatmentBuddyARTNumberCtr.text;
+        _pa.artRefillTreatmentBuddyVillage = _treatmentBuddyVillageCtr.text;
+        _pa.artRefillTreatmentBuddyPhoneNumber = _treatmentBuddyPhoneNumberCtr.text;
+      }
+      if (_pa.phoneAvailable) {
+        _pa.patientPhoneNumber = _patientPhoneNumberCtr.text;
+        _pa.pePhoneNumber = _pePhoneNumberCtr.text;
+        if (_pa.adherenceReminderEnabled) {
+          _pa.adherenceReminderTime = _adherenceReminderTimeCtr.text;
+        }
+      }
+      if (!_pa.phoneAvailable) {
+        // reset all phone related fields
+        _pa.patientPhoneNumber = null;
+        _pa.adherenceReminderEnabled = null;
+        _pa.adherenceReminderFrequency = null;
+        _pa.adherenceReminderMessage = null;
+        _pa.adherenceReminderTime = null;
+        _pa.artRefillReminderEnabled = null;
+        _pa.artRefillReminderDaysBefore = null;
+        _pa.vlNotificationEnabled = null;
+        _pa.vlNotificationMessageSuppressed = null;
+        _pa.vlNotificationMessageUnsuppressed = null;
+        _pa.pePhoneNumber = null;
+      }
+      if (_pa.adherenceReminderEnabled == null || !_pa.adherenceReminderEnabled) {
+        _pa.adherenceReminderFrequency = null;
+        _pa.adherenceReminderTime = null;
+        _pa.adherenceReminderMessage = null;
+      }
+      if (_pa.artRefillReminderEnabled == null || !_pa.artRefillReminderEnabled) {
+        _pa.artRefillReminderDaysBefore = null;
+      }
+      if (_pa.vlNotificationEnabled == null || !_pa.vlNotificationEnabled) {
+        _pa.vlNotificationMessageSuppressed = null;
+        _pa.vlNotificationMessageUnsuppressed = null;
+      }
+
       print(
           'NEW PREFERENCE ASSESSMENT (_id will be given by SQLite database):\n$_pa');
       await PatientBloc.instance.sinkPreferenceAssessmentData(_pa);
