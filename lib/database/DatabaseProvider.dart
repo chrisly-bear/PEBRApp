@@ -19,7 +19,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 12;
+  static const int _DB_VERSION = 13;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -95,6 +95,7 @@ class DatabaseProvider {
           ${PreferenceAssessment.colARTRefillTreatmentBuddyART} TEXT,
           ${PreferenceAssessment.colARTRefillTreatmentBuddyVillage} TEXT,
           ${PreferenceAssessment.colARTRefillTreatmentBuddyPhoneNumber} TEXT,
+          ${PreferenceAssessment.colARTSupplyAmount} INTEGER NOT NULL,
           ${PreferenceAssessment.colPhoneAvailable} BIT NOT NULL,
           ${PreferenceAssessment.colPatientPhoneNumber} TEXT,
           ${PreferenceAssessment.colAdherenceReminderEnabled} BIT,
@@ -310,8 +311,8 @@ class DatabaseProvider {
       await db.execute("DROP TABLE ARTRefill;");
       _onCreate(db, newVersion);
     }
-    if (oldVersion < 12) {
-      print('Upgrading to database version 12...');
+    if (oldVersion < 13) {
+      print('Upgrading to database version 13...');
       print('UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
       await db.execute("DROP TABLE PreferenceAssessment;");
       _onCreate(db, newVersion);

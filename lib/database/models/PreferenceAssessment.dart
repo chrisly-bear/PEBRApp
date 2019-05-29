@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
 import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 
@@ -23,6 +24,7 @@ class PreferenceAssessment {
   static final colARTRefillTreatmentBuddyART = 'art_refill_treatment_buddy_art'; // nullable
   static final colARTRefillTreatmentBuddyVillage = 'art_refill_treatment_buddy_village'; // nullable
   static final colARTRefillTreatmentBuddyPhoneNumber = 'art_refill_treatment_buddy_phone_number'; // nullable
+  static final colARTSupplyAmount = 'art_supply_amount';
   static final colPhoneAvailable = 'phone_available';
   static final colPatientPhoneNumber = 'patient_phone_number'; // nullable
   static final colAdherenceReminderEnabled = 'adherence_reminder_enabled'; // nullable
@@ -52,6 +54,7 @@ class PreferenceAssessment {
   String artRefillTreatmentBuddyART;
   String artRefillTreatmentBuddyVillage;
   String artRefillTreatmentBuddyPhoneNumber;
+  ARTSupplyAmount artSupplyAmount;
   bool phoneAvailable;
   String patientPhoneNumber;
   bool adherenceReminderEnabled;
@@ -75,6 +78,7 @@ class PreferenceAssessment {
       this.artRefillOption1,
       this.phoneAvailable,
       this.supportPreferences,
+      this.artSupplyAmount,
       {
         this.artRefillOption2,
         this.artRefillOption3,
@@ -119,6 +123,7 @@ class PreferenceAssessment {
     this.artRefillTreatmentBuddyART = map[colARTRefillTreatmentBuddyART];
     this.artRefillTreatmentBuddyVillage = map[colARTRefillTreatmentBuddyVillage];
     this.artRefillTreatmentBuddyPhoneNumber = map[colARTRefillTreatmentBuddyPhoneNumber];
+    this.artSupplyAmount = ARTSupplyAmount.fromCode(map[colARTSupplyAmount]);
     if (map[colPhoneAvailable] != null) {
       this.phoneAvailable = map[colPhoneAvailable] == 1;
     }
@@ -159,6 +164,7 @@ class PreferenceAssessment {
     map[colARTRefillTreatmentBuddyART] = artRefillTreatmentBuddyART;
     map[colARTRefillTreatmentBuddyVillage] = artRefillTreatmentBuddyVillage;
     map[colARTRefillTreatmentBuddyPhoneNumber] = artRefillTreatmentBuddyPhoneNumber;
+    map[colARTSupplyAmount] = artSupplyAmount.code;
     map[colPhoneAvailable] = phoneAvailable;
     map[colPatientPhoneNumber] = patientPhoneNumber;
     map[colAdherenceReminderEnabled] = adherenceReminderEnabled;

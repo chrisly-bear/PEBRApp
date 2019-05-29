@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
 import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
@@ -172,6 +173,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
                 _artRefillOption(3),
                 _artRefillOptionFollowUpQuestions(3),
                 _artRefillOption(4),
+                _artRefillSupplyAmountQuestion(),
               ],
             )));
   }
@@ -481,6 +483,28 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   }
 
+  Widget _artRefillSupplyAmountQuestion() {
+    return _makeQuestion('What would be your preferred amount of ART supply to take home?',
+        child: DropdownButtonFormField<ARTSupplyAmount>(
+          value: _pa.artSupplyAmount,
+          onChanged: (ARTSupplyAmount newValue) {
+            setState(() {
+              _pa.artSupplyAmount = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) { return 'Please answer this question'; }
+          },
+          items: ARTSupplyAmount.allValues.map<DropdownMenuItem<ARTSupplyAmount>>((ARTSupplyAmount value) {
+            return DropdownMenuItem<ARTSupplyAmount>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+    );
+  }
+  
   _buildNotificationsCard() {
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 15),
