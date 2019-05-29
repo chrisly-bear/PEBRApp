@@ -376,22 +376,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       if (sps == null) {
         return _formatPatientRowText('—', isActivated: isActivated);
       }
-      if (sps.HOME_VISIT_PE_selected) {
-//        icons.add(Icon(Icons.home));
-        icons.add(_getPaddedIcon('assets/icons/homevisit_pe_black.png', color: iconColor));
-        icons.add(spacer);
-      }
       if (sps.NURSE_CLINIC_selected) {
         icons.add(_getPaddedIcon('assets/icons/nurse_clinic_fett.png', color: iconColor));
         icons.add(spacer);
       }
       if (sps.SATURDAY_CLINIC_CLUB_selected) {
         icons.add(_getPaddedIcon('assets/icons/saturday_clinic_club_black.png', color: iconColor));
-        icons.add(spacer);
-      }
-      if (sps.SCHOOL_VISIT_PE_selected) {
-//        icons.add(Icon(Icons.school));
-        icons.add(_getPaddedIcon('assets/icons/schooltalk_pe_black.png', color: iconColor));
         icons.add(spacer);
       }
       if (sps.COMMUNITY_YOUTH_CLUB_selected) {
@@ -401,6 +391,20 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       if (sps.PHONE_CALL_PE_selected) {
 //        icons.add(Icon(Icons.phone));
         icons.add(_getPaddedIcon('assets/icons/phonecall_pe_black.png', color: iconColor));
+        icons.add(spacer);
+      }
+      if (sps.HOME_VISIT_PE_selected) {
+//        icons.add(Icon(Icons.home));
+        icons.add(_getPaddedIcon('assets/icons/homevisit_pe_black.png', color: iconColor));
+        icons.add(spacer);
+      }
+      if (sps.SCHOOL_VISIT_PE_selected) {
+//        icons.add(Icon(Icons.school));
+        icons.add(_getPaddedIcon('assets/icons/schooltalk_pe_black.png', color: iconColor));
+        icons.add(spacer);
+      }
+      if (sps.PITSO_VISIT_PE_selected) {
+        icons.add(_getPaddedIcon('assets/icons/pitso_black.png', color: iconColor));
         icons.add(spacer);
       }
       if (sps.areAllDeselected) {
