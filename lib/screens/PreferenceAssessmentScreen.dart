@@ -91,28 +91,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         !previousOptionAvailable);
   }
 
-  /// Checks if the name and phone number input fields in the ART Refill card
-  /// are required.
-  bool _namePhoneNumberRequired() {
-    ARTRefillOption lastSelection;
-    for (ARTRefillOption selection in _artRefillOptionSelections) {
-      if (selection != null) {
-        lastSelection = selection;
-      }
-    }
-    final namePhoneNumberRequiredSelections = [
-      ARTRefillOption.VHW,
-      ARTRefillOption.TREATMENT_BUDDY,
-      ARTRefillOption.COMMUNITY_ADHERENCE_CLUB,
-    ];
-    final lastSelectionPosition = _artRefillOptionSelections.indexOf(lastSelection);
-    final availabilityForLastSelection = _artRefillOptionAvailable[lastSelectionPosition] ?? false;
-    return (lastSelection != null &&
-        namePhoneNumberRequiredSelections.contains(lastSelection) &&
-        availabilityForLastSelection
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -227,7 +205,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
                   child: Text(description),
                 );
               }).toList(),
-            ))
+            ),
+        )
       ],
     );
   }
