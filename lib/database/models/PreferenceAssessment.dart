@@ -257,7 +257,7 @@ enum AdherenceReminderFrequency { DAILY, WEEKLY, MONTHLY }
 enum AdherenceReminderMessage { MESSAGE_1, MESSAGE_2, MESSAGE_3, MESSAGE_4, MESSAGE_5, MESSAGE_6, MESSAGE_7, MESSAGE_8, MESSAGE_9 }
 
 // Do not change the order of the enums as their index is used to store the instance in the database!
-enum VLSuppressedMessage { MESSAGE_1, MESSAGE_2 }
+enum VLSuppressedMessage { MESSAGE_1, MESSAGE_2, MESSAGE_3, MESSAGE_4, MESSAGE_5, MESSAGE_6 }
 
 // Do not change the order of the enums as their index is used to store the instance in the database!
-enum VLUnsuppressedMessage { MESSAGE_1, MESSAGE_2 }
+enum VLUnsuppressedMessage { MESSAGE_1, MESSAGE_2, MESSAGE_3, MESSAGE_4, MESSAGE_5, MESSAGE_6 }

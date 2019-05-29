@@ -111,10 +111,22 @@ String vlSuppressedMessageToString(VLSuppressedMessage message) {
   String returnString;
   switch (message) {
     case VLSuppressedMessage.MESSAGE_1:
-      returnString = ":)";
+      returnString = "😊";
       break;
     case VLSuppressedMessage.MESSAGE_2:
-      returnString = "MESSAGE 2";
+      returnString = "Well done, keep it up!";
+      break;
+    case VLSuppressedMessage.MESSAGE_3:
+      returnString = "Hoooha!";
+      break;
+    case VLSuppressedMessage.MESSAGE_4:
+      returnString = "GOT IT!";
+      break;
+    case VLSuppressedMessage.MESSAGE_5:
+      returnString = "WOW!!!";
+      break;
+    case VLSuppressedMessage.MESSAGE_6:
+      returnString = "PELE EA PELE!";
       break;
   }
   return returnString;
@@ -124,10 +136,22 @@ String vlUnsuppressedMessageToString(VLUnsuppressedMessage message) {
   String returnString;
   switch (message) {
     case VLUnsuppressedMessage.MESSAGE_1:
-      returnString = ":(";
+      returnString = "Keep trying. Do better next time.";
       break;
     case VLUnsuppressedMessage.MESSAGE_2:
-      returnString = "MESSAGE 2";
+      returnString = "No leke. Etsa betere ka moso.";
+      break;
+    case VLUnsuppressedMessage.MESSAGE_3:
+      returnString = "Ahhh!!!";
+      break;
+    case VLUnsuppressedMessage.MESSAGE_4:
+      returnString = "OH NO!!!";
+      break;
+    case VLUnsuppressedMessage.MESSAGE_5:
+      returnString = "Battery low. Take action! 😑";
+      break;
+    case VLUnsuppressedMessage.MESSAGE_6:
+      returnString = "Battery e tlase. Etsa hohong! 😑";
       break;
   }
   return returnString;
