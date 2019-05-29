@@ -1233,6 +1233,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       }
       if (_pa.artRefillReminderEnabled == null || !_pa.artRefillReminderEnabled) {
         _pa.artRefillReminderDaysBefore = null;
+        _pa.artRefillReminderMessage = null;
       }
       if (_pa.vlNotificationEnabled == null || !_pa.vlNotificationEnabled) {
         _pa.vlNotificationMessageSuppressed = null;
