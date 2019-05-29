@@ -2,7 +2,11 @@ import 'dart:convert';
 
 import 'package:pebrapp/database/beans/ARTRefillReminderMessage.dart';
 import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
+import 'package:pebrapp/database/beans/CondomUsageNotDemonstratedReason.dart';
+import 'package:pebrapp/database/beans/HomeVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
+import 'package:pebrapp/database/beans/PitsoPENotPossibleReason.dart';
+import 'package:pebrapp/database/beans/SchoolVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 
 class PreferenceAssessment {
@@ -40,6 +44,28 @@ class PreferenceAssessment {
   static final colVLNotificationMessageUnsuppressed = 'vl_notification_message_unsuppressed'; // nullable
   static final colPEPhoneNumber = 'pe_phone_number'; // nullable
   static final colSupportPreferences = 'support_preferences';
+  static final colSaturdayClinicClubAvailable = 'saturday_clinic_club_available'; // nullable
+  static final colCommunityYouthClubAvailable = 'community_youth_club_available'; // nullable
+  static final colHomeVisitPEPossible = 'home_visit_pe_possible'; // nullable
+  static final colHomeVisitPENotPossibleReason = 'home_visit_pe_not_possible_reason'; // nullable
+  static final colHomeVisitPENotPossibleReasonOther = 'home_visit_pe_not_possible_reason_other'; // nullable
+  static final colSchoolVisitPEPossible = 'school_visit_pe_possible'; // nullable
+  static final colSchool = 'school'; // nullable
+  static final colSchoolVisitPENotPossibleReason = 'school_visit_pe_not_possible_reason'; // nullable
+  static final colSchoolVisitPENotPossibleReasonOther = 'school_visit_pe_not_possible_reason_other'; // nullable
+  static final colPitsoPEPossible = 'pitso_pe_possible'; // nullable
+  static final colPitsoPENotPossibleReason = 'pitso_pe_not_possible_reason'; // nullable
+  static final colPitsoPENotPossibleReasonOther = 'pitso_pe_not_possible_reason_other'; // nullable
+  static final colCondomUsageDemonstrated = 'condom_usage_demonstrated'; // nullable
+  static final colCondomUsageNotDemonstratedReason = 'condom_usage_not_demonstrated_reason'; // nullable
+  static final colCondomUsageNotDemonstratedReasonOther = 'condom_usage_not_demonstrated_reason_other'; // nullable
+  static final colMoreInfoContraceptives = 'more_info_contraceptives'; // nullable
+  static final colMoreInfoVMMC = 'more_info_vmmc'; // nullable
+  static final colYoungMothersAvailable = 'young_mothers_available'; // nullable
+  static final colFemaleWorthAvailable = 'female_worth_available'; // nullable
+  static final colLegalAidSmartphoneAvailable = 'legal_aid_smartphone_available'; // nullable
+  static final colTuneMeSmartphoneAvailable = 'tuneme_smartphone_available'; // nullable
+  static final colNtlafatsoSmartphoneAvailable = 'ntlafatso_smartphone_available'; // nullable
 
   String patientART;
   DateTime _createdDate;
@@ -71,6 +97,28 @@ class PreferenceAssessment {
   VLUnsuppressedMessage vlNotificationMessageUnsuppressed;
   String pePhoneNumber;
   SupportPreferencesSelection supportPreferences = SupportPreferencesSelection();
+  bool saturdayClinicClubAvailable;
+  bool communityYouthClubAvailable;
+  bool homeVisitPEPossible;
+  HomeVisitPENotPossibleReason homeVisitPENotPossibleReason;
+  String homeVisitPENotPossibleReasonOther;
+  bool schoolVisitPEPossible;
+  String school;
+  SchoolVisitPENotPossibleReason schoolVisitPENotPossibleReason;
+  String schoolVisitPENotPossibleReasonOther;
+  bool pitsoPEPossible;
+  PitsoPENotPossibleReason pitsoPENotPossibleReason;
+  String pitsoPENotPossibleReasonOther;
+  bool condomUsageDemonstrated;
+  CondomUsageNotDemonstratedReason condomUsageNotDemonstratedReason;
+  String condomUsageNotDemonstratedReasonOther;
+  String moreInfoContraceptives;
+  String moreInfoVMMC;
+  bool youngMothersAvailable;
+  bool femaleWorthAvailable;
+  bool legalAidSmartphoneAvailable;
+  bool tuneMeSmartphoneAvailable;
+  bool ntlafatsoSmartphoneAvailable;
 
 
   // Constructors
@@ -106,7 +154,29 @@ class PreferenceAssessment {
         this.vlNotificationEnabled,
         this.vlNotificationMessageSuppressed,
         this.vlNotificationMessageUnsuppressed,
-        this.pePhoneNumber
+        this.pePhoneNumber,
+        this.saturdayClinicClubAvailable,
+        this.communityYouthClubAvailable,
+        this.homeVisitPEPossible,
+        this.homeVisitPENotPossibleReason,
+        this.homeVisitPENotPossibleReasonOther,
+        this.schoolVisitPEPossible,
+        this.school,
+        this.schoolVisitPENotPossibleReason,
+        this.schoolVisitPENotPossibleReasonOther,
+        this.pitsoPEPossible,
+        this.pitsoPENotPossibleReason,
+        this.pitsoPENotPossibleReasonOther,
+        this.condomUsageDemonstrated,
+        this.condomUsageNotDemonstratedReason,
+        this.condomUsageNotDemonstratedReasonOther,
+        this.moreInfoContraceptives,
+        this.moreInfoVMMC,
+        this.youngMothersAvailable,
+        this.femaleWorthAvailable,
+        this.legalAidSmartphoneAvailable,
+        this.tuneMeSmartphoneAvailable,
+        this.ntlafatsoSmartphoneAvailable,
       });
 
   PreferenceAssessment.uninitialized();
@@ -150,6 +220,28 @@ class PreferenceAssessment {
     this.vlNotificationMessageUnsuppressed = map[colVLNotificationMessageUnsuppressed] == null ? null : VLUnsuppressedMessage.values[map[colVLNotificationMessageUnsuppressed]];
     this.pePhoneNumber = map[colPEPhoneNumber];
     this.supportPreferences = SupportPreferencesSelection.deserializeFromJSON(map[colSupportPreferences]);
+    this.saturdayClinicClubAvailable = map[colSaturdayClinicClubAvailable] == null ? null : map[colSaturdayClinicClubAvailable] == 1;
+    this.communityYouthClubAvailable = map[colCommunityYouthClubAvailable] == null ? null : map[colCommunityYouthClubAvailable] == 1;
+    this.homeVisitPEPossible = map[colHomeVisitPEPossible] == null ? null : map[colHomeVisitPEPossible] == 1;
+    this.homeVisitPENotPossibleReason = HomeVisitPENotPossibleReason.fromCode(map[colHomeVisitPENotPossibleReason]);
+    this.homeVisitPENotPossibleReasonOther = map[colHomeVisitPENotPossibleReasonOther];
+    this.schoolVisitPEPossible = map[colSchoolVisitPEPossible] == null ? null : map[colSchoolVisitPEPossible] == 1;
+    this.school = map[colSchool];
+    this.schoolVisitPENotPossibleReason = SchoolVisitPENotPossibleReason.fromCode(map[colSchoolVisitPENotPossibleReason]);
+    this.schoolVisitPENotPossibleReasonOther = map[colSchoolVisitPENotPossibleReasonOther];
+    this.pitsoPEPossible = map[colPitsoPEPossible] == null ? null : map[colPitsoPEPossible] == 1;
+    this.pitsoPENotPossibleReason = PitsoPENotPossibleReason.fromCode(map[colPitsoPENotPossibleReason]);
+    this.pitsoPENotPossibleReasonOther = map[colPitsoPENotPossibleReasonOther];
+    this.condomUsageDemonstrated = map[colCondomUsageDemonstrated] == null ? null : map[colCondomUsageDemonstrated] == 1;
+    this.condomUsageNotDemonstratedReason = CondomUsageNotDemonstratedReason.fromCode(map[colCondomUsageNotDemonstratedReason]);
+    this.condomUsageNotDemonstratedReasonOther = map[colCondomUsageNotDemonstratedReasonOther];
+    this.moreInfoContraceptives = map[colMoreInfoContraceptives];
+    this.moreInfoVMMC = map[colMoreInfoVMMC];
+    this.youngMothersAvailable = map[colYoungMothersAvailable] == null ? null : map[colYoungMothersAvailable] == 1;
+    this.femaleWorthAvailable = map[colFemaleWorthAvailable] == null ? null : map[colFemaleWorthAvailable] == 1;
+    this.legalAidSmartphoneAvailable = map[colLegalAidSmartphoneAvailable] == null ? null : map[colLegalAidSmartphoneAvailable] == 1;
+    this.tuneMeSmartphoneAvailable = map[colTuneMeSmartphoneAvailable] == null ? null : map[colTuneMeSmartphoneAvailable] == 1;
+    this.ntlafatsoSmartphoneAvailable = map[colNtlafatsoSmartphoneAvailable] == null ? null : map[colNtlafatsoSmartphoneAvailable] == 1;
   }
 
   toMap() {
@@ -184,6 +276,28 @@ class PreferenceAssessment {
     map[colVLNotificationMessageUnsuppressed] = vlNotificationMessageUnsuppressed?.index;
     map[colPEPhoneNumber] = pePhoneNumber;
     map[colSupportPreferences] = supportPreferences.serializeToJSON();
+    map[colSaturdayClinicClubAvailable] = saturdayClinicClubAvailable;
+    map[colCommunityYouthClubAvailable] = communityYouthClubAvailable;
+    map[colHomeVisitPEPossible] = homeVisitPEPossible;
+    map[colHomeVisitPENotPossibleReason] = homeVisitPENotPossibleReason?.code;
+    map[colHomeVisitPENotPossibleReasonOther] = homeVisitPENotPossibleReasonOther;
+    map[colSchoolVisitPEPossible] = schoolVisitPEPossible;
+    map[colSchool] = school;
+    map[colSchoolVisitPENotPossibleReason] = schoolVisitPENotPossibleReason?.code;
+    map[colSchoolVisitPENotPossibleReasonOther] = schoolVisitPENotPossibleReasonOther;
+    map[colPitsoPEPossible] = pitsoPEPossible;
+    map[colPitsoPENotPossibleReason] = pitsoPENotPossibleReason?.code;
+    map[colPitsoPENotPossibleReasonOther] = pitsoPENotPossibleReasonOther;
+    map[colCondomUsageDemonstrated] = condomUsageDemonstrated;
+    map[colCondomUsageNotDemonstratedReason] = condomUsageNotDemonstratedReason?.code;
+    map[colCondomUsageNotDemonstratedReasonOther] = condomUsageNotDemonstratedReasonOther;
+    map[colMoreInfoContraceptives] = moreInfoContraceptives;
+    map[colMoreInfoVMMC] = moreInfoVMMC;
+    map[colYoungMothersAvailable] = youngMothersAvailable;
+    map[colFemaleWorthAvailable] = femaleWorthAvailable;
+    map[colLegalAidSmartphoneAvailable] = legalAidSmartphoneAvailable;
+    map[colTuneMeSmartphoneAvailable] = tuneMeSmartphoneAvailable;
+    map[colNtlafatsoSmartphoneAvailable] = ntlafatsoSmartphoneAvailable;
     return map;
   }
 
