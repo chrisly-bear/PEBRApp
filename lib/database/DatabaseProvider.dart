@@ -19,7 +19,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 14;
+  static const int _DB_VERSION = 15;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -109,7 +109,29 @@ class DatabaseProvider {
           ${PreferenceAssessment.colVLNotificationMessageSuppressed} INTEGER,
           ${PreferenceAssessment.colVLNotificationMessageUnsuppressed} INTEGER,
           ${PreferenceAssessment.colPEPhoneNumber} TEXT,
-          ${PreferenceAssessment.colSupportPreferences} TEXT
+          ${PreferenceAssessment.colSupportPreferences} TEXT,
+          ${PreferenceAssessment.colSaturdayClinicClubAvailable} BIT,
+          ${PreferenceAssessment.colCommunityYouthClubAvailable} BIT,
+          ${PreferenceAssessment.colHomeVisitPEPossible} BIT,
+          ${PreferenceAssessment.colHomeVisitPENotPossibleReason} INTEGER,
+          ${PreferenceAssessment.colHomeVisitPENotPossibleReasonOther} TEXT,
+          ${PreferenceAssessment.colSchoolVisitPEPossible} BIT,
+          ${PreferenceAssessment.colSchool} TEXT,
+          ${PreferenceAssessment.colSchoolVisitPENotPossibleReason} INTEGER,
+          ${PreferenceAssessment.colSchoolVisitPENotPossibleReasonOther} TEXT,
+          ${PreferenceAssessment.colPitsoPEPossible} BIT,
+          ${PreferenceAssessment.colPitsoPENotPossibleReason} INTEGER,
+          ${PreferenceAssessment.colPitsoPENotPossibleReasonOther} TEXT,
+          ${PreferenceAssessment.colCondomUsageDemonstrated} BIT,
+          ${PreferenceAssessment.colCondomUsageNotDemonstratedReason} INTEGER,
+          ${PreferenceAssessment.colCondomUsageNotDemonstratedReasonOther} TEXT,
+          ${PreferenceAssessment.colMoreInfoContraceptives} TEXT,
+          ${PreferenceAssessment.colMoreInfoVMMC} TEXT,
+          ${PreferenceAssessment.colYoungMothersAvailable} BIT,
+          ${PreferenceAssessment.colFemaleWorthAvailable} BIT,
+          ${PreferenceAssessment.colLegalAidSmartphoneAvailable} BIT,
+          ${PreferenceAssessment.colTuneMeSmartphoneAvailable} BIT,
+          ${PreferenceAssessment.colNtlafatsoSmartphoneAvailable} BIT
         );
         """);
     await db.execute("""
@@ -312,8 +334,8 @@ class DatabaseProvider {
       await db.execute("DROP TABLE ARTRefill;");
       _onCreate(db, newVersion);
     }
-    if (oldVersion < 14) {
-      print('Upgrading to database version 14...');
+    if (oldVersion < 15) {
+      print('Upgrading to database version 15...');
       print('UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
       await db.execute("DROP TABLE PreferenceAssessment;");
       _onCreate(db, newVersion);
