@@ -1043,9 +1043,9 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     return Column(children: <Widget>[
       _makeQuestion('What kind of support do you mainly wish? (tick all that apply)',
         answer: CheckboxListTile(
-          // secondary: const Icon(Icons.local_hospital),
+            secondary: _getPaddedIcon('assets/icons/nurse_clinic_fett.png'),
             title: Text(SupportPreferencesSelection.NURSE_CLINIC_DESCRIPTION),
-//                  dense: true,
+//            dense: true,
             value: _pa.supportPreferences.NURSE_CLINIC_selected,
             onChanged: (bool newValue) => this.setState(() {
               _pa.supportPreferences.NURSE_CLINIC_selected = newValue;
@@ -1053,9 +1053,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       ),
       _makeQuestion('',
         answer: CheckboxListTile(
-          // secondary: const Icon(Icons.local_hospital),
+            secondary: _getPaddedIcon('assets/icons/saturday_clinic_club_black.png'),
             title: Text(SupportPreferencesSelection.SATURDAY_CLINIC_CLUB_DESCRIPTION),
-//                  dense: true,
             value: _pa.supportPreferences.SATURDAY_CLINIC_CLUB_selected,
             onChanged: (bool newValue) => this.setState(() {
               _pa.supportPreferences.SATURDAY_CLINIC_CLUB_selected =
@@ -1064,9 +1063,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       ),
       _makeQuestion('',
         answer: CheckboxListTile(
-          // secondary: const Icon(Icons.local_hospital),
+            secondary: _getPaddedIcon('assets/icons/youth_club_black.png'),
             title: Text(SupportPreferencesSelection.COMMUNITY_YOUTH_CLUB_DESCRIPTION),
-//                  dense: true,
             value: _pa.supportPreferences.COMMUNITY_YOUTH_CLUB_selected,
             onChanged: (bool newValue) => this.setState(() {
               _pa.supportPreferences.COMMUNITY_YOUTH_CLUB_selected =
@@ -1075,9 +1073,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       ),
       _makeQuestion('',
         answer: CheckboxListTile(
-          // secondary: const Icon(Icons.local_hospital),
+            secondary: _getPaddedIcon('assets/icons/phonecall_pe_black.png'),
             title: Text(SupportPreferencesSelection.PHONE_CALL_PE_DESCRIPTION),
-//                  dense: true,
             value: _pa.supportPreferences.PHONE_CALL_PE_selected,
             onChanged: (bool newValue) => this.setState(() {
               _pa.supportPreferences.PHONE_CALL_PE_selected = newValue;
@@ -1085,9 +1082,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       ),
       _makeQuestion('',
         answer: CheckboxListTile(
-          // secondary: const Icon(Icons.local_hospital),
+            secondary: _getPaddedIcon('assets/icons/homevisit_pe_black.png'),
             title: Text(SupportPreferencesSelection.HOME_VISIT_PE_DESCRIPTION),
-//                  dense: true,
             value: _pa.supportPreferences.HOME_VISIT_PE_selected,
             onChanged: (bool newValue) => this.setState(() {
               _pa.supportPreferences.HOME_VISIT_PE_selected = newValue;
@@ -1095,9 +1091,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       ),
       _makeQuestion('',
         answer: CheckboxListTile(
-          // secondary: const Icon(Icons.local_hospital),
+            secondary: _getPaddedIcon('assets/icons/schooltalk_pe_black.png'),
             title: Text(SupportPreferencesSelection.SCHOOL_VISIT_PE_DESCRIPTION),
-//                  dense: true,
             value: _pa.supportPreferences.SCHOOL_VISIT_PE_selected,
             onChanged: (bool newValue) => this.setState(() {
               _pa.supportPreferences.SCHOOL_VISIT_PE_selected = newValue;
@@ -1105,6 +1100,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       ),
       _makeQuestion('',
         answer: CheckboxListTile(
+//            secondary: Container(width: 0.0),
             title: Text(SupportPreferencesSelection.PITSO_VISIT_PE_DESCRIPTION),
             value: _pa.supportPreferences.PITSO_VISIT_PE_selected,
             onChanged: (bool newValue) => this.setState(() {
@@ -1113,6 +1109,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       ),
       _makeQuestion('',
         answer: CheckboxListTile(
+//            secondary: Container(width: 0.0),
             title: Text(SupportPreferencesSelection.CONDOM_DEMO_DESCRIPTION),
             value: _pa.supportPreferences.CONDOM_DEMO_selected,
             onChanged: (bool newValue) => this.setState(() {
@@ -1121,6 +1118,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       ),
       _makeQuestion('',
         answer: CheckboxListTile(
+//            secondary: Container(width: 0.0),
             title: Text(SupportPreferencesSelection.CONTRACEPTIVES_INFO_DESCRIPTION),
             value: _pa.supportPreferences.CONTRACEPTIVES_INFO_selected,
             onChanged: (bool newValue) => this.setState(() {
@@ -1129,6 +1127,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       ),
       _makeQuestion('',
         answer: CheckboxListTile(
+//            secondary: Container(width: 0.0),
             title: Text(SupportPreferencesSelection.VMMC_INFO_DESCRIPTION),
             value: _pa.supportPreferences.VMMC_INFO_selected,
             onChanged: (bool newValue) => this.setState(() {
@@ -1137,6 +1136,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       ),
       _makeQuestion('',
         answer: CheckboxListTile(
+//            secondary: Container(width: 0.0),
             title: Text(SupportPreferencesSelection.YOUNG_MOTHERS_GROUP_DESCRIPTION),
             value: _pa.supportPreferences.YOUNG_MOTHERS_GROUP_selected,
             onChanged: (bool newValue) => this.setState(() {
@@ -1145,6 +1145,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       ),
       _makeQuestion('',
         answer: CheckboxListTile(
+//            secondary: Container(width: 0.0),
             title: Text(SupportPreferencesSelection.FEMALE_WORTH_GROUP_DESCRIPTION),
             value: _pa.supportPreferences.FEMALE_WORTH_GROUP_selected,
             onChanged: (bool newValue) => this.setState(() {
@@ -1153,6 +1154,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       ),
       _makeQuestion('',
         answer: CheckboxListTile(
+//            secondary: Container(width: 0.0),
             title: Text(SupportPreferencesSelection.LEGAL_AID_INFO_DESCRIPTION),
             value: _pa.supportPreferences.LEGAL_AID_INFO_selected,
             onChanged: (bool newValue) => this.setState(() {
@@ -1168,6 +1170,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
                 label: Text('Open tuneme.org'),
               )),
           answer: CheckboxListTile(
+//              secondary: Container(width: 0.0),
               title: Text(SupportPreferencesSelection.TUNE_ME_ORG_DESCRIPTION),
               value: _pa.supportPreferences.TUNE_ME_ORG_selected,
               onChanged: (bool newValue) => this.setState(() {
@@ -1183,6 +1186,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               label: Text('Open Ntlafatso Foundation'),
             )),
         answer: CheckboxListTile(
+//            secondary: Container(width: 0.0),
             title: Text(SupportPreferencesSelection.NTLAFATSO_FOUNDATION_DESCRIPTION),
             value: _pa.supportPreferences.NTLAFATSO_FOUNDATION_selected,
             onChanged: (bool newValue) => this.setState(() {
@@ -1191,9 +1195,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       ),
       _makeQuestion('',
         answer: CheckboxListTile(
-          // secondary: const Icon(Icons.local_hospital),
+            secondary: _getPaddedIcon('assets/icons/no_support_fett.png'),
             title: Text(SupportPreferencesSelection.NONE_DESCRIPTION),
-//                  dense: true,
             value: _pa.supportPreferences.areAllDeselected,
             onChanged: (bool newValue) {
               if (newValue) {
@@ -1225,6 +1228,19 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         ),
       ],
     );
+  }
+
+  ClipRect _getPaddedIcon(String assetLocation, {Color color}) {
+    return ClipRect(
+        clipBehavior: Clip.antiAlias,
+        child: SizedOverflowBox(
+            size: Size(32.0, 30.0),
+            child: Image(
+              height: 30.0,
+              color: color,
+              image: AssetImage(
+                  assetLocation),
+            )));
   }
 
   _onSubmitForm() async {
