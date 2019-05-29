@@ -1100,7 +1100,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       ),
       _makeQuestion('',
         answer: CheckboxListTile(
-//            secondary: Container(width: 0.0),
+            secondary: _getPaddedIcon('assets/icons/pitso_black.png'),
             title: Text(SupportPreferencesSelection.PITSO_VISIT_PE_DESCRIPTION),
             value: _pa.supportPreferences.PITSO_VISIT_PE_selected,
             onChanged: (bool newValue) => this.setState(() {
