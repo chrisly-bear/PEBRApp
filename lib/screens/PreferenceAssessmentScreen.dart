@@ -123,6 +123,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     );
   }
 
+  // TODO: refactor all form-related things such as this or '_makeQuestion()' to utils/FormUtils.dart
   _buildTitle(String title) {
     return Padding(
       padding: EdgeInsets.all(15),
