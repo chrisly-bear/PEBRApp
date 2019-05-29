@@ -7,6 +7,7 @@ import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:intl/intl.dart';
 import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 void showFlushBar(BuildContext context, String message, {String title, bool error=false}) {
@@ -268,4 +269,15 @@ Future<DateTime> get latestBackupFromSharedPrefs async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   final String dateTimeString = prefs.getString(LAST_SUCCESSFUL_BACKUP_KEY);
   return dateTimeString == null ? null : DateTime.parse(dateTimeString);
+}
+
+/// Launches the [url]. Can be a web page or a link to another app.
+///
+/// Throws an exception if a url cannot be opened.
+Future<void> launchURL(String url) async {
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
+  }
 }

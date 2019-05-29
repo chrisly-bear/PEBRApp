@@ -297,7 +297,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         return Container();
       }
       return _makeQuestion('Why is this not possible for me?',
-        child: DropdownButtonFormField<PEHomeDeliveryNotPossibleReason>(
+        answer: DropdownButtonFormField<PEHomeDeliveryNotPossibleReason>(
           value: _pa.artRefillPENotPossibleReason,
           onChanged: (PEHomeDeliveryNotPossibleReason newValue) {
             setState(() {
@@ -329,7 +329,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         return Container();
       }
       return _makeQuestion('Other, specify',
-          child: TextFormField(
+          answer: TextFormField(
             controller: _peHomeDeliverWhyNotPossibleReasonOtherCtr,
             validator: (value) {
               if (value.isEmpty) {
@@ -347,7 +347,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         return Container();
       }
       return _makeQuestion('What is the name of this VHW?',
-        child: TextFormField(
+        answer: TextFormField(
           controller: _vhwNameCtr,
           validator: (value) {
             if (value.isEmpty) {
@@ -365,7 +365,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         return Container();
       }
       return _makeQuestion("VHW's village",
-        child: TextFormField(
+        answer: TextFormField(
           controller: _vhwVillageCtr,
           validator: (value) {
             if (value.isEmpty) {
@@ -383,7 +383,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         return Container();
       }
       return _makeQuestion("VHW's cellphone number",
-        child: TextFormField(
+        answer: TextFormField(
           controller: _vhwPhoneNumberCtr,
           validator: (value) {
             if (value.isEmpty) {
@@ -401,7 +401,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         return Container();
       }
       return _makeQuestion("What is your Treatment Buddy's ART number?",
-        child: TextFormField(
+        answer: TextFormField(
           controller: _treatmentBuddyARTNumberCtr,
           validator: (value) {
             if (value.isEmpty) {
@@ -419,7 +419,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         return Container();
       }
       return _makeQuestion("Where does your Treatment Buddy live?",
-        child: TextFormField(
+        answer: TextFormField(
           controller: _treatmentBuddyVillageCtr,
           validator: (value) {
             if (value.isEmpty) {
@@ -437,7 +437,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         return Container();
       }
       return _makeQuestion("What is your Treatment Buddy's cellphone number?",
-        child: TextFormField(
+        answer: TextFormField(
           controller: _treatmentBuddyPhoneNumberCtr,
           validator: (value) {
             if (value.isEmpty) {
@@ -466,7 +466,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _artRefillSupplyAmountQuestion() {
     return _makeQuestion('What would be your preferred amount of ART supply to take home?',
-        child: DropdownButtonFormField<ARTSupplyAmount>(
+        answer: DropdownButtonFormField<ARTSupplyAmount>(
           value: _pa.artSupplyAmount,
           onChanged: (ARTSupplyAmount newValue) {
             setState(() {
@@ -801,7 +801,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     }
     return Column(children: <Widget>[
       _makeQuestion('How many days before would you like to receive the reminder? (tick all that apply)',
-        child: CheckboxListTile(
+        answer: CheckboxListTile(
             title: Text(ARTRefillReminderDaysBeforeSelection.sevenDaysBeforeDescription),
             value: _pa.artRefillReminderDaysBefore.sevenDaysBeforeSelected,
             onChanged: (bool newValue) => this.setState(() {
@@ -809,7 +809,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             })),
       ),
       _makeQuestion('',
-        child: CheckboxListTile(
+        answer: CheckboxListTile(
             title: Text(ARTRefillReminderDaysBeforeSelection.threeDaysBeforeDescription),
             value: _pa.artRefillReminderDaysBefore.threeDaysBeforeSelected,
             onChanged: (bool newValue) => this.setState(() {
@@ -817,7 +817,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             })),
       ),
       _makeQuestion('',
-        child: CheckboxListTile(
+        answer: CheckboxListTile(
             title: Text(ARTRefillReminderDaysBeforeSelection.twoDaysBeforeDescription),
             value: _pa.artRefillReminderDaysBefore.twoDaysBeforeSelected,
             onChanged: (bool newValue) => this.setState(() {
@@ -825,7 +825,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             })),
       ),
       _makeQuestion('',
-        child: CheckboxListTile(
+        answer: CheckboxListTile(
 //            secondary: const Icon(Icons.local_hospital),
             title: Text(ARTRefillReminderDaysBeforeSelection.oneDayBeforeDescription),
 //            dense: true,
@@ -835,7 +835,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             })),
       ),
       _makeQuestion('',
-        child: CheckboxListTile(
+        answer: CheckboxListTile(
             title: Text(ARTRefillReminderDaysBeforeSelection.zeroDaysBeforeDescription),
             value: _pa.artRefillReminderDaysBefore.zeroDaysBeforeSelected,
             onChanged: (bool newValue) => this.setState(() {
@@ -851,7 +851,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       return Container();
     }
     return _makeQuestion('What message do you want to receive as an ART refill reminder?',
-      child: DropdownButtonFormField<ARTRefillReminderMessage>(
+      answer: DropdownButtonFormField<ARTRefillReminderMessage>(
         value: _pa.artRefillReminderMessage,
         onChanged: (ARTRefillReminderMessage newValue) {
           setState(() {
@@ -1041,141 +1041,187 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Column _supportPreferencesQuestion() {
     return Column(children: <Widget>[
-      Row(
-        children: <Widget>[
-          Expanded(
-              flex: _questionsFlex,
-              child: Text(
-                  'What kind of support do you mainly wish? (tick all that apply)')),
-          Expanded(
-            flex: _answersFlex,
-            child: CheckboxListTile(
-                // secondary: const Icon(Icons.local_hospital),
-                title: Text(SupportPreferencesSelection.SATURDAY_CLINIC_CLUB_DESCRIPTION),
+      _makeQuestion('What kind of support do you mainly wish? (tick all that apply)',
+        answer: CheckboxListTile(
+          // secondary: const Icon(Icons.local_hospital),
+            title: Text(SupportPreferencesSelection.NURSE_CLINIC_DESCRIPTION),
 //                  dense: true,
-                value: _pa.supportPreferences.SATURDAY_CLINIC_CLUB_selected,
-                onChanged: (bool newValue) => this.setState(() {
-                      _pa.supportPreferences.SATURDAY_CLINIC_CLUB_selected =
-                          newValue;
-                    })),
-          )
-        ],
+            value: _pa.supportPreferences.NURSE_CLINIC_selected,
+            onChanged: (bool newValue) => this.setState(() {
+              _pa.supportPreferences.NURSE_CLINIC_selected = newValue;
+            })),
       ),
-      Row(
-        children: <Widget>[
-          Expanded(flex: _questionsFlex, child: Container()),
-          Expanded(
-            flex: _answersFlex,
-            child: CheckboxListTile(
-                // secondary: const Icon(Icons.local_hospital),
-                title: Text(SupportPreferencesSelection.COMMUNITY_YOUTH_CLUB_DESCRIPTION),
+      _makeQuestion('',
+        answer: CheckboxListTile(
+          // secondary: const Icon(Icons.local_hospital),
+            title: Text(SupportPreferencesSelection.SATURDAY_CLINIC_CLUB_DESCRIPTION),
 //                  dense: true,
-                value: _pa.supportPreferences.COMMUNITY_YOUTH_CLUB_selected,
-                onChanged: (bool newValue) => this.setState(() {
-                      _pa.supportPreferences.COMMUNITY_YOUTH_CLUB_selected =
-                          newValue;
-                    })),
-          )
-        ],
+            value: _pa.supportPreferences.SATURDAY_CLINIC_CLUB_selected,
+            onChanged: (bool newValue) => this.setState(() {
+              _pa.supportPreferences.SATURDAY_CLINIC_CLUB_selected =
+                  newValue;
+            })),
       ),
-      Row(
-        children: <Widget>[
-          Expanded(flex: _questionsFlex, child: Container()),
-          Expanded(
-            flex: _answersFlex,
-            child: CheckboxListTile(
-                // secondary: const Icon(Icons.local_hospital),
-                title: Text(SupportPreferencesSelection.PHONE_CALL_PE_DESCRIPTION),
+      _makeQuestion('',
+        answer: CheckboxListTile(
+          // secondary: const Icon(Icons.local_hospital),
+            title: Text(SupportPreferencesSelection.COMMUNITY_YOUTH_CLUB_DESCRIPTION),
 //                  dense: true,
-                value: _pa.supportPreferences.PHONE_CALL_PE_selected,
-                onChanged: (bool newValue) => this.setState(() {
-                      _pa.supportPreferences.PHONE_CALL_PE_selected = newValue;
-                    })),
-          )
-        ],
+            value: _pa.supportPreferences.COMMUNITY_YOUTH_CLUB_selected,
+            onChanged: (bool newValue) => this.setState(() {
+              _pa.supportPreferences.COMMUNITY_YOUTH_CLUB_selected =
+                  newValue;
+            })),
       ),
-      Row(
-        children: <Widget>[
-          Expanded(flex: _questionsFlex, child: Container()),
-          Expanded(
-            flex: _answersFlex,
-            child: CheckboxListTile(
-                // secondary: const Icon(Icons.local_hospital),
-                title: Text(SupportPreferencesSelection.HOME_VISIT_PE_DESCRIPTION),
+      _makeQuestion('',
+        answer: CheckboxListTile(
+          // secondary: const Icon(Icons.local_hospital),
+            title: Text(SupportPreferencesSelection.PHONE_CALL_PE_DESCRIPTION),
 //                  dense: true,
-                value: _pa.supportPreferences.HOME_VISIT_PE_selected,
-                onChanged: (bool newValue) => this.setState(() {
-                      _pa.supportPreferences.HOME_VISIT_PE_selected = newValue;
-                    })),
-          )
-        ],
+            value: _pa.supportPreferences.PHONE_CALL_PE_selected,
+            onChanged: (bool newValue) => this.setState(() {
+              _pa.supportPreferences.PHONE_CALL_PE_selected = newValue;
+            })),
       ),
-      Row(
-        children: <Widget>[
-          Expanded(flex: _questionsFlex, child: Container()),
-          Expanded(
-            flex: _answersFlex,
-            child: CheckboxListTile(
-                // secondary: const Icon(Icons.local_hospital),
-                title: Text(SupportPreferencesSelection.NURSE_CLINIC_DESCRIPTION),
+      _makeQuestion('',
+        answer: CheckboxListTile(
+          // secondary: const Icon(Icons.local_hospital),
+            title: Text(SupportPreferencesSelection.HOME_VISIT_PE_DESCRIPTION),
 //                  dense: true,
-                value: _pa.supportPreferences.NURSE_CLINIC_selected,
-                onChanged: (bool newValue) => this.setState(() {
-                      _pa.supportPreferences.NURSE_CLINIC_selected = newValue;
-                    })),
-          )
-        ],
+            value: _pa.supportPreferences.HOME_VISIT_PE_selected,
+            onChanged: (bool newValue) => this.setState(() {
+              _pa.supportPreferences.HOME_VISIT_PE_selected = newValue;
+            })),
       ),
-      Row(
-        children: <Widget>[
-          Expanded(flex: _questionsFlex, child: Container()),
-          Expanded(
-            flex: _answersFlex,
-            child: CheckboxListTile(
-              // secondary: const Icon(Icons.local_hospital),
-                title: Text(SupportPreferencesSelection.SCHOOL_VISIT_PE_DESCRIPTION),
+      _makeQuestion('',
+        answer: CheckboxListTile(
+          // secondary: const Icon(Icons.local_hospital),
+            title: Text(SupportPreferencesSelection.SCHOOL_VISIT_PE_DESCRIPTION),
 //                  dense: true,
-                value: _pa.supportPreferences.SCHOOL_VISIT_PE_selected,
-                onChanged: (bool newValue) => this.setState(() {
-                  _pa.supportPreferences.SCHOOL_VISIT_PE_selected = newValue;
-                })),
-          )
-        ],
+            value: _pa.supportPreferences.SCHOOL_VISIT_PE_selected,
+            onChanged: (bool newValue) => this.setState(() {
+              _pa.supportPreferences.SCHOOL_VISIT_PE_selected = newValue;
+            })),
       ),
-      Row(
-        children: <Widget>[
-          Expanded(flex: _questionsFlex, child: Container()),
-          Expanded(
-            flex: _answersFlex,
-            child: CheckboxListTile(
-                // secondary: const Icon(Icons.local_hospital),
-                title: Text(SupportPreferencesSelection.NONE_DESCRIPTION),
+      _makeQuestion('',
+        answer: CheckboxListTile(
+            title: Text(SupportPreferencesSelection.PITSO_VISIT_PE_DESCRIPTION),
+            value: _pa.supportPreferences.PITSO_VISIT_PE_selected,
+            onChanged: (bool newValue) => this.setState(() {
+              _pa.supportPreferences.PITSO_VISIT_PE_selected = newValue;
+            })),
+      ),
+      _makeQuestion('',
+        answer: CheckboxListTile(
+            title: Text(SupportPreferencesSelection.CONDOM_DEMO_DESCRIPTION),
+            value: _pa.supportPreferences.CONDOM_DEMO_selected,
+            onChanged: (bool newValue) => this.setState(() {
+              _pa.supportPreferences.CONDOM_DEMO_selected = newValue;
+            })),
+      ),
+      _makeQuestion('',
+        answer: CheckboxListTile(
+            title: Text(SupportPreferencesSelection.CONTRACEPTIVES_INFO_DESCRIPTION),
+            value: _pa.supportPreferences.CONTRACEPTIVES_INFO_selected,
+            onChanged: (bool newValue) => this.setState(() {
+              _pa.supportPreferences.CONTRACEPTIVES_INFO_selected = newValue;
+            })),
+      ),
+      _makeQuestion('',
+        answer: CheckboxListTile(
+            title: Text(SupportPreferencesSelection.VMMC_INFO_DESCRIPTION),
+            value: _pa.supportPreferences.VMMC_INFO_selected,
+            onChanged: (bool newValue) => this.setState(() {
+              _pa.supportPreferences.VMMC_INFO_selected = newValue;
+            })),
+      ),
+      _makeQuestion('',
+        answer: CheckboxListTile(
+            title: Text(SupportPreferencesSelection.YOUNG_MOTHERS_GROUP_DESCRIPTION),
+            value: _pa.supportPreferences.YOUNG_MOTHERS_GROUP_selected,
+            onChanged: (bool newValue) => this.setState(() {
+              _pa.supportPreferences.YOUNG_MOTHERS_GROUP_selected = newValue;
+            })),
+      ),
+      _makeQuestion('',
+        answer: CheckboxListTile(
+            title: Text(SupportPreferencesSelection.FEMALE_WORTH_GROUP_DESCRIPTION),
+            value: _pa.supportPreferences.FEMALE_WORTH_GROUP_selected,
+            onChanged: (bool newValue) => this.setState(() {
+              _pa.supportPreferences.FEMALE_WORTH_GROUP_selected = newValue;
+            })),
+      ),
+      _makeQuestion('',
+        answer: CheckboxListTile(
+            title: Text(SupportPreferencesSelection.LEGAL_AID_INFO_DESCRIPTION),
+            value: _pa.supportPreferences.LEGAL_AID_INFO_selected,
+            onChanged: (bool newValue) => this.setState(() {
+              _pa.supportPreferences.LEGAL_AID_INFO_selected = newValue;
+            })),
+      ),
+      _makeQuestionCustom(
+          question: Container(
+              alignment: Alignment.centerRight,
+              child: FlatButton.icon(
+                icon: Icon(Icons.public, size: 18.0),
+                onPressed: () { launchURL('http://ls.tuneme.org/'); },
+                label: Text('Open tuneme.org'),
+              )),
+          answer: CheckboxListTile(
+              title: Text(SupportPreferencesSelection.TUNE_ME_ORG_DESCRIPTION),
+              value: _pa.supportPreferences.TUNE_ME_ORG_selected,
+              onChanged: (bool newValue) => this.setState(() {
+                _pa.supportPreferences.TUNE_ME_ORG_selected = newValue;
+              }))
+      ),
+      _makeQuestionCustom(
+        question: Container(
+            alignment: Alignment.centerRight,
+            child: FlatButton.icon(
+              icon: Icon(Icons.public, size: 18.0),
+              onPressed: () { launchURL('https://www.facebook.com/antiStigma123/'); },
+              label: Text('Open Ntlafatso Foundation'),
+            )),
+        answer: CheckboxListTile(
+            title: Text(SupportPreferencesSelection.NTLAFATSO_FOUNDATION_DESCRIPTION),
+            value: _pa.supportPreferences.NTLAFATSO_FOUNDATION_selected,
+            onChanged: (bool newValue) => this.setState(() {
+              _pa.supportPreferences.NTLAFATSO_FOUNDATION_selected = newValue;
+            })),
+      ),
+      _makeQuestion('',
+        answer: CheckboxListTile(
+          // secondary: const Icon(Icons.local_hospital),
+            title: Text(SupportPreferencesSelection.NONE_DESCRIPTION),
 //                  dense: true,
-                value: _pa.supportPreferences.areAllDeselected,
-                onChanged: (bool newValue) {
-                  if (newValue) {
-                    this.setState(() {
-                      _pa.supportPreferences.deselectAll();
-                    });
-                  }
-                }),
-          )
-        ],
-      ),
-    ]);
+            value: _pa.supportPreferences.areAllDeselected,
+            onChanged: (bool newValue) {
+              if (newValue) {
+                this.setState(() {
+                  _pa.supportPreferences.deselectAll();
+                });
+              }
+            }),
+      )]);
   }
 
-  Widget _makeQuestion(String question, {@required Widget child}) {
+  Widget _makeQuestion(String question, {@required Widget answer}) {
+    return _makeQuestionCustom(
+      question: Text(question),
+      answer: answer,
+    );
+  }
+
+  Widget _makeQuestionCustom({@required Widget question, @required Widget answer}) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
+      children: <Widget>[
         Expanded(
-          flex: _questionsFlex,
-          child: Text(question),
+            flex: _questionsFlex,
+            child: question
         ),
         Expanded(
-          flex: _answersFlex,
-          child: child,
+            flex: _answersFlex,
+            child: answer
         ),
       ],
     );
