@@ -317,11 +317,11 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       return Text(text);
     }
 
-    TableRow _buildSupportOption(String title) {
+    TableRow _buildSupportOption(String title, {Widget icon}) {
       return TableRow(children: [
         TableCell(
           child: CheckboxListTile(
-            // secondary: const Icon(Icons.home),
+            secondary: icon,
             title: Text(title),
             dense: true,
             value: false,
@@ -337,6 +337,19 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       ]);
     }
 
+    ClipRect _getPaddedIcon(String assetLocation, {Color color}) {
+      return ClipRect(
+          clipBehavior: Clip.antiAlias,
+          child: SizedOverflowBox(
+              size: Size(25.0, 25.0),
+              child: Image(
+                height: 25.0,
+                color: color,
+                image: AssetImage(
+                    assetLocation),
+              )));
+    }
+
     _buildSupportOptions() {
       final SupportPreferencesSelection sps = _patient.latestPreferenceAssessment.supportPreferences;
       if (sps.areAllDeselected) {
@@ -344,25 +357,40 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       }
       List<TableRow> supportOptions = List<TableRow>();
       if (sps.NURSE_CLINIC_selected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.NURSE_CLINIC_DESCRIPTION));
+        supportOptions.add(
+            _buildSupportOption(SupportPreferencesSelection.NURSE_CLINIC_DESCRIPTION,
+                icon: _getPaddedIcon('assets/icons/nurse_clinic_fett.png')
+            ));
       }
       if (sps.SATURDAY_CLINIC_CLUB_selected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.SATURDAY_CLINIC_CLUB_DESCRIPTION));
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.SATURDAY_CLINIC_CLUB_DESCRIPTION,
+            icon: _getPaddedIcon('assets/icons/saturday_clinic_club_black.png')
+        ));
       }
       if (sps.COMMUNITY_YOUTH_CLUB_selected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.COMMUNITY_YOUTH_CLUB_DESCRIPTION));
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.COMMUNITY_YOUTH_CLUB_DESCRIPTION,
+            icon: _getPaddedIcon('assets/icons/youth_club_black.png')
+        ));
       }
       if (sps.PHONE_CALL_PE_selected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.PHONE_CALL_PE_DESCRIPTION));
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.PHONE_CALL_PE_DESCRIPTION,
+            icon: _getPaddedIcon('assets/icons/phonecall_pe_black.png')
+        ));
       }
       if (sps.HOME_VISIT_PE_selected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.HOME_VISIT_PE_DESCRIPTION));
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.HOME_VISIT_PE_DESCRIPTION,
+            icon: _getPaddedIcon('assets/icons/homevisit_pe_black.png')
+        ));
       }
       if (sps.SCHOOL_VISIT_PE_selected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.SCHOOL_VISIT_PE_DESCRIPTION));
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.SCHOOL_VISIT_PE_DESCRIPTION,
+            icon: _getPaddedIcon('assets/icons/schooltalk_pe_black.png')
+        ));
       }
       if (sps.PITSO_VISIT_PE_selected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.PITSO_VISIT_PE_DESCRIPTION));
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.PITSO_VISIT_PE_DESCRIPTION,
+            icon: _getPaddedIcon('assets/icons/pitso_black.png')
+        ));
       }
 
       // TODO: remove this demo option (it is just an idea how to display completed items)
