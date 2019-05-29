@@ -1152,7 +1152,14 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               _pa.supportPreferences.FEMALE_WORTH_GROUP_selected = newValue;
             })),
       ),
-      _makeQuestion('',
+      _makeQuestionCustom(
+        question: Container(
+            alignment: Alignment.centerRight,
+            child: FlatButton.icon(
+              icon: Icon(Icons.public, size: 18.0),
+              onPressed: () { launchURL('https://play.google.com/store/apps/details?id=ls.nokaneng.app'); },
+              label: Text('Download Nokaneng App'),
+            )),
         answer: CheckboxListTile(
 //            secondary: Container(width: 0.0),
             title: Text(SupportPreferencesSelection.LEGAL_AID_INFO_DESCRIPTION),
