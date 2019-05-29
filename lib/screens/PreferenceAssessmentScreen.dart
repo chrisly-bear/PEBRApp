@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderMessage.dart';
 import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
+import 'package:pebrapp/database/beans/CondomUsageNotDemonstratedReason.dart';
+import 'package:pebrapp/database/beans/HomeVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
+import 'package:pebrapp/database/beans/PitsoPENotPossibleReason.dart';
+import 'package:pebrapp/database/beans/SchoolVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
@@ -53,7 +57,13 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   var _patientPhoneNumberCtr = TextEditingController();
   var _adherenceReminderTimeCtr = TextEditingController();
   var _pePhoneNumberCtr = TextEditingController();
-
+  var _homeVisitPENotPossibleReasonCtr = TextEditingController();
+  var _schoolCtr = TextEditingController();
+  var _schoolVisitPENotPossibleReasonCtr = TextEditingController();
+  var _pitsoVisitPENotPossibleReasonCtr = TextEditingController();
+  var _condomUsageNotDemonstratedReasonCtr = TextEditingController();
+  var _contraceptivesMoreInfoCtr = TextEditingController();
+  var _vmmcMoreInfoCtr = TextEditingController();
 
   // constructor
   _PreferenceAssessmentFormState(String patientART) {
@@ -1061,6 +1071,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
                   newValue;
             })),
       ),
+      _saturdayClinicClubFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
             secondary: _getPaddedIcon('assets/icons/youth_club_black.png'),
@@ -1071,6 +1082,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
                   newValue;
             })),
       ),
+      _communityYouthClubFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
             secondary: _getPaddedIcon('assets/icons/phonecall_pe_black.png'),
@@ -1089,6 +1101,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               _pa.supportPreferences.HOME_VISIT_PE_selected = newValue;
             })),
       ),
+      _homeVisitPEFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
             secondary: _getPaddedIcon('assets/icons/schooltalk_pe_black.png'),
@@ -1098,6 +1111,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               _pa.supportPreferences.SCHOOL_VISIT_PE_selected = newValue;
             })),
       ),
+      _schoolVisitPEFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
             secondary: _getPaddedIcon('assets/icons/pitso_black.png'),
@@ -1107,6 +1121,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               _pa.supportPreferences.PITSO_VISIT_PE_selected = newValue;
             })),
       ),
+      _pitsoVisitPEFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
 //            secondary: Container(width: 0.0),
@@ -1116,6 +1131,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               _pa.supportPreferences.CONDOM_DEMO_selected = newValue;
             })),
       ),
+      _condomDemoFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
 //            secondary: Container(width: 0.0),
@@ -1125,6 +1141,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               _pa.supportPreferences.CONTRACEPTIVES_INFO_selected = newValue;
             })),
       ),
+      _contraceptivesInfoFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
 //            secondary: Container(width: 0.0),
@@ -1134,6 +1151,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               _pa.supportPreferences.VMMC_INFO_selected = newValue;
             })),
       ),
+      _vmmcInfoFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
 //            secondary: Container(width: 0.0),
@@ -1143,6 +1161,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               _pa.supportPreferences.YOUNG_MOTHERS_GROUP_selected = newValue;
             })),
       ),
+      _youngMothersFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
 //            secondary: Container(width: 0.0),
@@ -1152,6 +1171,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               _pa.supportPreferences.FEMALE_WORTH_GROUP_selected = newValue;
             })),
       ),
+      _femaleWorthFollowUpQuestions(),
       _makeQuestionCustom(
         question: Container(
             alignment: Alignment.centerRight,
@@ -1168,6 +1188,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               _pa.supportPreferences.LEGAL_AID_INFO_selected = newValue;
             })),
       ),
+      _legalAidFollowUpQuestions(),
       _makeQuestionCustom(
           question: Container(
               alignment: Alignment.centerRight,
@@ -1184,6 +1205,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
                 _pa.supportPreferences.TUNE_ME_ORG_selected = newValue;
               }))
       ),
+      _tuneMeFollowUpQuestions(),
       _makeQuestionCustom(
         question: Container(
             alignment: Alignment.centerRight,
@@ -1200,6 +1222,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               _pa.supportPreferences.NTLAFATSO_FOUNDATION_selected = newValue;
             })),
       ),
+      _ntlafatsoFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
             secondary: _getPaddedIcon('assets/icons/no_support_fett.png'),
@@ -1213,6 +1236,693 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               }
             }),
       )]);
+  }
+
+  Widget _saturdayClinicClubFollowUpQuestions() {
+    if (!_pa.supportPreferences.SATURDAY_CLINIC_CLUB_selected) {
+      return Container();
+    }
+    return _makeQuestion(
+      'Is there currently a functioning Saturday Clinic Club at the health facility?',
+      answer: DropdownButtonFormField<bool>(
+        value: _pa.saturdayClinicClubAvailable,
+        onChanged: (bool newValue) {
+          setState(() {
+            _pa.saturdayClinicClubAvailable = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question';
+          }
+        },
+        items:
+        <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+          String description;
+          switch (value) {
+            case true:
+              description = 'Yes';
+              break;
+            case false:
+              description = 'No';
+              break;
+          }
+          return DropdownMenuItem<bool>(
+            value: value,
+            child: Text(description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _communityYouthClubFollowUpQuestions() {
+    if (!_pa.supportPreferences.COMMUNITY_YOUTH_CLUB_selected) {
+      return Container();
+    }
+    return _makeQuestion(
+      'Is there currently a functioning Community Youth Club where the participant could attend?',
+      answer: DropdownButtonFormField<bool>(
+        value: _pa.communityYouthClubAvailable,
+        onChanged: (bool newValue) {
+          setState(() {
+            _pa.communityYouthClubAvailable = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question';
+          }
+        },
+        items:
+        <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+          String description;
+          switch (value) {
+            case true:
+              description = 'Yes';
+              break;
+            case false:
+              description = 'No';
+              break;
+          }
+          return DropdownMenuItem<bool>(
+            value: value,
+            child: Text(description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _homeVisitPEFollowUpQuestions() {
+    if (!_pa.supportPreferences.HOME_VISIT_PE_selected) {
+      return Container();
+    }
+
+    Widget _possibleQuestion() {
+      return _makeQuestion(
+        'This means, I, the PE, need to make a home-visit. Is this possible for me?',
+        answer: DropdownButtonFormField<bool>(
+          value: _pa.homeVisitPEPossible,
+          onChanged: (bool newValue) {
+            setState(() {
+              _pa.homeVisitPEPossible = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question';
+            }
+          },
+          items:
+          <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+            String description;
+            switch (value) {
+              case true:
+                description = 'Yes';
+                break;
+              case false:
+                description = 'No';
+                break;
+            }
+            return DropdownMenuItem<bool>(
+              value: value,
+              child: Text(description),
+            );
+          }).toList(),
+        ),
+      );
+    }
+
+    Widget _notPossibleReasonQuestion() {
+      if (_pa.homeVisitPEPossible == null || _pa.homeVisitPEPossible) {
+        return Container();
+      }
+      return _makeQuestion('Why is this not possible for me?',
+        answer: DropdownButtonFormField<HomeVisitPENotPossibleReason>(
+          value: _pa.homeVisitPENotPossibleReason,
+          onChanged: (HomeVisitPENotPossibleReason newValue) {
+            setState(() {
+              _pa.homeVisitPENotPossibleReason = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question';
+            }
+          },
+          items:
+          HomeVisitPENotPossibleReason.allValues.map<DropdownMenuItem<HomeVisitPENotPossibleReason>>((HomeVisitPENotPossibleReason value) {
+            return DropdownMenuItem<HomeVisitPENotPossibleReason>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+      );
+    }
+
+    Widget _notPossibleReasonOtherQuestion() {
+      if (_pa.homeVisitPEPossible == null || _pa.homeVisitPEPossible
+          || _pa.homeVisitPENotPossibleReason == null
+          || _pa.homeVisitPENotPossibleReason != HomeVisitPENotPossibleReason.OTHER()) {
+        return Container();
+      }
+      return _makeQuestion('Other, specify',
+          answer: TextFormField(
+            controller: _homeVisitPENotPossibleReasonCtr,
+            validator: (value) {
+              if (value.isEmpty) {
+                return 'Please specify a reason';
+              }
+            },
+          )
+      );
+    }
+
+    return Column(children: [
+      _possibleQuestion(),
+      _notPossibleReasonQuestion(),
+      _notPossibleReasonOtherQuestion(),
+    ]);
+  }
+
+  Widget _schoolVisitPEFollowUpQuestions() {
+    if (!_pa.supportPreferences.SCHOOL_VISIT_PE_selected) {
+      return Container();
+    }
+
+    Widget _possibleQuestion() {
+      return _makeQuestion(
+        'This means, I, the PE, need to make a school visit for a health talk. Is this possible for me?',
+        answer: DropdownButtonFormField<bool>(
+          value: _pa.schoolVisitPEPossible,
+          onChanged: (bool newValue) {
+            setState(() {
+              _pa.schoolVisitPEPossible = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question';
+            }
+          },
+          items:
+          <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+            String description;
+            switch (value) {
+              case true:
+                description = 'Yes';
+                break;
+              case false:
+                description = 'No';
+                break;
+            }
+            return DropdownMenuItem<bool>(
+              value: value,
+              child: Text(description),
+            );
+          }).toList(),
+        ),
+      );
+    }
+
+    Widget _schoolQuestion() {
+      if (_pa.schoolVisitPEPossible == null || !_pa.schoolVisitPEPossible) {
+        return Container();
+      }
+      return _makeQuestion('Which School is the participant attending (put name and village of the school)',
+          answer: TextFormField(
+            controller: _schoolCtr,
+            validator: (value) {
+              if (value.isEmpty) {
+                return 'Please specify a school and village';
+              }
+            },
+          )
+      );
+    }
+
+    Widget _notPossibleReasonQuestion() {
+      if (_pa.schoolVisitPEPossible == null || _pa.schoolVisitPEPossible) {
+        return Container();
+      }
+      return _makeQuestion('Why is this not possible for me?',
+        answer: DropdownButtonFormField<SchoolVisitPENotPossibleReason>(
+          value: _pa.schoolVisitPENotPossibleReason,
+          onChanged: (SchoolVisitPENotPossibleReason newValue) {
+            setState(() {
+              _pa.schoolVisitPENotPossibleReason = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question';
+            }
+          },
+          items:
+          SchoolVisitPENotPossibleReason.allValues.map<DropdownMenuItem<SchoolVisitPENotPossibleReason>>((SchoolVisitPENotPossibleReason value) {
+            return DropdownMenuItem<SchoolVisitPENotPossibleReason>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+      );
+    }
+
+    Widget _notPossibleReasonOtherQuestion() {
+      if (_pa.schoolVisitPEPossible == null || _pa.schoolVisitPEPossible
+          || _pa.schoolVisitPENotPossibleReason == null
+          || _pa.schoolVisitPENotPossibleReason != SchoolVisitPENotPossibleReason.OTHER()) {
+        return Container();
+      }
+      return _makeQuestion('Other, specify',
+          answer: TextFormField(
+            controller: _schoolVisitPENotPossibleReasonCtr,
+            validator: (value) {
+              if (value.isEmpty) {
+                return 'Please specify a reason';
+              }
+            },
+          )
+      );
+    }
+
+    return Column(children: [
+      _possibleQuestion(),
+      _schoolQuestion(),
+      _notPossibleReasonQuestion(),
+      _notPossibleReasonOtherQuestion(),
+    ]);
+  }
+
+  Widget _pitsoVisitPEFollowUpQuestions() {
+    if (!_pa.supportPreferences.PITSO_VISIT_PE_selected) {
+      return Container();
+    }
+
+    Widget _possibleQuestion() {
+      return _makeQuestion(
+        'This means, I, the PE, need to go to a pitso for a health talk. Is this possible for me?',
+        answer: DropdownButtonFormField<bool>(
+          value: _pa.pitsoPEPossible,
+          onChanged: (bool newValue) {
+            setState(() {
+              _pa.pitsoPEPossible = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question';
+            }
+          },
+          items:
+          <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+            String description;
+            switch (value) {
+              case true:
+                description = 'Yes';
+                break;
+              case false:
+                description = 'No';
+                break;
+            }
+            return DropdownMenuItem<bool>(
+              value: value,
+              child: Text(description),
+            );
+          }).toList(),
+        ),
+      );
+    }
+
+    Widget _notPossibleReasonQuestion() {
+      if (_pa.pitsoPEPossible == null || _pa.pitsoPEPossible) {
+        return Container();
+      }
+      return _makeQuestion('Why is this not possible for me?',
+        answer: DropdownButtonFormField<PitsoPENotPossibleReason>(
+          value: _pa.pitsoPENotPossibleReason,
+          onChanged: (PitsoPENotPossibleReason newValue) {
+            setState(() {
+              _pa.pitsoPENotPossibleReason = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question';
+            }
+          },
+          items:
+          PitsoPENotPossibleReason.allValues.map<DropdownMenuItem<PitsoPENotPossibleReason>>((PitsoPENotPossibleReason value) {
+            return DropdownMenuItem<PitsoPENotPossibleReason>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+      );
+    }
+
+    Widget _notPossibleReasonOtherQuestion() {
+      if (_pa.pitsoPEPossible == null || _pa.pitsoPEPossible
+          || _pa.pitsoPENotPossibleReason == null
+          || _pa.pitsoPENotPossibleReason != PitsoPENotPossibleReason.OTHER()) {
+        return Container();
+      }
+      return _makeQuestion('Other, specify',
+          answer: TextFormField(
+            controller: _pitsoVisitPENotPossibleReasonCtr,
+            validator: (value) {
+              if (value.isEmpty) {
+                return 'Please specify a reason';
+              }
+            },
+          )
+      );
+    }
+
+    return Column(children: [
+      _possibleQuestion(),
+      _notPossibleReasonQuestion(),
+      _notPossibleReasonOtherQuestion(),
+    ]);
+  }
+
+  Widget _condomDemoFollowUpQuestions() {
+    if (!_pa.supportPreferences.CONDOM_DEMO_selected) {
+      return Container();
+    }
+
+    Widget _possibleQuestion() {
+      return _makeQuestion(
+        'Have you demonstrated condom usage?',
+        answer: DropdownButtonFormField<bool>(
+          value: _pa.condomUsageDemonstrated,
+          onChanged: (bool newValue) {
+            setState(() {
+              _pa.condomUsageDemonstrated = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question';
+            }
+          },
+          items:
+          <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+            String description;
+            switch (value) {
+              case true:
+                description = 'Yes';
+                break;
+              case false:
+                description = 'No';
+                break;
+            }
+            return DropdownMenuItem<bool>(
+              value: value,
+              child: Text(description),
+            );
+          }).toList(),
+        ),
+      );
+    }
+
+    Widget _notPossibleReasonQuestion() {
+      if (_pa.condomUsageDemonstrated == null || _pa.condomUsageDemonstrated) {
+        return Container();
+      }
+      return _makeQuestion('Why not?',
+        answer: DropdownButtonFormField<CondomUsageNotDemonstratedReason>(
+          value: _pa.condomUsageNotDemonstratedReason,
+          onChanged: (CondomUsageNotDemonstratedReason newValue) {
+            setState(() {
+              _pa.condomUsageNotDemonstratedReason = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please answer this question';
+            }
+          },
+          items:
+          CondomUsageNotDemonstratedReason.allValues.map<DropdownMenuItem<CondomUsageNotDemonstratedReason>>((CondomUsageNotDemonstratedReason value) {
+            return DropdownMenuItem<CondomUsageNotDemonstratedReason>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+      );
+    }
+
+    Widget _notPossibleReasonOtherQuestion() {
+      if (_pa.condomUsageDemonstrated == null || _pa.condomUsageDemonstrated
+          || _pa.condomUsageNotDemonstratedReason == null
+          || _pa.condomUsageNotDemonstratedReason != CondomUsageNotDemonstratedReason.OTHER()) {
+        return Container();
+      }
+      return _makeQuestion('Other, specify',
+          answer: TextFormField(
+            controller: _condomUsageNotDemonstratedReasonCtr,
+            validator: (value) {
+              if (value.isEmpty) {
+                return 'Please specify a reason';
+              }
+            },
+          )
+      );
+    }
+
+    return Column(children: [
+      _possibleQuestion(),
+      _notPossibleReasonQuestion(),
+      _notPossibleReasonOtherQuestion(),
+    ]);
+  }
+
+  Widget _contraceptivesInfoFollowUpQuestions() {
+    if (!_pa.supportPreferences.CONTRACEPTIVES_INFO_selected) {
+      return Container();
+    }
+    return _makeQuestion('To which person will you link the participant for more information about contraceptives?',
+        answer: TextFormField(
+          controller: _contraceptivesMoreInfoCtr,
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please specify a person';
+            }
+          },
+        )
+    );
+  }
+
+  Widget _vmmcInfoFollowUpQuestions() {
+    if (!_pa.supportPreferences.VMMC_INFO_selected) {
+      return Container();
+    }
+    return _makeQuestion('To which person will you link the participant for more information about VMMC?',
+        answer: TextFormField(
+          controller: _vmmcMoreInfoCtr,
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please specify a person';
+            }
+          },
+        )
+    );
+  }
+
+  Widget _youngMothersFollowUpQuestions() {
+    if (!_pa.supportPreferences.YOUNG_MOTHERS_GROUP_selected) {
+      return Container();
+    }
+    return _makeQuestion(
+      'Is there currently a functioning mothers-to-mothers group at the health facility?',
+      answer: DropdownButtonFormField<bool>(
+        value: _pa.youngMothersAvailable,
+        onChanged: (bool newValue) {
+          setState(() {
+            _pa.youngMothersAvailable = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question';
+          }
+        },
+        items:
+        <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+          String description;
+          switch (value) {
+            case true:
+              description = 'Yes';
+              break;
+            case false:
+              description = 'No';
+              break;
+          }
+          return DropdownMenuItem<bool>(
+            value: value,
+            child: Text(description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _femaleWorthFollowUpQuestions() {
+    if (!_pa.supportPreferences.FEMALE_WORTH_GROUP_selected) {
+      return Container();
+    }
+    return _makeQuestion(
+      'Is there currently a functioning WORTH group at the health facility?',
+      answer: DropdownButtonFormField<bool>(
+        value: _pa.femaleWorthAvailable,
+        onChanged: (bool newValue) {
+          setState(() {
+            _pa.femaleWorthAvailable = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question';
+          }
+        },
+        items:
+        <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+          String description;
+          switch (value) {
+            case true:
+              description = 'Yes';
+              break;
+            case false:
+              description = 'No';
+              break;
+          }
+          return DropdownMenuItem<bool>(
+            value: value,
+            child: Text(description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _legalAidFollowUpQuestions() {
+    if (!_pa.supportPreferences.LEGAL_AID_INFO_selected) {
+      return Container();
+    }
+    return _makeQuestion(
+      'Does the participant have a functioning smartphone?',
+      answer: DropdownButtonFormField<bool>(
+        value: _pa.legalAidSmartphoneAvailable,
+        onChanged: (bool newValue) {
+          setState(() {
+            _pa.legalAidSmartphoneAvailable = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question';
+          }
+        },
+        items:
+        <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+          String description;
+          switch (value) {
+            case true:
+              description = 'Yes';
+              break;
+            case false:
+              description = 'No';
+              break;
+          }
+          return DropdownMenuItem<bool>(
+            value: value,
+            child: Text(description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _tuneMeFollowUpQuestions() {
+    if (!_pa.supportPreferences.TUNE_ME_ORG_selected) {
+      return Container();
+    }
+    return _makeQuestion(
+      'Does the participant have a functioning smartphone?',
+      answer: DropdownButtonFormField<bool>(
+        value: _pa.tuneMeSmartphoneAvailable,
+        onChanged: (bool newValue) {
+          setState(() {
+            _pa.tuneMeSmartphoneAvailable = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question';
+          }
+        },
+        items:
+        <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+          String description;
+          switch (value) {
+            case true:
+              description = 'Yes';
+              break;
+            case false:
+              description = 'No';
+              break;
+          }
+          return DropdownMenuItem<bool>(
+            value: value,
+            child: Text(description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _ntlafatsoFollowUpQuestions() {
+    if (!_pa.supportPreferences.NTLAFATSO_FOUNDATION_selected) {
+      return Container();
+    }
+    return _makeQuestion(
+      'Does the participant have a functioning smartphone?',
+      answer: DropdownButtonFormField<bool>(
+        value: _pa.ntlafatsoSmartphoneAvailable,
+        onChanged: (bool newValue) {
+          setState(() {
+            _pa.ntlafatsoSmartphoneAvailable = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question';
+          }
+        },
+        items:
+        <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+          String description;
+          switch (value) {
+            case true:
+              description = 'Yes';
+              break;
+            case false:
+              description = 'No';
+              break;
+          }
+          return DropdownMenuItem<bool>(
+            value: value,
+            child: Text(description),
+          );
+        }).toList(),
+      ),
+    );
   }
 
   Widget _makeQuestion(String question, {@required Widget answer}) {
@@ -1308,6 +2018,77 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       if (_pa.vlNotificationEnabled == null || !_pa.vlNotificationEnabled) {
         _pa.vlNotificationMessageSuppressed = null;
         _pa.vlNotificationMessageUnsuppressed = null;
+      }
+      if (!_pa.supportPreferences.SATURDAY_CLINIC_CLUB_selected) {
+        _pa.saturdayClinicClubAvailable = null;
+      }
+      if (!_pa.supportPreferences.COMMUNITY_YOUTH_CLUB_selected) {
+        _pa.communityYouthClubAvailable = null;
+      }
+      if (!_pa.supportPreferences.HOME_VISIT_PE_selected) {
+        _pa.homeVisitPEPossible = null;
+        _pa.homeVisitPENotPossibleReason = null;
+        _pa.homeVisitPENotPossibleReasonOther = null;
+      }
+      if (_pa.homeVisitPEPossible != null && !_pa.homeVisitPEPossible
+          && _pa.homeVisitPENotPossibleReason != null
+          && _pa.homeVisitPENotPossibleReason == HomeVisitPENotPossibleReason.OTHER()) {
+        _pa.homeVisitPENotPossibleReasonOther = _homeVisitPENotPossibleReasonCtr.text;
+      }
+      if (!_pa.supportPreferences.SCHOOL_VISIT_PE_selected) {
+        _pa.schoolVisitPEPossible = null;
+        _pa.schoolVisitPENotPossibleReason = null;
+        _pa.schoolVisitPENotPossibleReasonOther = null;
+      }
+      if (_pa.schoolVisitPEPossible != null) {
+        if (_pa.schoolVisitPEPossible) {
+          _pa.school = _schoolCtr.text;
+        }
+        if (!_pa.schoolVisitPEPossible && _pa.schoolVisitPENotPossibleReason != null
+        && _pa.schoolVisitPENotPossibleReason == SchoolVisitPENotPossibleReason.OTHER()) {
+          _pa.schoolVisitPENotPossibleReasonOther = _schoolVisitPENotPossibleReasonCtr.text;
+        }
+      }
+      if (!_pa.supportPreferences.PITSO_VISIT_PE_selected) {
+        _pa.pitsoPEPossible = null;
+        _pa.pitsoPENotPossibleReason = null;
+        _pa.pitsoPENotPossibleReasonOther = null;
+      }
+      if (_pa.pitsoPEPossible != null && !_pa.pitsoPEPossible
+          && _pa.pitsoPENotPossibleReason != null
+          && _pa.pitsoPENotPossibleReason == PitsoPENotPossibleReason.OTHER()) {
+        _pa.pitsoPENotPossibleReasonOther = _pitsoVisitPENotPossibleReasonCtr.text;
+      }
+      if (!_pa.supportPreferences.CONDOM_DEMO_selected) {
+        _pa.condomUsageDemonstrated = null;
+        _pa.condomUsageNotDemonstratedReason = null;
+        _pa.condomUsageNotDemonstratedReasonOther = null;
+      }
+      if (_pa.condomUsageDemonstrated != null && !_pa.condomUsageDemonstrated
+          && _pa.condomUsageNotDemonstratedReason != null
+          && _pa.condomUsageNotDemonstratedReason == CondomUsageNotDemonstratedReason.OTHER()) {
+        _pa.condomUsageNotDemonstratedReasonOther = _condomUsageNotDemonstratedReasonCtr.text;
+      }
+      if (_pa.supportPreferences.CONTRACEPTIVES_INFO_selected) {
+        _pa.moreInfoContraceptives = _contraceptivesMoreInfoCtr.text;
+      }
+      if (_pa.supportPreferences.VMMC_INFO_selected) {
+        _pa.moreInfoVMMC = _vmmcMoreInfoCtr.text;
+      }
+      if (!_pa.supportPreferences.YOUNG_MOTHERS_GROUP_selected) {
+        _pa.youngMothersAvailable = null;
+      }
+      if (!_pa.supportPreferences.FEMALE_WORTH_GROUP_selected) {
+        _pa.femaleWorthAvailable = null;
+      }
+      if (!_pa.supportPreferences.LEGAL_AID_INFO_selected) {
+        _pa.legalAidSmartphoneAvailable = null;
+      }
+      if (!_pa.supportPreferences.TUNE_ME_ORG_selected) {
+        _pa.tuneMeSmartphoneAvailable = null;
+      }
+      if (!_pa.supportPreferences.NTLAFATSO_FOUNDATION_selected) {
+        _pa.ntlafatsoSmartphoneAvailable = null;
       }
 
       print(
