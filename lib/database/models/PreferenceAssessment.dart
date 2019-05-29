@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:pebrapp/database/beans/ARTRefillReminderMessage.dart';
 import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
 import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
@@ -33,6 +34,7 @@ class PreferenceAssessment {
   static final colAdherenceReminderMessage = 'adherence_reminder_message'; // nullable
   static final colARTRefillReminderEnabled = 'art_refill_reminder_enabled'; // nullable
   static final colARTRefillReminderDaysBefore = 'art_refill_reminder_days_before'; // nullable
+  static final colARTRefillReminderMessage = 'art_refill_reminder_message'; // nullable
   static final colVLNotificationEnabled = 'vl_notification_enabled'; // nullable
   static final colVLNotificationMessageSuppressed = 'vl_notification_message_suppressed'; // nullable
   static final colVLNotificationMessageUnsuppressed = 'vl_notification_message_unsuppressed'; // nullable
@@ -63,6 +65,7 @@ class PreferenceAssessment {
   AdherenceReminderMessage adherenceReminderMessage;
   bool artRefillReminderEnabled;
   ARTRefillReminderDaysBeforeSelection artRefillReminderDaysBefore;
+  ARTRefillReminderMessage artRefillReminderMessage;
   bool vlNotificationEnabled;
   VLSuppressedMessage vlNotificationMessageSuppressed;
   VLUnsuppressedMessage vlNotificationMessageUnsuppressed;
@@ -99,6 +102,7 @@ class PreferenceAssessment {
         this.adherenceReminderMessage,
         this.artRefillReminderEnabled,
         this.artRefillReminderDaysBefore,
+        this.artRefillReminderMessage,
         this.vlNotificationEnabled,
         this.vlNotificationMessageSuppressed,
         this.vlNotificationMessageUnsuppressed,
@@ -138,6 +142,7 @@ class PreferenceAssessment {
       this.artRefillReminderEnabled = map[colARTRefillReminderEnabled] == 1;
     }
     this.artRefillReminderDaysBefore = map[colARTRefillReminderDaysBefore] == null ? null : ARTRefillReminderDaysBeforeSelection.deserializeFromJSON(map[colARTRefillReminderDaysBefore]);
+    this.artRefillReminderMessage = ARTRefillReminderMessage.fromCode(map[colARTRefillReminderMessage]);
     if (map[colVLNotificationEnabled] != null) {
       this.vlNotificationEnabled = map[colVLNotificationEnabled] == 1;
     }
@@ -173,6 +178,7 @@ class PreferenceAssessment {
     map[colAdherenceReminderMessage] = adherenceReminderMessage?.index;
     map[colARTRefillReminderEnabled] = artRefillReminderEnabled;
     map[colARTRefillReminderDaysBefore] = artRefillReminderDaysBefore?.serializeToJSON();
+    map[colARTRefillReminderMessage] = artRefillReminderMessage?.code;
     map[colVLNotificationEnabled] = vlNotificationEnabled;
     map[colVLNotificationMessageSuppressed] = vlNotificationMessageSuppressed?.index;
     map[colVLNotificationMessageUnsuppressed] = vlNotificationMessageUnsuppressed?.index;

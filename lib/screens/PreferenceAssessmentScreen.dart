@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/database/beans/ARTRefillReminderMessage.dart';
 import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
 import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
@@ -501,6 +502,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             _artRefillReminderSubtitle(),
             _artRefillReminderQuestion(),
             _artRefillReminderDaysBeforeQuestion(),
+            _artRefillReminderMessageQuestion(),
             _viralLoadNotificationSubtitle(),
             _viralLoadNotificationQuestion(),
             _viralLoadMessageSuppressedQuestion(),
@@ -841,6 +843,33 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       ),
     ]);
   }
+
+  Widget _artRefillReminderMessageQuestion() {
+    if (_pa.phoneAvailable == null || !_pa.phoneAvailable ||
+        _pa.artRefillReminderEnabled == null || !_pa.artRefillReminderEnabled) {
+      return Container();
+    }
+    return _makeQuestion('What message do you want to receive as an ART refill reminder?',
+      child: DropdownButtonFormField<ARTRefillReminderMessage>(
+        value: _pa.artRefillReminderMessage,
+        onChanged: (ARTRefillReminderMessage newValue) {
+          setState(() {
+            _pa.artRefillReminderMessage = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) { return 'Please answer this question'; }
+        },
+        items: ARTRefillReminderMessage.allValues.map<DropdownMenuItem<ARTRefillReminderMessage>>((ARTRefillReminderMessage value) {
+          return DropdownMenuItem<ARTRefillReminderMessage>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
 
   Widget _viralLoadNotificationSubtitle() {
     if (_pa.phoneAvailable == null || !_pa.phoneAvailable) {
