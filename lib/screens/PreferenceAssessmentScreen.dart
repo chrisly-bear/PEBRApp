@@ -797,54 +797,47 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       return Container();
     }
     return Column(children: <Widget>[
-      Row(
-        children: <Widget>[
-          Expanded(
-              flex: _questionsFlex,
-              child: Text(
-                  'How many days before would you like to receive the reminder? (tick all that apply)')),
-          Expanded(
-            flex: _answersFlex,
-            child: CheckboxListTile(
-                title: Text(ARTRefillReminderDaysBeforeSelection.sevenDaysBeforeDescription),
-                value: _pa.artRefillReminderDaysBefore.sevenDaysBeforeSelected,
-                onChanged: (bool newValue) => this.setState(() {
-                  _pa.artRefillReminderDaysBefore.sevenDaysBeforeSelected =
-                      newValue;
-                })),
-          )
-        ],
+      _makeQuestion('How many days before would you like to receive the reminder? (tick all that apply)',
+        child: CheckboxListTile(
+            title: Text(ARTRefillReminderDaysBeforeSelection.sevenDaysBeforeDescription),
+            value: _pa.artRefillReminderDaysBefore.sevenDaysBeforeSelected,
+            onChanged: (bool newValue) => this.setState(() {
+              _pa.artRefillReminderDaysBefore.sevenDaysBeforeSelected = newValue;
+            })),
       ),
-      Row(
-        children: <Widget>[
-          Expanded(flex: _questionsFlex, child: Container()),
-          Expanded(
-            flex: _answersFlex,
-            child: CheckboxListTile(
-                title: Text(ARTRefillReminderDaysBeforeSelection.twoDaysBeforeDescription),
-                value: _pa.artRefillReminderDaysBefore.twoDaysBeforeSelected,
-                onChanged: (bool newValue) => this.setState(() {
-                  _pa.artRefillReminderDaysBefore.twoDaysBeforeSelected =
-                      newValue;
-                })),
-          )
-        ],
+      _makeQuestion('',
+        child: CheckboxListTile(
+            title: Text(ARTRefillReminderDaysBeforeSelection.threeDaysBeforeDescription),
+            value: _pa.artRefillReminderDaysBefore.threeDaysBeforeSelected,
+            onChanged: (bool newValue) => this.setState(() {
+              _pa.artRefillReminderDaysBefore.threeDaysBeforeSelected = newValue;
+            })),
       ),
-      Row(
-        children: <Widget>[
-          Expanded(flex: _questionsFlex, child: Container()),
-          Expanded(
-            flex: _answersFlex,
-            child: CheckboxListTile(
-              // secondary: const Icon(Icons.local_hospital),
-                title: Text(ARTRefillReminderDaysBeforeSelection.oneDayBeforeDescription),
-//                  dense: true,
-                value: _pa.artRefillReminderDaysBefore.oneDayBeforeSelected,
-                onChanged: (bool newValue) => this.setState(() {
-                  _pa.artRefillReminderDaysBefore.oneDayBeforeSelected = newValue;
-                })),
-          )
-        ],
+      _makeQuestion('',
+        child: CheckboxListTile(
+            title: Text(ARTRefillReminderDaysBeforeSelection.twoDaysBeforeDescription),
+            value: _pa.artRefillReminderDaysBefore.twoDaysBeforeSelected,
+            onChanged: (bool newValue) => this.setState(() {
+              _pa.artRefillReminderDaysBefore.twoDaysBeforeSelected = newValue;
+            })),
+      ),
+      _makeQuestion('',
+        child: CheckboxListTile(
+//            secondary: const Icon(Icons.local_hospital),
+            title: Text(ARTRefillReminderDaysBeforeSelection.oneDayBeforeDescription),
+//            dense: true,
+            value: _pa.artRefillReminderDaysBefore.oneDayBeforeSelected,
+            onChanged: (bool newValue) => this.setState(() {
+              _pa.artRefillReminderDaysBefore.oneDayBeforeSelected = newValue;
+            })),
+      ),
+      _makeQuestion('',
+        child: CheckboxListTile(
+            title: Text(ARTRefillReminderDaysBeforeSelection.zeroDaysBeforeDescription),
+            value: _pa.artRefillReminderDaysBefore.zeroDaysBeforeSelected,
+            onChanged: (bool newValue) => this.setState(() {
+              _pa.artRefillReminderDaysBefore.zeroDaysBeforeSelected = newValue;
+            })),
       ),
     ]);
   }

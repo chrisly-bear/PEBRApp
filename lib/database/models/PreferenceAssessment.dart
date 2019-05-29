@@ -191,30 +191,40 @@ class PreferenceAssessment {
 
 class ARTRefillReminderDaysBeforeSelection {
   bool sevenDaysBeforeSelected = false;
+  bool threeDaysBeforeSelected = false;
   bool twoDaysBeforeSelected = false;
   bool oneDayBeforeSelected = false;
+  bool zeroDaysBeforeSelected = false;
 
   static String get sevenDaysBeforeDescription => "7 Days Before";
+  static String get threeDaysBeforeDescription => "3 Days Before";
   static String get twoDaysBeforeDescription => "2 Days Before";
   static String get oneDayBeforeDescription => "1 Day Before";
+  static String get zeroDaysBeforeDescription => "On the day of ART Refill";
 
   void deselectAll() {
     sevenDaysBeforeSelected = false;
+    threeDaysBeforeSelected = false;
     twoDaysBeforeSelected = false;
     oneDayBeforeSelected = false;
+    zeroDaysBeforeSelected = false;
   }
 
   bool get areAllDeselected {
     return !(sevenDaysBeforeSelected ||
+        threeDaysBeforeSelected ||
         twoDaysBeforeSelected ||
-        oneDayBeforeSelected);
+        oneDayBeforeSelected ||
+        zeroDaysBeforeSelected);
   }
 
   String serializeToJSON() {
     var map = Map<String, bool>();
     map['sevenDaysBeforeSelected'] = sevenDaysBeforeSelected;
+    map['threeDaysBeforeSelected'] = threeDaysBeforeSelected;
     map['twoDaysBeforeSelected'] = twoDaysBeforeSelected;
     map['oneDayBeforeSelected'] = oneDayBeforeSelected;
+    map['zeroDaysBeforeSelected'] = zeroDaysBeforeSelected;
     return jsonEncode(map);
   }
 
@@ -222,8 +232,10 @@ class ARTRefillReminderDaysBeforeSelection {
     final map = jsonDecode(json) as Map<String, dynamic>;
     var obj = ARTRefillReminderDaysBeforeSelection();
     obj.sevenDaysBeforeSelected = map['sevenDaysBeforeSelected'] ?? false;
+    obj.threeDaysBeforeSelected = map['threeDaysBeforeSelected'] ?? false;
     obj.twoDaysBeforeSelected = map['twoDaysBeforeSelected'] ?? false;
     obj.oneDayBeforeSelected = map['oneDayBeforeSelected'] ?? false;
+    obj.zeroDaysBeforeSelected = map['zeroDaysBeforeSelected'] ?? false;
     return obj;
   }
 
