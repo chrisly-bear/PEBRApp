@@ -361,6 +361,9 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       if (sps.SCHOOL_VISIT_PE_selected) {
         supportOptions.add(_buildSupportOption(SupportPreferencesSelection.SCHOOL_VISIT_PE_DESCRIPTION));
       }
+      if (sps.PITSO_VISIT_PE_selected) {
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.PITSO_VISIT_PE_DESCRIPTION));
+      }
 
       // TODO: remove this demo option (it is just an idea how to display completed items)
       supportOptions.add(
