@@ -399,11 +399,11 @@ class DatabaseProvider {
       throw NoLoginDataException();
     }
     final File dbFile = await _databaseFile;
-    final File csvFile = await DatabaseExporter.exportDatabaseToCSVFile();
+    final File excelFile = await DatabaseExporter.exportDatabaseToExcelFile();
     // upload SQLite and CSV file
     final String filename = '${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}';
     await uploadFileToSWITCHtoolbox(dbFile, filename: filename, folderID: SWITCH_TOOLBOX_BACKUP_FOLDER_ID);
-    await uploadFileToSWITCHtoolbox(csvFile, filename: filename, folderID: SWITCH_TOOLBOX_DATA_FOLDER_ID);
+    await uploadFileToSWITCHtoolbox(excelFile, filename: filename, folderID: SWITCH_TOOLBOX_DATA_FOLDER_ID);
     await storeLatestBackupInSharedPrefs();
   }
 
@@ -423,11 +423,11 @@ class DatabaseProvider {
       throw NoLoginDataException();
     }
     final File dbFile = await _databaseFile;
-    final File csvFile = await DatabaseExporter.exportDatabaseToCSVFile();
+    final File excelFile = await DatabaseExporter.exportDatabaseToExcelFile();
     // update SQLite and CSV file with new version
     final String docName = '${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}';
     await updateFileOnSWITCHtoolbox(dbFile, docName, folderId: SWITCH_TOOLBOX_BACKUP_FOLDER_ID);
-    await updateFileOnSWITCHtoolbox(csvFile, docName, folderId: SWITCH_TOOLBOX_DATA_FOLDER_ID);
+    await updateFileOnSWITCHtoolbox(excelFile, docName, folderId: SWITCH_TOOLBOX_DATA_FOLDER_ID);
     await storeLatestBackupInSharedPrefs();
   }
 
