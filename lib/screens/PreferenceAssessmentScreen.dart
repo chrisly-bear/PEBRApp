@@ -1847,6 +1847,9 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       answer: DropdownButtonFormField<bool>(
         value: _pa.legalAidSmartphoneAvailable,
         onChanged: (bool newValue) {
+          if (!newValue) {
+            _showDialog('No Smartphone Available', 'Give patient a legal aid leaflet.');
+          }
           setState(() {
             _pa.legalAidSmartphoneAvailable = newValue;
           });
@@ -2081,6 +2084,26 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             }
           },
         )
+    );
+  }
+
+  void _showDialog(String title, String body) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(body),
+          actions: [
+            FlatButton(
+              child: Row(children: [Text('OK', textAlign: TextAlign.center)]),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
