@@ -301,7 +301,8 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     }
 
     _buildAdherenceReminderTimeText() {
-      String text = _patient.latestPreferenceAssessment.adherenceReminderTime ?? '—';
+      final TimeOfDay adherenceReminderTime = _patient.latestPreferenceAssessment.adherenceReminderTime;
+      String text = adherenceReminderTime == null ? '—' : formatTime(adherenceReminderTime);
       return Text(text);
     }
 

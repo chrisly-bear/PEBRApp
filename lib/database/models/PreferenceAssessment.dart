@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderMessage.dart';
 import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
 import 'package:pebrapp/database/beans/CondomUsageNotDemonstratedReason.dart';
@@ -9,6 +10,7 @@ import 'package:pebrapp/database/beans/PitsoPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SchoolVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/beans/YesNoRefused.dart';
+import 'package:pebrapp/utils/Utils.dart';
 
 class PreferenceAssessment {
   static final tableName = 'PreferenceAssessment';
@@ -93,7 +95,7 @@ class PreferenceAssessment {
   String patientPhoneNumber;
   bool adherenceReminderEnabled;
   AdherenceReminderFrequency adherenceReminderFrequency;
-  String adherenceReminderTime;
+  TimeOfDay adherenceReminderTime;
   AdherenceReminderMessage adherenceReminderMessage;
   bool artRefillReminderEnabled;
   ARTRefillReminderDaysBeforeSelection artRefillReminderDaysBefore;
@@ -222,7 +224,7 @@ class PreferenceAssessment {
       this.adherenceReminderEnabled = map[colAdherenceReminderEnabled] == 1;
     }
     this.adherenceReminderFrequency = map[colAdherenceReminderFrequency] == null ? null : AdherenceReminderFrequency.values[map[colAdherenceReminderFrequency]];
-    this.adherenceReminderTime = map[colAdherenceReminderTime];
+    this.adherenceReminderTime = parseTimeOfDay(map[colAdherenceReminderTime]);
     this.adherenceReminderMessage = map[colAdherenceReminderMessage] == null ? null : AdherenceReminderMessage.values[map[colAdherenceReminderMessage]];
     if (map[colARTRefillReminderEnabled] != null) {
       this.artRefillReminderEnabled = map[colARTRefillReminderEnabled] == 1;
@@ -287,7 +289,7 @@ class PreferenceAssessment {
     map[colPatientPhoneNumber] = patientPhoneNumber;
     map[colAdherenceReminderEnabled] = adherenceReminderEnabled;
     map[colAdherenceReminderFrequency] = adherenceReminderFrequency?.index;
-    map[colAdherenceReminderTime] = adherenceReminderTime;
+    map[colAdherenceReminderTime] = formatTime(adherenceReminderTime);
     map[colAdherenceReminderMessage] = adherenceReminderMessage?.index;
     map[colARTRefillReminderEnabled] = artRefillReminderEnabled;
     map[colARTRefillReminderDaysBefore] = artRefillReminderDaysBefore?.serializeToJSON();

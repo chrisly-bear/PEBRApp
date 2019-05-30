@@ -221,6 +221,29 @@ String formatDateAndTime(DateTime date) {
   }
 }
 
+/// Formats a TimeOfDay object in the format HH:mm.
+///
+/// Returns null if [time] is null.
+String formatTime(TimeOfDay time) {
+  if (time == null) {
+    return null;
+  }
+  final DateTime date = DateTime(1970, 1, 1, time.hour, time.minute);
+  return DateFormat("HH:mm").format(date.toLocal());
+}
+
+/// Expects a time string of the format HH:mm.
+///
+/// Returns null if [time] is null.
+TimeOfDay parseTimeOfDay(String time) {
+  if (time == null) {
+    return null;
+  }
+  final int hour = int.parse(time.split(':')[0]);
+  final int minute = int.parse(time.split(':')[1]);
+  return TimeOfDay(hour: hour, minute: minute);
+}
+
 /// Calculates the due date of the next preference assessment based on the date
 /// of the last preference assessment (+60 days).
 /// 

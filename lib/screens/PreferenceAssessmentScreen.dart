@@ -56,7 +56,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   var _treatmentBuddyVillageCtr = TextEditingController();
   var _treatmentBuddyPhoneNumberCtr = TextEditingController();
   var _patientPhoneNumberCtr = TextEditingController();
-  var _adherenceReminderTimeCtr = TextEditingController();
   var _pePhoneNumberCtr = TextEditingController();
   var _homeVisitPENotPossibleReasonCtr = TextEditingController();
   var _schoolCtr = TextEditingController();
@@ -68,6 +67,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   var _psychoSocialShareCtr = TextEditingController();
   var _psychoSocialHowDoingCtr = TextEditingController();
   var _whyNotSafeEnvironmentCtr = TextEditingController();
+  bool _adherenceReminderTimeValid = true;
 
   // constructor
   _PreferenceAssessmentFormState(String patientART) {
@@ -701,24 +701,45 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         _pa.adherenceReminderEnabled == null || !_pa.adherenceReminderEnabled) {
       return Container();
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            Text('When during the day do you want to receive the adherence reminder?')),
-        Expanded(
-          flex: _answersFlex,
-          child: TextFormField(
-            controller: _adherenceReminderTimeCtr,
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter a phone number';
-              }
-            },
-          ),)
-      ],
+    return _makeQuestion('When during the day do you want to receive the adherence reminder?',
+      answer: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FlatButton(
+              padding: EdgeInsets.all(0.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: Text(
+                  _pa.adherenceReminderTime == null ? 'Select Time' : formatTime(_pa.adherenceReminderTime),
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              ),
+              onPressed: () async {
+                TimeOfDay time = await showTimePicker(context: context, initialTime: TimeOfDay(hour: 12, minute: 0));
+                if (time != null) {
+                  setState(() {
+                    _pa.adherenceReminderTime = time;
+                  });
+                }
+              },
+            ),
+            Divider(color: Colors.black87, height: 1.0,),
+            _adherenceReminderTimeValid ? Container() : Padding(
+              padding: const EdgeInsets.only(top: 5.0),
+              child: Text(
+                'Please select a time',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 12.0,
+                ),
+              ),
+            ),
+          ]
+      ),
     );
   }
 
@@ -2098,8 +2119,26 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             )));
   }
 
+  bool _validateAdherenceReminderTime() {
+    // if the adherence reminder time is not selected when it should be show
+    // the error message under the adherence reminder time field and return
+    // false.
+    if (_pa.phoneAvailable != null && _pa.phoneAvailable &&
+        _pa.adherenceReminderEnabled != null && _pa.adherenceReminderEnabled &&
+        _pa.adherenceReminderTime == null) {
+      setState(() {
+        _adherenceReminderTimeValid = false;
+      });
+      return false;
+    }
+    setState(() {
+      _adherenceReminderTimeValid = true;
+    });
+    return true;
+  }
+
   _onSubmitForm() async {
-    if (_formKey.currentState.validate()) {
+    if (_formKey.currentState.validate() & _validateAdherenceReminderTime()) {
       _pa.artRefillOption1 = _artRefillOptionSelections[0];
       _pa.artRefillOption2 = _artRefillOptionSelections[1];
       _pa.artRefillOption3 = _artRefillOptionSelections[2];
@@ -2126,8 +2165,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       if (_pa.phoneAvailable) {
         _pa.patientPhoneNumber = _patientPhoneNumberCtr.text;
         _pa.pePhoneNumber = _pePhoneNumberCtr.text;
-        if (_pa.adherenceReminderEnabled) {
-          _pa.adherenceReminderTime = _adherenceReminderTimeCtr.text;
+        if (!_pa.adherenceReminderEnabled) {
+          _pa.adherenceReminderTime = null;
         }
       }
       if (!_pa.phoneAvailable) {
