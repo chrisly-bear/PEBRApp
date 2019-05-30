@@ -8,6 +8,7 @@ import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
 import 'package:pebrapp/database/beans/PitsoPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SchoolVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
+import 'package:pebrapp/database/beans/YesNoRefused.dart';
 
 class PreferenceAssessment {
   static final tableName = 'PreferenceAssessment';
@@ -66,6 +67,11 @@ class PreferenceAssessment {
   static final colLegalAidSmartphoneAvailable = 'legal_aid_smartphone_available'; // nullable
   static final colTuneMeSmartphoneAvailable = 'tuneme_smartphone_available'; // nullable
   static final colNtlafatsoSmartphoneAvailable = 'ntlafatso_smartphone_available'; // nullable
+  static final colPsychosocialShareSomethingAnswer = 'psychosocial_share_something';
+  static final colPsychosocialShareSomethingContent = 'psychosocial_share_something_content'; // nullable
+  static final colPsychosocialHowDoing = 'psychosocial_how_doing'; // nullable
+  static final colUnsuppressedSafeEnvironmentAnswer = 'unsuppressed_safe_env_answer'; // nullable
+  static final colUnsuppressedWhyNotSafe = 'unsuppressed_why_not_safe_env'; // nullable
 
   String patientART;
   DateTime _createdDate;
@@ -119,6 +125,11 @@ class PreferenceAssessment {
   bool legalAidSmartphoneAvailable;
   bool tuneMeSmartphoneAvailable;
   bool ntlafatsoSmartphoneAvailable;
+  YesNoRefused psychosocialShareSomethingAnswer;
+  String psychosocialShareSomethingContent;
+  String psychosocialHowDoing;
+  YesNoRefused unsuppressedSafeEnvironmentAnswer;
+  String unsuppressedWhyNotSafe;
 
 
   // Constructors
@@ -130,6 +141,7 @@ class PreferenceAssessment {
       this.phoneAvailable,
       this.supportPreferences,
       this.artSupplyAmount,
+      this.psychosocialShareSomethingAnswer,
       {
         this.artRefillOption2,
         this.artRefillOption3,
@@ -177,6 +189,10 @@ class PreferenceAssessment {
         this.legalAidSmartphoneAvailable,
         this.tuneMeSmartphoneAvailable,
         this.ntlafatsoSmartphoneAvailable,
+        this.psychosocialShareSomethingContent,
+        this.psychosocialHowDoing,
+        this.unsuppressedSafeEnvironmentAnswer,
+        this.unsuppressedWhyNotSafe,
       });
 
   PreferenceAssessment.uninitialized();
@@ -242,6 +258,11 @@ class PreferenceAssessment {
     this.legalAidSmartphoneAvailable = map[colLegalAidSmartphoneAvailable] == null ? null : map[colLegalAidSmartphoneAvailable] == 1;
     this.tuneMeSmartphoneAvailable = map[colTuneMeSmartphoneAvailable] == null ? null : map[colTuneMeSmartphoneAvailable] == 1;
     this.ntlafatsoSmartphoneAvailable = map[colNtlafatsoSmartphoneAvailable] == null ? null : map[colNtlafatsoSmartphoneAvailable] == 1;
+    this.psychosocialShareSomethingAnswer = YesNoRefused.fromCode(map[colPsychosocialShareSomethingAnswer]);
+    this.psychosocialShareSomethingContent = map[colPsychosocialShareSomethingContent];
+    this.psychosocialHowDoing = map[colPsychosocialHowDoing];
+    this.unsuppressedSafeEnvironmentAnswer = YesNoRefused.fromCode(map[colUnsuppressedSafeEnvironmentAnswer]);
+    this.unsuppressedWhyNotSafe = map[colUnsuppressedWhyNotSafe];
   }
 
   toMap() {
@@ -298,6 +319,11 @@ class PreferenceAssessment {
     map[colLegalAidSmartphoneAvailable] = legalAidSmartphoneAvailable;
     map[colTuneMeSmartphoneAvailable] = tuneMeSmartphoneAvailable;
     map[colNtlafatsoSmartphoneAvailable] = ntlafatsoSmartphoneAvailable;
+    map[colPsychosocialShareSomethingAnswer] = psychosocialShareSomethingAnswer.code;
+    map[colPsychosocialShareSomethingContent] = psychosocialShareSomethingContent;
+    map[colPsychosocialHowDoing] = psychosocialHowDoing;
+    map[colUnsuppressedSafeEnvironmentAnswer] = unsuppressedSafeEnvironmentAnswer?.code;
+    map[colUnsuppressedWhyNotSafe] = unsuppressedWhyNotSafe;
     return map;
   }
 

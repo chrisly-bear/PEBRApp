@@ -8,6 +8,7 @@ import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
 import 'package:pebrapp/database/beans/PitsoPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SchoolVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
+import 'package:pebrapp/database/beans/YesNoRefused.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
@@ -64,6 +65,9 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   var _condomUsageNotDemonstratedReasonCtr = TextEditingController();
   var _contraceptivesMoreInfoCtr = TextEditingController();
   var _vmmcMoreInfoCtr = TextEditingController();
+  var _psychoSocialShareCtr = TextEditingController();
+  var _psychoSocialHowDoingCtr = TextEditingController();
+  var _whyNotSafeEnvironmentCtr = TextEditingController();
 
   // constructor
   _PreferenceAssessmentFormState(String patientART) {
@@ -117,6 +121,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             children: [PEBRAButtonRaised('Export')]),
         _buildTitle('Support'),
         _buildSupportCard(),
+        _buildPsychosocialCard(),
+        _buildUnsuppressedCard(),
 
         Center(child: _buildTitle('Next Preference Assessment')),
         Center(child: Text(formatDate(calculateNextAssessment(DateTime.now())))),
@@ -495,7 +501,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         ),
     );
   }
-  
+
   _buildNotificationsCard() {
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 15),
@@ -1925,6 +1931,138 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     );
   }
 
+  _buildPsychosocialCard() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTitle('Psychosocial Support'),
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 15),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: Column(
+              children: [
+                _shareSomethingQuestion(),
+                _shareSomethingContentQuestion(),
+                _howDoingQuestion(),
+              ],
+            ),
+          ),
+        ),
+      ]
+    );
+  }
+
+  Widget _shareSomethingQuestion() {
+    return _makeQuestion('Is there anything you would like to share with me today?',
+      answer: DropdownButtonFormField<YesNoRefused>(
+        value: _pa.psychosocialShareSomethingAnswer,
+        onChanged: (YesNoRefused newValue) {
+          setState(() {
+            _pa.psychosocialShareSomethingAnswer = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) { return 'Please answer this question'; }
+        },
+        items: YesNoRefused.allValues.map<DropdownMenuItem<YesNoRefused>>((YesNoRefused value) {
+          return DropdownMenuItem<YesNoRefused>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      )
+    );
+  }
+
+  Widget _shareSomethingContentQuestion() {
+    if (_pa.psychosocialShareSomethingAnswer == null || _pa.psychosocialShareSomethingAnswer != YesNoRefused.YES()) {
+      return Container();
+    }
+    return _makeQuestion('What would like to share with me today?',
+        answer: TextFormField(
+          controller: _psychoSocialShareCtr,
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please specify';
+            }
+          },
+        )
+    );
+  }
+
+  Widget _howDoingQuestion() {
+    return _makeQuestion('How do you think you are doing today?',
+        answer: TextFormField(
+          controller: _psychoSocialHowDoingCtr,
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please specify';
+            }
+          },
+        )
+    );
+  }
+
+  _buildUnsuppressedCard() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTitle('Unsuppressed Viral Load'),
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 15),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: Column(
+              children: [
+                _safeEnvironmentQuestion(),
+                _whyNotSafeEnvironmentQuestion(),
+              ],
+            ),
+          ),
+        ),
+      ]
+    );
+  }
+
+  Widget _safeEnvironmentQuestion() {
+    return _makeQuestion('Do you have a safe environment to take your medication?',
+        answer: DropdownButtonFormField<YesNoRefused>(
+          value: _pa.unsuppressedSafeEnvironmentAnswer,
+          onChanged: (YesNoRefused newValue) {
+            setState(() {
+              _pa.unsuppressedSafeEnvironmentAnswer = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) { return 'Please answer this question'; }
+          },
+          items: YesNoRefused.allValues.map<DropdownMenuItem<YesNoRefused>>((YesNoRefused value) {
+            return DropdownMenuItem<YesNoRefused>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        )
+    );
+  }
+
+  Widget _whyNotSafeEnvironmentQuestion() {
+    if (_pa.unsuppressedSafeEnvironmentAnswer == null || _pa.unsuppressedSafeEnvironmentAnswer != YesNoRefused.NO()) {
+      return Container();
+    }
+    return _makeQuestion('Why do you not have a safe environment to take your medication?',
+        answer: TextFormField(
+          controller: _whyNotSafeEnvironmentCtr,
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please specify';
+            }
+          },
+        )
+    );
+  }
+
   Widget _makeQuestion(String question, {@required Widget answer}) {
     return _makeQuestionCustom(
       question: Text(question),
@@ -2089,6 +2227,13 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       }
       if (!_pa.supportPreferences.NTLAFATSO_FOUNDATION_selected) {
         _pa.ntlafatsoSmartphoneAvailable = null;
+      }
+      if (_pa.psychosocialShareSomethingAnswer == YesNoRefused.YES()) {
+        _pa.psychosocialShareSomethingContent = _psychoSocialShareCtr.text;
+      }
+      _pa.psychosocialHowDoing = _psychoSocialHowDoingCtr.text;
+      if (_pa.unsuppressedSafeEnvironmentAnswer != null && _pa.unsuppressedSafeEnvironmentAnswer == YesNoRefused.NO()) {
+        _pa.unsuppressedWhyNotSafe = _whyNotSafeEnvironmentCtr.text;
       }
 
       print(
