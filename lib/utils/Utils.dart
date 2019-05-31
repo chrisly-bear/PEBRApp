@@ -184,6 +184,16 @@ String formatDateConsistent(DateTime date) {
   return DateFormat("dd.MM.yyyy").format(date.toLocal());
 }
 
+/// Turns date into the format yyyy-MM-dd.
+///
+/// Returns null if [date] is null.
+String formatDateIso(DateTime date) {
+  if (date == null) {
+    return null;
+  }
+  return DateFormat("yyyy-MM-dd").format(date.toLocal());
+}
+
 /// Turns a date into a formatted String. If the date is
 ///
 /// * today it will return "Today"
@@ -221,9 +231,14 @@ String formatDateAndTime(DateTime date) {
   }
 }
 
-/// Turns a DateTime object into the format HH:mm.
-String formatTimeFromDateTime(DateTime date) {
-  return DateFormat("HH:mm").format(date.toLocal());
+/// Turns a DateTime object into the format HH:mm:ss.
+///
+/// Returns null if [date] is null.
+String formatTimeIso(DateTime date) {
+  if (date == null) {
+    return null;
+  }
+  return DateFormat("HH:mm:ss").format(date.toLocal());
 }
 
 /// Formats a TimeOfDay object in the format HH:mm.

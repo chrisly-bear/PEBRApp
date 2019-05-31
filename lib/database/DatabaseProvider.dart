@@ -598,12 +598,7 @@ class DatabaseProvider {
     return null;
   }
 
-
-  // Debug methods (should be removed/disabled for final release)
-  // ------------------------------------------------------------
-  // TODO: remove/disable these functions for the final release
-
-  /// Retrieves all patients from the database, including duplicates created when editing a patient.
+  /// Retrieves all patient rows from the database, including all edits.
   Future<List<Patient>> retrieveAllPatients() async {
     final Database db = await _databaseInstance;
     // query the table for all patients
@@ -618,6 +613,53 @@ class DatabaseProvider {
     }
     return list;
   }
+
+  /// Retrieves all viral load rows from the database, including all edits.
+  Future<List<ViralLoad>> retrieveAllViralLoads() async {
+    final Database db = await _databaseInstance;
+    final res = await db.query(ViralLoad.tableName);
+    List<ViralLoad> list = List<ViralLoad>();
+    if (res.isNotEmpty) {
+      for (Map<String, dynamic> map in res) {
+        ViralLoad v = ViralLoad.fromMap(map);
+        list.add(v);
+      }
+    }
+    return list;
+  }
+
+  /// Retrieves all preference assessment rows from the database, including all
+  /// edits.
+  Future<List<PreferenceAssessment>> retrieveAllPreferenceAssessments() async {
+    final Database db = await _databaseInstance;
+    final res = await db.query(PreferenceAssessment.tableName);
+    List<PreferenceAssessment> list = List<PreferenceAssessment>();
+    if (res.isNotEmpty) {
+      for (Map<String, dynamic> map in res) {
+        PreferenceAssessment pa = PreferenceAssessment.fromMap(map);
+        list.add(pa);
+      }
+    }
+    return list;
+  }
+
+  /// Retrieves all ART refill rows from the database, including all edits.
+  Future<List<ARTRefill>> retrieveAllARTRefills() async {
+    final Database db = await _databaseInstance;
+    final res = await db.query(ARTRefill.tableName);
+    List<ARTRefill> list = List<ARTRefill>();
+    if (res.isNotEmpty) {
+      for (Map<String, dynamic> map in res) {
+        ARTRefill r = ARTRefill.fromMap(map);
+        list.add(r);
+      }
+    }
+    return list;
+  }
+
+  // Debug methods (should be removed/disabled for final release)
+  // ------------------------------------------------------------
+  // TODO: remove/disable these functions for the final release
 
   /// Retrieves a table's column names.
   Future<List<Map<String, dynamic>>> getTableInfo(String tableName) async {

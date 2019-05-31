@@ -144,8 +144,8 @@ class Patient implements IExcelExportable {
   @override
   List<dynamic> toExcelRow() {
     List<dynamic> row = List<dynamic>(_numberOfColumns);
-    row[0] = formatDateConsistent(_createdDate);
-    row[1] = formatTimeFromDateTime(_createdDate);
+    row[0] = formatDateIso(_createdDate);
+    row[1] = formatTimeIso(_createdDate);
     row[2] = null; // TODO
     row[3] = null; // TODO
     row[4] = artNumber;

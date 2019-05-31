@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderMessage.dart';
 import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
 import 'package:pebrapp/database/beans/CondomUsageNotDemonstratedReason.dart';
@@ -12,7 +13,7 @@ import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/beans/YesNoRefused.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
-class PreferenceAssessment {
+class PreferenceAssessment implements IExcelExportable {
   static final tableName = 'PreferenceAssessment';
 
   // column names
@@ -267,6 +268,10 @@ class PreferenceAssessment {
     this.unsuppressedWhyNotSafe = map[colUnsuppressedWhyNotSafe];
   }
 
+
+  // Other
+  // -----
+
   toMap() {
     var map = Map<String, dynamic>();
     map[colPatientART] = patientART;
@@ -328,6 +333,142 @@ class PreferenceAssessment {
     map[colUnsuppressedWhyNotSafe] = unsuppressedWhyNotSafe;
     return map;
   }
+
+  static const int _numberOfColumns = 58;
+
+  /// Column names for the header row in the excel sheet.
+  // If we change the order here, make sure to change the order in the
+  // [toExcelRow] method as well!
+  static List<String> get excelHeaderRow {
+    List<String> row = List<String>(_numberOfColumns);
+    row[0] = 'DATE_CREATED';
+    row[1] = 'TIME_CREATED';
+    row[2] = 'IND_ID';
+    row[3] = 'ART_REFILL_1';
+    row[4] = 'ART_REFILL_2';
+    row[5] = 'ART_REFILL_3';
+    row[6] = 'ART_REFILL_4';
+    row[7] = 'ART_REFILL_5';
+    row[8] = 'ART_REFILL_PE_NO';
+    row[9] = 'ART_REFILL_PE_NO_OTHER';
+    row[10] = 'ART_REFILL_VHW_NAME';
+    row[11] = 'ART_REFILL_VHW_VILLAGE';
+    row[12] = 'ART_REFILL_VHW_CELL';
+    row[13] = 'ART_REFILL_TB_ART';
+    row[14] = 'ART_REFILL_TB_VILLAGE';
+    row[15] = 'ART_REFILL_TB_CELL';
+    row[16] = 'ART_REFILL_INTERVAL';
+    row[17] = 'CELL_GIVEN';
+    row[18] = 'CELL';
+    row[19] = 'NOT_ADH';
+    row[20] = 'NOT_ADH_FREQ';
+    row[21] = 'NOT_ADH_TIME';
+    row[22] = 'NOT_ADH_MESSAGE';
+    row[23] = 'NOT_REFILL';
+    row[24] = 'NOT_REFILL_WHEN';
+    row[25] = 'NOT_REFILL_MESSAGE';
+    row[26] = 'NOT_VL';
+    row[27] = 'NOT_VL_SUPPR_MESSAGE';
+    row[28] = 'NOT_VL_UNSUPPR_MESSAGE';
+    row[29] = 'NOT_CELL_PE';
+    row[30] = 'SUPPORT';
+    row[31] = 'SUPPORT_SCC';
+    row[32] = 'SUPPORT_CYC';
+    row[33] = 'SUPPORT_HV';
+    row[34] = 'SUPPORT_HV_NO';
+    row[35] = 'SUPPORT_HV_NO_OTHER';
+    row[36] = 'SUPPORT_SV';
+    row[37] = 'SUPPORT_SV_SCHOOL';
+    row[38] = 'SUPPORT_SV_NO';
+    row[39] = 'SUPPORT_SV_NO_OTHER';
+    row[40] = 'SUPPORT_PV';
+    row[41] = 'SUPPORT_PV_NO';
+    row[42] = 'SUPPORT_PV_NO_OTHER';
+    row[43] = 'SUPPORT_CD';
+    row[44] = 'SUPPORT_CD_NO';
+    row[45] = 'SUPPORT_CD_NO_OTHER';
+    row[46] = 'SUPPORT_CC';
+    row[47] = 'SUPPORT_VMMC';
+    row[48] = 'SUPPORT_YM';
+    row[49] = 'SUPPORT_W';
+    row[50] = 'SUPPORT_LA';
+    row[51] = 'SUPPORT_TM';
+    row[52] = 'SUPPORT_NF';
+    row[53] = 'PSYCH_SHARE';
+    row[54] = 'PSYCH_SHARE_NOTE';
+    row[55] = 'PSYCH_DOING_NOTE';
+    row[56] = 'UVL_ENV';
+    row[57] = 'UVL_ENV_NOTE';
+    return row;
+  }
+
+  /// Turns this object into a row that can be written to the excel sheet.
+  // If we change the order here, make sure to change the order in the
+  // [excelHeaderRow] method as well!
+  @override
+  List<dynamic> toExcelRow() {
+    List<dynamic> row = List<dynamic>(_numberOfColumns);
+    row[0] = formatDateIso(_createdDate);
+    row[1] = formatTimeIso(_createdDate);
+    row[2] = patientART;
+    row[3] = artRefillOption1.index; // TODO: use correct encoding
+    row[4] = artRefillOption2?.index; // TODO: use correct encoding
+    row[5] = artRefillOption3?.index; // TODO: use correct encoding
+    row[6] = artRefillOption4?.index; // TODO: use correct encoding
+    row[7] = artRefillOption5?.index; // TODO: use correct encoding
+    row[8] = artRefillPENotPossibleReason?.code;
+    row[9] = artRefillPENotPossibleReasonOther;
+    row[10] = artRefillVHWName;
+    row[11] = artRefillVHWVillage;
+    row[12] = artRefillVHWPhoneNumber;
+    row[13] = artRefillTreatmentBuddyART;
+    row[14] = artRefillTreatmentBuddyVillage;
+    row[15] = artRefillTreatmentBuddyPhoneNumber;
+    row[16] = artSupplyAmount.code;
+    row[17] = phoneAvailable;
+    row[18] = patientPhoneNumber;
+    row[19] = adherenceReminderEnabled;
+    row[20] = adherenceReminderFrequency?.index; // TODO: use correct encoding
+    row[21] = formatTime(adherenceReminderTime);
+    row[22] = adherenceReminderMessage?.index; // TODO: use correct encoding
+    row[23] = artRefillReminderEnabled;
+    row[24] = artRefillReminderDaysBefore?.serializeToJSON(); // TODO: use correct encoding
+    row[25] = artRefillReminderMessage?.code;
+    row[26] = vlNotificationEnabled;
+    row[27] = vlNotificationMessageSuppressed?.index; // TODO: use correct encoding
+    row[28] = vlNotificationMessageUnsuppressed?.index; // TODO: use correct encoding
+    row[29] = pePhoneNumber;
+    row[30] = supportPreferences.serializeToJSON();
+    row[31] = saturdayClinicClubAvailable;
+    row[32] = communityYouthClubAvailable;
+    row[33] = homeVisitPEPossible;
+    row[34] = homeVisitPENotPossibleReason?.code;
+    row[35] = homeVisitPENotPossibleReasonOther;
+    row[36] = schoolVisitPEPossible;
+    row[37] = school;
+    row[38] = schoolVisitPENotPossibleReason?.code;
+    row[39] = schoolVisitPENotPossibleReasonOther;
+    row[40] = pitsoPEPossible;
+    row[41] = pitsoPENotPossibleReason?.code;
+    row[42] = pitsoPENotPossibleReasonOther;
+    row[43] = condomUsageDemonstrated;
+    row[44] = condomUsageNotDemonstratedReason?.code;
+    row[45] = condomUsageNotDemonstratedReasonOther;
+    row[46] = moreInfoContraceptives;
+    row[47] = moreInfoVMMC;
+    row[48] = youngMothersAvailable;
+    row[49] = femaleWorthAvailable;
+    row[50] = legalAidSmartphoneAvailable;
+    row[51] = tuneMeSmartphoneAvailable;
+    row[52] = ntlafatsoSmartphoneAvailable;
+    row[53] = psychosocialShareSomethingAnswer.code;
+    row[54] = psychosocialShareSomethingContent;
+    row[55] = psychosocialHowDoing;
+    row[56] = unsuppressedSafeEnvironmentAnswer?.code;
+    row[57] = unsuppressedWhyNotSafe;
+    return row;
+  }
+
 
   /// Do not set the createdDate manually! The DatabaseProvider sets the date
   /// automatically on inserts into database.

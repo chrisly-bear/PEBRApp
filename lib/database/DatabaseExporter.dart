@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:path/path.dart';
+import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'dart:io';
 import 'package:spreadsheet_decoder/spreadsheet_decoder.dart';
 
@@ -58,7 +61,7 @@ class DatabaseExporter {
 
       // make enough columns
       for (var i = 1; i < headerRow.length; i++) {
-        decoder.insertColumn(patientSheet, i);
+        decoder.insertColumn(sheetName, i);
       }
 
       // write header row
@@ -79,7 +82,14 @@ class DatabaseExporter {
     final List<Patient> patientRows = await dbp.retrieveAllPatients();
     _writeRowsToExcel(patientSheet, Patient.excelHeaderRow, patientRows);
 
-    // TODO: write Sheets for other tables (PreferenceAssessment, ARTRefill, Settings...)
+    final List<ViralLoad> viralLoadRows = await dbp.retrieveAllViralLoads();
+    _writeRowsToExcel(viralLoadSheet, ViralLoad.excelHeaderRow, viralLoadRows);
+
+    final List<PreferenceAssessment> preferenceAssessmentRows = await dbp.retrieveAllPreferenceAssessments();
+    _writeRowsToExcel(preferenceAssessmentSheet, PreferenceAssessment.excelHeaderRow, preferenceAssessmentRows);
+
+    final List<ARTRefill> artRefillRows = await dbp.retrieveAllARTRefills();
+    _writeRowsToExcel(artRefillSheet, ARTRefill.excelHeaderRow, artRefillRows);
 
     // store changes to file
     excelFile.writeAsBytesSync(decoder.encode());

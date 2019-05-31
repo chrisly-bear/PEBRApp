@@ -1,14 +1,16 @@
 import 'dart:async';
 
 import 'package:pebrapp/config/PEBRAConfig.dart';
+import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/SexualOrientation.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/utils/Utils.dart';
 
-class ViralLoad {
+class ViralLoad implements IExcelExportable {
   static final tableName = 'ViralLoad';
 
   // column names
@@ -48,6 +50,10 @@ class ViralLoad {
     this.viralLoad = map[colViralLoad];
   }
 
+
+  // Other
+  // -----
+
   toMap() {
     var map = Map<String, dynamic>();
     map[colPatientART] = patientART;
@@ -61,6 +67,48 @@ class ViralLoad {
     map[colViralLoad] = viralLoad;
     return map;
   }
+
+  static const int _numberOfColumns = 11;
+
+  /// Column names for the header row in the excel sheet.
+  // If we change the order here, make sure to change the order in the
+  // [toExcelRow] method as well!
+  static List<String> get excelHeaderRow {
+    List<String> row = List<String>(_numberOfColumns);
+    row[0] = 'DATE_CREATED';
+    row[1] = 'TIME_CREATED';
+    row[2] = 'VL_DATE';
+    row[3] = 'VL_TIME';
+    row[4] = 'IND_ID';
+    row[5] = 'VL_LTDL';
+    row[6] = 'VL_RESULT';
+    row[7] = 'VL_LNO';
+    row[8] = 'VL_DISCREPANCY';
+    row[9] = 'VL_IS_BASELINE';
+    row[10] = 'VL_SOURCE';
+    return row;
+  }
+
+  /// Turns this object into a row that can be written to the excel sheet.
+  // If we change the order here, make sure to change the order in the
+  // [excelHeaderRow] method as well!
+  @override
+  List<dynamic> toExcelRow() {
+    List<dynamic> row = List<dynamic>(_numberOfColumns);
+    row[0] = formatDateIso(_createdDate);
+    row[1] = formatTimeIso(_createdDate);
+    row[2] = formatDateIso(dateOfBloodDraw);
+    row[3] = formatTimeIso(dateOfBloodDraw);
+    row[4] = patientART;
+    row[5] = isLowerThanDetectable;
+    row[6] = viralLoad;
+    row[7] = labNumber;
+    row[8] = null; // TODO
+    row[9] = isBaseline;
+    row[10] = source?.code;
+    return row;
+  }
+
 
   /// Sets fields to null if they are not used. E.g. sets [viralLoad] to null
   /// if [isLowerThanDetectable] is true.

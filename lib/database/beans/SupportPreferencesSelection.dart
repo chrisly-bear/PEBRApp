@@ -47,9 +47,9 @@ class SupportPreferencesSelection {
 
   Set<_SupportPreference> _selection = Set();
 
+
   // Constructors
   // ------------
-
 
   String serializeToJSON() {
     final selectionAsList = _selection.map((_SupportPreference pref) => _encoding[pref]).toList();
@@ -68,6 +68,7 @@ class SupportPreferencesSelection {
     }).toSet();
     return obj;
   }
+
 
   // Public API
   // ----------
