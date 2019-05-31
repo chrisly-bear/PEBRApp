@@ -50,53 +50,34 @@ class DatabaseExporter {
     final List<int> bytes = excelFile.readAsBytesSync();
     final decoder = SpreadsheetDecoder.decodeBytes(bytes, update: true);
 
+    void _writeRowsToExcel(String sheetName, List<String> headerRow, List<IExcelExportable> rows) {
+      // make enough rows
+      for (var i = 0; i < rows.length; i++) {
+        decoder.insertRow(sheetName, i+1);
+      }
+
+      // make enough columns
+      for (var i = 1; i < headerRow.length; i++) {
+        decoder.insertColumn(patientSheet, i);
+      }
+
+      // write header row
+      for (var i = 0; i < headerRow.length; i++) {
+        decoder.updateCell(sheetName, i, 0, headerRow[i]);
+      }
+
+      // write rows
+      for (var i = 0; i < rows.length; i++) {
+        List<dynamic> row = rows[i].toExcelRow();
+        // write all columns of current row
+        for (var j = 0; j < headerRow.length; j++) {
+          decoder.updateCell(sheetName, j, i+1, row[j]);
+        }
+      }
+    }
+
     final List<Patient> patientRows = await dbp.retrieveAllPatients();
-
-    final int rowsRequired = patientRows.length;
-    final int colsRequired = 14; // depends on how many attributes/columns the table has
-    for (var i = 1; i <= rowsRequired; i++) {
-      decoder.insertRow(patientSheet, i);
-    }
-    for (var i = 1; i <= colsRequired; i++) {
-      decoder.insertColumn(patientSheet, i);
-    }
-
-    // TODO: use column names from codebook
-    decoder.updateCell(patientSheet, 0, 0, 'createdDate');
-    decoder.updateCell(patientSheet, 1, 0, 'artNumber');
-    decoder.updateCell(patientSheet, 2, 0, 'stickerNumber');
-    decoder.updateCell(patientSheet, 3, 0, 'yearOfBirth');
-    decoder.updateCell(patientSheet, 4, 0, 'isEligible');
-    // nullables:
-    decoder.updateCell(patientSheet, 5, 0, 'gender');
-    decoder.updateCell(patientSheet, 6, 0, 'sexualOrientation');
-    decoder.updateCell(patientSheet, 7, 0, 'village');
-    decoder.updateCell(patientSheet, 8, 0, 'phoneAvailability');
-    decoder.updateCell(patientSheet, 9, 0, 'phoneNumber');
-    decoder.updateCell(patientSheet, 10, 0, 'consentGiven');
-    decoder.updateCell(patientSheet, 11, 0, 'noConsentReason');
-    decoder.updateCell(patientSheet, 12, 0, 'noConsentReasonOther');
-    decoder.updateCell(patientSheet, 13, 0, 'isActivated');
-
-    for (var i = 0; i < patientRows.length; i++) {
-      Patient p = patientRows.elementAt(i);
-      // TODO: write all variables
-      decoder.updateCell(patientSheet, 0, i+1, p.createdDate);
-      decoder.updateCell(patientSheet, 1, i+1, p.artNumber);
-      decoder.updateCell(patientSheet, 2, i+1, p.stickerNumber);
-      decoder.updateCell(patientSheet, 3, i+1, p.yearOfBirth);
-      decoder.updateCell(patientSheet, 4, i+1, p.isEligible);
-      // nullables:
-      decoder.updateCell(patientSheet, 5, i+1, p.gender?.code);
-      decoder.updateCell(patientSheet, 6, i+1, p.sexualOrientation?.code);
-      decoder.updateCell(patientSheet, 7, i+1, p.village);
-      decoder.updateCell(patientSheet, 8, i+1, p.phoneAvailability?.code);
-      decoder.updateCell(patientSheet, 9, i+1, p.phoneNumber);
-      decoder.updateCell(patientSheet, 10, i+1, p.consentGiven);
-      decoder.updateCell(patientSheet, 11, i+1, p.noConsentReason);
-      decoder.updateCell(patientSheet, 12, i+1, p.noConsentReasonOther);
-      decoder.updateCell(patientSheet, 13, i+1, p.isActivated);
-    }
+    _writeRowsToExcel(patientSheet, Patient.excelHeaderRow, patientRows);
 
     // TODO: write Sheets for other tables (PreferenceAssessment, ARTRefill, Settings...)
 
@@ -105,4 +86,9 @@ class DatabaseExporter {
     return excelFile;
   }
 
+}
+
+/// Interface which makes a class exportable to an excel file.
+abstract class IExcelExportable {
+  List<dynamic> toExcelRow();
 }

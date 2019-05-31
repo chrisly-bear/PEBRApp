@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/NoConsentReason.dart';
@@ -8,9 +9,10 @@ import 'package:pebrapp/database/beans/SexualOrientation.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/utils/Utils.dart';
 
 
-class Patient {
+class Patient implements IExcelExportable {
   static final tableName = 'Patient';
 
   // column names
@@ -85,6 +87,10 @@ class Patient {
     }
   }
 
+
+  // Other
+  // -----
+
   toMap() {
     var map = Map<String, dynamic>();
     map[colCreatedDate] = createdDate.toIso8601String();
@@ -103,6 +109,59 @@ class Patient {
     map[colNoConsentReasonOther] = noConsentReasonOther;
     map[colIsActivated] = isActivated;
     return map;
+  }
+
+  static const int _numberOfColumns = 17;
+
+  /// Column names for the header row in the excel sheet.
+  // If we change the order here, make sure to change the order in the
+  // [toExcelRow] method as well!
+  static List<String> get excelHeaderRow {
+    List<String> row = List<String>(_numberOfColumns);
+    row[0] = 'DATE_CREATED';
+    row[1] = 'TIME_CREATED';
+    row[2] = 'DATE_ENROL';
+    row[3] = 'TIME_ENROL';
+    row[4] = 'IND_ID';
+    row[5] = 'BIRTH_YEAR';
+    row[6] = 'CONSENT';
+    row[7] = 'CONSENT_NO';
+    row[8] = 'CONSENT_OTHER';
+    row[9] = 'GENDER';
+    row[10] = 'SEX_ORIENT';
+    row[11] = 'STICKER_ID';
+    row[12] = 'VILLAGE';
+    row[13] = 'CELL_GIVEN';
+    row[14] = 'CELL';
+    row[15] = 'ACTIVATED';
+    row[16] = 'ELIGIBLE';
+    return row;
+  }
+
+  /// Turns this object into a row that can be written to the excel sheet.
+  // If we change the order here, make sure to change the order in the
+  // [excelHeaderRow] method as well!
+  @override
+  List<dynamic> toExcelRow() {
+    List<dynamic> row = List<dynamic>(_numberOfColumns);
+    row[0] = formatDateConsistent(_createdDate);
+    row[1] = formatTimeFromDateTime(_createdDate);
+    row[2] = null; // TODO
+    row[3] = null; // TODO
+    row[4] = artNumber;
+    row[5] = yearOfBirth;
+    row[6] = consentGiven;
+    row[7] = noConsentReason?.code;
+    row[8] = noConsentReasonOther;
+    row[9] = gender?.code;
+    row[10] = sexualOrientation?.code;
+    row[11] = stickerNumber;
+    row[12] = village;
+    row[13] = phoneAvailability?.code;
+    row[14] = phoneNumber;
+    row[15] = isActivated;
+    row[16] = isEligible;
+    return row;
   }
 
   /// Initializes the fields [viralLoadBaselineManual], [viralLoadBaselineDatabase], and

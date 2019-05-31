@@ -221,6 +221,11 @@ String formatDateAndTime(DateTime date) {
   }
 }
 
+/// Turns a DateTime object into the format HH:mm.
+String formatTimeFromDateTime(DateTime date) {
+  return DateFormat("HH:mm").format(date.toLocal());
+}
+
 /// Formats a TimeOfDay object in the format HH:mm.
 ///
 /// Returns null if [time] is null.
