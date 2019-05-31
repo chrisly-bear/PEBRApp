@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flushbar/flushbar.dart';
@@ -9,29 +10,56 @@ import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+/// Displays a notification over the given [context].
+///
+/// @param [message]: The message to display.
+///
+/// @param [title]: An optional title to display.
+///
+/// @param [error]: If this is `true` then the notification will be displayed in red.
+///
+/// @param [onButtonPress]: Required if a button should be displayed. This function will be executed when the button is pressed.
+///
+/// @param [buttonText]: Optional button text to be displayed on the button. If this is null or the empty string an info icon will be displayed instead.
+void showFlushBar(BuildContext context, String message, {String title, bool error=false, VoidCallback onButtonPress, String buttonText}) {
 
-void showFlushBar(BuildContext context, String message, {String title, bool error=false}) {
+  FlatButton button;
+  if (onButtonPress != null) {
+    button = FlatButton(
+      onPressed: onButtonPress,
+      child: buttonText == null || buttonText == ''
+          ? Icon(Icons.info, color: Colors.white)
+          : Text(buttonText.toUpperCase(), style: TextStyle(color: Colors.white)),
+    );
+  }
+
+  // define the maximum width of the notification
+  const double MAX_WIDTH = 600;
+  final double screenWidth = MediaQuery.of(context).size.width;
+  final double padding = max(10, (screenWidth - MAX_WIDTH)/2);
+
   Flushbar(
-      flushbarPosition: FlushbarPosition.TOP,
+    flushbarPosition: FlushbarPosition.TOP,
     titleText: title == null ? null : Text(title,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 18.0,
-          fontWeight: FontWeight.bold,
-        ),
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 18.0,
+        fontWeight: FontWeight.bold,
+      ),
     ),
     messageText: Text(
-        message, textAlign: TextAlign.center,
-        style: TextStyle(
-            color: Colors.white,
-            fontSize: title == null ? 18.0 : 16.0,
-        ),
+      message, textAlign: TextAlign.center,
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: title == null ? 18.0 : 16.0,
+      ),
     ),
+    mainButton: button,
     boxShadows: [BoxShadow(color: Colors.black, blurRadius: 5.0, offset: Offset(0.0, 0.0), spreadRadius: 0.0)],
     borderRadius: 5,
     backgroundColor: error ? Colors.redAccent : Colors.black.withAlpha(200),
-    aroundPadding: EdgeInsets.symmetric(horizontal: 80.0),
+    aroundPadding: EdgeInsets.symmetric(horizontal: padding),
     duration: error ? null : Duration(seconds: 5),
   ).show(context);
 }
