@@ -21,7 +21,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   sqflite: ^1.1.0
   path: ^1.6.2
-  flushbar: ^1.2.4
+  flushbar: 1.5.3
   url_launcher: ^5.0.2
   intl: ^0.15.7
   html: ^0.13.4+1
