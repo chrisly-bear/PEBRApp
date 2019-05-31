@@ -137,13 +137,14 @@ class _SettingsBodyState extends State<SettingsBody> {
     String message = 'Backup Successful';
     String title;
     bool error = false;
+    VoidCallback onNotificationButtonPress;
     setState(() { _isLoading = true; });
     try {
       await DatabaseProvider().createAdditionalBackupOnSWITCH(loginData);
       setState(() {
         lastBackup = formatDateAndTime(DateTime.now());
       });
-    } catch (e) {
+    } catch (e, s) {
       error = true;
       title = 'Backup Failed';
       switch (e.runtimeType) {
@@ -159,22 +160,28 @@ class _SettingsBodyState extends State<SettingsBody> {
           message = 'Make sure you are connected to the internet.';
           break;
         default:
-          message = '$e';
+          message = 'An unknown error occured. Contact the development team.';
+          print('${e.runtimeType}: $e');
+          print(s);
+          onNotificationButtonPress = () {
+            showErrorInPopup(e, s, context);
+          };
       }
     }
     setState(() { _isLoading = false; });
-    showFlushBar(context, message, title: title, error: error);
+    showFlushBar(context, message, title: title, error: error, onButtonPress: onNotificationButtonPress);
   }
 
   _onPressRestoreButton(BuildContext context) async {
       String resultMessage = 'Restore Successful';
       String title;
       bool error = false;
+      VoidCallback onNotificationButtonPress;
       setState(() { _isLoading = true; });
       final LoginData loginData = await loginDataFromSharedPrefs;
       try {
         await restoreFromSWITCHtoolbox(loginData);
-      } catch (e) {
+      } catch (e, s) {
         error = true;
         title = 'Restore Failed';
         switch (e.runtimeType) {
@@ -193,11 +200,16 @@ class _SettingsBodyState extends State<SettingsBody> {
             resultMessage = 'No backup found for user \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\'.';
             break;
           default:
-            resultMessage = '$e';
+            resultMessage = 'An unknown error occured. Contact the development team.';
+            print('${e.runtimeType}: $e');
+            print(s);
+            onNotificationButtonPress = () {
+              showErrorInPopup(e, s, context);
+            };
         }
       }
       setState(() { _isLoading = false; });
-      showFlushBar(context, resultMessage, title: title, error: error);
+      showFlushBar(context, resultMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
   }
 
   _onPressLogout(BuildContext context) async {
@@ -414,6 +426,7 @@ class _LoginBodyState extends State<LoginBody> {
       String title;
       String notificationMessage = 'Login Successful';
       bool error = false;
+      VoidCallback onNotificationButtonPress;
       setState(() { _isLoading = true; });
       try {
           await restoreFromSWITCHtoolbox(loginData);
@@ -423,7 +436,7 @@ class _LoginBodyState extends State<LoginBody> {
           await prefs.setString(LASTNAME_KEY, loginData.lastName);
           await prefs.setString(HEALTHCENTER_KEY, loginData.healthCenter);
           Navigator.of(context).popUntil(ModalRoute.withName('/'));
-      } catch (e) {
+      } catch (e, s) {
         error = true;
         title = 'Login Failed';
         switch (e.runtimeType) {
@@ -439,11 +452,16 @@ class _LoginBodyState extends State<LoginBody> {
             notificationMessage = 'User \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\' not found. Check your login data or create a new account.';
             break;
           default:
-            notificationMessage = '$e';
+            notificationMessage = 'An unknown error occured. Contact the development team.';
+            print('${e.runtimeType}: $e');
+            print(s);
+            onNotificationButtonPress = () {
+              showErrorInPopup(e, s, context);
+            };
         }
       }
       setState(() { _isLoading = false; });
-      showFlushBar(context, notificationMessage, title: title, error: error);
+      showFlushBar(context, notificationMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
     }
   }
 
@@ -453,6 +471,7 @@ class _LoginBodyState extends State<LoginBody> {
       String notificationMessage = 'Account Created';
       String title;
       bool error = false;
+      VoidCallback onNotificationButtonPress;
       setState(() { _isLoading = true; });
       final LoginData loginData = LoginData(
           _firstNameCtr.text,
@@ -481,7 +500,7 @@ class _LoginBodyState extends State<LoginBody> {
             notificationMessage = 'The account was created successfully. However, the login data could not be stored on the device. Please log in manually.';
           }
         }
-      } catch (e) {
+      } catch (e, s) {
         error = true;
         title = 'Account could not be created';
         switch (e.runtimeType) {
@@ -494,12 +513,17 @@ class _LoginBodyState extends State<LoginBody> {
             notificationMessage = 'Login to SWITCH failed. Contact the development team.';
             break;
           default:
-            notificationMessage = '$e';
+            notificationMessage = 'An unknown error occured. Contact the development team.';
+            print('${e.runtimeType}: $e');
+            print(s);
+            onNotificationButtonPress = () {
+              showErrorInPopup(e, s, context);
+            };
         }
       }
       setState(() { _isLoading = false; });
       if (!error) { Navigator.of(context).popUntil(ModalRoute.withName('/')); }
-      showFlushBar(context, notificationMessage, title: title, error: error);
+      showFlushBar(context, notificationMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
       // TODO: refresh settings screen to show the logged in state -> use the BloC
     }
   }

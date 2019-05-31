@@ -352,3 +352,25 @@ Future<void> launchURL(String url) async {
     throw 'Could not launch $url';
   }
 }
+
+/// Displays the exception [e] and its stacktrace [s] as a popup over the given
+/// [context].
+void showErrorInPopup(e, StackTrace s, BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('${e.runtimeType}: $e'),
+        content: SingleChildScrollView(child: Text(s.toString())),
+        actions: [
+          FlatButton(
+            child: Text('Close'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}

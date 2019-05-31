@@ -190,9 +190,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     String resultMessage = 'Backup Successful';
     String title;
     bool error = false;
+    VoidCallback onNotificationButtonPress;
     try {
       await DatabaseProvider().createAdditionalBackupOnSWITCH(loginData);
-    } catch (e) {
+    } catch (e, s) {
       error = true;
       title = 'Backup Failed';
       switch (e.runtimeType) {
@@ -211,14 +212,19 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           resultMessage = 'Make sure you are connected to the internet.';
           break;
         default:
-          resultMessage = '$e';
+          resultMessage = 'An unknown error occured. Contact the development team.';
+          print('${e.runtimeType}: $e');
+          print(s);
+          onNotificationButtonPress = () {
+            showErrorInPopup(e, s, context);
+          };
       }
       // show additional warning if backup wasn't successful for a long time
       if (daysSinceLastBackup >= SHOW_WARNING_AFTER_X_DAYS) {
         showFlushBar(_context, "Last backup was $daysSinceLastBackup days ago.\nPlease perform a manual backup from the settings screen.", title: "Warning", error: true);
       }
     }
-    showFlushBar(_context, resultMessage, title: title, error: error);
+    showFlushBar(_context, resultMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
 
   }
 
