@@ -288,7 +288,7 @@ class DatabaseProvider {
       print('UPGRADE NOT IMPLEMENTED, DATA WILL BE RESET!');
       await db.execute("DROP TABLE Patient;");
       await db.execute("DROP TABLE PreferenceAssessment;");
-      _onCreate(db, newVersion);
+      _onCreate(db, 6);
     }
     if (oldVersion < 7) {
       print('Upgrading to database version 7...');
@@ -317,7 +317,7 @@ class DatabaseProvider {
       await db.execute("DROP TABLE Patient;");
       await db.execute("DROP TABLE PreferenceAssessment;");
       await db.execute("DROP TABLE ARTRefill;");
-      _onCreate(db, newVersion);
+      _onCreate(db, 8);
     }
     if (oldVersion < 9) {
       print('Upgrading to database version 9...');
@@ -325,25 +325,25 @@ class DatabaseProvider {
       await db.execute("DROP TABLE Patient;");
       await db.execute("DROP TABLE PreferenceAssessment;");
       await db.execute("DROP TABLE ARTRefill;");
-      _onCreate(db, newVersion);
+      _onCreate(db, 9);
     }
     if (oldVersion < 10) {
       print('Upgrading to database version 10...');
       print('UPGRADE NOT IMPLEMENTED, VIRAL LOAD DATA WILL BE RESET!');
       await db.execute("DROP TABLE ViralLoad;");
-      _onCreate(db, newVersion);
+      _onCreate(db, 10);
     }
     if (oldVersion < 11) {
       print('Upgrading to database version 11...');
       print('UPGRADE NOT IMPLEMENTED, ART REFILL DATA WILL BE RESET!');
       await db.execute("DROP TABLE ARTRefill;");
-      _onCreate(db, newVersion);
+      _onCreate(db, 11);
     }
     if (oldVersion < 17) {
       print('Upgrading to database version 17...');
       print('UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
       await db.execute("DROP TABLE PreferenceAssessment;");
-      _onCreate(db, newVersion);
+      _onCreate(db, 17);
     }
   }
 
