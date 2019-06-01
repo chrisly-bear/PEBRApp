@@ -623,6 +623,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   _onSubmitForm() async {
     if (_formKey.currentState.validate() & _validateViralLoadBaselineDate()) {
 
+      _newPatient.enrolmentDate = DateTime.now().toUtc();
       _newPatient.isEligible = _eligible;
       _newPatient.artNumber = _artNumberCtr.text;
       _newPatient.stickerNumber = _stickerNumberCtr.text;

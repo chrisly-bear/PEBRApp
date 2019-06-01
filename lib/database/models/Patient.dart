@@ -18,6 +18,7 @@ class Patient implements IExcelExportable {
   // column names
   static final colId = 'id'; // primary key
   static final colCreatedDate = 'created_date_utc';
+  static final colEnrolmentDate = 'enrolment_date_utc';
   static final colARTNumber = 'art_number';
   static final colStickerNumber = 'sticker_number';
   static final colYearOfBirth = 'year_of_birth';
@@ -34,6 +35,7 @@ class Patient implements IExcelExportable {
   static final colIsActivated = 'is_activated'; // nullable
 
   DateTime _createdDate;
+  DateTime enrolmentDate;
   String artNumber;
   String stickerNumber;
   int yearOfBirth;
@@ -67,6 +69,7 @@ class Patient implements IExcelExportable {
 
   Patient.fromMap(map) {
     this.createdDate = DateTime.parse(map[colCreatedDate]);
+    this.enrolmentDate = DateTime.parse(map[colEnrolmentDate]);
     this.artNumber = map[colARTNumber];
     this.stickerNumber = map[colStickerNumber];
     this.yearOfBirth = int.parse(map[colYearOfBirth]);
@@ -94,6 +97,7 @@ class Patient implements IExcelExportable {
   toMap() {
     var map = Map<String, dynamic>();
     map[colCreatedDate] = createdDate.toIso8601String();
+    map[colEnrolmentDate] = enrolmentDate.toIso8601String();
     map[colARTNumber] = artNumber;
     map[colStickerNumber] = stickerNumber;
     map[colYearOfBirth] = yearOfBirth;
@@ -146,8 +150,8 @@ class Patient implements IExcelExportable {
     List<dynamic> row = List<dynamic>(_numberOfColumns);
     row[0] = formatDateIso(_createdDate);
     row[1] = formatTimeIso(_createdDate);
-    row[2] = null; // TODO
-    row[3] = null; // TODO
+    row[2] = formatDateIso(enrolmentDate);
+    row[3] = formatTimeIso(enrolmentDate);
     row[4] = artNumber;
     row[5] = yearOfBirth;
     row[6] = consentGiven;
