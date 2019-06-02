@@ -66,7 +66,7 @@ class DatabaseProvider {
           ${Patient.colStickerNumber} TEXT NOT NULL,
           ${Patient.colYearOfBirth} TEXT NOT NULL,
           ${Patient.colIsEligible} BIT NOT NULL,
-          ${Patient.colIsEligible} BIT NOT NULL,
+          ${Patient.colIsVLBaselineAvailable} BIT NOT NULL,
           ${Patient.colGender} INTEGER,
           ${Patient.colSexualOrientation} INTEGER,
           ${Patient.colVillage} TEXT,
