@@ -1,5 +1,6 @@
 
 import 'package:pebrapp/database/DatabaseExporter.dart';
+import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 class ARTRefill implements IExcelExportable {
@@ -54,7 +55,7 @@ class ARTRefill implements IExcelExportable {
   ARTRefill.fromMap(map) {
     this.patientART = map[colPatientART];
     this.createdDate = DateTime.parse(map[colCreatedDate]);
-    this._refillType = map[colRefillType] == null ? null : RefillType.values[map[colRefillType]];
+    this._refillType = RefillType.fromCode(map[colRefillType]);
     this.nextRefillDate = map[colNextRefillDate] == null ? null : DateTime.parse(map[colNextRefillDate]);
     this.notDoneReason = map[colNotDoneReason] == null ? null : ARTRefillNotDoneReason.values[map[colNotDoneReason]];
     this.dateOfDeath = map[colDateOfDeath] == null ? null : DateTime.parse(map[colDateOfDeath]);
@@ -73,7 +74,7 @@ class ARTRefill implements IExcelExportable {
     var map = Map<String, dynamic>();
     map[colPatientART] = patientART;
     map[colCreatedDate] = createdDate.toIso8601String();
-    map[colRefillType] = _refillType.index;
+    map[colRefillType] = _refillType.code;
     map[colNextRefillDate] = nextRefillDate?.toIso8601String();
     map[colNotDoneReason] = notDoneReason?.index;
     map[colDateOfDeath] = dateOfDeath?.toIso8601String();
@@ -116,7 +117,7 @@ class ARTRefill implements IExcelExportable {
     row[0] = formatDateIso(_createdDate);
     row[1] = formatTimeIso(_createdDate);
     row[2] = formatDateIso(nextRefillDate);
-    row[3] = _refillType.index; // TODO: use correct encoding
+    row[3] = _refillType.code;
     row[4] = notDoneReason?.index; // TODO: use correct encoding
     row[5] = formatDateIso(dateOfDeath);
     row[6] = causeOfDeath;
@@ -136,9 +137,6 @@ class ARTRefill implements IExcelExportable {
 
 }
 
-
-// Do not change the order of the enums as their index is used to store the instance in the database!
-enum RefillType { DONE, NOT_DONE, CHANGE_DATE }
 
 // Do not change the order of the enums as their index is used to store the instance in the database!
 enum ARTRefillNotDoneReason { PATIENT_DIED, PATIENT_HOSPITALIZED, ART_FROM_OTHER_CLINIC_LESOTHO, ART_FROM_OTHER_CLINIC_SA, NOT_TAKING_ART_ANYMORE, STOCK_OUT_OR_FAILED_DELIVERY, NO_INFORMATION }

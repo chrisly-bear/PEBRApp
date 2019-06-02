@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
@@ -49,7 +50,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
   // constructor
   _ARTRefillNotDoneFormState(Patient patient) {
     _patient = patient;
-    _artRefill = ARTRefill(patient.artNumber, RefillType.NOT_DONE);
+    _artRefill = ARTRefill(patient.artNumber, RefillType.NOT_DONE());
     _deactivatePatient = !patient.isActivated;
   }
 
