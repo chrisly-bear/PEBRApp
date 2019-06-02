@@ -64,31 +64,6 @@ void showFlushBar(BuildContext context, String message, {String title, bool erro
   ).show(context);
 }
 
-String vlSuppressedMessageToString(VLSuppressedMessage message) {
-  String returnString;
-  switch (message) {
-    case VLSuppressedMessage.MESSAGE_1:
-      returnString = "😊";
-      break;
-    case VLSuppressedMessage.MESSAGE_2:
-      returnString = "Well done, keep it up!";
-      break;
-    case VLSuppressedMessage.MESSAGE_3:
-      returnString = "Hoooha!";
-      break;
-    case VLSuppressedMessage.MESSAGE_4:
-      returnString = "GOT IT!";
-      break;
-    case VLSuppressedMessage.MESSAGE_5:
-      returnString = "WOW!!!";
-      break;
-    case VLSuppressedMessage.MESSAGE_6:
-      returnString = "PELE EA PELE!";
-      break;
-  }
-  return returnString;
-}
-
 String vlUnsuppressedMessageToString(VLUnsuppressedMessage message) {
   String returnString;
   switch (message) {

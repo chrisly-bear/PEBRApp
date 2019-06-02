@@ -11,6 +11,7 @@ import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
 import 'package:pebrapp/database/beans/PitsoPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SchoolVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
+import 'package:pebrapp/database/beans/VLSuppressedMessage.dart';
 import 'package:pebrapp/database/beans/YesNoRefused.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
@@ -977,11 +978,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               validator: (value) {
                 if (value == null) { return 'Please answer this question'; }
               },
-              items: VLSuppressedMessage.values.map<DropdownMenuItem<VLSuppressedMessage>>((VLSuppressedMessage value) {
-                String description = vlSuppressedMessageToString(value);
+              items: VLSuppressedMessage.allValues.map<DropdownMenuItem<VLSuppressedMessage>>((VLSuppressedMessage value) {
                 return DropdownMenuItem<VLSuppressedMessage>(
                   value: value,
-                  child: Text(description),
+                  child: Text(value.description),
                 );
               }).toList(),
             ))

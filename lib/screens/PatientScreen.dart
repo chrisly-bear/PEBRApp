@@ -5,6 +5,7 @@ import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderMessage.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
+import 'package:pebrapp/database/beans/VLSuppressedMessage.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
@@ -310,7 +311,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
 
     _buildVLMessageSuppressedText() {
       VLSuppressedMessage message = _patient.latestPreferenceAssessment.vlNotificationMessageSuppressed;
-      String text = message == null ? '—' : vlSuppressedMessageToString(message);
+      String text = message == null ? '—' : message.description;
       return Text(text);
     }
 

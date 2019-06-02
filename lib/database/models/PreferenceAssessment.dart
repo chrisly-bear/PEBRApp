@@ -13,6 +13,7 @@ import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
 import 'package:pebrapp/database/beans/PitsoPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SchoolVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
+import 'package:pebrapp/database/beans/VLSuppressedMessage.dart';
 import 'package:pebrapp/database/beans/YesNoRefused.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
@@ -238,7 +239,7 @@ class PreferenceAssessment implements IExcelExportable {
     if (map[colVLNotificationEnabled] != null) {
       this.vlNotificationEnabled = map[colVLNotificationEnabled] == 1;
     }
-    this.vlNotificationMessageSuppressed = map[colVLNotificationMessageSuppressed] == null ? null : VLSuppressedMessage.values[map[colVLNotificationMessageSuppressed]];
+    this.vlNotificationMessageSuppressed = VLSuppressedMessage.fromCode(map[colVLNotificationMessageSuppressed]);
     this.vlNotificationMessageUnsuppressed = map[colVLNotificationMessageUnsuppressed] == null ? null : VLUnsuppressedMessage.values[map[colVLNotificationMessageUnsuppressed]];
     this.pePhoneNumber = map[colPEPhoneNumber];
     this.supportPreferences = SupportPreferencesSelection.deserializeFromJSON(map[colSupportPreferences]);
@@ -303,7 +304,7 @@ class PreferenceAssessment implements IExcelExportable {
     map[colARTRefillReminderDaysBefore] = artRefillReminderDaysBefore?.serializeToJSON();
     map[colARTRefillReminderMessage] = artRefillReminderMessage?.code;
     map[colVLNotificationEnabled] = vlNotificationEnabled;
-    map[colVLNotificationMessageSuppressed] = vlNotificationMessageSuppressed?.index;
+    map[colVLNotificationMessageSuppressed] = vlNotificationMessageSuppressed?.code;
     map[colVLNotificationMessageUnsuppressed] = vlNotificationMessageUnsuppressed?.index;
     map[colPEPhoneNumber] = pePhoneNumber;
     map[colSupportPreferences] = supportPreferences.serializeToJSON();
@@ -438,7 +439,7 @@ class PreferenceAssessment implements IExcelExportable {
     row[24] = artRefillReminderDaysBefore?.serializeToJSON(); // TODO: use correct encoding
     row[25] = artRefillReminderMessage?.code;
     row[26] = vlNotificationEnabled;
-    row[27] = vlNotificationMessageSuppressed?.index; // TODO: use correct encoding
+    row[27] = vlNotificationMessageSuppressed?.code;
     row[28] = vlNotificationMessageUnsuppressed?.index; // TODO: use correct encoding
     row[29] = pePhoneNumber;
     row[30] = supportPreferences.serializeToJSON();
@@ -532,9 +533,6 @@ class ARTRefillReminderDaysBeforeSelection {
   }
 
 }
-
-// Do not change the order of the enums as their index is used to store the instance in the database!
-enum VLSuppressedMessage { MESSAGE_1, MESSAGE_2, MESSAGE_3, MESSAGE_4, MESSAGE_5, MESSAGE_6 }
 
 // Do not change the order of the enums as their index is used to store the instance in the database!
 enum VLUnsuppressedMessage { MESSAGE_1, MESSAGE_2, MESSAGE_3, MESSAGE_4, MESSAGE_5, MESSAGE_6 }
