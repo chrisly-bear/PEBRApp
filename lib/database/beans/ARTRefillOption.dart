@@ -84,10 +84,10 @@ class ARTRefillOption {
     ARTRefillOption.TREATMENT_BUDDY(),
   ];
 
-  /// Returns the text description of this reason.
+  /// Returns the text description of this option.
   String get description => _description[_option];
 
-  /// Returns the code that represents this reason.
+  /// Returns the code that represents this option.
   int get code => _encoding[_option];
 
 }
