@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
+import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderMessage.dart';
 import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
 import 'package:pebrapp/database/beans/CondomUsageNotDemonstratedReason.dart';
@@ -203,11 +204,11 @@ class PreferenceAssessment implements IExcelExportable {
   PreferenceAssessment.fromMap(map) {
     this.patientART = map[colPatientART];
     this.createdDate = DateTime.parse(map[colCreatedDate]);
-    this.artRefillOption1 = map[colARTRefillOption1] == null ? null : ARTRefillOption.values[map[colARTRefillOption1]];
-    this.artRefillOption2 = map[colARTRefillOption2] == null ? null : ARTRefillOption.values[map[colARTRefillOption2]];
-    this.artRefillOption3 = map[colARTRefillOption3] == null ? null : ARTRefillOption.values[map[colARTRefillOption3]];
-    this.artRefillOption4 = map[colARTRefillOption4] == null ? null : ARTRefillOption.values[map[colARTRefillOption4]];
-    this.artRefillOption5 = map[colARTRefillOption5] == null ? null : ARTRefillOption.values[map[colARTRefillOption5]];
+    this.artRefillOption1 = ARTRefillOption.fromCode(map[colARTRefillOption1]);
+    this.artRefillOption2 = ARTRefillOption.fromCode(map[colARTRefillOption2]);
+    this.artRefillOption3 = ARTRefillOption.fromCode(map[colARTRefillOption3]);
+    this.artRefillOption4 = ARTRefillOption.fromCode(map[colARTRefillOption4]);
+    this.artRefillOption5 = ARTRefillOption.fromCode(map[colARTRefillOption5]);
     this.artRefillPENotPossibleReason = PEHomeDeliveryNotPossibleReason.fromCode(map[colARTRefillPENotPossibleReason]);
     this.artRefillPENotPossibleReasonOther = map[colARTRefillPENotPossibleReasonOther];
     this.artRefillVHWName = map[colARTRefillVHWName];
@@ -276,11 +277,11 @@ class PreferenceAssessment implements IExcelExportable {
     var map = Map<String, dynamic>();
     map[colPatientART] = patientART;
     map[colCreatedDate] = createdDate.toIso8601String();
-    map[colARTRefillOption1] = artRefillOption1.index;
-    map[colARTRefillOption2] = artRefillOption2?.index;
-    map[colARTRefillOption3] = artRefillOption3?.index;
-    map[colARTRefillOption4] = artRefillOption4?.index;
-    map[colARTRefillOption5] = artRefillOption5?.index;
+    map[colARTRefillOption1] = artRefillOption1.code;
+    map[colARTRefillOption2] = artRefillOption2?.code;
+    map[colARTRefillOption3] = artRefillOption3?.code;
+    map[colARTRefillOption4] = artRefillOption4?.code;
+    map[colARTRefillOption5] = artRefillOption5?.code;
     map[colARTRefillPENotPossibleReason] = artRefillPENotPossibleReason?.code;
     map[colARTRefillPENotPossibleReasonOther] = artRefillPENotPossibleReasonOther;
     map[colARTRefillVHWName] = artRefillVHWName;
@@ -411,11 +412,11 @@ class PreferenceAssessment implements IExcelExportable {
     row[0] = formatDateIso(_createdDate);
     row[1] = formatTimeIso(_createdDate);
     row[2] = patientART;
-    row[3] = artRefillOption1.index; // TODO: use correct encoding
-    row[4] = artRefillOption2?.index; // TODO: use correct encoding
-    row[5] = artRefillOption3?.index; // TODO: use correct encoding
-    row[6] = artRefillOption4?.index; // TODO: use correct encoding
-    row[7] = artRefillOption5?.index; // TODO: use correct encoding
+    row[3] = artRefillOption1.code;
+    row[4] = artRefillOption2?.code;
+    row[5] = artRefillOption3?.code;
+    row[6] = artRefillOption4?.code;
+    row[7] = artRefillOption5?.code;
     row[8] = artRefillPENotPossibleReason?.code;
     row[9] = artRefillPENotPossibleReasonOther;
     row[10] = artRefillVHWName;
@@ -529,9 +530,6 @@ class ARTRefillReminderDaysBeforeSelection {
   }
 
 }
-
-// Do not change the order of the enums as their index is used to store the instance in the database!
-enum ARTRefillOption { CLINIC, PE_HOME_DELIVERY, VHW, TREATMENT_BUDDY, COMMUNITY_ADHERENCE_CLUB }
 
 // Do not change the order of the enums as their index is used to store the instance in the database!
 enum AdherenceReminderFrequency { DAILY, WEEKLY, MONTHLY }

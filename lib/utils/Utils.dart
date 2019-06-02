@@ -64,28 +64,6 @@ void showFlushBar(BuildContext context, String message, {String title, bool erro
   ).show(context);
 }
 
-String artRefillOptionToString(ARTRefillOption option) {
-  String returnString;
-  switch (option) {
-    case ARTRefillOption.CLINIC:
-      returnString = "At the clinic";
-      break;
-    case ARTRefillOption.PE_HOME_DELIVERY:
-      returnString = "PE (home delivery)";
-      break;
-    case ARTRefillOption.VHW:
-      returnString = "VHW (at the VHW's home)";
-      break;
-    case ARTRefillOption.TREATMENT_BUDDY:
-      returnString = "Treatment Buddy";
-      break;
-    case ARTRefillOption.COMMUNITY_ADHERENCE_CLUB:
-      returnString = "CAC (Community Adherence Club)";
-      break;
-  }
-  return returnString;
-}
-
 String adherenceReminderFrequencyToString(AdherenceReminderFrequency frequency) {
   String returnString;
   switch (frequency) {

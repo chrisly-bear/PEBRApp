@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
@@ -480,7 +481,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       String refillByText = '—';
       ARTRefillOption aro = curPatient.latestPreferenceAssessment?.artRefillOption1;
       if (aro != null) {
-        refillByText = artRefillOptionToString(aro);
+        refillByText = aro.description;
       }
 
       String nextAssessmentText = '—';

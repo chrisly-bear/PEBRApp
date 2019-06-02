@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderMessage.dart';
 import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
 import 'package:pebrapp/database/beans/CondomUsageNotDemonstratedReason.dart';
@@ -77,10 +78,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   /// Returns true for VHW, Treatment Buddy, Community Adherence Club selections.
   bool _availabilityRequiredForSelection(int currentOption) {
     final availabilityRequiredOptions = [
-      ARTRefillOption.PE_HOME_DELIVERY,
-      ARTRefillOption.VHW,
-      ARTRefillOption.TREATMENT_BUDDY,
-      ARTRefillOption.COMMUNITY_ADHERENCE_CLUB,
+      ARTRefillOption.PE_HOME_DELIVERY(),
+      ARTRefillOption.VHW(),
+      ARTRefillOption.TREATMENT_BUDDY(),
+      ARTRefillOption.COMMUNITY_ADHERENCE_CLUB(),
     ];
     // not required if current refill option is not selected
     final currentSelection = _artRefillOptionSelections[currentOption];
@@ -181,7 +182,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
     // remove options depending on previous selections
     List<ARTRefillOption> remainingOptions = List<ARTRefillOption>();
-    remainingOptions.addAll(ARTRefillOption.values);
+    remainingOptions.addAll(ARTRefillOption.allValues);
     for (var i = 0; i < optionNumber; i++) {
       remainingOptions.remove(_artRefillOptionSelections[i]);
     }
@@ -217,10 +218,9 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
                 if (value == null) { return 'Please answer this question'; }
               },
               items: remainingOptions.map<DropdownMenuItem<ARTRefillOption>>((ARTRefillOption value) {
-                String description = artRefillOptionToString(value);
                 return DropdownMenuItem<ARTRefillOption>(
                   value: value,
-                  child: Text(description),
+                  child: Text(value.description),
                 );
               }).toList(),
             ),
@@ -239,21 +239,15 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       var displayValue = _artRefillOptionAvailable[optionNumber];
 
       String question;
-      switch (_artRefillOptionSelections[optionNumber]) {
-        case ARTRefillOption.PE_HOME_DELIVERY:
-          question = "This means, I, the PE, have to deliver the ART. Is this possible for me?";
-          break;
-        case ARTRefillOption.VHW:
-          question = "This means, you want to get your ART at the VHW's home. Is there a VHW available nearby your village where you would pick up ART?";
-          break;
-        case ARTRefillOption.COMMUNITY_ADHERENCE_CLUB:
-          question = "This means you want to get your ART mainly through a CAC. Is there currently a CAC in the participants' community available?";
-          break;
-        case ARTRefillOption.TREATMENT_BUDDY:
-          question = "This means you want to get your ART mainly through a Treatment Buddy. Do you have a Treatment Buddy?";
-          break;
-        default:
-          question = "Is this option available?";
+      final ARTRefillOption aro = _artRefillOptionSelections[optionNumber];
+      if (aro == ARTRefillOption.PE_HOME_DELIVERY()) {
+        question = "This means, I, the PE, have to deliver the ART. Is this possible for me?";
+      } else if (aro == ARTRefillOption.VHW()) {
+        question = "This means, you want to get your ART at the VHW's home. Is there a VHW available nearby your village where you would pick up ART?";
+      } else if (aro == ARTRefillOption.COMMUNITY_ADHERENCE_CLUB()) {
+        question = "This means you want to get your ART mainly through a CAC. Is there currently a CAC in the participants' community available?";
+      } else if (aro == ARTRefillOption.TREATMENT_BUDDY()) {
+        question = "This means you want to get your ART mainly through a Treatment Buddy. Do you have a Treatment Buddy?";
       }
 
       return Row(
@@ -308,7 +302,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
     Widget _peHomeDeliverWhyNotPossibleQuestion() {
       if (_artRefillOptionAvailable[optionNumber] == null
-          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.PE_HOME_DELIVERY
+          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.PE_HOME_DELIVERY()
           || _artRefillOptionAvailable[optionNumber]) {
         return Container();
       }
@@ -338,7 +332,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
     Widget _peHomeDeliverWhyNotPossibleReasonOtherQuestion() {
       if (_artRefillOptionAvailable[optionNumber] == null
-          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.PE_HOME_DELIVERY
+          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.PE_HOME_DELIVERY()
           || _artRefillOptionAvailable[optionNumber]
           || _pa.artRefillPENotPossibleReason == null
           || _pa.artRefillPENotPossibleReason != PEHomeDeliveryNotPossibleReason.OTHER()) {
@@ -358,7 +352,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
     Widget _vhwNameQuestion() {
       if (_artRefillOptionAvailable[optionNumber] == null
-          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.VHW
+          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.VHW()
           || !_artRefillOptionAvailable[optionNumber]) {
         return Container();
       }
@@ -376,7 +370,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
     Widget _vhwVillageQuestion() {
       if (_artRefillOptionAvailable[optionNumber] == null
-          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.VHW
+          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.VHW()
           || !_artRefillOptionAvailable[optionNumber]) {
         return Container();
       }
@@ -394,7 +388,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
     Widget _vhwPhoneNumberQuestion() {
       if (_artRefillOptionAvailable[optionNumber] == null
-          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.VHW
+          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.VHW()
           || !_artRefillOptionAvailable[optionNumber]) {
         return Container();
       }
@@ -412,7 +406,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
     Widget _treatmentBuddyARTNumberQuestion() {
       if (_artRefillOptionAvailable[optionNumber] == null
-          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.TREATMENT_BUDDY
+          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.TREATMENT_BUDDY()
           || !_artRefillOptionAvailable[optionNumber]) {
         return Container();
       }
@@ -430,7 +424,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
     Widget _treatmentBuddyVillageQuestion() {
       if (_artRefillOptionAvailable[optionNumber] == null
-          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.TREATMENT_BUDDY
+          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.TREATMENT_BUDDY()
           || !_artRefillOptionAvailable[optionNumber]) {
         return Container();
       }
@@ -448,7 +442,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
     Widget _treatmentBuddyPhoneNumberQuestion() {
       if (_artRefillOptionAvailable[optionNumber] == null
-          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.TREATMENT_BUDDY
+          || _artRefillOptionSelections[optionNumber] != ARTRefillOption.TREATMENT_BUDDY()
           || !_artRefillOptionAvailable[optionNumber]) {
         return Container();
       }
@@ -2168,19 +2162,19 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       _pa.artRefillOption4 = _artRefillOptionSelections[3];
       _pa.artRefillOption5 = _artRefillOptionSelections[4];
 
-      if (_artRefillOptionSelections.contains(ARTRefillOption.PE_HOME_DELIVERY)
-          && !_artRefillOptionAvailable[_artRefillOptionSelections.indexOf(ARTRefillOption.PE_HOME_DELIVERY)]
+      if (_artRefillOptionSelections.contains(ARTRefillOption.PE_HOME_DELIVERY())
+          && !_artRefillOptionAvailable[_artRefillOptionSelections.indexOf(ARTRefillOption.PE_HOME_DELIVERY())]
           && _pa.artRefillPENotPossibleReason == PEHomeDeliveryNotPossibleReason.OTHER()) {
         _pa.artRefillPENotPossibleReasonOther = _peHomeDeliverWhyNotPossibleReasonOtherCtr.text;
       }
-      if (_artRefillOptionSelections.contains(ARTRefillOption.VHW)
-          && _artRefillOptionAvailable[_artRefillOptionSelections.indexOf(ARTRefillOption.VHW)]) {
+      if (_artRefillOptionSelections.contains(ARTRefillOption.VHW())
+          && _artRefillOptionAvailable[_artRefillOptionSelections.indexOf(ARTRefillOption.VHW())]) {
         _pa.artRefillVHWName = _vhwNameCtr.text;
         _pa.artRefillVHWVillage = _vhwVillageCtr.text;
         _pa.artRefillVHWPhoneNumber = _vhwPhoneNumberCtr.text;
       }
-      if (_artRefillOptionSelections.contains(ARTRefillOption.TREATMENT_BUDDY)
-          && _artRefillOptionAvailable[_artRefillOptionSelections.indexOf(ARTRefillOption.TREATMENT_BUDDY)]) {
+      if (_artRefillOptionSelections.contains(ARTRefillOption.TREATMENT_BUDDY())
+          && _artRefillOptionAvailable[_artRefillOptionSelections.indexOf(ARTRefillOption.TREATMENT_BUDDY())]) {
         _pa.artRefillTreatmentBuddyART = _treatmentBuddyARTNumberCtr.text;
         _pa.artRefillTreatmentBuddyVillage = _treatmentBuddyVillageCtr.text;
         _pa.artRefillTreatmentBuddyPhoneNumber = _treatmentBuddyPhoneNumberCtr.text;
