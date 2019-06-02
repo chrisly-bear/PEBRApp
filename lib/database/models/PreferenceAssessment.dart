@@ -14,6 +14,7 @@ import 'package:pebrapp/database/beans/PitsoPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SchoolVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/beans/VLSuppressedMessage.dart';
+import 'package:pebrapp/database/beans/VLUnsuppressedMessage.dart';
 import 'package:pebrapp/database/beans/YesNoRefused.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
@@ -240,7 +241,7 @@ class PreferenceAssessment implements IExcelExportable {
       this.vlNotificationEnabled = map[colVLNotificationEnabled] == 1;
     }
     this.vlNotificationMessageSuppressed = VLSuppressedMessage.fromCode(map[colVLNotificationMessageSuppressed]);
-    this.vlNotificationMessageUnsuppressed = map[colVLNotificationMessageUnsuppressed] == null ? null : VLUnsuppressedMessage.values[map[colVLNotificationMessageUnsuppressed]];
+    this.vlNotificationMessageUnsuppressed = VLUnsuppressedMessage.fromCode(map[colVLNotificationMessageUnsuppressed]);
     this.pePhoneNumber = map[colPEPhoneNumber];
     this.supportPreferences = SupportPreferencesSelection.deserializeFromJSON(map[colSupportPreferences]);
     this.saturdayClinicClubAvailable = map[colSaturdayClinicClubAvailable] == null ? null : map[colSaturdayClinicClubAvailable] == 1;
@@ -305,7 +306,7 @@ class PreferenceAssessment implements IExcelExportable {
     map[colARTRefillReminderMessage] = artRefillReminderMessage?.code;
     map[colVLNotificationEnabled] = vlNotificationEnabled;
     map[colVLNotificationMessageSuppressed] = vlNotificationMessageSuppressed?.code;
-    map[colVLNotificationMessageUnsuppressed] = vlNotificationMessageUnsuppressed?.index;
+    map[colVLNotificationMessageUnsuppressed] = vlNotificationMessageUnsuppressed?.code;
     map[colPEPhoneNumber] = pePhoneNumber;
     map[colSupportPreferences] = supportPreferences.serializeToJSON();
     map[colSaturdayClinicClubAvailable] = saturdayClinicClubAvailable;
@@ -440,7 +441,7 @@ class PreferenceAssessment implements IExcelExportable {
     row[25] = artRefillReminderMessage?.code;
     row[26] = vlNotificationEnabled;
     row[27] = vlNotificationMessageSuppressed?.code;
-    row[28] = vlNotificationMessageUnsuppressed?.index; // TODO: use correct encoding
+    row[28] = vlNotificationMessageUnsuppressed?.code;
     row[29] = pePhoneNumber;
     row[30] = supportPreferences.serializeToJSON();
     row[31] = saturdayClinicClubAvailable;
@@ -533,6 +534,3 @@ class ARTRefillReminderDaysBeforeSelection {
   }
 
 }
-
-// Do not change the order of the enums as their index is used to store the instance in the database!
-enum VLUnsuppressedMessage { MESSAGE_1, MESSAGE_2, MESSAGE_3, MESSAGE_4, MESSAGE_5, MESSAGE_6 }

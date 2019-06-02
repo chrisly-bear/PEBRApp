@@ -64,31 +64,6 @@ void showFlushBar(BuildContext context, String message, {String title, bool erro
   ).show(context);
 }
 
-String vlUnsuppressedMessageToString(VLUnsuppressedMessage message) {
-  String returnString;
-  switch (message) {
-    case VLUnsuppressedMessage.MESSAGE_1:
-      returnString = "Keep trying. Do better next time.";
-      break;
-    case VLUnsuppressedMessage.MESSAGE_2:
-      returnString = "No leke. Etsa betere ka moso.";
-      break;
-    case VLUnsuppressedMessage.MESSAGE_3:
-      returnString = "Ahhh!!!";
-      break;
-    case VLUnsuppressedMessage.MESSAGE_4:
-      returnString = "OH NO!!!";
-      break;
-    case VLUnsuppressedMessage.MESSAGE_5:
-      returnString = "Battery low. Take action! 😑";
-      break;
-    case VLUnsuppressedMessage.MESSAGE_6:
-      returnString = "Battery e tlase. Etsa hohong! 😑";
-      break;
-  }
-  return returnString;
-}
-
 /// Takes a date and returns a date at the beginning (midnight) of the same day.
 DateTime _roundToDays(DateTime date) {
   final day = date.day;

@@ -6,6 +6,7 @@ import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderMessage.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/beans/VLSuppressedMessage.dart';
+import 'package:pebrapp/database/beans/VLUnsuppressedMessage.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
@@ -317,7 +318,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
 
     _buildVLMessageUnsuppressedText() {
       VLUnsuppressedMessage message = _patient.latestPreferenceAssessment.vlNotificationMessageUnsuppressed;
-      String text = message == null ? '—' : vlUnsuppressedMessageToString(message);
+      String text = message == null ? '—' : message.description;
       return Text(text);
     }
 
