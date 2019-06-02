@@ -5,6 +5,7 @@ import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderMessage.dart';
 import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
+import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
 import 'package:pebrapp/database/beans/CondomUsageNotDemonstratedReason.dart';
 import 'package:pebrapp/database/beans/HomeVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
@@ -225,7 +226,7 @@ class PreferenceAssessment implements IExcelExportable {
     if (map[colAdherenceReminderEnabled] != null) {
       this.adherenceReminderEnabled = map[colAdherenceReminderEnabled] == 1;
     }
-    this.adherenceReminderFrequency = map[colAdherenceReminderFrequency] == null ? null : AdherenceReminderFrequency.values[map[colAdherenceReminderFrequency]];
+    this.adherenceReminderFrequency = AdherenceReminderFrequency.fromCode(map[colAdherenceReminderFrequency]);
     this.adherenceReminderTime = parseTimeOfDay(map[colAdherenceReminderTime]);
     this.adherenceReminderMessage = map[colAdherenceReminderMessage] == null ? null : AdherenceReminderMessage.values[map[colAdherenceReminderMessage]];
     if (map[colARTRefillReminderEnabled] != null) {
@@ -294,7 +295,7 @@ class PreferenceAssessment implements IExcelExportable {
     map[colPhoneAvailable] = phoneAvailable;
     map[colPatientPhoneNumber] = patientPhoneNumber;
     map[colAdherenceReminderEnabled] = adherenceReminderEnabled;
-    map[colAdherenceReminderFrequency] = adherenceReminderFrequency?.index;
+    map[colAdherenceReminderFrequency] = adherenceReminderFrequency?.code;
     map[colAdherenceReminderTime] = formatTime(adherenceReminderTime);
     map[colAdherenceReminderMessage] = adherenceReminderMessage?.index;
     map[colARTRefillReminderEnabled] = artRefillReminderEnabled;
@@ -429,7 +430,7 @@ class PreferenceAssessment implements IExcelExportable {
     row[17] = phoneAvailable;
     row[18] = patientPhoneNumber;
     row[19] = adherenceReminderEnabled;
-    row[20] = adherenceReminderFrequency?.index; // TODO: use correct encoding
+    row[20] = adherenceReminderFrequency?.code;
     row[21] = formatTime(adherenceReminderTime);
     row[22] = adherenceReminderMessage?.index; // TODO: use correct encoding
     row[23] = artRefillReminderEnabled;
@@ -530,9 +531,6 @@ class ARTRefillReminderDaysBeforeSelection {
   }
 
 }
-
-// Do not change the order of the enums as their index is used to store the instance in the database!
-enum AdherenceReminderFrequency { DAILY, WEEKLY, MONTHLY }
 
 // Do not change the order of the enums as their index is used to store the instance in the database!
 enum AdherenceReminderMessage { MESSAGE_1, MESSAGE_2, MESSAGE_3, MESSAGE_4, MESSAGE_5, MESSAGE_6, MESSAGE_7, MESSAGE_8, MESSAGE_9 }

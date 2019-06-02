@@ -3,6 +3,7 @@ import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderMessage.dart';
 import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
+import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
 import 'package:pebrapp/database/beans/CondomUsageNotDemonstratedReason.dart';
 import 'package:pebrapp/database/beans/HomeVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
@@ -678,11 +679,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               validator: (value) {
                 if (value == null) { return 'Please answer this question'; }
               },
-              items: AdherenceReminderFrequency.values.map<DropdownMenuItem<AdherenceReminderFrequency>>((AdherenceReminderFrequency value) {
-                String description = adherenceReminderFrequencyToString(value);
+              items: AdherenceReminderFrequency.allValues.map<DropdownMenuItem<AdherenceReminderFrequency>>((AdherenceReminderFrequency value) {
                 return DropdownMenuItem<AdherenceReminderFrequency>(
                   value: value,
-                  child: Text(description),
+                  child: Text(value.description),
                 );
               }).toList(),
             ))

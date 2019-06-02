@@ -64,22 +64,6 @@ void showFlushBar(BuildContext context, String message, {String title, bool erro
   ).show(context);
 }
 
-String adherenceReminderFrequencyToString(AdherenceReminderFrequency frequency) {
-  String returnString;
-  switch (frequency) {
-    case AdherenceReminderFrequency.DAILY:
-      returnString = "Daily";
-      break;
-    case AdherenceReminderFrequency.WEEKLY:
-      returnString = "Weekly";
-      break;
-    case AdherenceReminderFrequency.MONTHLY:
-      returnString = "Monthly";
-      break;
-  }
-  return returnString;
-}
-
 String adherenceReminderMessageToString(AdherenceReminderMessage message) {
   String returnString;
   switch (message) {

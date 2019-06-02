@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
+import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 
@@ -63,21 +64,21 @@ void main() {
     });
 
     test('AdherenceReminderFrequency serialization', () {
-      int serializedValueDaily = AdherenceReminderFrequency.DAILY.index;
-      expect(serializedValueDaily, 0);
-      int serializedValueWeekly = AdherenceReminderFrequency.WEEKLY.index;
-      expect(serializedValueWeekly, 1);
-      int serializedValueMonthly = AdherenceReminderFrequency.MONTHLY.index;
-      expect(serializedValueMonthly, 2);
+      int serializedValueDaily = AdherenceReminderFrequency.DAILY().code;
+      expect(serializedValueDaily, 1);
+      int serializedValueWeekly = AdherenceReminderFrequency.WEEKLY().code;
+      expect(serializedValueWeekly, 2);
+      int serializedValueMonthly = AdherenceReminderFrequency.MONTHLY().code;
+      expect(serializedValueMonthly, 3);
     });
 
     test('AdherenceReminderFrequency deserialization', () {
-      AdherenceReminderFrequency deserializedValueDaily = AdherenceReminderFrequency.values[0];
-      expect(deserializedValueDaily, AdherenceReminderFrequency.DAILY);
-      AdherenceReminderFrequency deserializedValueWeekly = AdherenceReminderFrequency.values[1];
-      expect(deserializedValueWeekly, AdherenceReminderFrequency.WEEKLY);
-      AdherenceReminderFrequency deserializedValueMonthly = AdherenceReminderFrequency.values[2];
-      expect(deserializedValueMonthly, AdherenceReminderFrequency.MONTHLY);
+      AdherenceReminderFrequency deserializedValueDaily = AdherenceReminderFrequency.fromCode(1);
+      expect(deserializedValueDaily, AdherenceReminderFrequency.DAILY());
+      AdherenceReminderFrequency deserializedValueWeekly = AdherenceReminderFrequency.fromCode(2);
+      expect(deserializedValueWeekly, AdherenceReminderFrequency.WEEKLY());
+      AdherenceReminderFrequency deserializedValueMonthly = AdherenceReminderFrequency.fromCode(3);
+      expect(deserializedValueMonthly, AdherenceReminderFrequency.MONTHLY());
     });
 
   });
