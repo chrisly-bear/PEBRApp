@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
+import 'package:pebrapp/database/beans/ARTRefillReminderDaysBeforeSelection.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderMessage.dart';
 import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
@@ -437,7 +438,7 @@ class PreferenceAssessment implements IExcelExportable {
     row[21] = formatTime(adherenceReminderTime);
     row[22] = adherenceReminderMessage?.code;
     row[23] = artRefillReminderEnabled;
-    row[24] = artRefillReminderDaysBefore?.serializeToJSON(); // TODO: use correct encoding
+    row[24] = artRefillReminderDaysBefore?.serializeToJSON();
     row[25] = artRefillReminderMessage?.code;
     row[26] = vlNotificationEnabled;
     row[27] = vlNotificationMessageSuppressed?.code;
@@ -480,57 +481,5 @@ class PreferenceAssessment implements IExcelExportable {
   set createdDate(DateTime date) => this._createdDate = date;
 
   DateTime get createdDate => this._createdDate;
-
-}
-
-class ARTRefillReminderDaysBeforeSelection {
-  bool sevenDaysBeforeSelected = false;
-  bool threeDaysBeforeSelected = false;
-  bool twoDaysBeforeSelected = false;
-  bool oneDayBeforeSelected = false;
-  bool zeroDaysBeforeSelected = false;
-
-  static String get sevenDaysBeforeDescription => "7 Days Before";
-  static String get threeDaysBeforeDescription => "3 Days Before";
-  static String get twoDaysBeforeDescription => "2 Days Before";
-  static String get oneDayBeforeDescription => "1 Day Before";
-  static String get zeroDaysBeforeDescription => "On the day of ART Refill";
-
-  void deselectAll() {
-    sevenDaysBeforeSelected = false;
-    threeDaysBeforeSelected = false;
-    twoDaysBeforeSelected = false;
-    oneDayBeforeSelected = false;
-    zeroDaysBeforeSelected = false;
-  }
-
-  bool get areAllDeselected {
-    return !(sevenDaysBeforeSelected ||
-        threeDaysBeforeSelected ||
-        twoDaysBeforeSelected ||
-        oneDayBeforeSelected ||
-        zeroDaysBeforeSelected);
-  }
-
-  String serializeToJSON() {
-    var map = Map<String, bool>();
-    map['sevenDaysBeforeSelected'] = sevenDaysBeforeSelected;
-    map['threeDaysBeforeSelected'] = threeDaysBeforeSelected;
-    map['twoDaysBeforeSelected'] = twoDaysBeforeSelected;
-    map['oneDayBeforeSelected'] = oneDayBeforeSelected;
-    map['zeroDaysBeforeSelected'] = zeroDaysBeforeSelected;
-    return jsonEncode(map);
-  }
-
-  static ARTRefillReminderDaysBeforeSelection deserializeFromJSON(String json) {
-    final map = jsonDecode(json) as Map<String, dynamic>;
-    var obj = ARTRefillReminderDaysBeforeSelection();
-    obj.sevenDaysBeforeSelected = map['sevenDaysBeforeSelected'] ?? false;
-    obj.threeDaysBeforeSelected = map['threeDaysBeforeSelected'] ?? false;
-    obj.twoDaysBeforeSelected = map['twoDaysBeforeSelected'] ?? false;
-    obj.oneDayBeforeSelected = map['oneDayBeforeSelected'] ?? false;
-    obj.zeroDaysBeforeSelected = map['zeroDaysBeforeSelected'] ?? false;
-    return obj;
-  }
 
 }

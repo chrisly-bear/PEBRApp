@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
+import 'package:pebrapp/database/beans/ARTRefillReminderDaysBeforeSelection.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderMessage.dart';
 import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
@@ -835,44 +836,44 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     return Column(children: <Widget>[
       _makeQuestion('How many days before would you like to receive the reminder? (tick all that apply)',
         answer: CheckboxListTile(
-            title: Text(ARTRefillReminderDaysBeforeSelection.sevenDaysBeforeDescription),
-            value: _pa.artRefillReminderDaysBefore.sevenDaysBeforeSelected,
+            title: Text(ARTRefillReminderDaysBeforeSelection.SEVEN_DAYS_BEFORE),
+            value: _pa.artRefillReminderDaysBefore.SEVEN_DAYS_BEFORE_selected,
             onChanged: (bool newValue) => this.setState(() {
-              _pa.artRefillReminderDaysBefore.sevenDaysBeforeSelected = newValue;
+              _pa.artRefillReminderDaysBefore.SEVEN_DAYS_BEFORE_selected = newValue;
             })),
       ),
       _makeQuestion('',
         answer: CheckboxListTile(
-            title: Text(ARTRefillReminderDaysBeforeSelection.threeDaysBeforeDescription),
-            value: _pa.artRefillReminderDaysBefore.threeDaysBeforeSelected,
+            title: Text(ARTRefillReminderDaysBeforeSelection.THREE_DAYS_BEFORE),
+            value: _pa.artRefillReminderDaysBefore.THREE_DAYS_BEFORE_selected,
             onChanged: (bool newValue) => this.setState(() {
-              _pa.artRefillReminderDaysBefore.threeDaysBeforeSelected = newValue;
+              _pa.artRefillReminderDaysBefore.THREE_DAYS_BEFORE_selected = newValue;
             })),
       ),
       _makeQuestion('',
         answer: CheckboxListTile(
-            title: Text(ARTRefillReminderDaysBeforeSelection.twoDaysBeforeDescription),
-            value: _pa.artRefillReminderDaysBefore.twoDaysBeforeSelected,
+            title: Text(ARTRefillReminderDaysBeforeSelection.TWO_DAYS_BEFORE),
+            value: _pa.artRefillReminderDaysBefore.TWO_DAYS_BEFORE_selected,
             onChanged: (bool newValue) => this.setState(() {
-              _pa.artRefillReminderDaysBefore.twoDaysBeforeSelected = newValue;
+              _pa.artRefillReminderDaysBefore.TWO_DAYS_BEFORE_selected = newValue;
             })),
       ),
       _makeQuestion('',
         answer: CheckboxListTile(
 //            secondary: const Icon(Icons.local_hospital),
-            title: Text(ARTRefillReminderDaysBeforeSelection.oneDayBeforeDescription),
+            title: Text(ARTRefillReminderDaysBeforeSelection.ONE_DAY_BEFORE),
 //            dense: true,
-            value: _pa.artRefillReminderDaysBefore.oneDayBeforeSelected,
+            value: _pa.artRefillReminderDaysBefore.ONE_DAY_BEFORE_selected,
             onChanged: (bool newValue) => this.setState(() {
-              _pa.artRefillReminderDaysBefore.oneDayBeforeSelected = newValue;
+              _pa.artRefillReminderDaysBefore.ONE_DAY_BEFORE_selected = newValue;
             })),
       ),
       _makeQuestion('',
         answer: CheckboxListTile(
-            title: Text(ARTRefillReminderDaysBeforeSelection.zeroDaysBeforeDescription),
-            value: _pa.artRefillReminderDaysBefore.zeroDaysBeforeSelected,
+            title: Text(ARTRefillReminderDaysBeforeSelection.ZERO_DAYS_BEFORE),
+            value: _pa.artRefillReminderDaysBefore.ZERO_DAYS_BEFORE_selected,
             onChanged: (bool newValue) => this.setState(() {
-              _pa.artRefillReminderDaysBefore.zeroDaysBeforeSelected = newValue;
+              _pa.artRefillReminderDaysBefore.ZERO_DAYS_BEFORE_selected = newValue;
             })),
       ),
     ]);
