@@ -70,10 +70,10 @@ class YesNoRefused {
     YesNoRefused.REFUSED_TO_ANSWER(),
   ];
 
-  /// Returns the text description of this gender.
+  /// Returns the text description of this answer.
   String get description => _description[_answer];
 
-  /// Returns the code that represents this gender.
+  /// Returns the code that represents this answer.
   int get code => _encoding[_answer];
 
 }
