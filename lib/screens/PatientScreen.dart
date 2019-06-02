@@ -288,7 +288,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   _buildPreferencesCard() {
 
     _buildARTRefillText() {
-      String text = _patient.latestPreferenceAssessment.artRefillOption1.description;
+      String text = _patient.latestPreferenceAssessment.lastRefillOption.description;
       return Text(text);
     }
 

@@ -482,4 +482,6 @@ class PreferenceAssessment implements IExcelExportable {
 
   DateTime get createdDate => this._createdDate;
 
+  ARTRefillOption get lastRefillOption => artRefillOption5 ?? artRefillOption4 ?? artRefillOption3 ?? artRefillOption2 ?? artRefillOption1;
+
 }
