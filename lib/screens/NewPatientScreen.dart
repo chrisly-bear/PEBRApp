@@ -70,7 +70,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   Patient _newPatient = Patient(isActivated: true);
   ViralLoad _viralLoadBaseline = ViralLoad(source: ViralLoadSource.MANUAL_INPUT(), isBaseline: true);
 
-  bool _viralLoadBaselineAvailable;
   TextEditingController _artNumberCtr = TextEditingController();
   TextEditingController _stickerNumberCtr = TextEditingController();
   TextEditingController _villageCtr = TextEditingController();
@@ -450,13 +449,13 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   Widget _viralLoadBaselineAvailableQuestion() {
     return _makeQuestion('Is there any viral load within the last 12 months available (laboratory report, bukana, patient file)?',
       child: DropdownButtonFormField<bool>(
-        value: _viralLoadBaselineAvailable,
+        value: _newPatient.isVLBaselineAvailable,
         onChanged: (bool newValue) {
           if (!newValue) {
             _showDialog('No Viral Load Available', 'Send the participant to the nurse for blood draw today!');
           }
           setState(() {
-            _viralLoadBaselineAvailable = newValue;
+            _newPatient.isVLBaselineAvailable = newValue;
           });
         },
         validator: (value) {
@@ -474,7 +473,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _viralLoadBaselineDateQuestion() {
-    if (_viralLoadBaselineAvailable == null || !_viralLoadBaselineAvailable) {
+    if (_newPatient.isVLBaselineAvailable == null || !_newPatient.isVLBaselineAvailable) {
       return Container();
     }
     return _makeQuestion('Date of most recent viral load (put the date when blood was taken)',
@@ -521,7 +520,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _viralLoadBaselineLowerThanDetectableQuestion() {
-    if (_viralLoadBaselineAvailable == null || !_viralLoadBaselineAvailable) {
+    if (_newPatient.isVLBaselineAvailable == null || !_newPatient.isVLBaselineAvailable) {
       return Container();
     }
     return _makeQuestion('Was the viral load baseline result lower than detectable limit (<20 copies/mL)?',
@@ -547,7 +546,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _viralLoadBaselineResultQuestion() {
-    if (_viralLoadBaselineAvailable == null || !_viralLoadBaselineAvailable || _viralLoadBaseline.isLowerThanDetectable == null || _viralLoadBaseline.isLowerThanDetectable) {
+    if (_newPatient.isVLBaselineAvailable == null || !_newPatient.isVLBaselineAvailable || _viralLoadBaseline.isLowerThanDetectable == null || _viralLoadBaseline.isLowerThanDetectable) {
       return Container();
     }
     return _makeQuestion('What was the result of the viral load baseline (in c/mL)',
@@ -568,7 +567,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _viralLoadBaselineLabNumberQuestion() {
-    if (_viralLoadBaselineAvailable == null || !_viralLoadBaselineAvailable) {
+    if (_newPatient.isVLBaselineAvailable == null || !_newPatient.isVLBaselineAvailable) {
       return Container();
     }
     return _makeQuestion('Lab number of the viral load baseline',
@@ -608,7 +607,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     // if the viral load baseline date is not selected when it should be show
     // the error message under the viral load baseline date field and return
     // false.
-    if (_eligible && _newPatient.consentGiven != null && _newPatient.consentGiven && _viralLoadBaselineAvailable != null && _viralLoadBaselineAvailable && _viralLoadBaseline.dateOfBloodDraw == null) {
+    if (_eligible && _newPatient.consentGiven != null && _newPatient.consentGiven && _newPatient.isVLBaselineAvailable != null && _newPatient.isVLBaselineAvailable && _viralLoadBaseline.dateOfBloodDraw == null) {
       setState(() {
         _viralLoadBaselineDateValid = false;
       });
@@ -635,7 +634,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       _newPatient.village = _villageCtr.text;
       _newPatient.checkLogicAndResetUnusedFields();
 
-      if (_newPatient.isEligible && _newPatient.consentGiven && _viralLoadBaselineAvailable != null && _viralLoadBaselineAvailable) {
+      if (_newPatient.isEligible && _newPatient.consentGiven && _newPatient.isVLBaselineAvailable != null && _newPatient.isVLBaselineAvailable) {
         _viralLoadBaseline.patientART = _artNumberCtr.text;
         _viralLoadBaseline.viralLoad = _viralLoadBaseline.isLowerThanDetectable ? null : int.parse(_viralLoadBaselineResultCtr.text);
         _viralLoadBaseline.labNumber = _viralLoadBaselineLabNumberCtr.text;

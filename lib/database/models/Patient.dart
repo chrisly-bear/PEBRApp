@@ -23,6 +23,7 @@ class Patient implements IExcelExportable {
   static final colStickerNumber = 'sticker_number';
   static final colYearOfBirth = 'year_of_birth';
   static final colIsEligible = 'is_eligible';
+  static final colIsVLBaselineAvailable = 'is_vl_baseline_available';
   // nullables:
   static final colGender = 'gender'; // nullable
   static final colSexualOrientation = 'sexual_orientation'; // nullable
@@ -40,6 +41,7 @@ class Patient implements IExcelExportable {
   String stickerNumber;
   int yearOfBirth;
   bool isEligible;
+  bool isVLBaselineAvailable;
   Gender gender;
   SexualOrientation sexualOrientation;
   String village;
@@ -63,9 +65,11 @@ class Patient implements IExcelExportable {
   // Constructors
   // ------------
 
-  Patient({this.artNumber, this.stickerNumber, this.yearOfBirth, this.gender,
-  this.sexualOrientation, this.village, this.phoneAvailability, this.phoneNumber,
-  this.consentGiven, this.isActivated});
+  Patient({this.enrolmentDate, this.artNumber, this.stickerNumber,
+    this.yearOfBirth, this.isEligible, this.isVLBaselineAvailable, this.gender,
+    this.sexualOrientation, this.village, this.phoneAvailability,
+    this.phoneNumber, this.consentGiven, this.noConsentReason,
+    this.noConsentReasonOther, this.isActivated});
 
   Patient.fromMap(map) {
     this.createdDate = DateTime.parse(map[colCreatedDate]);
@@ -74,6 +78,7 @@ class Patient implements IExcelExportable {
     this.stickerNumber = map[colStickerNumber];
     this.yearOfBirth = int.parse(map[colYearOfBirth]);
     this.isEligible = map[colIsEligible] == 1;
+    this.isVLBaselineAvailable = map[colIsVLBaselineAvailable] == 1;
     // nullables:
     this.gender = Gender.fromCode(map[colGender]);
     this.sexualOrientation = SexualOrientation.fromCode(map[colSexualOrientation]);
@@ -102,6 +107,7 @@ class Patient implements IExcelExportable {
     map[colStickerNumber] = stickerNumber;
     map[colYearOfBirth] = yearOfBirth;
     map[colIsEligible] = isEligible;
+    map[colIsVLBaselineAvailable] = isVLBaselineAvailable;
     // nullables:
     map[colGender] = gender?.code;
     map[colSexualOrientation] = sexualOrientation?.code;
@@ -115,7 +121,7 @@ class Patient implements IExcelExportable {
     return map;
   }
 
-  static const int _numberOfColumns = 17;
+  static const int _numberOfColumns = 18;
 
   /// Column names for the header row in the excel sheet.
   // If we change the order here, make sure to change the order in the
@@ -137,8 +143,9 @@ class Patient implements IExcelExportable {
     row[12] = 'VILLAGE';
     row[13] = 'CELL_GIVEN';
     row[14] = 'CELL';
-    row[15] = 'ACTIVATED';
-    row[16] = 'ELIGIBLE';
+    row[15] = 'VL_BASELINE_AVAILABLE';
+    row[16] = 'ACTIVATED';
+    row[17] = 'ELIGIBLE';
     return row;
   }
 
@@ -163,8 +170,9 @@ class Patient implements IExcelExportable {
     row[12] = village;
     row[13] = phoneAvailability?.code;
     row[14] = phoneNumber;
-    row[15] = isActivated;
-    row[16] = isEligible;
+    row[15] = isVLBaselineAvailable;
+    row[16] = isActivated;
+    row[17] = isEligible;
     return row;
   }
 
