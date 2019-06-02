@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/database/beans/ARTRefillNotDoneReason.dart';
 import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
@@ -117,34 +118,10 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
                 if (value == null) { return 'Please answer this question'; }
               },
               items:
-                  ARTRefillNotDoneReason.values.map<DropdownMenuItem<ARTRefillNotDoneReason>>((ARTRefillNotDoneReason value) {
-                String description;
-                switch (value) {
-                  case ARTRefillNotDoneReason.PATIENT_DIED:
-                    description = 'Patient Died';
-                    break;
-                  case ARTRefillNotDoneReason.PATIENT_HOSPITALIZED:
-                    description = 'Patient is Hospitalized';
-                    break;
-                  case ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_LESOTHO:
-                    description = 'Getting ART from another clinic in Lesotho';
-                    break;
-                  case ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_SA:
-                    description = 'Getting ART from another clinic in South Africa';
-                    break;
-                  case ARTRefillNotDoneReason.NOT_TAKING_ART_ANYMORE:
-                    description = 'Not taking ART anymore';
-                    break;
-                  case ARTRefillNotDoneReason.STOCK_OUT_OR_FAILED_DELIVERY:
-                    description = 'ART stock-out, or VHW or PE failed to deliver ART to patient';
-                    break;
-                  case ARTRefillNotDoneReason.NO_INFORMATION:
-                    description = 'No information found about the participant at all';
-                    break;
-                }
+                  ARTRefillNotDoneReason.allValues.map<DropdownMenuItem<ARTRefillNotDoneReason>>((ARTRefillNotDoneReason value) {
                 return DropdownMenuItem<ARTRefillNotDoneReason>(
                   value: value,
-                  child: Text(description),
+                  child: Text(value.description),
                 );
               }).toList(),
             ))
@@ -153,7 +130,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
   }
 
   Widget _dateOfDeathQuestion() {
-    if (_artRefill.notDoneReason != ARTRefillNotDoneReason.PATIENT_DIED) {
+    if (_artRefill.notDoneReason != ARTRefillNotDoneReason.PATIENT_DIED()) {
       return Container();
     }
     return _makeQuestion('Date of Death',
@@ -200,7 +177,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
   }
 
   Widget _causeOfDeathQuestion() {
-    if (_artRefill.notDoneReason != ARTRefillNotDoneReason.PATIENT_DIED) {
+    if (_artRefill.notDoneReason != ARTRefillNotDoneReason.PATIENT_DIED()) {
       return Container();
     }
     return _makeQuestion('Cause of Death',
@@ -216,7 +193,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
   }
   
   Widget _hospitalizedClinicQuestion() {
-    if (_artRefill.notDoneReason != ARTRefillNotDoneReason.PATIENT_HOSPITALIZED) {
+    if (_artRefill.notDoneReason != ARTRefillNotDoneReason.PATIENT_HOSPITALIZED()) {
       return Container();
     }
     return _makeQuestion('Where is the patient hospitalized?',
@@ -232,7 +209,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
   }
   
   Widget _otherClinicQuestion() {
-    if (_artRefill.notDoneReason != ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_LESOTHO && _artRefill.notDoneReason != ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_SA) {
+    if (_artRefill.notDoneReason != ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_LESOTHO() && _artRefill.notDoneReason != ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_SA()) {
       return Container();
     }
     return Row(
@@ -257,8 +234,8 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
   }
 
   Widget _transferDateQuestion() {
-    if (_artRefill.notDoneReason != ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_LESOTHO
-        && _artRefill.notDoneReason != ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_SA) {
+    if (_artRefill.notDoneReason != ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_LESOTHO()
+        && _artRefill.notDoneReason != ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_SA()) {
       return Container();
     }
     return _makeQuestion('Date of Transfer',
@@ -305,7 +282,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
   }
 
   Widget _notTakingARTAnymoreQuestion() {
-    if (_artRefill.notDoneReason != ARTRefillNotDoneReason.NOT_TAKING_ART_ANYMORE) {
+    if (_artRefill.notDoneReason != ARTRefillNotDoneReason.NOT_TAKING_ART_ANYMORE()) {
       return Container();
     }
     return Row(
@@ -353,7 +330,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
   bool _validateDateOfDeath() {
     // if the date of death is not specified when it should be show
     // the error message under the date field and return false.
-    if (_artRefill.notDoneReason == ARTRefillNotDoneReason.PATIENT_DIED && _artRefill.dateOfDeath == null) {
+    if (_artRefill.notDoneReason == ARTRefillNotDoneReason.PATIENT_DIED() && _artRefill.dateOfDeath == null) {
       setState(() {
         _dateOfDeathValid = false;
       });
@@ -368,8 +345,8 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
   bool _validateTransferDate() {
     // if the date of transfer is not specified when it should be show
     // the error message under the date field and return false.
-    if ((_artRefill.notDoneReason == ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_LESOTHO
-        || _artRefill.notDoneReason == ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_SA)
+    if ((_artRefill.notDoneReason == ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_LESOTHO()
+        || _artRefill.notDoneReason == ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_SA())
         &&_artRefill.transferDate == null) {
       setState(() {
         _transferDateValid = false;

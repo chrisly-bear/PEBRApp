@@ -1,5 +1,6 @@
 
 import 'package:pebrapp/database/DatabaseExporter.dart';
+import 'package:pebrapp/database/beans/ARTRefillNotDoneReason.dart';
 import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
@@ -57,7 +58,7 @@ class ARTRefill implements IExcelExportable {
     this.createdDate = DateTime.parse(map[colCreatedDate]);
     this._refillType = RefillType.fromCode(map[colRefillType]);
     this.nextRefillDate = map[colNextRefillDate] == null ? null : DateTime.parse(map[colNextRefillDate]);
-    this.notDoneReason = map[colNotDoneReason] == null ? null : ARTRefillNotDoneReason.values[map[colNotDoneReason]];
+    this.notDoneReason = ARTRefillNotDoneReason.fromCode(map[colNotDoneReason]);
     this.dateOfDeath = map[colDateOfDeath] == null ? null : DateTime.parse(map[colDateOfDeath]);
     this.causeOfDeath = map[colCauseOfDeath];
     this.hospitalizedClinic = map[colHospitalizedClinic];
@@ -76,7 +77,7 @@ class ARTRefill implements IExcelExportable {
     map[colCreatedDate] = createdDate.toIso8601String();
     map[colRefillType] = _refillType.code;
     map[colNextRefillDate] = nextRefillDate?.toIso8601String();
-    map[colNotDoneReason] = notDoneReason?.index;
+    map[colNotDoneReason] = notDoneReason?.code;
     map[colDateOfDeath] = dateOfDeath?.toIso8601String();
     map[colCauseOfDeath] = causeOfDeath;
     map[colHospitalizedClinic] = hospitalizedClinic;
@@ -118,7 +119,7 @@ class ARTRefill implements IExcelExportable {
     row[1] = formatTimeIso(_createdDate);
     row[2] = formatDateIso(nextRefillDate);
     row[3] = _refillType.code;
-    row[4] = notDoneReason?.index; // TODO: use correct encoding
+    row[4] = notDoneReason?.code;
     row[5] = formatDateIso(dateOfDeath);
     row[6] = causeOfDeath;
     row[7] = hospitalizedClinic;
@@ -136,7 +137,3 @@ class ARTRefill implements IExcelExportable {
   DateTime get createdDate => this._createdDate;
 
 }
-
-
-// Do not change the order of the enums as their index is used to store the instance in the database!
-enum ARTRefillNotDoneReason { PATIENT_DIED, PATIENT_HOSPITALIZED, ART_FROM_OTHER_CLINIC_LESOTHO, ART_FROM_OTHER_CLINIC_SA, NOT_TAKING_ART_ANYMORE, STOCK_OUT_OR_FAILED_DELIVERY, NO_INFORMATION }
