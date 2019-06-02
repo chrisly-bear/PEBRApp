@@ -64,40 +64,6 @@ void showFlushBar(BuildContext context, String message, {String title, bool erro
   ).show(context);
 }
 
-String adherenceReminderMessageToString(AdherenceReminderMessage message) {
-  String returnString;
-  switch (message) {
-    case AdherenceReminderMessage.MESSAGE_1:
-      returnString = "Meds time 🕒";
-      break;
-    case AdherenceReminderMessage.MESSAGE_2:
-      returnString = "Nako ea lithlare 🕒";
-      break;
-    case AdherenceReminderMessage.MESSAGE_3:
-      returnString = "Recharge!";
-      break;
-    case AdherenceReminderMessage.MESSAGE_4:
-      returnString = "Healthy living!";
-      break;
-    case AdherenceReminderMessage.MESSAGE_5:
-      returnString = "Bophelo bo botle!";
-      break;
-    case AdherenceReminderMessage.MESSAGE_6:
-      returnString = "Me and good health!";
-      break;
-    case AdherenceReminderMessage.MESSAGE_7:
-      returnString = "Nna le bophelo bo botle!";
-      break;
-    case AdherenceReminderMessage.MESSAGE_8:
-      returnString = "Right time!";
-      break;
-    case AdherenceReminderMessage.MESSAGE_9:
-      returnString = "Nake e nepahetseng";
-      break;
-  }
-  return returnString;
-}
-
 String vlSuppressedMessageToString(VLSuppressedMessage message) {
   String returnString;
   switch (message) {

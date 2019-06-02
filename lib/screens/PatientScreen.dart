@@ -3,6 +3,7 @@ import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
+import 'package:pebrapp/database/beans/AdherenceReminderMessage.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/Patient.dart';
@@ -291,7 +292,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
 
     _buildAdherenceReminderMessageText() {
       AdherenceReminderMessage message = _patient.latestPreferenceAssessment.adherenceReminderMessage;
-      String text = message == null ? '—' : adherenceReminderMessageToString(message);
+      String text = message == null ? '—' : message.description;
       return Text(text);
     }
 

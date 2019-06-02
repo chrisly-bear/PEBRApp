@@ -6,6 +6,7 @@ import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderMessage.dart';
 import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
+import 'package:pebrapp/database/beans/AdherenceReminderMessage.dart';
 import 'package:pebrapp/database/beans/CondomUsageNotDemonstratedReason.dart';
 import 'package:pebrapp/database/beans/HomeVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
@@ -228,7 +229,7 @@ class PreferenceAssessment implements IExcelExportable {
     }
     this.adherenceReminderFrequency = AdherenceReminderFrequency.fromCode(map[colAdherenceReminderFrequency]);
     this.adherenceReminderTime = parseTimeOfDay(map[colAdherenceReminderTime]);
-    this.adherenceReminderMessage = map[colAdherenceReminderMessage] == null ? null : AdherenceReminderMessage.values[map[colAdherenceReminderMessage]];
+    this.adherenceReminderMessage = AdherenceReminderMessage.fromCode(map[colAdherenceReminderMessage]);
     if (map[colARTRefillReminderEnabled] != null) {
       this.artRefillReminderEnabled = map[colARTRefillReminderEnabled] == 1;
     }
@@ -297,7 +298,7 @@ class PreferenceAssessment implements IExcelExportable {
     map[colAdherenceReminderEnabled] = adherenceReminderEnabled;
     map[colAdherenceReminderFrequency] = adherenceReminderFrequency?.code;
     map[colAdherenceReminderTime] = formatTime(adherenceReminderTime);
-    map[colAdherenceReminderMessage] = adherenceReminderMessage?.index;
+    map[colAdherenceReminderMessage] = adherenceReminderMessage?.code;
     map[colARTRefillReminderEnabled] = artRefillReminderEnabled;
     map[colARTRefillReminderDaysBefore] = artRefillReminderDaysBefore?.serializeToJSON();
     map[colARTRefillReminderMessage] = artRefillReminderMessage?.code;
@@ -432,7 +433,7 @@ class PreferenceAssessment implements IExcelExportable {
     row[19] = adherenceReminderEnabled;
     row[20] = adherenceReminderFrequency?.code;
     row[21] = formatTime(adherenceReminderTime);
-    row[22] = adherenceReminderMessage?.index; // TODO: use correct encoding
+    row[22] = adherenceReminderMessage?.code;
     row[23] = artRefillReminderEnabled;
     row[24] = artRefillReminderDaysBefore?.serializeToJSON(); // TODO: use correct encoding
     row[25] = artRefillReminderMessage?.code;
@@ -531,9 +532,6 @@ class ARTRefillReminderDaysBeforeSelection {
   }
 
 }
-
-// Do not change the order of the enums as their index is used to store the instance in the database!
-enum AdherenceReminderMessage { MESSAGE_1, MESSAGE_2, MESSAGE_3, MESSAGE_4, MESSAGE_5, MESSAGE_6, MESSAGE_7, MESSAGE_8, MESSAGE_9 }
 
 // Do not change the order of the enums as their index is used to store the instance in the database!
 enum VLSuppressedMessage { MESSAGE_1, MESSAGE_2, MESSAGE_3, MESSAGE_4, MESSAGE_5, MESSAGE_6 }
