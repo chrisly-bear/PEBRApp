@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderDaysBeforeSelection.dart';
@@ -135,7 +136,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         _buildNotificationsCard(),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [PEBRAButtonRaised('Export')]),
+            children: [PEBRAButtonFlat('Export')]),
         _buildTitle('Support'),
         _buildSupportCard(),
         _buildPsychosocialCard(),
