@@ -251,6 +251,43 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       );
     }
 
+    Widget _formatHeaderRowText(String text) {
+      return Text(
+        text.toUpperCase(),
+        style: TextStyle(
+          fontSize: 12.0,
+          color: Colors.grey,
+          fontWeight: FontWeight.w600,
+        ),
+      );
+    }
+
+    Widget _buildViralLoadHeader() {
+      Widget content = Row(
+        children: <Widget>[
+          Expanded(
+              child: Container(
+                alignment: Alignment.centerLeft,
+                child: _formatHeaderRowText('Viral Load'),
+              )
+          ),
+          SizedBox(width: 10.0),
+          Expanded(child: _formatHeaderRowText('Lab Number')),
+          Expanded(child: _formatHeaderRowText('Source')),
+        ],
+      );
+      Widget row = Padding(
+        padding: EdgeInsets.symmetric(vertical: 5.0),
+        child: Row(
+          children: <Widget>[
+            Expanded(flex: _descriptionFlex, child: _formatHeaderRowText('Date')),
+            Expanded(flex: _contentFlex, child: content),
+          ],
+        ),
+      );
+      return row;
+    }
+
     Widget _buildViralLoadRow(vl) {
       if (vl == null) { return Column(); }
       Widget description = Text('${formatDateConsistent(vl.dateOfBloodDraw)}');
@@ -289,6 +326,41 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       return _buildViralLoadRow(vl);
     }).toList();
 
+    Widget _baselineVLRows() {
+      Widget content;
+      if (_patient.viralLoadBaselineManual == null && _patient.viralLoadBaselineDatabase == null) {
+        content = Text('No Baseline Viral Load data available', style: TextStyle(color: Colors.grey),);
+      } else {
+        content = Column(children: <Widget>[
+          _buildViralLoadHeader(),
+          _buildViralLoadRow(_patient.viralLoadBaselineManual),
+          _buildViralLoadRow(_patient.viralLoadBaselineDatabase),
+        ]);
+      }
+      return Column(children: <Widget>[
+        _makeSubtitle('Baseline Viral Load'),
+        Divider(),
+        content,
+      ]);
+    }
+
+    Widget _followUpVLRows() {
+      Widget content;
+      if (vlFollowUps.length == 0) {
+        content = Text('No Follow Up Viral Load data available', style: TextStyle(color: Colors.grey),);
+      } else {
+        content = Column(children: <Widget>[
+          _buildViralLoadHeader(),
+          ...vlFollowUps,
+        ]);
+      }
+      return Column(children: <Widget>[
+        _makeSubtitle('Follow Up Viral Loads'),
+        Divider(),
+        content,
+      ]);
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -299,11 +371,9 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             child: Column(
               children: [
-                _makeSubtitle('Baseline Viral Load'),
-                _buildViralLoadRow(_patient.viralLoadBaselineManual),
-                _buildViralLoadRow(_patient.viralLoadBaselineDatabase),
-                _makeSubtitle('Follow Up Viral Loads'),
-                ...vlFollowUps,
+                _baselineVLRows(),
+                SizedBox(height: 20.0),
+                _followUpVLRows(),
               ],
             ),
           ),
