@@ -79,7 +79,11 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         _buildViralLoadHistoryCard(),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [PEBRAButtonFlat('add viral load', onPressed: () { _addViralLoadPressed(_context, _patient); })]),
+            children: [PEBRAButtonFlat('fetch from database', onPressed: () { _fetchFromDatabasePressed(_context, _patient); })]),
+        Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [PEBRAButtonFlat('add manual entry', onPressed: () { _addViralLoadPressed(_context, _patient); })]),
+        Padding(padding: EdgeInsets.symmetric(horizontal: 20.0), child: Text('Use this option to correct a wrong entry from the database.', textAlign: TextAlign.center)),
         _buildTitle('Preferences'),
         _buildPreferencesCard(),
         Center(child: _buildTitle('Next Preference Assessment')),
@@ -105,6 +109,25 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         },
       ),
     );
+  }
+
+  Future<void> _fetchFromDatabasePressed(BuildContext context, Patient patient) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+            title: Text('Not Implemented'),
+            content: Text('This feature is not yet available.'),
+            actions: <Widget>[FlatButton(
+              child: Text("Dismiss"),
+              onPressed: () { Navigator.of(context).pop(); },
+            )]);
+      },
+    );
+    // TODO: implement call to viral load database API
+    // calling setState to trigger a re-render of the page and display the new
+    // viral load history
+    setState(() {});
   }
 
   void _addViralLoadPressed(BuildContext context, Patient patient) {
