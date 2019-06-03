@@ -207,7 +207,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           resultMessage = 'Login to SWITCH failed. Contact the development team.';
           break;
         case DocumentNotFoundException:
-          resultMessage = 'No existing backup found for user \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\'';
+          resultMessage = 'No existing backup found for user \'${loginData.username}\'';
           break;
         case SocketException:
           resultMessage = 'Make sure you are connected to the internet.';

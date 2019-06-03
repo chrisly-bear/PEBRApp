@@ -19,16 +19,16 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class LoginData {
-  String firstName, lastName, healthCenter;
-  LoginData(this.firstName, this.lastName, this.healthCenter);
+  String username, firstName, lastName, healthCenter;
+  LoginData(this.username, this.firstName, this.lastName, this.healthCenter);
 
   @override
   bool operator ==(other) {
-    return (firstName == other.firstName && lastName == other.lastName && healthCenter == other.healthCenter);
+    return (username == other.username && firstName == other.firstName && lastName == other.lastName && healthCenter == other.healthCenter);
   }
 
   @override
-  int get hashCode => firstName.hashCode^lastName.hashCode^healthCenter.hashCode;
+  int get hashCode => username.hashCode^firstName.hashCode^lastName.hashCode^healthCenter.hashCode;
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
@@ -112,6 +112,9 @@ class _SettingsBodyState extends State<SettingsBody> {
               Text('${loginData.firstName} ${loginData.lastName}',
                 style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),
               ),
+              Text('${loginData.username}',
+                style: TextStyle(fontSize: 24.0),
+              ),
               Text('${loginData.healthCenter}',
                 style: TextStyle(fontSize: 24.0),
               ),
@@ -154,7 +157,7 @@ class _SettingsBodyState extends State<SettingsBody> {
           message = 'Login to SWITCH failed. Contact the development team.';
           break;
         case DocumentNotFoundException:
-          message = 'No existing backup found for user \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\'';
+          message = 'No existing backup found for user \'${loginData.username}\'';
           break;
         case SocketException:
           message = 'Make sure you are connected to the internet.';
@@ -180,7 +183,7 @@ class _SettingsBodyState extends State<SettingsBody> {
       setState(() { _isLoading = true; });
       final LoginData loginData = await loginDataFromSharedPrefs;
       try {
-        await restoreFromSWITCHtoolbox(loginData);
+        await restoreFromSWITCHtoolbox(loginData.username);
       } catch (e, s) {
         error = true;
         title = 'Restore Failed';
@@ -197,7 +200,7 @@ class _SettingsBodyState extends State<SettingsBody> {
             resultMessage = 'Login to SWITCH failed. Contact the development team.';
             break;
           case DocumentNotFoundException:
-            resultMessage = 'No backup found for user \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\'.';
+            resultMessage = 'No backup found for user \'${loginData.username}\'.';
             break;
           default:
             resultMessage = 'An unknown error occured. Contact the development team.';
@@ -451,16 +454,17 @@ class _LoginBodyState extends State<LoginBody> {
   _onSubmitLoginForm() async {
     // Validate will return true if the form is valid, or false if the form is invalid.
     if (_loginFormKey.currentState.validate()) {
-      LoginData loginData = LoginData(_firstNameCtr.text, _lastNameCtr.text, _selectedHealthCenter);
       String title;
       String notificationMessage = 'Login Successful';
       bool error = false;
       VoidCallback onNotificationButtonPress;
       setState(() { _isLoading = true; });
+      final String username = _usernameCtr.text;
       try {
-          await restoreFromSWITCHtoolbox(loginData);
+          LoginData loginData = await restoreFromSWITCHtoolbox(username);
           // if the restore was successful we store the login data on the device
           final SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString(USERNAME_KEY, loginData.username);
           await prefs.setString(FIRSTNAME_KEY, loginData.firstName);
           await prefs.setString(LASTNAME_KEY, loginData.lastName);
           await prefs.setString(HEALTHCENTER_KEY, loginData.healthCenter);
@@ -478,7 +482,7 @@ class _LoginBodyState extends State<LoginBody> {
             notificationMessage = 'Login to SWITCH failed. Contact the development team.';
             break;
           case DocumentNotFoundException:
-            notificationMessage = 'User \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\' not found. Check your login data or create a new account.';
+            notificationMessage = 'User \'$username\' not found. Check your login data or create a new account.';
             break;
           default:
             notificationMessage = 'An unknown error occured. Contact the development team.';
@@ -503,27 +507,30 @@ class _LoginBodyState extends State<LoginBody> {
       VoidCallback onNotificationButtonPress;
       setState(() { _isLoading = true; });
       final LoginData loginData = LoginData(
+          _usernameCtr.text,
           _firstNameCtr.text,
           _lastNameCtr.text,
           _selectedHealthCenter
       );
       try {
-        final bool userExists = await existsBackupForUser(loginData);
+        final bool userExists = await existsBackupForUser(loginData.username);
         if (userExists) {
           error = true;
           title = 'Account could not be created';
-          notificationMessage = 'User \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\' already exists.';
+          notificationMessage = 'User \'${loginData.username}\' already exists.';
         } else {
           await DatabaseProvider().createFirstBackupOnSWITCH(loginData);
           // if backup was successful we store the login data on the device
           SharedPreferences prefs = await SharedPreferences.getInstance();
+          bool usernameResult =
+          await prefs.setString(USERNAME_KEY, loginData.username);
           bool firstNameResult =
           await prefs.setString(FIRSTNAME_KEY, loginData.firstName);
           bool lastNameResult =
           await prefs.setString(LASTNAME_KEY, loginData.lastName);
           bool healthCenterResult =
           await prefs.setString(HEALTHCENTER_KEY, loginData.healthCenter);
-          if (!firstNameResult || !lastNameResult || !healthCenterResult) {
+          if (!usernameResult || !firstNameResult || !lastNameResult || !healthCenterResult) {
             error = true;
             title = 'Something went wrong';
             notificationMessage = 'The account was created successfully. However, the login data could not be stored on the device. Please log in manually.';

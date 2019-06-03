@@ -413,7 +413,7 @@ class DatabaseProvider {
     await _initDB();
   }
 
-  /// Backs up the SQLite database file and exports the data as CSV to SWITCH.
+  /// Backs up the SQLite database file and exports the data as Excel file to SWITCH.
   /// Use this if no previous backup for this user exists yet. This creates
   /// version 1 of the backup documents on SWITCHtoolbox.
   /// 
@@ -428,14 +428,14 @@ class DatabaseProvider {
     }
     final File dbFile = await _databaseFile;
     final File excelFile = await DatabaseExporter.exportDatabaseToExcelFile();
-    // upload SQLite and CSV file
-    final String filename = '${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}';
+    // upload SQLite and Excel file
+    final String filename = '${loginData.username}_${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}';
     await uploadFileToSWITCHtoolbox(dbFile, filename: filename, folderID: SWITCH_TOOLBOX_BACKUP_FOLDER_ID);
     await uploadFileToSWITCHtoolbox(excelFile, filename: filename, folderID: SWITCH_TOOLBOX_DATA_FOLDER_ID);
     await storeLatestBackupInSharedPrefs();
   }
 
-  /// Backs up the SQLite database file and exports the data as CSV to SWITCH.
+  /// Backs up the SQLite database file and exports the data as Excel file to SWITCH.
   /// Use this only if a previous backup for this user exists. This creates a
   /// new version of the document on SWITCHtoolbox.
   ///
@@ -452,8 +452,8 @@ class DatabaseProvider {
     }
     final File dbFile = await _databaseFile;
     final File excelFile = await DatabaseExporter.exportDatabaseToExcelFile();
-    // update SQLite and CSV file with new version
-    final String docName = '${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}';
+    // update SQLite and Excel file with new version
+    final String docName = '${loginData.username}_${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}';
     await updateFileOnSWITCHtoolbox(dbFile, docName, folderId: SWITCH_TOOLBOX_BACKUP_FOLDER_ID);
     await updateFileOnSWITCHtoolbox(excelFile, docName, folderId: SWITCH_TOOLBOX_DATA_FOLDER_ID);
     await storeLatestBackupInSharedPrefs();

@@ -195,13 +195,15 @@ DateTime calculateNextARTRefill(DateTime lastARTRefill) {
 Future<LoginData> get loginDataFromSharedPrefs async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   final prefKeys = prefs.getKeys();
-  if (prefKeys.contains(FIRSTNAME_KEY)
+  if (prefKeys.contains(USERNAME_KEY)
+      && prefKeys.contains(FIRSTNAME_KEY)
       && prefKeys.contains(LASTNAME_KEY)
       && prefKeys.contains(HEALTHCENTER_KEY)) {
+    final username = prefs.get(USERNAME_KEY);
     final firstName = prefs.get(FIRSTNAME_KEY);
     final lastName = prefs.get(LASTNAME_KEY);
     final healthCenter = prefs.get(HEALTHCENTER_KEY);
-    return LoginData(firstName, lastName, healthCenter);
+    return LoginData(username, firstName, lastName, healthCenter);
   }
   return null;
 }
