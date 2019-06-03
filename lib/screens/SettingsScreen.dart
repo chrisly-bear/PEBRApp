@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
@@ -52,7 +53,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         color: Color.fromARGB(255, 224, 224, 224),
         child: Container(
           width: 400,
-          height: 600,
+          height: 700,
           child: _isLoading ? Center(child: Text('Loading...')) : (
               _loginData == null ? LoginBody() : Center(child: SettingsBody(this._loginData))),
         ),
@@ -386,9 +387,14 @@ class _LoginBodyState extends State<LoginBody> {
                   TextFormField(
                     decoration: InputDecoration(
                       labelText: 'Username',
+                      helperText: _createAccountMode ? 'allowed (max. 12 symbols): lower case letters, numbers, "-"' : null,
                     ),
                     textAlign: TextAlign.center,
                     controller: _usernameCtr,
+                    inputFormatters: [
+                      WhitelistingTextInputFormatter(RegExp('[a-z0-9\-]')),
+                      LengthLimitingTextInputFormatter(12),
+                    ],
                     validator: (value) {
                       if (value.isEmpty) {
                         return 'Please enter a username';
