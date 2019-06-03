@@ -82,7 +82,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
             children: [PEBRAButtonFlat('fetch from database', onPressed: () { _fetchFromDatabasePressed(_context, _patient); })]),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [PEBRAButtonFlat('add manual entry', onPressed: () { _addViralLoadPressed(_context, _patient); })]),
+            children: [PEBRAButtonFlat('add manual entry', onPressed: () { _addManualEntryPressed(_context, _patient); })]),
         Padding(padding: EdgeInsets.symmetric(horizontal: 20.0), child: Text('Use this option to correct a wrong entry from the database.', textAlign: TextAlign.center)),
         _buildTitle('Preferences'),
         _buildPreferencesCard(),
@@ -130,7 +130,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     setState(() {});
   }
 
-  void _addViralLoadPressed(BuildContext context, Patient patient) {
+  void _addManualEntryPressed(BuildContext context, Patient patient) {
     Navigator.of(context).push(
       new PageRouteBuilder<void>(
         opaque: false,
@@ -215,7 +215,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               child: Center(
                 child: Text(
-                  "No viral load data available for this patient. Sync with the viral load database or add a new entry manually.",
+                  "No viral load data available for this patient. Fetch data from the viral load database or add a new entry manually.",
                   style: TextStyle(color: Colors.grey),
                 ),
               ),
