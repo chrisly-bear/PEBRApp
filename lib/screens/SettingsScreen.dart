@@ -108,11 +108,11 @@ class _SettingsBodyState extends State<SettingsBody> {
         Expanded(child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-              SizedBox(height: 30,),
-              Text('${loginData.firstName} ${loginData.lastName}',
+              Text('${loginData.username}',
                 style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),
               ),
-              Text('${loginData.username}',
+              SizedBox(height: 10),
+              Text('${loginData.firstName} ${loginData.lastName}',
                 style: TextStyle(fontSize: 24.0),
               ),
               Text('${loginData.healthCenter}',
