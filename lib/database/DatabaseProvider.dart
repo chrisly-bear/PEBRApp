@@ -592,7 +592,7 @@ class DatabaseProvider {
         PreferenceAssessment.tableName,
         where: '${PreferenceAssessment.colPatientART} = ?',
         whereArgs: [patientART],
-        orderBy: PreferenceAssessment.colCreatedDate
+        orderBy: '${PreferenceAssessment.colCreatedDate} DESC'
     );
     if (res.length > 0) {
       return PreferenceAssessment.fromMap(res.first);
@@ -613,7 +613,7 @@ class DatabaseProvider {
         ARTRefill.tableName,
         where: '${ARTRefill.colPatientART} = ?',
         whereArgs: [patientART],
-        orderBy: ARTRefill.colCreatedDate
+        orderBy: '${ARTRefill.colCreatedDate} DESC'
     );
     if (res.length > 0) {
       return ARTRefill.fromMap(res.first);
