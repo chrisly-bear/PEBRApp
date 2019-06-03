@@ -262,12 +262,16 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       Widget viralLoadBadge = ViralLoadBadge(vl, smallSize: false);
       Widget content = Row(
         children: <Widget>[
-          viralLoadIcon,
-//          viralLoadBadge,
+          Expanded(
+              child: Container(
+                alignment: Alignment.centerLeft,
+                child: viralLoadIcon,
+//                child: viralLoadBadge,
+              )
+          ),
           SizedBox(width: 10.0),
-          Text(vl.labNumber),
-          SizedBox(width: 10.0),
-          Text(vl.source == ViralLoadSource.MANUAL_INPUT() ? 'manual' : 'database'),
+          Expanded(child: Text(vl.labNumber)),
+          Expanded(child: Text(vl.source == ViralLoadSource.MANUAL_INPUT() ? 'manual' : 'database')),
         ],
       );
       return Padding(
