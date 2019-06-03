@@ -68,7 +68,7 @@ class ViralLoad implements IExcelExportable {
     return map;
   }
 
-  static const int _numberOfColumns = 11;
+  static const int _numberOfColumns = 10;
 
   /// Column names for the header row in the excel sheet.
   // If we change the order here, make sure to change the order in the
@@ -78,14 +78,13 @@ class ViralLoad implements IExcelExportable {
     row[0] = 'DATE_CREATED';
     row[1] = 'TIME_CREATED';
     row[2] = 'VL_DATE';
-    row[3] = 'VL_TIME';
-    row[4] = 'IND_ID';
-    row[5] = 'VL_LTDL';
-    row[6] = 'VL_RESULT';
-    row[7] = 'VL_LNO';
-    row[8] = 'VL_DISCREPANCY';
-    row[9] = 'VL_IS_BASELINE';
-    row[10] = 'VL_SOURCE';
+    row[3] = 'IND_ID';
+    row[4] = 'VL_LTDL';
+    row[5] = 'VL_RESULT';
+    row[6] = 'VL_LNO';
+    row[7] = 'VL_DISCREPANCY';
+    row[8] = 'VL_IS_BASELINE';
+    row[9] = 'VL_SOURCE';
     return row;
   }
 
@@ -98,14 +97,13 @@ class ViralLoad implements IExcelExportable {
     row[0] = formatDateIso(_createdDate);
     row[1] = formatTimeIso(_createdDate);
     row[2] = formatDateIso(dateOfBloodDraw);
-    row[3] = formatTimeIso(dateOfBloodDraw);
-    row[4] = patientART;
-    row[5] = isLowerThanDetectable;
-    row[6] = viralLoad;
-    row[7] = labNumber;
-    row[8] = null; // TODO
-    row[9] = isBaseline;
-    row[10] = source?.code;
+    row[3] = patientART;
+    row[4] = isLowerThanDetectable;
+    row[5] = viralLoad;
+    row[6] = labNumber;
+    row[7] = null; // TODO
+    row[8] = isBaseline;
+    row[9] = source?.code;
     return row;
   }
 
