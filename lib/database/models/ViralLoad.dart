@@ -17,12 +17,13 @@ class ViralLoad implements IExcelExportable {
   static final colId = 'id'; // primary key
   static final colCreatedDate = 'created_date_utc';
   static final colPatientART = 'patient_art'; // foreign key to [Patient].art_number
-  static final colViralLoadSource = 'entry_source';
+  static final colViralLoadSource = 'source';
   static final colViralLoadIsBaseline = 'is_baseline';
   static final colDateOfBloodDraw = 'date_blood_draw_utc';
   static final colLabNumber = 'lab_number';
   static final colIsLowerThanDetectable = 'is_lower_than_detectable';
   static final colViralLoad = 'viral_load'; // nullable
+  static final colDiscrepancy = 'discrepancy'; // nullable
 
   DateTime _createdDate;
   String patientART;
@@ -32,6 +33,7 @@ class ViralLoad implements IExcelExportable {
   String labNumber;
   bool isLowerThanDetectable;
   int viralLoad;
+  bool discrepancy;
 
   // Constructors
   // ------------
@@ -48,6 +50,9 @@ class ViralLoad implements IExcelExportable {
     this.isLowerThanDetectable = map[colIsLowerThanDetectable] == 1;
     // nullables:
     this.viralLoad = map[colViralLoad];
+    if (map[colDiscrepancy] != null) {
+      this.discrepancy = map[colDiscrepancy] == 1;
+    }
   }
 
 
@@ -65,6 +70,7 @@ class ViralLoad implements IExcelExportable {
     map[colIsLowerThanDetectable] = isLowerThanDetectable;
     // nullables:
     map[colViralLoad] = viralLoad;
+    map[colDiscrepancy] = discrepancy;
     return map;
   }
 
@@ -101,7 +107,7 @@ class ViralLoad implements IExcelExportable {
     row[4] = isLowerThanDetectable;
     row[5] = viralLoad;
     row[6] = labNumber;
-    row[7] = null; // TODO
+    row[7] = discrepancy;
     row[8] = isBaseline;
     row[9] = source?.code;
     return row;
@@ -113,6 +119,17 @@ class ViralLoad implements IExcelExportable {
   void checkLogicAndResetUnusedFields() {
     if (this.isLowerThanDetectable) {
       this.viralLoad = null;
+    }
+
+    // Only baseline viral load data can have discrepancy, because follow up
+    // viral loads only come from the VL database so there's nothing to compare
+    // them to, thus there can't be any discrepancy.
+    //
+    // Only viral load data from the VL database can have discrepancy,
+    // because the baseline result is always entered manually first so there's
+    // never a discrepancy for manually entered baseline viral loads.
+    if (!this.isBaseline || this.source != ViralLoadSource.DATABASE()) {
+      this.discrepancy = null;
     }
   }
 
