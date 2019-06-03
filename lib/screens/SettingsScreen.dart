@@ -284,6 +284,7 @@ class _LoginBodyState extends State<LoginBody> {
   final _loginFormKey = GlobalKey<FormState>();
   final _createAccountFormKey = GlobalKey<FormState>();
   bool _createAccountMode = true;
+  TextEditingController _usernameCtr = TextEditingController();
   TextEditingController _firstNameCtr = TextEditingController();
   TextEditingController _lastNameCtr = TextEditingController();
   bool _isLoading = false;
@@ -310,6 +311,61 @@ class _LoginBodyState extends State<LoginBody> {
   }
 
   _formBlock() {
+    Widget createAccountFields() {
+      if (!_createAccountMode) {
+        return Container();
+      }
+      return Column(children: <Widget>[
+        TextFormField(
+          decoration: InputDecoration(
+            labelText: 'First Name',
+          ),
+          textAlign: TextAlign.center,
+          controller: _firstNameCtr,
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please enter your first name';
+            }
+          },
+        ),
+        TextFormField(
+          decoration: InputDecoration(
+            labelText: 'Last Name',
+          ),
+          textAlign: TextAlign.center,
+          controller: _lastNameCtr,
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please enter your last name';
+            }
+          },
+        ),
+        DropdownButtonFormField<String>(
+          decoration: InputDecoration(
+            labelText: 'Health Center',
+          ),
+          value: _selectedHealthCenter,
+          onChanged: (String newValue) {
+            setState(() {
+              _selectedHealthCenter = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please select the health center at which you work';
+            }
+          },
+          items: healthCenters
+              .map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+        )
+      ]);
+    }
+
     return Column(
       children: <Widget>[
         Padding(
@@ -324,46 +380,19 @@ class _LoginBodyState extends State<LoginBody> {
               padding: EdgeInsets.all(20),
               child: Column(
                 children: <Widget>[
-                  Text('First Name'),
                   TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Username',
+                    ),
                     textAlign: TextAlign.center,
-                    controller: _firstNameCtr,
+                    controller: _usernameCtr,
                     validator: (value) {
                       if (value.isEmpty) {
-                        return 'Please enter your first name';
+                        return 'Please enter a username';
                       }
                     },
                   ),
-                  Text('Last Name'),
-                  TextFormField(
-                    textAlign: TextAlign.center,
-                    controller: _lastNameCtr,
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Please enter your last name';
-                      }
-                    },
-                  ),
-                  DropdownButtonFormField<String>(
-                    value: _selectedHealthCenter,
-                    onChanged: (String newValue) {
-                      setState(() {
-                        _selectedHealthCenter = newValue;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please select the health center at which you work';
-                      }
-                    },
-                    items: healthCenters
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  )
+                  createAccountFields(),
                 ],
               ),
             ),
