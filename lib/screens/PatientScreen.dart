@@ -86,7 +86,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         Center(child: Text(_nextAssessmentText)),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [PEBRAButtonRaised('Start Assessment', onPressed: () { _pushPreferenceAssessmentScreen(_context, _patient.artNumber); })]),
+            children: [PEBRAButtonRaised('Start Assessment', onPressed: () { _pushPreferenceAssessmentScreen(_context, _patient); })]),
         Center(child: _buildTitle('Next ART Refill')),
         Center(child: Text(_nextRefillText)),
         Row(
@@ -552,11 +552,11 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
 
   }
 
-  void _pushPreferenceAssessmentScreen(BuildContext context, String patientART) {
+  void _pushPreferenceAssessmentScreen(BuildContext context, Patient patient) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
-          return PreferenceAssessmentScreen(patientART);
+          return PreferenceAssessmentScreen(patient);
         },
       ),
     );
