@@ -255,15 +255,15 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       if (vl == null) { return Column(); }
       Widget description = Text('${formatDateConsistent(vl.dateOfBloodDraw)}');
       Widget viralLoadIcon = vl.isLowerThanDetectable
-          ? Text('LTDL')
+          ? ViralLoadBadge(vl, smallSize: true)
           : (vl.isSuppressed
             ? _getPaddedIcon('assets/icons/viralload_suppressed.png')
             : _getPaddedIcon('assets/icons/viralload_unsuppressed.png'));
       Widget viralLoadBadge = ViralLoadBadge(vl, smallSize: false);
       Widget content = Row(
         children: <Widget>[
-//          viralLoadIcon,
-          viralLoadBadge,
+          viralLoadIcon,
+//          viralLoadBadge,
           SizedBox(width: 10.0),
           Text(vl.labNumber),
           SizedBox(width: 10.0),
