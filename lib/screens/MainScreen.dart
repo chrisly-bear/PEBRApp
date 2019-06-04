@@ -223,7 +223,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       flexibleSpace: PageHeader(title: 'Patients', subtitle: 'Overview'),
       actions: <Widget>[
         IconButton(
-          icon: Icon(Icons.settings),
+          icon: Icon(Icons.info),
           onPressed: _pushIconExplanationsScreen,
         ),
         IconButton(
