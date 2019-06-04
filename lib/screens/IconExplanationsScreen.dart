@@ -1,9 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:pebrapp/components/SizedButton.dart';
-import 'package:pebrapp/database/DatabaseProvider.dart';
-import 'package:pebrapp/database/models/Patient.dart';
-import 'package:pebrapp/utils/Utils.dart';
 
 class IconExplanationsScreen extends StatefulWidget {
   @override
@@ -48,16 +44,133 @@ class _IconExplanationsScreenState extends State<IconExplanationsScreen> {
             Text('Icon Explanations',
               style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),
             ),
-            _isLoading
-                ? Padding(padding: EdgeInsets.symmetric(vertical: 17.5), child: SizedBox(width: 15.0, height: 15.0, child: CircularProgressIndicator()))
-                : SizedBox(height: 50,),
-            SizedButton(
-              'Get DB Info',
-              onPressed: _getDBInfo,
+            SizedBox(height: 30,),
+            Padding(
+                padding: const EdgeInsets.only(left: 30),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Image.asset(
+                      'assets/icons/saturday_clinic_club_fett.png',
+                      height: 30,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        'Saturday Clinic Club (SCC)',
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                    )
+                  ],
+                )
             ),
-            SizedButton(
-              'Get All Patients',
-              onPressed: _getAllPatients,
+            Padding(
+                padding: const EdgeInsets.only(left: 30),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Image.asset(
+                      'assets/icons/youth_club_fett.png',
+                      height: 30,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        'Community Youth Club (CTC)',
+                        style: TextStyle(
+                          fontSize: 20,
+                          //fontWeight: FontWeight.bold
+                        ),
+                      ),
+                    )
+                 ],
+                )
+            ),
+            Padding(
+                padding: const EdgeInsets.only(left: 30),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Image.asset(
+                      'assets/icons/phonecall_pe_fett.png',
+                      height: 30,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        'Phone Call by PE',
+                        style: TextStyle(
+                            fontSize: 20,
+                        ),
+                      ),
+                    )
+                  ],
+                )
+            ),
+            Padding(
+                padding: const EdgeInsets.only(left: 30),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Image.asset(
+                      'assets/icons/homevisit_pe_fett.png',
+                      height: 30,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        'Home Visit by PE',
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                    )
+                  ],
+                )
+            ),
+            Padding(
+                padding: const EdgeInsets.only(left: 30),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Image.asset(
+                      'assets/icons/nurse_clinic_fett.png',
+                      height: 30,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        'By the nurse at the clinic',
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                    )
+                  ],
+                )
+            ),
+            Padding(
+                padding: const EdgeInsets.only(left: 30),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Image.asset(
+                      'assets/icons/schooltalk_pe_fett.png',
+                      height: 30,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        'School visit and health talk by PE',
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                    )
+                  ],
+                )
             ),
           ],
         ),
@@ -65,24 +178,5 @@ class _IconExplanationsScreenState extends State<IconExplanationsScreen> {
       ],
     );
   }
-
-  _getDBInfo() async {
-    final columns = await DatabaseProvider().getTableInfo(Patient.tableName);
-    print('### TABLE \'${Patient.tableName}\' INFO <START> ###');
-    for (final column in columns) {
-      print(column);
-    }
-    print('### TABLE \'${Patient.tableName}\' INFO <END> ###');
-  }
-
-  _getAllPatients() async {
-    final List<Patient> patients = await DatabaseProvider().retrieveLatestPatients();
-    if (patients.length == 0) { print('No patients in Patient table'); }
-    for (final patient in patients) {
-      print(patient);
-    }
-    showFlushBar(context, "${patients.length} patients in database");
-  }
-
 
 }
