@@ -13,6 +13,7 @@ import 'package:pebrapp/screens/DebugScreen.dart';
 import 'dart:ui';
 
 import 'package:pebrapp/screens/SettingsScreen.dart';
+import 'package:pebrapp/screens/IconExplanationsScreen.dart';
 import 'package:pebrapp/screens/NewOrEditPatientScreen.dart';
 import 'package:pebrapp/screens/PatientScreen.dart';
 import 'package:pebrapp/components/PageHeader.dart';
@@ -222,6 +223,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       flexibleSpace: PageHeader(title: 'Patients', subtitle: 'Overview'),
       actions: <Widget>[
         IconButton(
+          icon: Icon(Icons.settings),
+          onPressed: _pushIconExplanationsScreen,
+        ),
+        IconButton(
           icon: Icon(Icons.bug_report),
           onPressed: _pushDebugScreen,
         ),
@@ -266,6 +271,23 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         },
         pageBuilder: (BuildContext context, _, __) {
           return SettingsScreen();
+        },
+      ),
+    );
+  }
+
+  void _pushIconExplanationsScreen() {
+    Navigator.of(_context).push(
+      new PageRouteBuilder<void>(
+        opaque: false,
+        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
+          return FadeTransition(
+            opacity: anim1,
+            child: widget, // child is the value returned by pageBuilder
+          );
+        },
+        pageBuilder: (BuildContext context, _, __) {
+          return IconExplanationsScreen();
         },
       ),
     );
