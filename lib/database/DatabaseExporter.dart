@@ -17,27 +17,6 @@ class DatabaseExporter {
   static const EXCEL_FILENAME = 'PEBRA_Data.xlsx';
   static const _EXCEL_TEMPLATE_PATH = 'assets/excel/PEBRA_Data_template.xlsx';
 
-  /// Writes database data to CSV file separated by ';' and returns that file.
-  static Future<File> exportDatabaseToCSVFile() async {
-    final DatabaseProvider dbp = DatabaseProvider();
-    final String filepath = join(await dbp.databasesDirectoryPath, CSV_FILENAME);
-    final File csvFile = File(filepath);
-
-    final List<Patient> patientRows = await dbp.retrieveAllPatients();
-
-    // TODO: use column names from codebook
-    String csvString = 'sep=;\nART; CREATED; ACTIVATED; SUPPRESSED; VILLAGE; DISTRICT; PHONE\n';
-    for (Patient p in patientRows) {
-      // TODO: write all variables
-      csvString += '${p.artNumber}; ${p.createdDate};\n';
-    }
-
-    // TODO: write CSV for other tables (PreferenceAssessment, ARTRefill, Settings...)
-
-    await csvFile.writeAsString(csvString, flush: true);
-    return csvFile;
-  }
-
   /// Writes database data to Excel (xlsx) file and returns that file.
   static Future<File> exportDatabaseToExcelFile() async {
 
