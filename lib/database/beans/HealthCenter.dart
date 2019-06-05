@@ -73,36 +73,40 @@ class HealthCenter {
     _HealthCenter.C29: "Little Flower",
   };
 
-  static const Map<_HealthCenter, String> _district = {
-    _HealthCenter.C1: "Butha-Buthe",
-    _HealthCenter.C2: "Butha-Buthe",
-    _HealthCenter.C3: "Butha-Buthe",
-    _HealthCenter.C4: "Butha-Buthe",
-    _HealthCenter.C5: "Butha-Buthe",
-    _HealthCenter.C6: "Butha-Buthe",
-    _HealthCenter.C7: "Butha-Buthe",
-    _HealthCenter.C8: "Butha-Buthe",
-    _HealthCenter.C9: "Butha-Buthe",
-    _HealthCenter.C10: "Butha-Buthe",
-    _HealthCenter.C11: "Mokhotlong",
-    _HealthCenter.C12: "Mokhotlong",
-    _HealthCenter.C13: "Mokhotlong",
-    _HealthCenter.C14: "Mokhotlong",
-    _HealthCenter.C15: "Mokhotlong",
-    _HealthCenter.C16: "Mokhotlong",
-    _HealthCenter.C17: "Mokhotlong",
-    _HealthCenter.C18: "Leribe",
-    _HealthCenter.C19: "Leribe",
-    _HealthCenter.C20: "Leribe",
-    _HealthCenter.C21: "Leribe",
-    _HealthCenter.C22: "Leribe",
-    _HealthCenter.C23: "Leribe",
-    _HealthCenter.C24: "Leribe",
-    _HealthCenter.C25: "Leribe",
-    _HealthCenter.C26: "Leribe",
-    _HealthCenter.C27: "Leribe",
-    _HealthCenter.C28: "Leribe",
-    _HealthCenter.C29: "Leribe",
+  static const int _BUTHA_BUTHE = 1;
+  static const int _MOKHOTLONG = 2;
+  static const int _LERIBE = 3;
+
+  static const Map<_HealthCenter, int> _district = {
+    _HealthCenter.C1: _BUTHA_BUTHE,
+    _HealthCenter.C2: _BUTHA_BUTHE,
+    _HealthCenter.C3: _BUTHA_BUTHE,
+    _HealthCenter.C4: _BUTHA_BUTHE,
+    _HealthCenter.C5: _BUTHA_BUTHE,
+    _HealthCenter.C6: _BUTHA_BUTHE,
+    _HealthCenter.C7: _BUTHA_BUTHE,
+    _HealthCenter.C8: _BUTHA_BUTHE,
+    _HealthCenter.C9: _BUTHA_BUTHE,
+    _HealthCenter.C10: _BUTHA_BUTHE,
+    _HealthCenter.C11: _MOKHOTLONG,
+    _HealthCenter.C12: _MOKHOTLONG,
+    _HealthCenter.C13: _MOKHOTLONG,
+    _HealthCenter.C14: _MOKHOTLONG,
+    _HealthCenter.C15: _MOKHOTLONG,
+    _HealthCenter.C16: _MOKHOTLONG,
+    _HealthCenter.C17: _MOKHOTLONG,
+    _HealthCenter.C18: _LERIBE,
+    _HealthCenter.C19: _LERIBE,
+    _HealthCenter.C20: _LERIBE,
+    _HealthCenter.C21: _LERIBE,
+    _HealthCenter.C22: _LERIBE,
+    _HealthCenter.C23: _LERIBE,
+    _HealthCenter.C24: _LERIBE,
+    _HealthCenter.C25: _LERIBE,
+    _HealthCenter.C26: _LERIBE,
+    _HealthCenter.C27: _LERIBE,
+    _HealthCenter.C28: _LERIBE,
+    _HealthCenter.C29: _LERIBE,
   };
 
   static const int _INTERVENTION = 1;
@@ -176,8 +180,23 @@ class HealthCenter {
   /// Returns the code that represents this health center.
   int get code => _encoding[_healthCenter];
 
-  /// Returns the district of this health center.
-  String get district => _district[_healthCenter];
+  /// Returns the district code of this health center.
+  int get district => _district[_healthCenter];
+
+  /// Returns the district name of this health center.
+  String get districtName {
+    final int districtCode = _district[_healthCenter];
+    switch (districtCode) {
+      case _BUTHA_BUTHE:
+        return "Butha-Buthe";
+      case _MOKHOTLONG:
+        return "Mokhotlong";
+      case _LERIBE:
+        return "Leribe";
+      default:
+        return "Uknown District";
+    }
+  }
 
   /// Returns the study arm for this health center (1 for Intervention, 2 for
   /// Control).
