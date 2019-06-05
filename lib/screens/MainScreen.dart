@@ -5,15 +5,20 @@ import 'package:flutter/material.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/database/beans/ARTRefillOption.dart';
+import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
+import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/database/models/UserData.dart';
+import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
 import 'package:pebrapp/screens/DebugScreen.dart';
+import 'package:pebrapp/screens/NewPatientScreen.dart';
 import 'dart:ui';
 
 import 'package:pebrapp/screens/SettingsScreen.dart';
-import 'package:pebrapp/screens/NewOrEditPatientScreen.dart';
 import 'package:pebrapp/screens/PatientScreen.dart';
 import 'package:pebrapp/components/PageHeader.dart';
 import 'package:pebrapp/database/models/Patient.dart';
@@ -81,7 +86,26 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
             this._patients[indexOfExisting] = newPatient;
           } else {
             // add if not exists (new patient was added)
-            this._patients.add(newPatient);
+            if (newPatient.isEligible && newPatient.consentGiven) {
+              this._patients.add(newPatient);
+            }
+          }
+        });
+      }
+      if (streamEvent is AppStateViralLoadData) {
+        setState(() {
+          final newViralLoad = streamEvent.viralLoad;
+          Patient changedPatient = this._patients.singleWhere((p) => p.artNumber == newViralLoad.patientART, orElse: () { return null; });
+          if (changedPatient != null) {
+            if (newViralLoad.isBaseline) {
+              if (newViralLoad.source == ViralLoadSource.DATABASE()) {
+                changedPatient.viralLoadBaselineDatabase = newViralLoad;
+              } else {
+                changedPatient.viralLoadBaselineManual = newViralLoad;
+              }
+            } else {
+              changedPatient.viralLoadFollowUps.add(newViralLoad);
+            }
           }
         });
       }
@@ -147,7 +171,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   Future<void> _onAppResume() async {
 
     // make user log in if he/she isn't already
-    LoginData loginData = await loginDataFromSharedPrefs;
+    UserData loginData = await DatabaseProvider().retrieveLatestUserData();
     if (loginData == null) {
       _pushSettingsScreen();
       return;
@@ -168,9 +192,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     String resultMessage = 'Backup Successful';
     String title;
     bool error = false;
+    VoidCallback onNotificationButtonPress;
     try {
       await DatabaseProvider().createAdditionalBackupOnSWITCH(loginData);
-    } catch (e) {
+    } catch (e, s) {
       error = true;
       title = 'Backup Failed';
       switch (e.runtimeType) {
@@ -183,20 +208,25 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           resultMessage = 'Login to SWITCH failed. Contact the development team.';
           break;
         case DocumentNotFoundException:
-          resultMessage = 'No existing backup found for user \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\'';
+          resultMessage = 'No existing backup found for user \'${loginData.username}\'';
           break;
         case SocketException:
           resultMessage = 'Make sure you are connected to the internet.';
           break;
         default:
-          resultMessage = '$e';
+          resultMessage = 'An unknown error occured. Contact the development team.';
+          print('${e.runtimeType}: $e');
+          print(s);
+          onNotificationButtonPress = () {
+            showErrorInPopup(e, s, context);
+          };
       }
       // show additional warning if backup wasn't successful for a long time
       if (daysSinceLastBackup >= SHOW_WARNING_AFTER_X_DAYS) {
         showFlushBar(_context, "Last backup was $daysSinceLastBackup days ago.\nPlease perform a manual backup from the settings screen.", title: "Warning", error: true);
       }
     }
-    showFlushBar(_context, resultMessage, title: title, error: error);
+    showFlushBar(_context, resultMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
 
   }
 
@@ -275,7 +305,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     Navigator.of(_context).push(
       new MaterialPageRoute<void>(
         builder: (BuildContext context) {
-          return NewOrEditPatientScreen();
+          return NewPatientScreen();
         },
       ),
     );
@@ -354,31 +384,35 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       if (sps == null) {
         return _formatPatientRowText('—', isActivated: isActivated);
       }
-      if (sps.homeVisitPESelected) {
+      if (sps.NURSE_CLINIC_selected) {
+        icons.add(_getPaddedIcon('assets/icons/nurse_clinic_fett.png', color: iconColor));
+        icons.add(spacer);
+      }
+      if (sps.SATURDAY_CLINIC_CLUB_selected) {
+        icons.add(_getPaddedIcon('assets/icons/saturday_clinic_club_black.png', color: iconColor));
+        icons.add(spacer);
+      }
+      if (sps.COMMUNITY_YOUTH_CLUB_selected) {
+        icons.add(_getPaddedIcon('assets/icons/youth_club_black.png', color: iconColor));
+        icons.add(spacer);
+      }
+      if (sps.PHONE_CALL_PE_selected) {
+//        icons.add(Icon(Icons.phone));
+        icons.add(_getPaddedIcon('assets/icons/phonecall_pe_black.png', color: iconColor));
+        icons.add(spacer);
+      }
+      if (sps.HOME_VISIT_PE_selected) {
 //        icons.add(Icon(Icons.home));
         icons.add(_getPaddedIcon('assets/icons/homevisit_pe_black.png', color: iconColor));
         icons.add(spacer);
       }
-      if (sps.nurseAtClinicSelected) {
-        icons.add(_getPaddedIcon('assets/icons/nurse_clinic_fett.png', color: iconColor));
-        icons.add(spacer);
-      }
-      if (sps.saturdayClinicClubSelected) {
-        icons.add(_getPaddedIcon('assets/icons/saturday_clinic_club_black.png', color: iconColor));
-        icons.add(spacer);
-      }
-      if (sps.schoolTalkPESelected) {
+      if (sps.SCHOOL_VISIT_PE_selected) {
 //        icons.add(Icon(Icons.school));
         icons.add(_getPaddedIcon('assets/icons/schooltalk_pe_black.png', color: iconColor));
         icons.add(spacer);
       }
-      if (sps.communityYouthClubSelected) {
-        icons.add(_getPaddedIcon('assets/icons/youth_club_black.png', color: iconColor));
-        icons.add(spacer);
-      }
-      if (sps.phoneCallPESelected) {
-//        icons.add(Icon(Icons.phone));
-        icons.add(_getPaddedIcon('assets/icons/phonecall_pe_black.png', color: iconColor));
+      if (sps.PITSO_VISIT_PE_selected) {
+        icons.add(_getPaddedIcon('assets/icons/pitso_black.png', color: iconColor));
         icons.add(spacer);
       }
       if (sps.areAllDeselected) {
@@ -424,15 +458,17 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
       Widget _getViralLoadIndicator({bool isActivated: true}) {
         Widget viralLoadIcon = _formatPatientRowText('—', isActivated: isActivated);
-        ViralLoadBadge viralLoadBadge = ViralLoadBadge(ViralLoad.NA, smallSize: true);
-        Color iconColor = isActivated ? Colors.black : Colors.grey;
-        if (curPatient.vlSuppressed != null && curPatient.vlSuppressed) {
+        Widget viralLoadBadge = _formatPatientRowText('—', isActivated: isActivated);
+        Color iconColor = isActivated ? null : Colors.grey;
+        if (curPatient.mostRecentViralLoad?.isSuppressed != null && curPatient.mostRecentViralLoad.isSuppressed) {
           viralLoadIcon = _getPaddedIcon('assets/icons/viralload_suppressed.png', color: iconColor);
-          viralLoadBadge = ViralLoadBadge(ViralLoad.SUPPRESSED, smallSize: true); // TODO: show greyed out version if isActivated is false
-        } else
-        if (curPatient.vlSuppressed != null && !curPatient.vlSuppressed) {
+          viralLoadBadge = ViralLoadBadge(curPatient.mostRecentViralLoad, smallSize: true); // TODO: show greyed out version if isActivated is false
+        } else if (curPatient.mostRecentViralLoad?.isSuppressed != null && !curPatient.mostRecentViralLoad.isSuppressed) {
           viralLoadIcon = _getPaddedIcon('assets/icons/viralload_unsuppressed.png', color: iconColor);
-          viralLoadBadge = ViralLoadBadge(ViralLoad.UNSUPPRESSED, smallSize: true); // TODO: show greyed out version if isActivated is false
+          viralLoadBadge = ViralLoadBadge(curPatient.mostRecentViralLoad, smallSize: true); // TODO: show greyed out version if isActivated is false
+        } else if (curPatient.mostRecentViralLoad != null && curPatient.mostRecentViralLoad.isLowerThanDetectable) {
+          viralLoadIcon = ViralLoadBadge(curPatient.mostRecentViralLoad, smallSize: true); // TODO: show greyed out version if isActivated is false
+          viralLoadBadge = ViralLoadBadge(curPatient.mostRecentViralLoad, smallSize: true); // TODO: show greyed out version if isActivated is false
         }
         return viralLoadIcon;
 //        return viralLoadBadge;
@@ -445,9 +481,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       }
 
       String refillByText = '—';
-      ARTRefillOption aro = curPatient.latestPreferenceAssessment?.artRefillOption1;
+      ARTRefillOption aro = curPatient.latestPreferenceAssessment?.lastRefillOption;
       if (aro != null) {
-        refillByText = artRefillOptionToString(aro);
+        refillByText = aro.description;
       }
 
       String nextAssessmentText = '—';
@@ -558,7 +594,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                     ),
                     // Viral Load
                     Expanded(
-                        child: _getViralLoadIndicator(isActivated: curPatient.isActivated),
+                        child: Container(alignment: Alignment.centerLeft, child: _getViralLoadIndicator(isActivated: curPatient.isActivated)),
                     ),
                     // Next Assessment
                     Expanded(child: _formatPatientRowText(nextAssessmentText, isActivated: curPatient.isActivated)),
