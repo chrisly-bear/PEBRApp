@@ -59,7 +59,7 @@ class UserData implements IExcelExportable {
     return map;
   }
 
-  static const int _numberOfColumns = 11;
+  static const int _numberOfColumns = 12;
 
   /// Column names for the header row in the excel sheet.
   // If we change the order here, make sure to change the order in the
@@ -68,15 +68,16 @@ class UserData implements IExcelExportable {
     List<String> row = List<String>(_numberOfColumns);
     row[0] = 'DATE_CREATED';
     row[1] = 'TIME_CREATED';
-    row[2] = 'NAME_PE';
-    row[3] = 'USERNAME_PE';
-    row[4] = 'CELL_PE';
-    row[5] = 'CLUSTER';
-    row[6] = 'DISTRICT';
-    row[7] = 'ARM';
-    row[8] = 'ACTIVE';
-    row[9] = 'DATE_DEACTIVATED';
-    row[10] = 'TIME_DEACTIVATED';
+    row[2] = 'FIRST_NAME_PE';
+    row[3] = 'LAST_NAME_PE';
+    row[4] = 'USERNAME_PE';
+    row[5] = 'CELL_PE';
+    row[6] = 'CLUSTER';
+    row[7] = 'DISTRICT';
+    row[8] = 'ARM';
+    row[9] = 'ACTIVE';
+    row[10] = 'DATE_DEACTIVATED';
+    row[11] = 'TIME_DEACTIVATED';
     return row;
   }
 
@@ -88,15 +89,16 @@ class UserData implements IExcelExportable {
     List<dynamic> row = List<dynamic>(_numberOfColumns);
     row[0] = formatDateIso(_createdDate);
     row[1] = formatTimeIso(_createdDate);
-    row[2] = '$firstName $lastName';
-    row[3] = username;
-    row[4] = phoneNumber;
-    row[5] = healthCenter.description;
-    row[6] = healthCenter.district;
-    row[7] = healthCenter.studyArm;
-    row[8] = isActive;
-    row[9] = formatDateIso(_deactivatedDate);
-    row[10] = formatTimeIso(_deactivatedDate);
+    row[2] = firstName;
+    row[3] = lastName;
+    row[4] = username;
+    row[5] = phoneNumber;
+    row[6] = healthCenter.description;
+    row[7] = healthCenter.district;
+    row[8] = healthCenter.studyArm;
+    row[9] = isActive;
+    row[10] = formatDateIso(_deactivatedDate);
+    row[11] = formatTimeIso(_deactivatedDate);
     return row;
   }
 
