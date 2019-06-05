@@ -62,6 +62,7 @@ class DatabaseProvider {
         CREATE TABLE IF NOT EXISTS ${Patient.tableName} (
           ${Patient.colId} INTEGER PRIMARY KEY,
           ${Patient.colCreatedDate} TEXT NOT NULL,
+          ${Patient.colEnrolmentDate} TEXT NOT NULL,
           ${Patient.colARTNumber} TEXT NOT NULL,
           ${Patient.colStickerNumber} TEXT NOT NULL,
           ${Patient.colYearOfBirth} TEXT NOT NULL,
