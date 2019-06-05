@@ -2216,7 +2216,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           _patient.phoneNumber = _patientPhoneNumberCtr.text;
           _patientUpdated = true;
         }
-        _pa.pePhoneNumber = _pePhoneNumberCtr.text;
         if (!_pa.adherenceReminderEnabled) {
           _pa.adherenceReminderTime = null;
         }
@@ -2233,7 +2232,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         _pa.vlNotificationEnabled = null;
         _pa.vlNotificationMessageSuppressed = null;
         _pa.vlNotificationMessageUnsuppressed = null;
-        _pa.pePhoneNumber = null;
       }
       if (_pa.adherenceReminderEnabled == null || !_pa.adherenceReminderEnabled) {
         _pa.adherenceReminderFrequency = null;

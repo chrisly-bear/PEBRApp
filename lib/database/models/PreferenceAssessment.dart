@@ -48,7 +48,6 @@ class PreferenceAssessment implements IExcelExportable {
   static final colVLNotificationEnabled = 'vl_notification_enabled'; // nullable
   static final colVLNotificationMessageSuppressed = 'vl_notification_message_suppressed'; // nullable
   static final colVLNotificationMessageUnsuppressed = 'vl_notification_message_unsuppressed'; // nullable
-  static final colPEPhoneNumber = 'pe_phone_number'; // nullable
   static final colSupportPreferences = 'support_preferences';
   static final colSaturdayClinicClubAvailable = 'saturday_clinic_club_available'; // nullable
   static final colCommunityYouthClubAvailable = 'community_youth_club_available'; // nullable
@@ -104,7 +103,6 @@ class PreferenceAssessment implements IExcelExportable {
   bool vlNotificationEnabled;
   VLSuppressedMessage vlNotificationMessageSuppressed;
   VLUnsuppressedMessage vlNotificationMessageUnsuppressed;
-  String pePhoneNumber;
   SupportPreferencesSelection supportPreferences = SupportPreferencesSelection();
   bool saturdayClinicClubAvailable;
   bool communityYouthClubAvailable;
@@ -167,7 +165,6 @@ class PreferenceAssessment implements IExcelExportable {
         this.vlNotificationEnabled,
         this.vlNotificationMessageSuppressed,
         this.vlNotificationMessageUnsuppressed,
-        this.pePhoneNumber,
         this.saturdayClinicClubAvailable,
         this.communityYouthClubAvailable,
         this.homeVisitPEPossible,
@@ -231,7 +228,6 @@ class PreferenceAssessment implements IExcelExportable {
     }
     this.vlNotificationMessageSuppressed = VLSuppressedMessage.fromCode(map[colVLNotificationMessageSuppressed]);
     this.vlNotificationMessageUnsuppressed = VLUnsuppressedMessage.fromCode(map[colVLNotificationMessageUnsuppressed]);
-    this.pePhoneNumber = map[colPEPhoneNumber];
     this.supportPreferences = SupportPreferencesSelection.deserializeFromJSON(map[colSupportPreferences]);
     this.saturdayClinicClubAvailable = map[colSaturdayClinicClubAvailable] == null ? null : map[colSaturdayClinicClubAvailable] == 1;
     this.communityYouthClubAvailable = map[colCommunityYouthClubAvailable] == null ? null : map[colCommunityYouthClubAvailable] == 1;
@@ -294,7 +290,6 @@ class PreferenceAssessment implements IExcelExportable {
     map[colVLNotificationEnabled] = vlNotificationEnabled;
     map[colVLNotificationMessageSuppressed] = vlNotificationMessageSuppressed?.code;
     map[colVLNotificationMessageUnsuppressed] = vlNotificationMessageUnsuppressed?.code;
-    map[colPEPhoneNumber] = pePhoneNumber;
     map[colSupportPreferences] = supportPreferences.serializeToJSON();
     map[colSaturdayClinicClubAvailable] = saturdayClinicClubAvailable;
     map[colCommunityYouthClubAvailable] = communityYouthClubAvailable;
@@ -326,7 +321,7 @@ class PreferenceAssessment implements IExcelExportable {
     return map;
   }
 
-  static const int _numberOfColumns = 56;
+  static const int _numberOfColumns = 55;
 
   /// Column names for the header row in the excel sheet.
   // If we change the order here, make sure to change the order in the
@@ -360,35 +355,34 @@ class PreferenceAssessment implements IExcelExportable {
     row[24] = 'NOT_VL';
     row[25] = 'NOT_VL_SUPPR_MESSAGE';
     row[26] = 'NOT_VL_UNSUPPR_MESSAGE';
-    row[27] = 'NOT_CELL_PE';
-    row[28] = 'SUPPORT';
-    row[29] = 'SUPPORT_SCC';
-    row[30] = 'SUPPORT_CYC';
-    row[31] = 'SUPPORT_HV';
-    row[32] = 'SUPPORT_HV_NO';
-    row[33] = 'SUPPORT_HV_NO_OTHER';
-    row[34] = 'SUPPORT_SV';
-    row[35] = 'SUPPORT_SV_SCHOOL';
-    row[36] = 'SUPPORT_SV_NO';
-    row[37] = 'SUPPORT_SV_NO_OTHER';
-    row[38] = 'SUPPORT_PV';
-    row[39] = 'SUPPORT_PV_NO';
-    row[40] = 'SUPPORT_PV_NO_OTHER';
-    row[41] = 'SUPPORT_CD';
-    row[42] = 'SUPPORT_CD_NO';
-    row[43] = 'SUPPORT_CD_NO_OTHER';
-    row[44] = 'SUPPORT_CC';
-    row[45] = 'SUPPORT_VMMC';
-    row[46] = 'SUPPORT_YM';
-    row[47] = 'SUPPORT_W';
-    row[48] = 'SUPPORT_LA';
-    row[49] = 'SUPPORT_TM';
-    row[50] = 'SUPPORT_NF';
-    row[51] = 'PSYCH_SHARE';
-    row[52] = 'PSYCH_SHARE_NOTE';
-    row[53] = 'PSYCH_DOING_NOTE';
-    row[54] = 'UVL_ENV';
-    row[55] = 'UVL_ENV_NOTE';
+    row[27] = 'SUPPORT';
+    row[28] = 'SUPPORT_SCC';
+    row[29] = 'SUPPORT_CYC';
+    row[30] = 'SUPPORT_HV';
+    row[31] = 'SUPPORT_HV_NO';
+    row[32] = 'SUPPORT_HV_NO_OTHER';
+    row[33] = 'SUPPORT_SV';
+    row[34] = 'SUPPORT_SV_SCHOOL';
+    row[35] = 'SUPPORT_SV_NO';
+    row[36] = 'SUPPORT_SV_NO_OTHER';
+    row[37] = 'SUPPORT_PV';
+    row[38] = 'SUPPORT_PV_NO';
+    row[39] = 'SUPPORT_PV_NO_OTHER';
+    row[40] = 'SUPPORT_CD';
+    row[41] = 'SUPPORT_CD_NO';
+    row[42] = 'SUPPORT_CD_NO_OTHER';
+    row[43] = 'SUPPORT_CC';
+    row[44] = 'SUPPORT_VMMC';
+    row[45] = 'SUPPORT_YM';
+    row[46] = 'SUPPORT_W';
+    row[47] = 'SUPPORT_LA';
+    row[48] = 'SUPPORT_TM';
+    row[49] = 'SUPPORT_NF';
+    row[50] = 'PSYCH_SHARE';
+    row[51] = 'PSYCH_SHARE_NOTE';
+    row[52] = 'PSYCH_DOING_NOTE';
+    row[53] = 'UVL_ENV';
+    row[54] = 'UVL_ENV_NOTE';
     return row;
   }
 
@@ -425,35 +419,34 @@ class PreferenceAssessment implements IExcelExportable {
     row[24] = vlNotificationEnabled;
     row[25] = vlNotificationMessageSuppressed?.code;
     row[26] = vlNotificationMessageUnsuppressed?.code;
-    row[27] = pePhoneNumber;
-    row[28] = supportPreferences.serializeToJSON();
-    row[29] = saturdayClinicClubAvailable;
-    row[30] = communityYouthClubAvailable;
-    row[31] = homeVisitPEPossible;
-    row[32] = homeVisitPENotPossibleReason?.code;
-    row[33] = homeVisitPENotPossibleReasonOther;
-    row[34] = schoolVisitPEPossible;
-    row[35] = school;
-    row[36] = schoolVisitPENotPossibleReason?.code;
-    row[37] = schoolVisitPENotPossibleReasonOther;
-    row[38] = pitsoPEPossible;
-    row[39] = pitsoPENotPossibleReason?.code;
-    row[40] = pitsoPENotPossibleReasonOther;
-    row[41] = condomUsageDemonstrated;
-    row[42] = condomUsageNotDemonstratedReason?.code;
-    row[43] = condomUsageNotDemonstratedReasonOther;
-    row[44] = moreInfoContraceptives;
-    row[45] = moreInfoVMMC;
-    row[46] = youngMothersAvailable;
-    row[47] = femaleWorthAvailable;
-    row[48] = legalAidSmartphoneAvailable;
-    row[49] = tuneMeSmartphoneAvailable;
-    row[50] = ntlafatsoSmartphoneAvailable;
-    row[51] = psychosocialShareSomethingAnswer.code;
-    row[52] = psychosocialShareSomethingContent;
-    row[53] = psychosocialHowDoing;
-    row[54] = unsuppressedSafeEnvironmentAnswer?.code;
-    row[55] = unsuppressedWhyNotSafe;
+    row[27] = supportPreferences.serializeToJSON();
+    row[28] = saturdayClinicClubAvailable;
+    row[29] = communityYouthClubAvailable;
+    row[30] = homeVisitPEPossible;
+    row[31] = homeVisitPENotPossibleReason?.code;
+    row[32] = homeVisitPENotPossibleReasonOther;
+    row[33] = schoolVisitPEPossible;
+    row[34] = school;
+    row[35] = schoolVisitPENotPossibleReason?.code;
+    row[36] = schoolVisitPENotPossibleReasonOther;
+    row[37] = pitsoPEPossible;
+    row[38] = pitsoPENotPossibleReason?.code;
+    row[39] = pitsoPENotPossibleReasonOther;
+    row[40] = condomUsageDemonstrated;
+    row[41] = condomUsageNotDemonstratedReason?.code;
+    row[42] = condomUsageNotDemonstratedReasonOther;
+    row[43] = moreInfoContraceptives;
+    row[44] = moreInfoVMMC;
+    row[45] = youngMothersAvailable;
+    row[46] = femaleWorthAvailable;
+    row[47] = legalAidSmartphoneAvailable;
+    row[48] = tuneMeSmartphoneAvailable;
+    row[49] = ntlafatsoSmartphoneAvailable;
+    row[50] = psychosocialShareSomethingAnswer.code;
+    row[51] = psychosocialShareSomethingContent;
+    row[52] = psychosocialHowDoing;
+    row[53] = unsuppressedSafeEnvironmentAnswer?.code;
+    row[54] = unsuppressedWhyNotSafe;
     return row;
   }
 
