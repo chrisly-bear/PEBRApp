@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderDaysBeforeSelection.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderMessage.dart';
@@ -19,6 +20,7 @@ import 'package:pebrapp/database/beans/VLUnsuppressedMessage.dart';
 import 'package:pebrapp/database/beans/YesNoRefused.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
@@ -58,7 +60,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   // if this is true we will store another row in Patient table of the database
   bool _patientUpdated = false;
   PhoneAvailability _phoneAvailabilityBeforeAssessment;
-  String _phoneNumberBeforeAssessment;
+  String _patientPhoneNumberBeforeAssessment;
+  UserData _user;
   PreferenceAssessment _pa = PreferenceAssessment.uninitialized();
   final _artRefillOptionSelections = List<ARTRefillOption>(5);
   final _artRefillOptionAvailable = List<bool>(4);
@@ -88,8 +91,12 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     _patient = patient;
     _patientPhoneNumberCtr.text = _patient.phoneNumber ?? '';
     _phoneAvailabilityBeforeAssessment = _patient.phoneAvailability;
-    _phoneNumberBeforeAssessment = _patient.phoneNumber;
+    _patientPhoneNumberBeforeAssessment = _patient.phoneNumber;
     _pa.patientART = patient.artNumber;
+    DatabaseProvider().retrieveLatestUserData().then((UserData user) {
+      _user = user;
+      _pePhoneNumberCtr.text = _user.phoneNumber;
+    });
   }
 
   /// Returns true for VHW, Treatment Buddy, Community Adherence Club selections.
@@ -2205,7 +2212,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         _pa.artRefillTreatmentBuddyPhoneNumber = _treatmentBuddyPhoneNumberCtr.text;
       }
       if (_patient.phoneAvailability == PhoneAvailability.YES()) {
-        if (_phoneNumberBeforeAssessment != _patientPhoneNumberCtr.text) {
+        if (_patientPhoneNumberBeforeAssessment != _patientPhoneNumberCtr.text) {
           _patient.phoneNumber = _patientPhoneNumberCtr.text;
           _patientUpdated = true;
         }
@@ -2325,6 +2332,11 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       if (_patientUpdated) {
         print('PATIENT UPDATED, INSERTING NEW PATIENT ROW FOR ${_patient.artNumber}');
         await PatientBloc.instance.sinkPatientData(_patient);
+      }
+      final String newPEPhoneNumber = _pePhoneNumberCtr.text;
+      if (newPEPhoneNumber != _user.phoneNumber) {
+        _user.phoneNumber = newPEPhoneNumber;
+        DatabaseProvider().insertUserData(_user);
       }
       Navigator.of(context).pop(); // close Preference Assessment screen
       showFlushBar(context, 'Preference Assessment saved');
