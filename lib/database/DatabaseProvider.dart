@@ -418,6 +418,7 @@ class DatabaseProvider {
     await db.execute("DROP TABLE IF EXISTS PreferenceAssessment;");
     await db.execute("DROP TABLE IF EXISTS ARTRefill;");
     await db.execute("DROP TABLE IF EXISTS ViralLoad;");
+    await db.execute("DROP TABLE IF EXISTS UserData;");
     _onCreate(db, newVersion);
   }
 
