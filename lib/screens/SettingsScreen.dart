@@ -263,7 +263,7 @@ class _SettingsBodyState extends State<SettingsBody> {
         },
       ),
     );
-    showFlushBar(context, 'Logged out. Enter the name and health center of the new user now.');
+    showFlushBar(context, 'Logged out. Create a new account now.');
   }
 
 }
