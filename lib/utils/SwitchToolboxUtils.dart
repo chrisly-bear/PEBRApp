@@ -6,12 +6,14 @@ import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart' as dom;
 import 'package:pebrapp/config/SwitchConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
 import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:path/path.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
+import 'package:pebrapp/utils/Utils.dart';
 
 /// Uploads `sourceFile` to SWITCHtoolbox.
 ///
@@ -49,46 +51,27 @@ Future<void> uploadFileToSWITCHtoolbox(File sourceFile, {String filename, int fo
 /// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
 ///
 /// Throws `DocumentNotFoundException` if backup for the loginData is not available.
-Future<LoginData> restoreFromSWITCHtoolbox(String username) async {
+Future<void> restoreFromSWITCHtoolbox(String username) async {
   if (username == null) {
     throw NoLoginDataException();
   }
-  final LoginData loginData = await _getLoginDataForUser(username);
-  final File backupFile = await _downloadLatestBackup(loginData);
+  final File backupFile = await _downloadLatestBackup(username);
   await DatabaseProvider().restoreFromFile(backupFile);
   await PatientBloc.instance.sinkAllPatientsFromDatabase();
-  return loginData;
-}
-
-/// Gets the login data (first name, last name, health center) for the given [username].
-///
-/// Throws `DocumentNotFoundException` if no backup is available for the given [username].
-Future<LoginData> _getLoginDataForUser(String username) async {
-  final String _shibsessionCookie = await _getShibSession(SWITCH_USERNAME, SWITCH_PASSWORD);
-  final String _mydmssessionCookie = await _getMydmsSession(_shibsessionCookie);
-
-  final String documentName = await _getFirstDocumentNameForDocumentStartingWith(username, SWITCH_TOOLBOX_BACKUP_FOLDER_ID, _shibsessionCookie, _mydmssessionCookie);
-  final String firstName = documentName.split('_')[1];
-  final String lastName = documentName.split('_')[2];
-  final String healthCenter = documentName.split('_')[3];
-  print('username: $username');
-  print('firstName: $firstName');
-  print('lastName: $lastName');
-  print('healthCenter: $healthCenter');
-  return LoginData(username, firstName, lastName, healthCenter);
+  await storeLatestBackupInSharedPrefs();
 }
 
 /// Downloads the latest backup file that matches the loginData from SWITCHtoolbox.
 /// Returns null if no matching backup is found.
 ///
 /// Throws `DocumentNotFoundException` if no backup is available for the loginData.
-Future<File> _downloadLatestBackup(LoginData loginData) async {
+Future<File> _downloadLatestBackup(String username) async {
   
   // get necessary cookies
   final String _shibsessionCookie = await _getShibSession(SWITCH_USERNAME, SWITCH_PASSWORD);
   final String _mydmssessionCookie = await _getMydmsSession(_shibsessionCookie);
 
-  final String documentName = '${loginData.username}_${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}';
+  final String documentName = await _getFirstDocumentNameForDocumentStartingWith(username, SWITCH_TOOLBOX_BACKUP_FOLDER_ID, _shibsessionCookie, _mydmssessionCookie);
   final int switchDocumentId = await _getFirstDocumentIdForDocumentWithName(documentName, SWITCH_TOOLBOX_BACKUP_FOLDER_ID, _shibsessionCookie, _mydmssessionCookie);
   final int latestVersion = await _getLatestVersionOfDocument(switchDocumentId, _shibsessionCookie, _mydmssessionCookie);
   final String absoluteLink = 'https://letodms.toolbox.switch.ch/$SWITCH_TOOLBOX_PROJECT/op/op.Download.php?documentid=$switchDocumentId&version=$latestVersion';

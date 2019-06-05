@@ -4,6 +4,7 @@ import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
@@ -19,7 +20,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 29;
+  static const int _DB_VERSION = 30;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -167,6 +168,19 @@ class DatabaseProvider {
           ${ViralLoad.colIsLowerThanDetectable} BIT NOT NULL,
           ${ViralLoad.colViralLoad} INTEGER,
           ${ViralLoad.colDiscrepancy} BIT
+        );
+        """);
+    await db.execute("""
+        CREATE TABLE UserData (
+          ${UserData.colId} INTEGER PRIMARY KEY,
+          ${UserData.colCreatedDate} TEXT NOT NULL,
+          ${UserData.colFirstName} TEXT NOT NULL,
+          ${UserData.colLastName} TEXT NOT NULL,
+          ${UserData.colUsername} TEXT NOT NULL,
+          ${UserData.colPhoneNumber} TEXT NOT NULL,
+          ${UserData.colHealthCenter} INTEGER NOT NULL,
+          ${UserData.colIsActive} BIT NOT NULL,
+          ${UserData.colDeactivatedDate} TEXT
         );
         """);
     // TODO: set colLatestPreferenceAssessment as foreign key to `PreferenceAssessment` table
@@ -374,6 +388,23 @@ class DatabaseProvider {
       await db.execute("DROP TABLE ViralLoad;");
       _onCreate(db, 29);
     }
+    if (oldVersion < 30) {
+      print('Upgrading to database version 30...');
+      // create table UserData
+      await db.execute("""
+        CREATE TABLE UserData (
+          id INTEGER PRIMARY KEY,
+          created_date_utc TEXT NOT NULL,
+          first_name TEXT NOT NULL,
+          last_name TEXT NOT NULL,
+          username TEXT NOT NULL,
+          phone_number TEXT NOT NULL,
+          health_center INTEGER NOT NULL,
+          is_active BIT NOT NULL,
+          deactivated_date_utc TEXT
+        );
+        """);
+    }
   }
 
   FutureOr<void> _onDowngrade(Database db, int oldVersion, int newVersion) async {
@@ -423,14 +454,16 @@ class DatabaseProvider {
   /// Throws `SWITCHLoginFailedException` if the login to SWITCHtoolbox fails.
   ///
   /// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
-  Future<void> createFirstBackupOnSWITCH(LoginData loginData) async {
+  Future<void> createFirstBackupOnSWITCH(UserData loginData) async {
     if (loginData == null) {
       throw NoLoginDataException();
     }
+    // store the user data in the database before creating the first backup
+    insertUserData(loginData);
     final File dbFile = await _databaseFile;
     final File excelFile = await DatabaseExporter.exportDatabaseToExcelFile();
     // upload SQLite and Excel file
-    final String filename = '${loginData.username}_${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}';
+    final String filename = '${loginData.username}_${loginData.firstName}_${loginData.lastName}';
     await uploadFileToSWITCHtoolbox(dbFile, filename: filename, folderID: SWITCH_TOOLBOX_BACKUP_FOLDER_ID);
     await uploadFileToSWITCHtoolbox(excelFile, filename: filename, folderID: SWITCH_TOOLBOX_DATA_FOLDER_ID);
     await storeLatestBackupInSharedPrefs();
@@ -447,14 +480,14 @@ class DatabaseProvider {
   /// Throws `DocumentNotFoundException` if no matching backup was found.
   ///
   /// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
-  Future<void> createAdditionalBackupOnSWITCH(LoginData loginData) async {
+  Future<void> createAdditionalBackupOnSWITCH(UserData loginData) async {
     if (loginData == null) {
       throw NoLoginDataException();
     }
     final File dbFile = await _databaseFile;
     final File excelFile = await DatabaseExporter.exportDatabaseToExcelFile();
     // update SQLite and Excel file with new version
-    final String docName = '${loginData.username}_${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}';
+    final String docName = '${loginData.username}_${loginData.firstName}_${loginData.lastName}';
     await updateFileOnSWITCHtoolbox(dbFile, docName, folderId: SWITCH_TOOLBOX_BACKUP_FOLDER_ID);
     await updateFileOnSWITCHtoolbox(excelFile, docName, folderId: SWITCH_TOOLBOX_DATA_FOLDER_ID);
     await storeLatestBackupInSharedPrefs();
@@ -550,6 +583,24 @@ class DatabaseProvider {
     return res;
   }
 
+  Future<void> insertUserData(UserData userData) async {
+    final Database db = await _databaseInstance;
+    userData.createdDate = DateTime.now().toUtc();
+    final res = await db.insert(UserData.tableName, userData.toMap());
+    return res;
+  }
+
+  /// Sets the 'is_active' column to false (0) for the latest active user.
+  Future<void> deactivateCurrentUser() async {
+    final Database db = await _databaseInstance;
+    final UserData latestUser = await retrieveLatestUserData();
+    if (latestUser != null) {
+      latestUser.isActive = false;
+      latestUser.deactivatedDate = DateTime.now().toUtc();
+      db.update(UserData.tableName, latestUser.toMap());
+    }
+  }
+
   Future<List<ViralLoad>> retrieveViralLoadFollowUpsForPatient(String patientART) async {
     final Database db = await _databaseInstance;
     final List<Map> res = await db.query(
@@ -602,6 +653,20 @@ class DatabaseProvider {
     );
     if (res.length > 0) {
       return PreferenceAssessment.fromMap(res.first);
+    }
+    return null;
+  }
+
+  /// Only retrieves latest active user data.
+  Future<UserData> retrieveLatestUserData() async {
+    final Database db = await _databaseInstance;
+    final List<Map> res = await db.query(
+        UserData.tableName,
+        where: '${UserData.colIsActive} = 1',
+        orderBy: '${UserData.colCreatedDate} DESC'
+    );
+    if (res.length > 0) {
+      return UserData.fromMap(res.first);
     }
     return null;
   }
@@ -681,6 +746,20 @@ class DatabaseProvider {
       for (Map<String, dynamic> map in res) {
         ARTRefill r = ARTRefill.fromMap(map);
         list.add(r);
+      }
+    }
+    return list;
+  }
+
+  /// Retrieves all user data rows from the database, including all edits.
+  Future<List<UserData>> retrieveAllUserData() async {
+    final Database db = await _databaseInstance;
+    final res = await db.query(UserData.tableName);
+    List<UserData> list = List<UserData>();
+    if (res.isNotEmpty) {
+      for (Map<String, dynamic> map in res) {
+        UserData u = UserData.fromMap(map);
+        list.add(u);
       }
     }
     return list;

@@ -190,24 +190,6 @@ DateTime calculateNextARTRefill(DateTime lastARTRefill) {
   return lastARTRefill.add(Duration(days: 90));
 }
 
-/// Loads the login data from the on-device storage (SharedPreferences). Returns
-/// null if there are no login data.
-Future<LoginData> get loginDataFromSharedPrefs async {
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  final prefKeys = prefs.getKeys();
-  if (prefKeys.contains(USERNAME_KEY)
-      && prefKeys.contains(FIRSTNAME_KEY)
-      && prefKeys.contains(LASTNAME_KEY)
-      && prefKeys.contains(HEALTHCENTER_KEY)) {
-    final username = prefs.get(USERNAME_KEY);
-    final firstName = prefs.get(FIRSTNAME_KEY);
-    final lastName = prefs.get(LASTNAME_KEY);
-    final healthCenter = prefs.get(HEALTHCENTER_KEY);
-    return LoginData(username, firstName, lastName, healthCenter);
-  }
-  return null;
-}
-
 /// Updates the date of the last successful backup to now (local time).
 Future<void> storeLatestBackupInSharedPrefs() async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();

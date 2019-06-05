@@ -9,6 +9,7 @@ import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
@@ -170,7 +171,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   Future<void> _onAppResume() async {
 
     // make user log in if he/she isn't already
-    LoginData loginData = await loginDataFromSharedPrefs;
+    UserData loginData = await DatabaseProvider().retrieveLatestUserData();
     if (loginData == null) {
       _pushSettingsScreen();
       return;

@@ -5,6 +5,7 @@ import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:path/path.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'dart:io';
 import 'package:spreadsheet_decoder/spreadsheet_decoder.dart';
@@ -41,12 +42,15 @@ class DatabaseExporter {
   static Future<File> exportDatabaseToExcelFile() async {
 
     // these are the name of the sheets in the template excel file
+    const String userDataSheet = 'User Data';
     const String patientSheet = 'Patient';
     const String viralLoadSheet = 'Viral Load';
     const String preferenceAssessmentSheet = 'Preference Assessment';
     const String artRefillSheet = 'ART Refill';
 
+    // open database
     final DatabaseProvider dbp = DatabaseProvider();
+    // open excel template file
     final String filepath = join(await dbp.databasesDirectoryPath, EXCEL_FILENAME);
     ByteData data = await rootBundle.load(_EXCEL_TEMPLATE_PATH);
     final File excelFile = await File(filepath).writeAsBytes(data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
@@ -78,6 +82,10 @@ class DatabaseExporter {
         }
       }
     }
+
+    // TODO: uncomment after you have updated the excel template
+//    final List<UserData> userDataRows = await dbp.retrieveAllUserData();
+//    _writeRowsToExcel(userDataSheet, UserData.excelHeaderRow, userDataRows);
 
     final List<Patient> patientRows = await dbp.retrieveAllPatients();
     _writeRowsToExcel(patientSheet, Patient.excelHeaderRow, patientRows);
