@@ -83,9 +83,8 @@ class DatabaseExporter {
       }
     }
 
-    // TODO: uncomment after you have updated the excel template
-//    final List<UserData> userDataRows = await dbp.retrieveAllUserData();
-//    _writeRowsToExcel(userDataSheet, UserData.excelHeaderRow, userDataRows);
+    final List<UserData> userDataRows = await dbp.retrieveAllUserData();
+    _writeRowsToExcel(userDataSheet, UserData.excelHeaderRow, userDataRows);
 
     final List<Patient> patientRows = await dbp.retrieveAllPatients();
     _writeRowsToExcel(patientSheet, Patient.excelHeaderRow, patientRows);
