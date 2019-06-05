@@ -600,9 +600,16 @@ class DatabaseProvider {
     final Database db = await _databaseInstance;
     final UserData latestUser = await retrieveLatestUserData();
     if (latestUser != null) {
-      latestUser.isActive = false;
-      latestUser.deactivatedDate = DateTime.now().toUtc();
-      db.update(UserData.tableName, latestUser.toMap());
+      final map = {
+        UserData.colIsActive: 0,
+        UserData.colDeactivatedDate: DateTime.now().toUtc().toIso8601String(),
+      };
+      db.update(
+        UserData.tableName,
+        map,
+        where: '${UserData.colUsername} = ?',
+        whereArgs: [latestUser.username],
+      );
     }
   }
 
