@@ -8,7 +8,6 @@ import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
-import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';

@@ -4,9 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:pebrapp/config/SharedPreferencesConfig.dart';
-import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:intl/intl.dart';
-import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 

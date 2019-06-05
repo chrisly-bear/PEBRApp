@@ -1,13 +1,7 @@
-import 'dart:async';
 
 import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
-import 'package:pebrapp/database/DatabaseProvider.dart';
-import 'package:pebrapp/database/beans/Gender.dart';
-import 'package:pebrapp/database/beans/SexualOrientation.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
-import 'package:pebrapp/database/models/ARTRefill.dart';
-import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 class ViralLoad implements IExcelExportable {

@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
-import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/PhoneAvailability.dart';
 import 'package:pebrapp/database/beans/SexualOrientation.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:pebrapp/database/beans/NoConsentReason.dart';
 
 // TODO: implement this screen. Think about what fields have to be changeable for a patient.
 class EditPatientScreen extends StatelessWidget {

@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
-import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
