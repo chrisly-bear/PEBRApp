@@ -169,7 +169,7 @@ class DatabaseProvider {
         );
         """);
     await db.execute("""
-        CREATE TABLE IF NOT EXISTS UserData (
+        CREATE TABLE IF NOT EXISTS ${UserData.tableName} (
           ${UserData.colId} INTEGER PRIMARY KEY,
           ${UserData.colCreatedDate} TEXT NOT NULL,
           ${UserData.colFirstName} TEXT NOT NULL,
