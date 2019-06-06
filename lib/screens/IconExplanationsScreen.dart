@@ -82,5 +82,3 @@ Padding _makeExplanation(String iconAsset, String explanation) {
       )
   );
 }
-
-
