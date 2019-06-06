@@ -9,7 +9,6 @@
 .buildlog/
 .history
 .svn/
-lib/config/SwitchConfig.dart
 
 # IntelliJ related
 *.iml
