@@ -7,7 +7,6 @@ class IconExplanationsScreen extends StatefulWidget {
 }
 
 class _IconExplanationsScreenState extends State<IconExplanationsScreen> {
-  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +15,7 @@ class _IconExplanationsScreenState extends State<IconExplanationsScreen> {
       child: Card(
         color: Color.fromARGB(255, 224, 224, 224),
         child: Container(
-          width: 400,
+          width: 450,
           height: 600,
           child: _buildSettingsBody(context),
         ),
@@ -45,133 +44,12 @@ class _IconExplanationsScreenState extends State<IconExplanationsScreen> {
               style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 30,),
-            Padding(
-                padding: const EdgeInsets.only(left: 30),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Image.asset(
-                      'assets/icons/saturday_clinic_club_fett.png',
-                      height: 30,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Text(
-                        'Saturday Clinic Club (SCC)',
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                    )
-                  ],
-                )
-            ),
-            Padding(
-                padding: const EdgeInsets.only(left: 30),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Image.asset(
-                      'assets/icons/youth_club_fett.png',
-                      height: 30,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Text(
-                        'Community Youth Club (CTC)',
-                        style: TextStyle(
-                          fontSize: 20,
-                          //fontWeight: FontWeight.bold
-                        ),
-                      ),
-                    )
-                 ],
-                )
-            ),
-            Padding(
-                padding: const EdgeInsets.only(left: 30),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Image.asset(
-                      'assets/icons/phonecall_pe_fett.png',
-                      height: 30,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Text(
-                        'Phone Call by PE',
-                        style: TextStyle(
-                            fontSize: 20,
-                        ),
-                      ),
-                    )
-                  ],
-                )
-            ),
-            Padding(
-                padding: const EdgeInsets.only(left: 30),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Image.asset(
-                      'assets/icons/homevisit_pe_fett.png',
-                      height: 30,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Text(
-                        'Home Visit by PE',
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                    )
-                  ],
-                )
-            ),
-            Padding(
-                padding: const EdgeInsets.only(left: 30),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Image.asset(
-                      'assets/icons/nurse_clinic_fett.png',
-                      height: 30,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Text(
-                        'By the nurse at the clinic',
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                    )
-                  ],
-                )
-            ),
-            Padding(
-                padding: const EdgeInsets.only(left: 30),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Image.asset(
-                      'assets/icons/schooltalk_pe_fett.png',
-                      height: 30,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Text(
-                        'School visit and health talk by PE',
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                    )
-                  ],
-                )
-            ),
+            _makeExplanation('assets/icons/saturday_clinic_club_fett.png', 'Saturday Clinic Club (SCC)'),
+            _makeExplanation('assets/icons/youth_club_fett.png', 'Community Youth Club (CTC)'),
+            _makeExplanation('assets/icons/phonecall_pe_fett.png', 'Phone Call by PE'),
+            _makeExplanation('assets/icons/homevisit_pe_fett.png', 'Home Visit by PE'),
+            _makeExplanation('assets/icons/nurse_clinic_fett.png', 'By the nurse at the clinic'),
+            _makeExplanation('assets/icons/schooltalk_pe_fett.png', 'School visit and health talk by PE'),
           ],
         ),
         ),
@@ -180,3 +58,29 @@ class _IconExplanationsScreenState extends State<IconExplanationsScreen> {
   }
 
 }
+
+Padding _makeExplanation(String iconAsset, String explanation) {
+  return Padding(
+      padding: const EdgeInsets.only(left: 30),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Image.asset(
+            iconAsset,
+            height: 30,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Text(
+              explanation,
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+          )
+        ],
+      )
+  );
+}
+
+
