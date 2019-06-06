@@ -19,12 +19,12 @@ class TransparentHeaderPage extends StatelessWidget {
   }
 
   Widget get _background {
-    return SafeArea(
-      right: false,
-      left: false,
-      bottom: false,
-      top: true,
-      child: SingleChildScrollView(
+    return SingleChildScrollView(
+      child: SafeArea(
+        right: false,
+        left: false,
+        bottom: false,
+        top: true,
         child: Column(
           children: [
             // padding until bottom of header
@@ -47,16 +47,16 @@ class TransparentHeaderPage extends StatelessWidget {
 
     return Container(
 //      color: Colors.black.withOpacity(0.2),
-      child: SafeArea(
-        right: false,
-        left: false,
-        bottom: false,
-        top: true,
-        child: Container(
-          height: _headerHeight,
-          child: ClipRect(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: _BLUR_RADIUS, sigmaY: _BLUR_RADIUS),
+      child: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: _BLUR_RADIUS, sigmaY: _BLUR_RADIUS),
+          child: SafeArea(
+            right: false,
+            left: false,
+            bottom: false,
+            top: true,
+            child: Container(
+              height: _headerHeight,
               child: Padding(
                 padding: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
                 child: Row(
