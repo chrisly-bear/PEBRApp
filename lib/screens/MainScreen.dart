@@ -434,6 +434,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           color: isActivated ? Colors.black : Colors.grey,
           fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
         ),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       );
     }
 
