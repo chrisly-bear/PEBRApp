@@ -8,9 +8,7 @@ import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
-import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/UserData.dart';
-import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
@@ -21,7 +19,7 @@ import 'dart:ui';
 import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:pebrapp/screens/IconExplanationsScreen.dart';
 import 'package:pebrapp/screens/PatientScreen.dart';
-import 'package:pebrapp/components/PageHeader.dart';
+import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
@@ -198,20 +196,30 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           onPressed: _pushNewPatientScreen,
           child: Icon(Icons.add),
         ),
-        body: Stack(
-          children: <Widget>[
-            _bodyToDisplayBasedOnState(),
-            Container(
-              height: _appBarHeight,
-              child: ClipRect(
-                child: BackdropFilter(
-                  filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                  child: _customHeightAppBar(),
-                ),
-              ),
+        body: TransparentHeaderPage(
+          title: 'Patients',
+          subtitle: 'Overview',
+          child: _bodyToDisplayBasedOnState(),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.info),
+              onPressed: _pushIconExplanationsScreen,
+            ),
+            IconButton(
+              icon: Icon(Icons.bug_report),
+              onPressed: _pushDebugScreen,
+            ),
+            IconButton(
+                icon: Icon(Icons.refresh),
+                onPressed: PatientBloc.instance.sinkAllPatientsFromDatabase
+            ),
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: _pushSettingsScreen,
             ),
           ],
-        ));
+        ),
+    );
   }
 
   // Gets called when the application comes to the foreground.
@@ -287,37 +295,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     }
   }
 
-  _customHeightAppBar() {
-    return AppBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      // This is a hack so we can increase the height of the AppBar
-//      bottom: PreferredSize(
-//        child: Container(),
-//        preferredSize: Size.fromHeight(35),
-//      ),
-      flexibleSpace: PageHeader(title: 'Patients', subtitle: 'Overview'),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.info),
-          onPressed: _pushIconExplanationsScreen,
-        ),
-        IconButton(
-          icon: Icon(Icons.bug_report),
-          onPressed: _pushDebugScreen,
-        ),
-        IconButton(
-          icon: Icon(Icons.refresh),
-          onPressed: PatientBloc.instance.sinkAllPatientsFromDatabase
-        ),
-        IconButton(
-          icon: Icon(Icons.settings),
-          onPressed: _pushSettingsScreen,
-        ),
-      ],
-    );
-  }
-
   void _pushDebugScreen() {
     Navigator.of(_context).push(
       PageRouteBuilder<void>(
@@ -390,7 +367,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     );
   }
 
-  _bodyLoading() {
+  Center _bodyLoading() {
     return Center(
       child: CircularProgressIndicator(
           valueColor: AlwaysStoppedAnimation<Color>(Colors.white)
@@ -398,17 +375,17 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     );
   }
 
-  _bodyNoData() {
+  Center _bodyNoData() {
     return Center(child: Text("No patients recorded yet. Add new patient by clicking the + icon."));
   }
 
-  _bodyPatientTable() {
-    return ListView(
+  Column _bodyPatientTable() {
+    return Column(
       children: _buildPatientCards(),
     );
   }
 
-  _buildPatientCards() {
+  List<Widget> _buildPatientCards() {
     const _cardMarginVertical = 5.0;
     const _cardMarginHorizontal = 10.0;
     const _rowPaddingVertical = 20.0;
@@ -416,7 +393,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     const _cardHeight = 100.0;
     const _colorBarWidth = 15.0;
 
-    _formatHeaderRowText(String text) {
+    Text _formatHeaderRowText(String text) {
       return Text(
         text.toUpperCase(),
         style: TextStyle(
@@ -426,7 +403,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       );
     }
 
-    _formatPatientRowText(String text, {bool isActivated: true, bool highlight: false}) {
+    Text _formatPatientRowText(String text, {bool isActivated: true, bool highlight: false}) {
       return Text(
         text,
         style: TextStyle(
@@ -501,12 +478,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       return Row(children: icons);
     }
 
-    var _patientCards = <Widget>[
-      // container acting as margin for the app bar
-      Container(
-        height: _appBarHeight - 10,
-        color: Colors.transparent,
-      ),
+    List<Widget> _patientCards = <Widget>[
       Container(
           padding: EdgeInsets.symmetric(
               vertical: _cardMarginVertical,
