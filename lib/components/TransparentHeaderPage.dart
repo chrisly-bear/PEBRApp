@@ -9,7 +9,7 @@ class TransparentHeaderPage extends StatelessWidget {
   Widget _child;
 
   static final double _headerHeight = Platform.isIOS ? 82.0 : 80.0;
-  static const double _BLUR_RADIUS = 10.0;
+  static const double _BLUR_RADIUS = 5.0;
 
   TransparentHeaderPage({String title, String subtitle, List<Widget> actions, @required Widget child}) {
     this._title = title;
@@ -30,7 +30,7 @@ class TransparentHeaderPage extends StatelessWidget {
             // padding until bottom of header
             Container(height: _headerHeight),
             // padding to avoid Gaussian blur
-            Container(height: Platform.isIOS ? 20.0 : 22.0),
+            Container(height: Platform.isIOS ? 10.0 : 12.0),
             _child,
           ],
         ),
@@ -45,25 +45,28 @@ class TransparentHeaderPage extends StatelessWidget {
       children: _actions,
     );
 
-    return SafeArea(
-      right: false,
-      left: false,
-      bottom: false,
-      top: true,
-      child: Container(
-        height: _headerHeight,
-        child: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: _BLUR_RADIUS, sigmaY: _BLUR_RADIUS),
-            child: Padding(
-              padding: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    _buildTitleAndSubtitle(_title, _subtitle),
-                    _actionBar,
-                  ]),
+    return Container(
+//      color: Colors.black.withOpacity(0.2),
+      child: SafeArea(
+        right: false,
+        left: false,
+        bottom: false,
+        top: true,
+        child: Container(
+          height: _headerHeight,
+          child: ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: _BLUR_RADIUS, sigmaY: _BLUR_RADIUS),
+              child: Padding(
+                padding: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      _buildTitleAndSubtitle(_title, _subtitle),
+                      _actionBar,
+                    ]),
+              ),
             ),
           ),
         ),
