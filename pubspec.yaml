@@ -10,7 +10,7 @@ description: PEBRApp - Help Peer Educators manage their interactions with patien
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
   flutter:
@@ -21,11 +21,12 @@ dependencies:
   cupertino_icons: ^0.1.2
   sqflite: ^1.1.0
   path: ^1.6.2
-  flushbar: ^1.2.4
+  flushbar: 1.5.3
   url_launcher: ^5.0.2
   intl: ^0.15.7
   html: ^0.13.4+1
   shared_preferences: ^0.5.2
+  spreadsheet_decoder: ^1.0.1
 
 dev_dependencies:
   flutter_launcher_icons: ^0.7.0
@@ -57,6 +58,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/icons/
+    - assets/excel/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.

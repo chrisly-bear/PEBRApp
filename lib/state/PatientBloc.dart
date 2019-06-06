@@ -4,6 +4,7 @@ import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/database/models/ViralLoad.dart';
 
 class PatientBloc {
   static PatientBloc _instance;
@@ -29,7 +30,9 @@ class PatientBloc {
   // Event Triggers (Inputs)
   // -----------------------
 
-  /// Trigger an [AppStateLoading] stream event, followed by a [AppStatePatientListData] event.
+  /// Trigger an [AppStateLoading] stream event, followed by
+  /// [AppStatePatientData] events or an [AppStateNoData] event if there is are
+  /// no patients in the database.
   Future<void> sinkAllPatientsFromDatabase() async {
     _appStateStreamController.sink.add(AppStateLoading());
     final List<Patient> patientList = await DatabaseProvider().retrieveLatestPatients();
@@ -48,6 +51,13 @@ class PatientBloc {
     await DatabaseProvider().insertPatient(patient);
     print('Putting patient ${patient.artNumber} down the sink');
     _appStateStreamController.sink.add(AppStatePatientData(patient));
+  }
+
+  /// Store a new row in the ViralLoad table and trigger an [AppStateViralLoadData] stream event.
+  Future<void> sinkViralLoadData(ViralLoad viralLoad) async {
+    await DatabaseProvider().insertViralLoad(viralLoad);
+    print('Putting viral load for patient ${viralLoad.patientART} down the sink');
+    _appStateStreamController.sink.add(AppStateViralLoadData(viralLoad));
   }
 
   /// Store a new row in the PreferenceAssessment table and trigger an [AppStatePreferenceAssessmentData] stream event.
@@ -78,6 +88,11 @@ class AppStateNoData extends AppState {}
 class AppStatePatientData extends AppState {
   final Patient patient;
   AppStatePatientData(this.patient);
+}
+
+class AppStateViralLoadData extends AppState {
+  final ViralLoad viralLoad;
+  AppStateViralLoadData(this.viralLoad);
 }
 
 class AppStatePreferenceAssessmentData extends AppState {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pebrapp/components/SizedButton.dart';
+import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/screens/ARTRefillNotDoneScreen.dart';
@@ -59,11 +60,11 @@ class ARTRefillScreen extends StatelessWidget {
               ),
               SizedBox(height: 50),
               Text(_nextRefillDate),
-              SizedButton('Change Date', onPressed: () { _onPressChangeDate(context); },),
+              PEBRAButtonRaised('Change Date', onPressed: () { _onPressChangeDate(context); },),
               SizedBox(height: 50,),
-              SizedButton('Refill Done', onPressed: () { _onPressRefillDone(context); },),
+              PEBRAButtonRaised('Refill Done', onPressed: () { _onPressRefillDone(context); },),
               SizedBox(height: 10,),
-              SizedButton('Refill Not Done', onPressed: () { _pushARTRefillNotDoneScreen(context, patient); },),
+              PEBRAButtonRaised('Refill Not Done', onPressed: () { _pushARTRefillNotDoneScreen(context, patient); },),
             ],
           ),
         ),
@@ -74,7 +75,7 @@ class ARTRefillScreen extends StatelessWidget {
   void _onPressChangeDate(BuildContext context) async {
     DateTime newDate = await _showDatePicker(context);
     if (newDate != null) {
-      final ARTRefill artRefill = ARTRefill(this._patient.artNumber, RefillType.CHANGE_DATE, nextRefillDate: newDate);
+      final ARTRefill artRefill = ARTRefill(this._patient.artNumber, RefillType.CHANGE_DATE(), nextRefillDate: newDate);
       await PatientBloc.instance.sinkARTRefillData(artRefill);
       // TODO: upload the new date to the viral load database and if it didn't work show a message that the upload has to be retried manually
       Navigator.of(context).popUntil((Route<dynamic> route) {
@@ -86,7 +87,7 @@ class ARTRefillScreen extends StatelessWidget {
   void _onPressRefillDone(BuildContext context) async {
     DateTime newDate = await _showDatePicker(context);
     if (newDate != null) {
-      final ARTRefill artRefill = ARTRefill(this._patient.artNumber, RefillType.DONE, nextRefillDate: newDate);
+      final ARTRefill artRefill = ARTRefill(this._patient.artNumber, RefillType.DONE(), nextRefillDate: newDate);
       await PatientBloc.instance.sinkARTRefillData(artRefill);
       // TODO: upload the new date to the viral load database and if it didn't work show a message that the upload has to be retried manually
       Navigator.of(context).popUntil((Route<dynamic> route) {
