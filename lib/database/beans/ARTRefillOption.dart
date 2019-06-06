@@ -25,6 +25,14 @@ class ARTRefillOption {
     _RefillOption.TREATMENT_BUDDY: "Treatment Buddy",
   };
 
+  static const Map<_RefillOption, String> _descriptionShort = {
+    _RefillOption.CLINIC: "Clinic",
+    _RefillOption.PE_HOME_DELIVERY: "PE",
+    _RefillOption.VHW: "VHW",
+    _RefillOption.COMMUNITY_ADHERENCE_CLUB: "CAC",
+    _RefillOption.TREATMENT_BUDDY: "Treatment Buddy",
+  };
+
   _RefillOption _option;
 
   // Constructors
@@ -86,6 +94,9 @@ class ARTRefillOption {
 
   /// Returns the text description of this option.
   String get description => _description[_option];
+
+  /// Returns the short text description of this option.
+  String get descriptionShort => _descriptionShort[_option];
 
   /// Returns the code that represents this option.
   int get code => _encoding[_option];

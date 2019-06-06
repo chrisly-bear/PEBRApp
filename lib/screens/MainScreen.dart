@@ -556,7 +556,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       String refillByText = '—';
       ARTRefillOption aro = curPatient.latestPreferenceAssessment?.lastRefillOption;
       if (aro != null) {
-        refillByText = aro.description;
+        refillByText = aro.descriptionShort;
       }
 
       String nextAssessmentText = '—';
