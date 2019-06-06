@@ -58,7 +58,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
 
     DateTime lastAssessmentDate = _patient.latestPreferenceAssessment?.createdDate;
     if (lastAssessmentDate != null) {
-      DateTime nextAssessmentDate = calculateNextAssessment(lastAssessmentDate);
+      DateTime nextAssessmentDate = calculateNextAssessment(lastAssessmentDate, isSuppressed(_patient));
       _nextAssessmentText = formatDate(nextAssessmentDate);
     }
 

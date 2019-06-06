@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:pebrapp/config/SharedPreferencesConfig.dart';
 import 'package:intl/intl.dart';
+import 'package:pebrapp/database/models/Patient.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -173,7 +174,7 @@ TimeOfDay parseTimeOfDay(String time) {
 /// (+3 months) or unsuppressed (+1 month).
 /// 
 /// Returns `null` if [lastAssessment] is `null`.
-DateTime calculateNextAssessment(DateTime lastAssessment, {bool suppressed: false}) {
+DateTime calculateNextAssessment(DateTime lastAssessment, bool suppressed) {
   if (lastAssessment == null) { return null; }
   DateTime newDate = DateTime(lastAssessment.year, suppressed ? lastAssessment.month + 3 : lastAssessment.month + 1, lastAssessment.day);
   return newDate;
@@ -234,4 +235,22 @@ void showErrorInPopup(e, StackTrace s, BuildContext context) {
       );
     },
   );
+}
+
+
+/// Returns true if the patient's most recent viral load is suppressed.
+///
+/// Returns false if
+///
+/// * there is no viral load data
+///
+/// * viral load data is lower than detectable limit
+///
+/// * viral load data is unsuppressed.
+///
+/// Make sure you have called [patient.initializeViralLoadFields()] before using
+/// this method. Otherwise the viral load will be `null` and this method will
+/// return false.
+bool isSuppressed(Patient patient) {
+  return patient.mostRecentViralLoad?.isSuppressed ?? false;
 }

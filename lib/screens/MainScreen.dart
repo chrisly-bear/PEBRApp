@@ -540,7 +540,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       String nextAssessmentText = '—';
       DateTime lastAssessmentDate = curPatient.latestPreferenceAssessment?.createdDate;
       if (lastAssessmentDate != null) {
-        DateTime nextAssessmentDate = calculateNextAssessment(lastAssessmentDate);
+        DateTime nextAssessmentDate = calculateNextAssessment(lastAssessmentDate, isSuppressed(curPatient));
         nextAssessmentText = formatDate(nextAssessmentDate);
       }
 
@@ -551,7 +551,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       } else if (nextARTRefillDate != null && lastAssessmentDate == null) {
         nextRefillTextHighlighted = true;
       } else if (nextARTRefillDate != null && lastAssessmentDate != null) {
-        DateTime nextAssessmentDate = calculateNextAssessment(lastAssessmentDate);
+        DateTime nextAssessmentDate = calculateNextAssessment(lastAssessmentDate, isSuppressed(curPatient));
         if (nextAssessmentDate.isBefore(nextARTRefillDate)) {
           nextAssessmentTextHighlighted = true;
         } else if (nextARTRefillDate.isBefore(nextAssessmentDate)) {
@@ -706,7 +706,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   /// `latestPreferenceAssessment` are null.
   DateTime _getDateOfNextAction(Patient patient) {
     DateTime nextARTRefillDate = patient.latestARTRefill?.nextRefillDate;
-    DateTime nextPreferenceAssessmentDate = calculateNextAssessment(patient.latestPreferenceAssessment?.createdDate);
+    DateTime nextPreferenceAssessmentDate = calculateNextAssessment(patient.latestPreferenceAssessment?.createdDate, isSuppressed(patient));
     return _getLesserDate(nextARTRefillDate, nextPreferenceAssessmentDate);
   }
 
