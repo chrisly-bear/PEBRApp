@@ -169,13 +169,14 @@ TimeOfDay parseTimeOfDay(String time) {
 }
 
 /// Calculates the due date of the next preference assessment based on the date
-/// of the last preference assessment (+60 days).
+/// of the last preference assessment and whether the patient is [suppressed]
+/// (+3 months) or unsuppressed (+1 month).
 /// 
 /// Returns `null` if [lastAssessment] is `null`.
-DateTime calculateNextAssessment(DateTime lastAssessment) {
+DateTime calculateNextAssessment(DateTime lastAssessment, {bool suppressed: false}) {
   if (lastAssessment == null) { return null; }
-  // TODO: implement proper calculation of adding two months
-  return lastAssessment.add(Duration(days: 60));
+  DateTime newDate = DateTime(lastAssessment.year, suppressed ? lastAssessment.month + 3 : lastAssessment.month + 1, lastAssessment.day);
+  return newDate;
 }
 
 /// Calculates the due date of the next ART refill based on the date of the last
