@@ -1,8 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:pebrapp/components/SizedButton.dart';
+import 'package:flutter/services.dart';
+import 'package:pebrapp/components/PEBRAButtonFlat.dart';
+import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/database/beans/HealthCenter.dart';
+import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
@@ -17,26 +21,13 @@ class SettingsScreen extends StatefulWidget {
   createState() => _SettingsScreenState();
 }
 
-class LoginData {
-  String firstName, lastName, healthCenter;
-  LoginData(this.firstName, this.lastName, this.healthCenter);
-
-  @override
-  bool operator ==(other) {
-    return (firstName == other.firstName && lastName == other.lastName && healthCenter == other.healthCenter);
-  }
-
-  @override
-  int get hashCode => firstName.hashCode^lastName.hashCode^healthCenter.hashCode;
-}
-
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _isLoading = true;
-  LoginData _loginData;
+  UserData _loginData;
 
   @override
   void initState() {
-    loginDataFromSharedPrefs.then((LoginData loginData) {
+    DatabaseProvider().retrieveLatestUserData().then((UserData loginData) {
       this._loginData = loginData;
       setState(() {this._isLoading = false;});
     });
@@ -51,7 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         color: Color.fromARGB(255, 224, 224, 224),
         child: Container(
           width: 400,
-          height: 600,
+          height: 700,
           child: _isLoading ? Center(child: Text('Loading...')) : (
               _loginData == null ? LoginBody() : Center(child: SettingsBody(this._loginData))),
         ),
@@ -67,7 +58,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
 class SettingsBody extends StatefulWidget {
 
-  final LoginData loginData;
+  final UserData loginData;
 
   @override
   SettingsBody(this.loginData);
@@ -78,7 +69,7 @@ class SettingsBody extends StatefulWidget {
 
 class _SettingsBodyState extends State<SettingsBody> {
 
-  final LoginData loginData;
+  final UserData loginData;
   String lastBackup = 'loading...';
   bool _isLoading = false;
 
@@ -107,23 +98,29 @@ class _SettingsBodyState extends State<SettingsBody> {
         Expanded(child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-              SizedBox(height: 30,),
-              Text('${loginData.firstName} ${loginData.lastName}',
+              Text('${loginData.username}',
                 style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),
               ),
-              Text('${loginData.healthCenter}',
+              SizedBox(height: 10),
+              Text('${loginData.firstName} ${loginData.lastName}',
                 style: TextStyle(fontSize: 24.0),
               ),
+              Text('${loginData.healthCenter.description}',
+                style: TextStyle(fontSize: 24.0),
+              ),
+            Text('${loginData.phoneNumber}',
+              style: TextStyle(fontSize: 24.0),
+            ),
             _isLoading
                 ? Padding(padding: EdgeInsets.symmetric(vertical: 17.5), child: SizedBox(width: 15.0, height: 15.0, child: CircularProgressIndicator()))
                 : SizedBox(height: 50,),
-              SizedButton('Set PIN'),
-              SizedButton('Start Backup', onPressed: _isLoading ? null : () {_onPressBackupButton(context);},),
+              PEBRAButtonRaised('Set PIN'),
+              PEBRAButtonRaised('Start Backup', onPressed: _isLoading ? null : () {_onPressBackupButton(context);},),
               Text("last backup:"),
               Text(lastBackup),
-              SizedButton('Restore', onPressed: _isLoading ? null : () {_onPressRestoreButton(context);},),
-              SizedButton('Logout', onPressed: () {_onPressLogout(context);},),
-              SizedButton('Transfer Tablet', onPressed: () {_onPressTransferTablet(context);},),
+              PEBRAButtonRaised('Restore', onPressed: _isLoading ? null : () {_onPressRestoreButton(context);},),
+              PEBRAButtonRaised('Logout', onPressed: () {_onPressLogout(context);},),
+              PEBRAButtonRaised('Transfer Tablet', onPressed: () {_onPressTransferTablet(context);},),
               Text('Use this option if you want to keep the patient data on the device but change the user or health center.', textAlign: TextAlign.center,),
             ],
           ),
@@ -136,13 +133,14 @@ class _SettingsBodyState extends State<SettingsBody> {
     String message = 'Backup Successful';
     String title;
     bool error = false;
+    VoidCallback onNotificationButtonPress;
     setState(() { _isLoading = true; });
     try {
       await DatabaseProvider().createAdditionalBackupOnSWITCH(loginData);
       setState(() {
         lastBackup = formatDateAndTime(DateTime.now());
       });
-    } catch (e) {
+    } catch (e, s) {
       error = true;
       title = 'Backup Failed';
       switch (e.runtimeType) {
@@ -152,28 +150,36 @@ class _SettingsBodyState extends State<SettingsBody> {
           message = 'Login to SWITCH failed. Contact the development team.';
           break;
         case DocumentNotFoundException:
-          message = 'No existing backup found for user \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\'';
+          message = 'No existing backup found for user \'${loginData.username}\'';
           break;
         case SocketException:
           message = 'Make sure you are connected to the internet.';
           break;
         default:
-          message = '$e';
+          message = 'An unknown error occured. Contact the development team.';
+          print('${e.runtimeType}: $e');
+          print(s);
+          onNotificationButtonPress = () {
+            showErrorInPopup(e, s, context);
+          };
       }
     }
     setState(() { _isLoading = false; });
-    showFlushBar(context, message, title: title, error: error);
+    showFlushBar(context, message, title: title, error: error, onButtonPress: onNotificationButtonPress);
   }
 
   _onPressRestoreButton(BuildContext context) async {
       String resultMessage = 'Restore Successful';
       String title;
       bool error = false;
+      VoidCallback onNotificationButtonPress;
       setState(() { _isLoading = true; });
-      final LoginData loginData = await loginDataFromSharedPrefs;
       try {
-        await restoreFromSWITCHtoolbox(loginData);
-      } catch (e) {
+        await restoreFromSWITCHtoolbox(loginData.username);
+        setState(() {
+          lastBackup = formatDateAndTime(DateTime.now());
+        });
+      } catch (e, s) {
         error = true;
         title = 'Restore Failed';
         switch (e.runtimeType) {
@@ -189,21 +195,23 @@ class _SettingsBodyState extends State<SettingsBody> {
             resultMessage = 'Login to SWITCH failed. Contact the development team.';
             break;
           case DocumentNotFoundException:
-            resultMessage = 'No backup found for user \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\'.';
+            resultMessage = 'No backup found for user \'${loginData.username}\'.';
             break;
           default:
-            resultMessage = '$e';
+            resultMessage = 'An unknown error occured. Contact the development team.';
+            print('${e.runtimeType}: $e');
+            print(s);
+            onNotificationButtonPress = () {
+              showErrorInPopup(e, s, context);
+            };
         }
       }
       setState(() { _isLoading = false; });
-      showFlushBar(context, resultMessage, title: title, error: error);
+      showFlushBar(context, resultMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
   }
 
   _onPressLogout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove(FIRSTNAME_KEY);
-    await prefs.remove(LASTNAME_KEY);
-    await prefs.remove(HEALTHCENTER_KEY);
     await prefs.remove(LAST_SUCCESSFUL_BACKUP_KEY);
     await DatabaseProvider().resetDatabase();
     await PatientBloc.instance.sinkAllPatientsFromDatabase();
@@ -232,10 +240,8 @@ class _SettingsBodyState extends State<SettingsBody> {
 
   _onPressTransferTablet(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove(FIRSTNAME_KEY);
-    await prefs.remove(LASTNAME_KEY);
-    await prefs.remove(HEALTHCENTER_KEY);
     await prefs.remove(LAST_SUCCESSFUL_BACKUP_KEY);
+    await DatabaseProvider().deactivateCurrentUser();
     // Do not remove database data (otherwise this function is the same as the logout function)
     // TODO (not super important): the pushReplacement results in a jerky animation
     //       -> We should call `setState` and set the loginData to null (or some
@@ -257,7 +263,7 @@ class _SettingsBodyState extends State<SettingsBody> {
         },
       ),
     );
-    showFlushBar(context, 'Logged out. Enter the name and health center of the new user now.');
+    showFlushBar(context, 'Logged out. Create a new account now.');
   }
 
 }
@@ -271,16 +277,13 @@ class _LoginBodyState extends State<LoginBody> {
   final _loginFormKey = GlobalKey<FormState>();
   final _createAccountFormKey = GlobalKey<FormState>();
   bool _createAccountMode = true;
+
+  UserData _userData = UserData();
+  TextEditingController _usernameCtr = TextEditingController();
   TextEditingController _firstNameCtr = TextEditingController();
   TextEditingController _lastNameCtr = TextEditingController();
+  TextEditingController _phoneNumberCtr = TextEditingController();
   bool _isLoading = false;
-
-  String _selectedHealthCenter;
-  static final healthCenters = [
-    'Maseru',
-    'Morija',
-    'Butha-Buthe',
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -296,7 +299,110 @@ class _LoginBodyState extends State<LoginBody> {
     );
   }
 
+  /// Removes all non-number characters and inserts dashes to make number more
+  /// readable. E.g. 12345678 becomes 12-345-678.
+  ///
+  /// Does not trim the number and only inserts two dashes. So if you pass it a
+  /// long number string, the number will stay long. E.g. 1234567890123 becomes
+  /// 12-345-67890123.
+  /// 
+  /// If a [countryCode] is passed it will be prefixed with a dash. E.g.
+  /// countryCode='266' returns +266-12-345-678.
+  String _formatPhoneNumber(String phoneNumber, {String countryCode}) {
+    String onlyNumbers = phoneNumber.replaceAll(RegExp('[^0-9]'), '');
+    String formattedNumber;
+    if (onlyNumbers.length >= 2) {
+      formattedNumber = onlyNumbers.substring(0, 2) + '-' + onlyNumbers.substring(2, onlyNumbers.length);
+    }
+    if (onlyNumbers.length >= 5) {
+      formattedNumber = onlyNumbers.substring(0, 2) + '-' + onlyNumbers.substring(2, 5) + '-' + onlyNumbers.substring(5, onlyNumbers.length);
+    }
+    if (countryCode != null && countryCode.isNotEmpty) {
+      String countryCodeOnlyNumbers = countryCode.replaceAll(RegExp('[^0-9]'), '');
+      formattedNumber = '+$countryCodeOnlyNumbers-$formattedNumber';
+    }
+    return formattedNumber;
+  }
+
   _formBlock() {
+    Widget createAccountFields() {
+      if (!_createAccountMode) {
+        return Container();
+      }
+      return Column(children: <Widget>[
+        TextFormField(
+          decoration: InputDecoration(
+            labelText: 'First Name',
+          ),
+          textAlign: TextAlign.center,
+          controller: _firstNameCtr,
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please enter your first name';
+            }
+          },
+        ),
+        TextFormField(
+          decoration: InputDecoration(
+            labelText: 'Last Name',
+          ),
+          textAlign: TextAlign.center,
+          controller: _lastNameCtr,
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please enter your last name';
+            }
+          },
+        ),
+        DropdownButtonFormField<HealthCenter>(
+          decoration: InputDecoration(
+            labelText: 'Health Center',
+          ),
+          value: _userData.healthCenter,
+          onChanged: (HealthCenter newValue) {
+            setState(() {
+              _userData.healthCenter = newValue;
+            });
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please select the health center at which you work';
+            }
+          },
+          items: HealthCenter.allValues.map<DropdownMenuItem<HealthCenter>>((HealthCenter value) {
+            return DropdownMenuItem<HealthCenter>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
+        TextFormField(
+          decoration: InputDecoration(
+            labelText: 'Phone Number',
+            prefixText: '+266',
+          ),
+          textAlign: TextAlign.left,
+          controller: _phoneNumberCtr,
+          textInputAction: TextInputAction.done,
+          onEditingComplete: () {
+            _phoneNumberCtr.text = _formatPhoneNumber(_phoneNumberCtr.text);
+          },
+          keyboardType: TextInputType.phone,
+          inputFormatters: [
+            WhitelistingTextInputFormatter(RegExp('[0-9\\s\-]')),
+            LengthLimitingTextInputFormatter(10),
+          ],
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please enter your phone number';
+            } else if (value.replaceAll(RegExp('[\\s\-]'), '').length != 8) {
+              return 'Exactly 8 digits required';
+            }
+          },
+        ),
+      ]);
+    }
+
     return Column(
       children: <Widget>[
         Padding(
@@ -311,46 +417,24 @@ class _LoginBodyState extends State<LoginBody> {
               padding: EdgeInsets.all(20),
               child: Column(
                 children: <Widget>[
-                  Text('First Name'),
                   TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Username',
+                      helperText: _createAccountMode ? 'allowed (max. 12 symbols): lower case letters, numbers, "-"' : null,
+                    ),
                     textAlign: TextAlign.center,
-                    controller: _firstNameCtr,
+                    controller: _usernameCtr,
+                    inputFormatters: [
+                      WhitelistingTextInputFormatter(RegExp('[a-z0-9\-]')),
+                      LengthLimitingTextInputFormatter(12),
+                    ],
                     validator: (value) {
                       if (value.isEmpty) {
-                        return 'Please enter your first name';
+                        return 'Please enter a username';
                       }
                     },
                   ),
-                  Text('Last Name'),
-                  TextFormField(
-                    textAlign: TextAlign.center,
-                    controller: _lastNameCtr,
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Please enter your last name';
-                      }
-                    },
-                  ),
-                  DropdownButtonFormField<String>(
-                    value: _selectedHealthCenter,
-                    onChanged: (String newValue) {
-                      setState(() {
-                        _selectedHealthCenter = newValue;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please select the health center at which you work';
-                      }
-                    },
-                    items: healthCenters
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  )
+                  createAccountFields(),
                 ],
               ),
             ),
@@ -359,7 +443,7 @@ class _LoginBodyState extends State<LoginBody> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 16.0),
           child: Center(
-            child: SizedButton(
+            child: PEBRAButtonRaised(
               _createAccountMode ? 'Create Account' : 'Login',
               widget: _isLoading
                   ? Container(
@@ -394,10 +478,11 @@ class _LoginBodyState extends State<LoginBody> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 16.0),
           child: Center(
-            child: SizedButton(
+            child: PEBRAButtonFlat(
               _createAccountMode ? 'Log In' : 'Create Account',
-              onPressed: () =>
-                  {setState(() => _createAccountMode = !_createAccountMode)},
+              onPressed: () {
+                setState(() => _createAccountMode = !_createAccountMode);
+              },
             ),
           ),
         ),
@@ -408,20 +493,17 @@ class _LoginBodyState extends State<LoginBody> {
   _onSubmitLoginForm() async {
     // Validate will return true if the form is valid, or false if the form is invalid.
     if (_loginFormKey.currentState.validate()) {
-      LoginData loginData = LoginData(_firstNameCtr.text, _lastNameCtr.text, _selectedHealthCenter);
       String title;
       String notificationMessage = 'Login Successful';
       bool error = false;
+      VoidCallback onNotificationButtonPress;
       setState(() { _isLoading = true; });
+      final String username = _usernameCtr.text;
       try {
-          await restoreFromSWITCHtoolbox(loginData);
-          // if the restore was successful we store the login data on the device
-          final SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setString(FIRSTNAME_KEY, loginData.firstName);
-          await prefs.setString(LASTNAME_KEY, loginData.lastName);
-          await prefs.setString(HEALTHCENTER_KEY, loginData.healthCenter);
+          await restoreFromSWITCHtoolbox(username);
+          // restore was successful, go to home screen
           Navigator.of(context).popUntil(ModalRoute.withName('/'));
-      } catch (e) {
+      } catch (e, s) {
         error = true;
         title = 'Login Failed';
         switch (e.runtimeType) {
@@ -434,14 +516,19 @@ class _LoginBodyState extends State<LoginBody> {
             notificationMessage = 'Login to SWITCH failed. Contact the development team.';
             break;
           case DocumentNotFoundException:
-            notificationMessage = 'User \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\' not found. Check your login data or create a new account.';
+            notificationMessage = 'User \'$username\' not found. Check your login data or create a new account.';
             break;
           default:
-            notificationMessage = '$e';
+            notificationMessage = 'An unknown error occured. Contact the development team.';
+            print('${e.runtimeType}: $e');
+            print(s);
+            onNotificationButtonPress = () {
+              showErrorInPopup(e, s, context);
+            };
         }
       }
       setState(() { _isLoading = false; });
-      showFlushBar(context, notificationMessage, title: title, error: error);
+      showFlushBar(context, notificationMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
     }
   }
 
@@ -451,35 +538,23 @@ class _LoginBodyState extends State<LoginBody> {
       String notificationMessage = 'Account Created';
       String title;
       bool error = false;
+      VoidCallback onNotificationButtonPress;
       setState(() { _isLoading = true; });
-      final LoginData loginData = LoginData(
-          _firstNameCtr.text,
-          _lastNameCtr.text,
-          _selectedHealthCenter
-      );
+      _userData.username = _usernameCtr.text;
+      _userData.firstName = _firstNameCtr.text;
+      _userData.lastName = _lastNameCtr.text;
+      _userData.phoneNumber = _formatPhoneNumber(_phoneNumberCtr.text, countryCode: '266');
+      _userData.isActive = true;
       try {
-        final bool userExists = await existsBackupForUser(loginData);
+        final bool userExists = await existsBackupForUser(_userData.username);
         if (userExists) {
           error = true;
           title = 'Account could not be created';
-          notificationMessage = 'User \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\' already exists.';
+          notificationMessage = 'User \'${_userData.username}\' already exists.';
         } else {
-          await DatabaseProvider().createFirstBackupOnSWITCH(loginData);
-          // if backup was successful we store the login data on the device
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          bool firstNameResult =
-          await prefs.setString(FIRSTNAME_KEY, loginData.firstName);
-          bool lastNameResult =
-          await prefs.setString(LASTNAME_KEY, loginData.lastName);
-          bool healthCenterResult =
-          await prefs.setString(HEALTHCENTER_KEY, loginData.healthCenter);
-          if (!firstNameResult || !lastNameResult || !healthCenterResult) {
-            error = true;
-            title = 'Something went wrong';
-            notificationMessage = 'The account was created successfully. However, the login data could not be stored on the device. Please log in manually.';
-          }
+          await DatabaseProvider().createFirstBackupOnSWITCH(_userData);
         }
-      } catch (e) {
+      } catch (e, s) {
         error = true;
         title = 'Account could not be created';
         switch (e.runtimeType) {
@@ -492,12 +567,17 @@ class _LoginBodyState extends State<LoginBody> {
             notificationMessage = 'Login to SWITCH failed. Contact the development team.';
             break;
           default:
-            notificationMessage = '$e';
+            notificationMessage = 'An unknown error occured. Contact the development team.';
+            print('${e.runtimeType}: $e');
+            print(s);
+            onNotificationButtonPress = () {
+              showErrorInPopup(e, s, context);
+            };
         }
       }
       setState(() { _isLoading = false; });
       if (!error) { Navigator.of(context).popUntil(ModalRoute.withName('/')); }
-      showFlushBar(context, notificationMessage, title: title, error: error);
+      showFlushBar(context, notificationMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
       // TODO: refresh settings screen to show the logged in state -> use the BloC
     }
   }

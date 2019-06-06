@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class SizedButton extends StatelessWidget {
+class PEBRAButtonRaised extends StatelessWidget {
 
   final String _buttonText;
   final onPressed;
@@ -9,7 +9,7 @@ class SizedButton extends StatelessWidget {
   /// If `onPressed` is null then the button is painted gray to show that it's
   /// deactivated. If a `widget` is passed, the `_buttonText` is ignored and the
   /// `widget` is displayed instead.
-  const SizedButton(this._buttonText, {this.onPressed, this.widget}) : super();
+  const PEBRAButtonRaised(this._buttonText, {this.onPressed, this.widget}) : super();
 
   @override
   Widget build(BuildContext context) {

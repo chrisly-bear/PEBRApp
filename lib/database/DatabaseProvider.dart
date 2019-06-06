@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:pebrapp/config/SwitchConfig.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
+import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/database/models/UserData.dart';
+import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
-import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -17,7 +19,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 8;
+  static const int _DB_VERSION = 31;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -57,19 +59,28 @@ class DatabaseProvider {
   FutureOr<void> _onCreate(Database db, int version) async {
     print('Creating database with version $version');
     await db.execute("""
-        CREATE TABLE ${Patient.tableName} (
+        CREATE TABLE IF NOT EXISTS ${Patient.tableName} (
           ${Patient.colId} INTEGER PRIMARY KEY,
-          ${Patient.colARTNumber} TEXT NOT NULL,
           ${Patient.colCreatedDate} TEXT NOT NULL,
-          ${Patient.colIsActivated} BIT NOT NULL,
-          ${Patient.colIsVLSuppressed} BIT,
+          ${Patient.colEnrolmentDate} TEXT NOT NULL,
+          ${Patient.colARTNumber} TEXT NOT NULL,
+          ${Patient.colStickerNumber} TEXT NOT NULL,
+          ${Patient.colYearOfBirth} TEXT NOT NULL,
+          ${Patient.colIsEligible} BIT NOT NULL,
+          ${Patient.colIsVLBaselineAvailable} BIT NOT NULL,
+          ${Patient.colGender} INTEGER,
+          ${Patient.colSexualOrientation} INTEGER,
           ${Patient.colVillage} TEXT,
-          ${Patient.colDistrict} TEXT,
-          ${Patient.colPhoneNumber} TEXT
+          ${Patient.colPhoneAvailability} INTEGER,
+          ${Patient.colPhoneNumber} TEXT,
+          ${Patient.colConsentGiven} BIT,
+          ${Patient.colNoConsentReason} INTEGER,
+          ${Patient.colNoConsentReasonOther} TEXT,
+          ${Patient.colIsActivated} BIT
         );
         """);
     await db.execute("""
-        CREATE TABLE ${PreferenceAssessment.tableName} (
+        CREATE TABLE IF NOT EXISTS ${PreferenceAssessment.tableName} (
           ${PreferenceAssessment.colId} INTEGER PRIMARY KEY,
           ${PreferenceAssessment.colPatientART} TEXT NOT NULL,
           ${PreferenceAssessment.colCreatedDate} TEXT NOT NULL,
@@ -77,34 +88,97 @@ class DatabaseProvider {
           ${PreferenceAssessment.colARTRefillOption2} INTEGER,
           ${PreferenceAssessment.colARTRefillOption3} INTEGER,
           ${PreferenceAssessment.colARTRefillOption4} INTEGER,
-          ${PreferenceAssessment.colARTRefillPersonName} TEXT,
-          ${PreferenceAssessment.colARTRefillPersonPhoneNumber} TEXT,
-          ${PreferenceAssessment.colPhoneAvailable} BIT NOT NULL,
-          ${PreferenceAssessment.colPatientPhoneNumber} TEXT,
+          ${PreferenceAssessment.colARTRefillOption5} INTEGER,
+          ${PreferenceAssessment.colARTRefillPENotPossibleReason} INTEGER,
+          ${PreferenceAssessment.colARTRefillPENotPossibleReasonOther} TEXT,
+          ${PreferenceAssessment.colARTRefillVHWName} TEXT,
+          ${PreferenceAssessment.colARTRefillVHWVillage} TEXT,
+          ${PreferenceAssessment.colARTRefillVHWPhoneNumber} TEXT,
+          ${PreferenceAssessment.colARTRefillTreatmentBuddyART} TEXT,
+          ${PreferenceAssessment.colARTRefillTreatmentBuddyVillage} TEXT,
+          ${PreferenceAssessment.colARTRefillTreatmentBuddyPhoneNumber} TEXT,
+          ${PreferenceAssessment.colARTSupplyAmount} INTEGER NOT NULL,
           ${PreferenceAssessment.colAdherenceReminderEnabled} BIT,
           ${PreferenceAssessment.colAdherenceReminderFrequency} INTEGER,
           ${PreferenceAssessment.colAdherenceReminderTime} TEXT,
           ${PreferenceAssessment.colAdherenceReminderMessage} INTEGER,
           ${PreferenceAssessment.colARTRefillReminderEnabled} BIT,
           ${PreferenceAssessment.colARTRefillReminderDaysBefore} STRING,
+          ${PreferenceAssessment.colARTRefillReminderMessage} INTEGER,
           ${PreferenceAssessment.colVLNotificationEnabled} BIT,
           ${PreferenceAssessment.colVLNotificationMessageSuppressed} INTEGER,
           ${PreferenceAssessment.colVLNotificationMessageUnsuppressed} INTEGER,
-          ${PreferenceAssessment.colPEPhoneNumber} TEXT,
-          ${PreferenceAssessment.colSupportPreferences} TEXT
+          ${PreferenceAssessment.colSupportPreferences} TEXT,
+          ${PreferenceAssessment.colSaturdayClinicClubAvailable} BIT,
+          ${PreferenceAssessment.colCommunityYouthClubAvailable} BIT,
+          ${PreferenceAssessment.colHomeVisitPEPossible} BIT,
+          ${PreferenceAssessment.colHomeVisitPENotPossibleReason} INTEGER,
+          ${PreferenceAssessment.colHomeVisitPENotPossibleReasonOther} TEXT,
+          ${PreferenceAssessment.colSchoolVisitPEPossible} BIT,
+          ${PreferenceAssessment.colSchool} TEXT,
+          ${PreferenceAssessment.colSchoolVisitPENotPossibleReason} INTEGER,
+          ${PreferenceAssessment.colSchoolVisitPENotPossibleReasonOther} TEXT,
+          ${PreferenceAssessment.colPitsoPEPossible} BIT,
+          ${PreferenceAssessment.colPitsoPENotPossibleReason} INTEGER,
+          ${PreferenceAssessment.colPitsoPENotPossibleReasonOther} TEXT,
+          ${PreferenceAssessment.colCondomUsageDemonstrated} BIT,
+          ${PreferenceAssessment.colCondomUsageNotDemonstratedReason} INTEGER,
+          ${PreferenceAssessment.colCondomUsageNotDemonstratedReasonOther} TEXT,
+          ${PreferenceAssessment.colMoreInfoContraceptives} TEXT,
+          ${PreferenceAssessment.colMoreInfoVMMC} TEXT,
+          ${PreferenceAssessment.colYoungMothersAvailable} BIT,
+          ${PreferenceAssessment.colFemaleWorthAvailable} BIT,
+          ${PreferenceAssessment.colLegalAidSmartphoneAvailable} BIT,
+          ${PreferenceAssessment.colTuneMeSmartphoneAvailable} BIT,
+          ${PreferenceAssessment.colNtlafatsoSmartphoneAvailable} BIT,
+          ${PreferenceAssessment.colPsychosocialShareSomethingAnswer} INTEGER NOT NULL,
+          ${PreferenceAssessment.colPsychosocialShareSomethingContent} TEXT,
+          ${PreferenceAssessment.colPsychosocialHowDoing} TEXT,
+          ${PreferenceAssessment.colUnsuppressedSafeEnvironmentAnswer} INTEGER,
+          ${PreferenceAssessment.colUnsuppressedWhyNotSafe} TEXT
         );
         """);
     await db.execute("""
-        CREATE TABLE ${ARTRefill.tableName} (
+        CREATE TABLE IF NOT EXISTS ${ARTRefill.tableName} (
           ${ARTRefill.colId} INTEGER PRIMARY KEY,
           ${ARTRefill.colPatientART} TEXT NOT NULL,
           ${ARTRefill.colCreatedDate} TEXT NOT NULL,
           ${ARTRefill.colRefillType} INTEGER NOT NULL,
           ${ARTRefill.colNextRefillDate} TEXT,
           ${ARTRefill.colNotDoneReason} INTEGER,
-          ${ARTRefill.colOtherClinicLesotho} TEXT,
-          ${ARTRefill.colOtherClinicSouthAfrica} TEXT,
+          ${ARTRefill.colDateOfDeath} TEXT,
+          ${ARTRefill.colCauseOfDeath} TEXT,
+          ${ARTRefill.colHospitalizedClinic} TEXT,
+          ${ARTRefill.colOtherClinic} TEXT,
+          ${ARTRefill.colTransferDate} TEXT,
           ${ARTRefill.colNotTakingARTReason} TEXT
+        );
+        """);
+    await db.execute("""
+        CREATE TABLE IF NOT EXISTS ${ViralLoad.tableName} (
+          ${ViralLoad.colId} INTEGER PRIMARY KEY,
+          ${ViralLoad.colPatientART} TEXT NOT NULL,
+          ${ViralLoad.colCreatedDate} TEXT NOT NULL,
+          ${ViralLoad.colViralLoadSource} INTEGER NOT NULL,
+          ${ViralLoad.colViralLoadIsBaseline} BIT NOT NULL,
+          ${ViralLoad.colDateOfBloodDraw} TEXT NOT NULL,
+          ${ViralLoad.colLabNumber} TEXT NOT NULL,
+          ${ViralLoad.colIsLowerThanDetectable} BIT NOT NULL,
+          ${ViralLoad.colViralLoad} INTEGER,
+          ${ViralLoad.colDiscrepancy} BIT
+        );
+        """);
+    await db.execute("""
+        CREATE TABLE IF NOT EXISTS UserData (
+          ${UserData.colId} INTEGER PRIMARY KEY,
+          ${UserData.colCreatedDate} TEXT NOT NULL,
+          ${UserData.colFirstName} TEXT NOT NULL,
+          ${UserData.colLastName} TEXT NOT NULL,
+          ${UserData.colUsername} TEXT NOT NULL,
+          ${UserData.colPhoneNumber} TEXT NOT NULL,
+          ${UserData.colHealthCenter} INTEGER NOT NULL,
+          ${UserData.colIsActive} BIT NOT NULL,
+          ${UserData.colDeactivatedDate} TEXT
         );
         """);
     // TODO: set colLatestPreferenceAssessment as foreign key to `PreferenceAssessment` table
@@ -225,9 +299,9 @@ class DatabaseProvider {
     if (oldVersion < 6) {
       print('Upgrading to database version 6...');
       print('UPGRADE NOT IMPLEMENTED, DATA WILL BE RESET!');
-      await db.execute("DROP TABLE ${Patient.tableName};");
-      await db.execute("DROP TABLE ${PreferenceAssessment.tableName};");
-      _onCreate(db, newVersion);
+      await db.execute("DROP TABLE Patient;");
+      await db.execute("DROP TABLE PreferenceAssessment;");
+      _onCreate(db, 6);
     }
     if (oldVersion < 7) {
       print('Upgrading to database version 7...');
@@ -253,10 +327,87 @@ class DatabaseProvider {
       // table). For simplicity (and because the app is not released at this
       // point) we just drop all data and create the tables anew.
       print('UPGRADE NOT IMPLEMENTED, DATA WILL BE RESET!');
-      await db.execute("DROP TABLE ${Patient.tableName};");
-      await db.execute("DROP TABLE ${PreferenceAssessment.tableName};");
-      await db.execute("DROP TABLE ${ARTRefill.tableName};");
-      _onCreate(db, newVersion);
+      await db.execute("DROP TABLE Patient;");
+      await db.execute("DROP TABLE PreferenceAssessment;");
+      await db.execute("DROP TABLE ARTRefill;");
+      _onCreate(db, 8);
+    }
+    if (oldVersion < 9) {
+      print('Upgrading to database version 9...');
+      print('UPGRADE NOT IMPLEMENTED, DATA WILL BE RESET!');
+      await db.execute("DROP TABLE Patient;");
+      await db.execute("DROP TABLE PreferenceAssessment;");
+      await db.execute("DROP TABLE ARTRefill;");
+      _onCreate(db, 9);
+    }
+    if (oldVersion < 10) {
+      print('Upgrading to database version 10...');
+      print('UPGRADE NOT IMPLEMENTED, VIRAL LOAD DATA WILL BE RESET!');
+      await db.execute("DROP TABLE ViralLoad;");
+      _onCreate(db, 10);
+    }
+    if (oldVersion < 11) {
+      print('Upgrading to database version 11...');
+      print('UPGRADE NOT IMPLEMENTED, ART REFILL DATA WILL BE RESET!');
+      await db.execute("DROP TABLE ARTRefill;");
+      _onCreate(db, 11);
+    }
+    if (oldVersion < 17) {
+      print('Upgrading to database version 17...');
+      print('UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
+      await db.execute("DROP TABLE PreferenceAssessment;");
+      _onCreate(db, 17);
+    }
+    if (oldVersion < 18) {
+      print('Upgrading to database version 18...');
+      // Add new column 'enrolment_date_utc' with default value of 1970-01-01.
+      await db.execute("ALTER TABLE Patient ADD enrolment_date_utc TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z';");
+    }
+    if (oldVersion < 19) {
+      print('Upgrading to database version 19...');
+      // Add new column 'enrolment_date_utc' with default value of false (0).
+      await db.execute("ALTER TABLE Patient ADD is_vl_baseline_available BIT NOT NULL DEFAULT 0;");
+    }
+    if (oldVersion < 21) {
+      print('Upgrading to database version 21...');
+      print('UPGRADE NOT IMPLEMENTED, ART REFILL DATA WILL BE RESET!');
+      await db.execute("DROP TABLE ARTRefill;");
+      _onCreate(db, 21);
+    }
+    if (oldVersion < 28) {
+      print('Upgrading to database version 28...');
+      print('UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
+      await db.execute("DROP TABLE PreferenceAssessment;");
+      _onCreate(db, 28);
+    }
+    if (oldVersion < 29) {
+      print('Upgrading to database version 29...');
+      print('UPGRADE NOT IMPLEMENTED, VIRAL LOAD DATA WILL BE RESET!');
+      await db.execute("DROP TABLE ViralLoad;");
+      _onCreate(db, 29);
+    }
+    if (oldVersion < 30) {
+      print('Upgrading to database version 30...');
+      // create table UserData
+      await db.execute("""
+        CREATE TABLE UserData (
+          id INTEGER PRIMARY KEY,
+          created_date_utc TEXT NOT NULL,
+          first_name TEXT NOT NULL,
+          last_name TEXT NOT NULL,
+          username TEXT NOT NULL,
+          phone_number TEXT NOT NULL,
+          health_center INTEGER NOT NULL,
+          is_active BIT NOT NULL,
+          deactivated_date_utc TEXT
+        );
+        """);
+    }
+    if (oldVersion < 31) {
+      print('Upgrading to database version 31...');
+      print('UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
+      await db.execute("DROP TABLE PreferenceAssessment;");
+      _onCreate(db, 31);
     }
   }
 
@@ -266,6 +417,8 @@ class DatabaseProvider {
     await db.execute("DROP TABLE IF EXISTS Patient;");
     await db.execute("DROP TABLE IF EXISTS PreferenceAssessment;");
     await db.execute("DROP TABLE IF EXISTS ARTRefill;");
+    await db.execute("DROP TABLE IF EXISTS ViralLoad;");
+    await db.execute("DROP TABLE IF EXISTS UserData;");
     _onCreate(db, newVersion);
   }
 
@@ -297,7 +450,7 @@ class DatabaseProvider {
     await _initDB();
   }
 
-  /// Backs up the SQLite database file and exports the data as CSV to SWITCH.
+  /// Backs up the SQLite database file and exports the data as Excel file to SWITCH.
   /// Use this if no previous backup for this user exists yet. This creates
   /// version 1 of the backup documents on SWITCHtoolbox.
   /// 
@@ -306,20 +459,22 @@ class DatabaseProvider {
   /// Throws `SWITCHLoginFailedException` if the login to SWITCHtoolbox fails.
   ///
   /// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
-  Future<void> createFirstBackupOnSWITCH(LoginData loginData) async {
+  Future<void> createFirstBackupOnSWITCH(UserData loginData) async {
     if (loginData == null) {
       throw NoLoginDataException();
     }
+    // store the user data in the database before creating the first backup
+    insertUserData(loginData);
     final File dbFile = await _databaseFile;
-    final File csvFile = await DatabaseExporter.exportDatabaseToCSVFile();
-    // upload SQLite and CSV file
-    final String filename = '${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}';
+    final File excelFile = await DatabaseExporter.exportDatabaseToExcelFile();
+    // upload SQLite and Excel file
+    final String filename = '${loginData.username}_${loginData.firstName}_${loginData.lastName}';
     await uploadFileToSWITCHtoolbox(dbFile, filename: filename, folderID: SWITCH_TOOLBOX_BACKUP_FOLDER_ID);
-    await uploadFileToSWITCHtoolbox(csvFile, filename: filename, folderID: SWITCH_TOOLBOX_DATA_FOLDER_ID);
+    await uploadFileToSWITCHtoolbox(excelFile, filename: filename, folderID: SWITCH_TOOLBOX_DATA_FOLDER_ID);
     await storeLatestBackupInSharedPrefs();
   }
 
-  /// Backs up the SQLite database file and exports the data as CSV to SWITCH.
+  /// Backs up the SQLite database file and exports the data as Excel file to SWITCH.
   /// Use this only if a previous backup for this user exists. This creates a
   /// new version of the document on SWITCHtoolbox.
   ///
@@ -330,16 +485,16 @@ class DatabaseProvider {
   /// Throws `DocumentNotFoundException` if no matching backup was found.
   ///
   /// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
-  Future<void> createAdditionalBackupOnSWITCH(LoginData loginData) async {
+  Future<void> createAdditionalBackupOnSWITCH(UserData loginData) async {
     if (loginData == null) {
       throw NoLoginDataException();
     }
     final File dbFile = await _databaseFile;
-    final File csvFile = await DatabaseExporter.exportDatabaseToCSVFile();
-    // update SQLite and CSV file with new version
-    final String docName = '${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}';
+    final File excelFile = await DatabaseExporter.exportDatabaseToExcelFile();
+    // update SQLite and Excel file with new version
+    final String docName = '${loginData.username}_${loginData.firstName}_${loginData.lastName}';
     await updateFileOnSWITCHtoolbox(dbFile, docName, folderId: SWITCH_TOOLBOX_BACKUP_FOLDER_ID);
-    await updateFileOnSWITCHtoolbox(csvFile, docName, folderId: SWITCH_TOOLBOX_DATA_FOLDER_ID);
+    await updateFileOnSWITCHtoolbox(excelFile, docName, folderId: SWITCH_TOOLBOX_DATA_FOLDER_ID);
     await storeLatestBackupInSharedPrefs();
   }
 
@@ -362,11 +517,41 @@ class DatabaseProvider {
     final res = await db.insert(Patient.tableName, newPatient.toMap());
     return res;
   }
+  
+  Future<void> insertViralLoad(ViralLoad viralLoad) async {
+    final Database db = await _databaseInstance;
+    viralLoad.createdDate = DateTime.now().toUtc();
+    final res = await db.insert(ViralLoad.tableName, viralLoad.toMap());
+    return res;
+  }
 
   /// Retrieves a list of all patient ART numbers in the database.
-  Future<List<String>> retrievePatientsART() async {
+  ///
+  /// retrieveNonEligibles: whether patients that are marked as 'not eligible'
+  /// should also be retrieved (default: true).
+  ///
+  /// retrieveNonConsents: whether patients that have not given consent should
+  /// also be retrieved (default: true).
+  Future<List<String>> retrievePatientsART({retrieveNonEligibles: true, retrieveNonConsents: true}) async {
     final Database db = await _databaseInstance;
-    final res = await db.rawQuery("SELECT DISTINCT ${Patient.colARTNumber} FROM ${Patient.tableName}");
+    List<Map<String, dynamic>> res;
+    if (!retrieveNonEligibles && !retrieveNonConsents) {
+      // don't retrieve non-eligible and don't retrieve non-consent patients
+      res = await db.rawQuery(
+          "SELECT DISTINCT ${Patient.colARTNumber} FROM ${Patient.tableName} WHERE ${Patient.colIsEligible}=1 AND ${Patient.colConsentGiven}=1");
+    } else if (!retrieveNonConsents) {
+      // don't retrieve non-consent patients
+      res = await db.rawQuery(
+          "SELECT DISTINCT ${Patient.colARTNumber} FROM ${Patient.tableName} WHERE ${Patient.colConsentGiven}=1");
+    } else if (!retrieveNonEligibles) {
+      // don't retrieve non-eligible patients
+      res = await db.rawQuery(
+          "SELECT DISTINCT ${Patient.colARTNumber} FROM ${Patient.tableName} WHERE ${Patient.colIsEligible}=1");
+    } else {
+      // retrieve all
+      res = await db.rawQuery(
+          "SELECT DISTINCT ${Patient.colARTNumber} FROM ${Patient.tableName}");
+    }
     return res.isNotEmpty ? res.map((entry) => entry[Patient.colARTNumber] as String).toList() : List<String>();
   }
 
@@ -387,6 +572,7 @@ class DatabaseProvider {
     if (res.isNotEmpty) {
       for (Map<String, dynamic> map in res) {
         Patient p = Patient.fromMap(map);
+        await p.initializeViralLoadFields();
         await p.initializePreferenceAssessmentField();
         await p.initializeARTRefillField();
         list.add(p);
@@ -402,16 +588,97 @@ class DatabaseProvider {
     return res;
   }
 
+  Future<void> insertUserData(UserData userData) async {
+    final Database db = await _databaseInstance;
+    userData.createdDate = DateTime.now().toUtc();
+    final res = await db.insert(UserData.tableName, userData.toMap());
+    return res;
+  }
+
+  /// Sets the 'is_active' column to false (0) for the latest active user.
+  Future<void> deactivateCurrentUser() async {
+    final Database db = await _databaseInstance;
+    final UserData latestUser = await retrieveLatestUserData();
+    if (latestUser != null) {
+      final map = {
+        UserData.colIsActive: 0,
+        UserData.colDeactivatedDate: DateTime.now().toUtc().toIso8601String(),
+      };
+      db.update(
+        UserData.tableName,
+        map,
+        where: '${UserData.colUsername} = ?',
+        whereArgs: [latestUser.username],
+      );
+    }
+  }
+
+  Future<List<ViralLoad>> retrieveViralLoadFollowUpsForPatient(String patientART) async {
+    final Database db = await _databaseInstance;
+    final List<Map> res = await db.query(
+        ViralLoad.tableName,
+        where: '${ViralLoad.colPatientART} = ? AND ${ViralLoad.colViralLoadIsBaseline} = 0',
+        whereArgs: [patientART],
+        orderBy: '${ViralLoad.colDateOfBloodDraw}, ${ViralLoad.colCreatedDate}',
+    );
+    if (res.length > 0) {
+      return res.map((Map<dynamic, dynamic> map) => ViralLoad.fromMap(map)).toList();
+    }
+    return [];
+  }
+
+  Future<ViralLoad> retrieveViralLoadBaselineManualForPatient(String patientART) async {
+    final Database db = await _databaseInstance;
+    final List<Map> res = await db.query(
+      ViralLoad.tableName,
+      where: '${ViralLoad.colPatientART} = ? AND ${ViralLoad.colViralLoadIsBaseline} = 1 AND ${ViralLoad.colViralLoadSource} = ?',
+      whereArgs: [patientART, ViralLoadSource.MANUAL_INPUT().code],
+    );
+    assert (res.length < 2); // there should only be one baseline result per patient
+    if (res.length > 0) {
+      return res.map((Map<dynamic, dynamic> map) => ViralLoad.fromMap(map)).toList().first;
+    }
+    return null;
+  }
+
+  Future<ViralLoad> retrieveViralLoadBaselineDatabaseForPatient(String patientART) async {
+    final Database db = await _databaseInstance;
+    final List<Map> res = await db.query(
+      ViralLoad.tableName,
+      where: '${ViralLoad.colPatientART} = ? AND ${ViralLoad.colViralLoadIsBaseline} = 1 AND ${ViralLoad.colViralLoadSource} = ?',
+      whereArgs: [patientART, ViralLoadSource.DATABASE().code],
+    );
+    assert (res.length < 2); // there should only be one baseline result per patient
+    if (res.length > 0) {
+      return res.map((Map<dynamic, dynamic> map) => ViralLoad.fromMap(map)).toList().first;
+    }
+    return null;
+  }
+
   Future<PreferenceAssessment> retrieveLatestPreferenceAssessmentForPatient(String patientART) async {
     final Database db = await _databaseInstance;
     final List<Map> res = await db.query(
         PreferenceAssessment.tableName,
         where: '${PreferenceAssessment.colPatientART} = ?',
         whereArgs: [patientART],
-        orderBy: PreferenceAssessment.colCreatedDate
+        orderBy: '${PreferenceAssessment.colCreatedDate} DESC'
     );
     if (res.length > 0) {
       return PreferenceAssessment.fromMap(res.first);
+    }
+    return null;
+  }
+
+  /// Only retrieves latest active user data.
+  Future<UserData> retrieveLatestUserData() async {
+    final Database db = await _databaseInstance;
+    final List<Map> res = await db.query(
+        UserData.tableName,
+        where: '${UserData.colIsActive} = 1',
+        orderBy: '${UserData.colCreatedDate} DESC'
+    );
+    if (res.length > 0) {
+      return UserData.fromMap(res.first);
     }
     return null;
   }
@@ -429,7 +696,7 @@ class DatabaseProvider {
         ARTRefill.tableName,
         where: '${ARTRefill.colPatientART} = ?',
         whereArgs: [patientART],
-        orderBy: ARTRefill.colCreatedDate
+        orderBy: '${ARTRefill.colCreatedDate} DESC'
     );
     if (res.length > 0) {
       return ARTRefill.fromMap(res.first);
@@ -437,12 +704,7 @@ class DatabaseProvider {
     return null;
   }
 
-
-  // Debug methods (should be removed/disabled for final release)
-  // ------------------------------------------------------------
-  // TODO: remove/disable these functions for the final release
-
-  /// Retrieves all patients from the database, including duplicates created when editing a patient.
+  /// Retrieves all patient rows from the database, including all edits.
   Future<List<Patient>> retrieveAllPatients() async {
     final Database db = await _databaseInstance;
     // query the table for all patients
@@ -458,6 +720,67 @@ class DatabaseProvider {
     return list;
   }
 
+  /// Retrieves all viral load rows from the database, including all edits.
+  Future<List<ViralLoad>> retrieveAllViralLoads() async {
+    final Database db = await _databaseInstance;
+    final res = await db.query(ViralLoad.tableName);
+    List<ViralLoad> list = List<ViralLoad>();
+    if (res.isNotEmpty) {
+      for (Map<String, dynamic> map in res) {
+        ViralLoad v = ViralLoad.fromMap(map);
+        list.add(v);
+      }
+    }
+    return list;
+  }
+
+  /// Retrieves all preference assessment rows from the database, including all
+  /// edits.
+  Future<List<PreferenceAssessment>> retrieveAllPreferenceAssessments() async {
+    final Database db = await _databaseInstance;
+    final res = await db.query(PreferenceAssessment.tableName);
+    List<PreferenceAssessment> list = List<PreferenceAssessment>();
+    if (res.isNotEmpty) {
+      for (Map<String, dynamic> map in res) {
+        PreferenceAssessment pa = PreferenceAssessment.fromMap(map);
+        list.add(pa);
+      }
+    }
+    return list;
+  }
+
+  /// Retrieves all ART refill rows from the database, including all edits.
+  Future<List<ARTRefill>> retrieveAllARTRefills() async {
+    final Database db = await _databaseInstance;
+    final res = await db.query(ARTRefill.tableName);
+    List<ARTRefill> list = List<ARTRefill>();
+    if (res.isNotEmpty) {
+      for (Map<String, dynamic> map in res) {
+        ARTRefill r = ARTRefill.fromMap(map);
+        list.add(r);
+      }
+    }
+    return list;
+  }
+
+  /// Retrieves all user data rows from the database, including all edits.
+  Future<List<UserData>> retrieveAllUserData() async {
+    final Database db = await _databaseInstance;
+    final res = await db.query(UserData.tableName);
+    List<UserData> list = List<UserData>();
+    if (res.isNotEmpty) {
+      for (Map<String, dynamic> map in res) {
+        UserData u = UserData.fromMap(map);
+        list.add(u);
+      }
+    }
+    return list;
+  }
+
+  // Debug methods (should be removed/disabled for final release)
+  // ------------------------------------------------------------
+  // TODO: remove/disable these functions for the final release
+
   /// Retrieves a table's column names.
   Future<List<Map<String, dynamic>>> getTableInfo(String tableName) async {
     final Database db = await _databaseInstance;
@@ -465,13 +788,15 @@ class DatabaseProvider {
     return res;
   }
 
-  /// Deletes a patient from the Patient table and its corresponding entries from the PreferenceAssessment table.
+  /// Deletes a patient from the Patient table and its corresponding entries from all other tables.
   Future<int> deletePatient(Patient deletePatient) async {
     final Database db = await _databaseInstance;
     final String artNumber = deletePatient.artNumber;
     final int rowsDeletedPatientTable = await db.delete(Patient.tableName, where: '${Patient.colARTNumber} = ?', whereArgs: [artNumber]);
+    final int rowsDeletedViralLoadTable = await db.delete(ViralLoad.tableName, where: '${ViralLoad.colPatientART} = ?', whereArgs: [artNumber]);
     final int rowsDeletedPreferenceAssessmentTable = await db.delete(PreferenceAssessment.tableName, where: '${PreferenceAssessment.colPatientART} = ?', whereArgs: [artNumber]);
-    return rowsDeletedPatientTable + rowsDeletedPreferenceAssessmentTable;
+    final int rowsDeletedARTRefillTable = await db.delete(ARTRefill.tableName, where: '${ARTRefill.colPatientART} = ?', whereArgs: [artNumber]);
+    return rowsDeletedPatientTable + rowsDeletedViralLoadTable + rowsDeletedPreferenceAssessmentTable + rowsDeletedARTRefillTable;
   }
 
 }

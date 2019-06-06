@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:pebrapp/components/SizedButton.dart';
+import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/utils/Utils.dart';
@@ -51,11 +51,11 @@ class _DebugScreenState extends State<DebugScreen> {
             _isLoading
                 ? Padding(padding: EdgeInsets.symmetric(vertical: 17.5), child: SizedBox(width: 15.0, height: 15.0, child: CircularProgressIndicator()))
                 : SizedBox(height: 50,),
-            SizedButton(
+            PEBRAButtonRaised(
               'Get DB Info',
               onPressed: _getDBInfo,
             ),
-            SizedButton(
+            PEBRAButtonRaised(
               'Get All Patients',
               onPressed: _getAllPatients,
             ),

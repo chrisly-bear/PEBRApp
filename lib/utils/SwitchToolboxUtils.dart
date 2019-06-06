@@ -9,9 +9,9 @@ import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
-import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:path/path.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
+import 'package:pebrapp/utils/Utils.dart';
 
 /// Uploads `sourceFile` to SWITCHtoolbox.
 ///
@@ -49,26 +49,27 @@ Future<void> uploadFileToSWITCHtoolbox(File sourceFile, {String filename, int fo
 /// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
 ///
 /// Throws `DocumentNotFoundException` if backup for the loginData is not available.
-Future<void> restoreFromSWITCHtoolbox(LoginData loginData) async {
-  if (loginData == null) {
+Future<void> restoreFromSWITCHtoolbox(String username) async {
+  if (username == null) {
     throw NoLoginDataException();
   }
-  final File backupFile = await _downloadLatestBackup(loginData);
+  final File backupFile = await _downloadLatestBackup(username);
   await DatabaseProvider().restoreFromFile(backupFile);
   await PatientBloc.instance.sinkAllPatientsFromDatabase();
+  await storeLatestBackupInSharedPrefs();
 }
 
 /// Downloads the latest backup file that matches the loginData from SWITCHtoolbox.
 /// Returns null if no matching backup is found.
 ///
 /// Throws `DocumentNotFoundException` if no backup is available for the loginData.
-Future<File> _downloadLatestBackup(LoginData loginData) async {
+Future<File> _downloadLatestBackup(String username) async {
   
   // get necessary cookies
   final String _shibsessionCookie = await _getShibSession(SWITCH_USERNAME, SWITCH_PASSWORD);
   final String _mydmssessionCookie = await _getMydmsSession(_shibsessionCookie);
 
-  final String documentName = '${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}';
+  final String documentName = await _getFirstDocumentNameForDocumentStartingWith(username, SWITCH_TOOLBOX_BACKUP_FOLDER_ID, _shibsessionCookie, _mydmssessionCookie);
   final int switchDocumentId = await _getFirstDocumentIdForDocumentWithName(documentName, SWITCH_TOOLBOX_BACKUP_FOLDER_ID, _shibsessionCookie, _mydmssessionCookie);
   final int latestVersion = await _getLatestVersionOfDocument(switchDocumentId, _shibsessionCookie, _mydmssessionCookie);
   final String absoluteLink = 'https://letodms.toolbox.switch.ch/$SWITCH_TOOLBOX_PROJECT/op/op.Download.php?documentid=$switchDocumentId&version=$latestVersion';
@@ -86,14 +87,17 @@ Future<File> _downloadLatestBackup(LoginData loginData) async {
   return backupFile;
 }
 
+/// Checks if the given [username] is already taken, i.e., if a backup for the
+/// given [username] exists on SWITCHtoolbox. Returns [true] if [username]
+/// exists, [false] otherwise.
+///
 /// Throws `SWITCHLoginFailedException` if the login to SWITCHtoolbox fails.
-Future<bool> existsBackupForUser(LoginData loginData) async {
+Future<bool> existsBackupForUser(String username) async {
   final String _shibsessionCookie = await _getShibSession(SWITCH_USERNAME, SWITCH_PASSWORD);
   final String _mydmssessionCookie = await _getMydmsSession(_shibsessionCookie);
 
-  final String documentName = '${loginData.firstName}_${loginData.lastName}_${loginData.healthCenter}';
   try {
-    await _getFirstDocumentIdForDocumentWithName(documentName, SWITCH_TOOLBOX_BACKUP_FOLDER_ID, _shibsessionCookie, _mydmssessionCookie);
+    await _getFirstDocumentNameForDocumentStartingWith(username, SWITCH_TOOLBOX_BACKUP_FOLDER_ID, _shibsessionCookie, _mydmssessionCookie);
   } catch (DocumentNotFoundException) {
     return false;
   }
@@ -126,6 +130,37 @@ Future<void> updateFileOnSWITCHtoolbox(File sourceFile, String documentName, {in
   final _resp2Stream = await _req1.send();
   final _resp2 = await http.Response.fromStream(_resp2Stream);
   // TODO: return something to indicate whether the upload was successful or not
+}
+
+/// Finds the full name of the document that starts with [startsWith] in the folder [folderId].
+/// If there are several documents with a matching start string, it will return the name of the first one.
+///
+/// Throws [DocumentNotFoundException] if no matching document was found.
+Future<String> _getFirstDocumentNameForDocumentStartingWith(String startsWith, int folderId, String _shibsessionCookie, String _mydmssessionCookie) async {
+  // get list of files
+  final resp = await http.get(
+    Uri.parse('https://letodms.toolbox.switch.ch/$SWITCH_TOOLBOX_PROJECT/out/out.ViewFolder.php?folderid=$folderId'),
+    headers: {'Cookie': '$_shibsessionCookie; $_mydmssessionCookie'},
+  );
+
+  // parse html
+  final dom.Document _doc = parse(resp.body);
+  final dom.Element _tableBody = _doc.querySelector('table[class="folderView"] > tbody');
+  if (_tableBody == null) {
+    // no documents are in SWITCHtoolbox
+    throw DocumentNotFoundException();
+  }
+  final aElements = _tableBody.getElementsByTagName('a');
+
+  // find first matching document
+  for (dom.Element a in aElements) {
+    final String linkText = a.text;
+    if (linkText.startsWith(startsWith)) {
+      return linkText;
+    }
+  }
+  // no matching document found
+  throw DocumentNotFoundException();
 }
 
 /// Finds the document id of a document that matches `documentName` in the folder `folderId`.
