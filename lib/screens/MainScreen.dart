@@ -404,12 +404,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       );
     }
 
-    _formatPatientRowText(String text, {bool isActivated: true}) {
+    _formatPatientRowText(String text, {bool isActivated: true, bool highlight: false}) {
       return Text(
         text,
         style: TextStyle(
           fontSize: 18,
           color: isActivated ? Colors.black : Colors.grey,
+          fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
         ),
       );
     }
@@ -543,6 +544,25 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         nextAssessmentText = formatDate(nextAssessmentDate);
       }
 
+      bool nextRefillTextHighlighted = false;
+      bool nextAssessmentTextHighlighted = false;
+      if (nextARTRefillDate == null && lastAssessmentDate != null) {
+        nextAssessmentTextHighlighted = true;
+      } else if (nextARTRefillDate != null && lastAssessmentDate == null) {
+        nextRefillTextHighlighted = true;
+      } else if (nextARTRefillDate != null && lastAssessmentDate != null) {
+        DateTime nextAssessmentDate = calculateNextAssessment(lastAssessmentDate);
+        if (nextAssessmentDate.isBefore(nextARTRefillDate)) {
+          nextAssessmentTextHighlighted = true;
+        } else if (nextARTRefillDate.isBefore(nextAssessmentDate)) {
+          nextRefillTextHighlighted = true;
+        } else {
+          // both on the same day
+          nextAssessmentTextHighlighted = true;
+          nextRefillTextHighlighted = true;
+        }
+      }
+
       final _curCardMargin = EdgeInsets.symmetric(
           vertical: _cardMarginVertical,
           horizontal: _cardMarginHorizontal);
@@ -628,7 +648,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                     // ART Nr.
                     Expanded(child: _formatPatientRowText(patientART, isActivated: curPatient.isActivated)),
                     // Next Refill
-                    Expanded(child: _formatPatientRowText(nextRefillText, isActivated: curPatient.isActivated)),
+                    Expanded(child: _formatPatientRowText(nextRefillText, isActivated: curPatient.isActivated, highlight: nextRefillTextHighlighted)),
                     // Refill By
                     Expanded(child: _formatPatientRowText(refillByText, isActivated: curPatient.isActivated)),
                     // Support
@@ -641,7 +661,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                         child: Container(alignment: Alignment.centerLeft, child: _getViralLoadIndicator(isActivated: curPatient.isActivated)),
                     ),
                     // Next Assessment
-                    Expanded(child: _formatPatientRowText(nextAssessmentText, isActivated: curPatient.isActivated)),
+                    Expanded(child: _formatPatientRowText(nextAssessmentText, isActivated: curPatient.isActivated, highlight: nextAssessmentTextHighlighted)),
                   ],
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 ))),
