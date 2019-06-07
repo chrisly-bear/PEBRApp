@@ -4,19 +4,14 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class TransparentHeaderPage extends StatelessWidget {
-  String _title, _subtitle;
-  List<Widget> _actions;
-  Widget _child;
+  final String title, subtitle;
+  final List<Widget> actions;
+  final Widget child;
 
   static final double _headerHeight = Platform.isIOS ? 82.0 : 80.0;
   static const double _BLUR_RADIUS = 5.0;
 
-  TransparentHeaderPage({String title, String subtitle, List<Widget> actions, @required Widget child}) {
-    this._title = title;
-    this._subtitle = subtitle;
-    this._actions = actions;
-    this._child = child;
-  }
+  TransparentHeaderPage({this.title, this.subtitle, this.actions, @required this.child});
 
   Widget get _background {
     return SingleChildScrollView(
@@ -31,7 +26,7 @@ class TransparentHeaderPage extends StatelessWidget {
             Container(height: _headerHeight),
             // padding to avoid Gaussian blur
             Container(height: Platform.isIOS ? 10.0 : 12.0),
-            _child,
+            child,
           ],
         ),
       ),
@@ -42,7 +37,7 @@ class TransparentHeaderPage extends StatelessWidget {
 
     final Widget _actionBar = Row(
       mainAxisAlignment: MainAxisAlignment.end,
-      children: _actions,
+      children: actions,
     );
 
     return Container(
@@ -63,7 +58,7 @@ class TransparentHeaderPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      _buildTitleAndSubtitle(_title, _subtitle),
+                      _buildTitleAndSubtitle(title, subtitle),
                       _actionBar,
                     ]),
               ),
