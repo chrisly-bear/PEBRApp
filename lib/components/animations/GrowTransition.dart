@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// A Container widget which grows in height.
 class GrowTransition extends StatelessWidget {
   GrowTransition({this.child, this.animation});
 
