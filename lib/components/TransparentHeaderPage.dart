@@ -8,10 +8,14 @@ class TransparentHeaderPage extends StatelessWidget {
   final List<Widget> actions;
   final Widget child;
 
-  static final double _headerHeight = Platform.isIOS ? 82.0 : 80.0;
+  double _headerHeight = Platform.isIOS ? 82.0 : 80.0;
   static const double _BLUR_RADIUS = 5.0;
 
-  TransparentHeaderPage({this.title, this.subtitle, this.actions, @required this.child});
+  TransparentHeaderPage({@required this.title, this.subtitle, this.actions, @required this.child}) {
+    if (subtitle == null) {
+      _headerHeight -= 30;
+    }
+  }
 
   Widget get _background {
     return SingleChildScrollView(
@@ -35,7 +39,7 @@ class TransparentHeaderPage extends StatelessWidget {
 
   Widget get _foreground {
 
-    final Widget _actionBar = Row(
+    final Widget _actionBar = actions == null ? Container() : Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: actions,
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderMessage.dart';
@@ -25,10 +26,11 @@ class PatientScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Color.fromARGB(255, 224, 224, 224),
-        appBar: AppBar(
-          title: Text('Patient ${this._patient.artNumber}'),
-        ),
-        body: Center(child: _PatientScreenBody(context, _patient)));
+        body: TransparentHeaderPage(
+          title: 'Patient',
+          subtitle: _patient.artNumber,
+          actions: <Widget>[IconButton(onPressed: () { Navigator.of(context).pop(); }, icon: Icon(Icons.close),)],
+          child: _PatientScreenBody(context, _patient)));
   }
 }
 
@@ -69,7 +71,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       _nextRefillText = '—';
     }
 
-    return ListView(
+    return Column(
       children: <Widget>[
         _buildPatientCharacteristicsCard(),
         Row(
