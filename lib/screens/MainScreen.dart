@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
+import 'package:pebrapp/components/animations/GrowTransition.dart';
 import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
@@ -29,13 +30,15 @@ class MainScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
-  final _appBarHeight = 115.0;
+class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, TickerProviderStateMixin {
   // TODO: remove _context field and pass context via args if necessary
   BuildContext _context;
   bool _isLoading = true;
   List<Patient> _patients = [];
   Stream<AppState> _appStateStream;
+
+  final Tween _cardHeightTween = Tween<double>(begin: 0, end: 100);
+  Map<String, AnimationController> animationControllers = {};
 
   @override
   void initState() {
@@ -83,10 +86,17 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           if (indexOfExisting > -1) {
             // replace if patient exists (patient was edited)
             this._patients[indexOfExisting] = newPatient;
+            // make sure the animation has run
+            animationControllers[newPatient.artNumber].forward();
           } else {
             // add if not exists (new patient was added)
             if (newPatient.isEligible && newPatient.consentGiven) {
               this._patients.add(newPatient);
+              // add animation controller for this patient card
+              final controller = AnimationController(duration: const Duration(milliseconds: 200), vsync: this);
+              animationControllers[newPatient.artNumber] = controller;
+              // start animation
+              controller.forward();
             }
           }
         });
@@ -211,7 +221,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
             ),
             IconButton(
                 icon: Icon(Icons.refresh),
-                onPressed: PatientBloc.instance.sinkAllPatientsFromDatabase
+                onPressed: () {
+                    // reset animation
+                    animationControllers.values.forEach((AnimationController c) => c.reset());
+                    // reload patients from SQLite database
+                    PatientBloc.instance.sinkAllPatientsFromDatabase();
+                  },
             ),
             IconButton(
               icon: Icon(Icons.settings),
@@ -390,7 +405,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     const _cardMarginHorizontal = 10.0;
     const _rowPaddingVertical = 20.0;
     const _rowPaddingHorizontal = 15.0;
-    const _cardHeight = 100.0;
     const _colorBarWidth = 15.0;
 
     Text _formatHeaderRowText(String text) {
@@ -619,8 +633,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
               ]
             ),
           ),
-          child: SizedBox(
-            height: _cardHeight,
+          child: GrowTransition(
+            animation: _cardHeightTween.animate(animationControllers[curPatient.artNumber]),
             child: Card(
             color: curPatient.isActivated ? Colors.white : Colors.grey[300],
         elevation: 5.0,
