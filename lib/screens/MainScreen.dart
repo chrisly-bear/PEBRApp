@@ -13,7 +13,6 @@ import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
-import 'package:pebrapp/screens/DebugScreen.dart';
 import 'package:pebrapp/screens/NewPatientScreen.dart';
 import 'dart:ui';
 
@@ -219,10 +218,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
               onPressed: _pushIconExplanationsScreen,
             ),
             IconButton(
-              icon: Icon(Icons.bug_report),
-              onPressed: _pushDebugScreen,
-            ),
-            IconButton(
                 icon: Icon(Icons.refresh),
                 onPressed: () {
                     // reset animation
@@ -334,10 +329,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
 
   void _pushSettingsScreen() {
     _fadeInScreen(SettingsScreen());
-  }
-
-  void _pushDebugScreen() {
-    _fadeInScreen(DebugScreen());
   }
 
   void _pushIconExplanationsScreen() {
