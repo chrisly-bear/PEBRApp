@@ -307,7 +307,7 @@ class LoginBody extends StatefulWidget {
 class _LoginBodyState extends State<LoginBody> {
   final _loginFormKey = GlobalKey<FormState>();
   final _createAccountFormKey = GlobalKey<FormState>();
-  bool _createAccountMode = true;
+  bool _createAccountMode = false;
 
   UserData _userData = UserData();
   TextEditingController _usernameCtr = TextEditingController();
