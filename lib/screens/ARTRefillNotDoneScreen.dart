@@ -407,32 +407,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
         initialDate: initialDate ?? now,
         firstDate: DateTime.fromMillisecondsSinceEpoch(0),
         lastDate: DateTime.now(),
-        builder: (BuildContext context, Widget widget) {
-          return Center(
-            child: Card(
-              color: Color.fromARGB(255, 224, 224, 224),
-              child: Container(
-                width: 400,
-                height: 620,
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        child: Text(
-                          title,
-                          style: TextStyle(
-                            fontSize: 24.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      widget,
-                    ]
-                ),
-              ),
-            ),
-          );
-        });
+    );
   }
 
   patientActivatedWillChange(Patient patient, bool newStatus) {
