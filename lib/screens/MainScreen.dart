@@ -367,8 +367,16 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     );
   }
 
-  Center _bodyNoData() {
-    return Center(child: Text("No patients recorded yet. Add new patient by clicking the + icon."));
+  Widget _bodyNoData() {
+    return Padding(
+      padding: EdgeInsets.all(25.0),
+      child: Center(
+        child: Text(
+          "No patients recorded yet.\nAdd new patient by pressing the + icon.",
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
   }
 
   Column _bodyPatientTable() {
