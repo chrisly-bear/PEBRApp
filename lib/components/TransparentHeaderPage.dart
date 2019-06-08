@@ -15,6 +15,32 @@ class TransparentHeaderPage extends StatelessWidget {
   double _headerHeight = Platform.isIOS ? 82.0 : 80.0;
   static const double _BLUR_RADIUS = 5.0;
 
+  /// Page with a header and content.
+  ///
+  /// If [title], [subtitle] are null and [actions] is null or empty, the header
+  /// disappears and only the content is displayed.
+  ///
+  /// @param [child] The content that should be displayed in the popup window.
+  ///
+  /// @param [title] The title to be displayed in the header.
+  ///
+  /// @param [subtitle] The subtitle to be displayed in the header.
+  ///
+  /// @param [actions] The buttons to be displayed on the right hand side of the
+  /// header.
+  ///
+  /// @param [color] A custom color to use for the header. Default is
+  /// transparent.
+  ///
+  /// @param [blurEnabled] If the header should blur the content as it scrolls
+  /// underneath it.
+  ///
+  /// @param [elevationEnabled] If true, there will be a drop shadow underneath
+  /// the header which separates it from the content ([child]). NOTE: If no
+  /// [color] is provided the header will become grey.
+  ///
+  /// @param [safeArea] If true the header is rendered below the safe area at
+  /// the top of the screen.
   TransparentHeaderPage({@required this.child, this.title, this.subtitle,
     this.actions, this.color: Colors.transparent, this.blurEnabled: true,
     this.elevationEnabled: false, this.safeArea: true}) {
@@ -25,7 +51,12 @@ class TransparentHeaderPage extends StatelessWidget {
       _headerHeight -= 25;
     }
     if (!safeArea) {
+      // if SafeArea is disabled compensate for the zero-padding at the top of
+      // the title
       _headerHeight += 10;
+    }
+    if (title == null && subtitle == null && (actions?.length ?? 0) == 0) {
+      _headerHeight = 0;
     }
   }
 
@@ -41,7 +72,7 @@ class TransparentHeaderPage extends StatelessWidget {
             // padding until bottom of header
             Container(height: _headerHeight),
             // padding to avoid Gaussian blur
-            Container(height: Platform.isIOS ? 10.0 : 12.0),
+            Container(height: _headerHeight == 0 ? 0 : (Platform.isIOS ? 10.0 : 12.0)),
             child,
           ],
         ),

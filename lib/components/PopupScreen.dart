@@ -6,6 +6,7 @@ import 'package:pebrapp/components/TransparentHeaderPage.dart';
 class PopupScreen extends StatelessWidget {
   final Widget child;
   final String title, subtitle;
+  final List<Widget> actions;
 
   // define the maximum width of the popup screen
   static const double MAX_WIDTH = 600;
@@ -13,7 +14,23 @@ class PopupScreen extends StatelessWidget {
   double screenWidth;
   double padding;
 
-  PopupScreen({@required this.child, this.title, this.subtitle});
+  /// Popup window with a header and content.
+  ///
+  /// If [actions] is null then a close button is displayed by default.
+  ///
+  /// If [title], [subtitle] are null and [actions] is empty, the header
+  /// disappears and only the content is displayed.
+  ///
+  /// @param [child] The content that should be displayed in the popup window.
+  ///
+  /// @param [title] The title to be displayed in the header.
+  ///
+  /// @param [subtitle] The subtitle to be displayed in the header.
+  ///
+  /// @param [actions] The buttons to be displayed on the right hand side of the
+  /// header. If it is null, a close button is displayed by default. If
+  /// no buttons should be displayed, pass an empty list (`[]`).
+  PopupScreen({@required this.child, this.title, this.subtitle, this.actions});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +53,7 @@ class PopupScreen extends StatelessWidget {
               title: title,
               subtitle: subtitle,
               child: child,
-              actions: <Widget>[
+              actions: actions ?? [
                 IconButton(
                   alignment: Alignment.topCenter,
 //                padding: EdgeInsets.all(0.0),
