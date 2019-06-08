@@ -1,5 +1,7 @@
 
 import 'package:flutter/material.dart';
+import 'package:pebrapp/components/PopupScreen.dart';
+import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 
 class IconExplanationsScreen extends StatefulWidget {
   @override
@@ -10,75 +12,47 @@ class _IconExplanationsScreenState extends State<IconExplanationsScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-    Widget _body = Center(
-      child: Card(
-        color: Color.fromARGB(255, 224, 224, 224),
-        child: Container(
-          width: 450,
-          height: 600,
-          child: _buildSettingsBody(context),
-        ),
+    return PopupScreen(
+      title: 'Icon Explanations',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          _makeExplanation('assets/icons/nurse_clinic_fett.png', SupportPreferencesSelection.NURSE_CLINIC_DESCRIPTION),
+          _makeExplanation('assets/icons/saturday_clinic_club_fett.png', SupportPreferencesSelection.SATURDAY_CLINIC_CLUB_DESCRIPTION),
+          _makeExplanation('assets/icons/youth_club_fett.png', SupportPreferencesSelection.COMMUNITY_YOUTH_CLUB_DESCRIPTION),
+          _makeExplanation('assets/icons/phonecall_pe_fett.png', SupportPreferencesSelection.PHONE_CALL_PE_DESCRIPTION),
+          _makeExplanation('assets/icons/homevisit_pe_fett.png', SupportPreferencesSelection.HOME_VISIT_PE_DESCRIPTION),
+          _makeExplanation('assets/icons/schooltalk_pe_fett.png', SupportPreferencesSelection.SCHOOL_VISIT_PE_DESCRIPTION),
+          _makeExplanation('assets/icons/pitso_fett.png', SupportPreferencesSelection.PITSO_VISIT_PE_DESCRIPTION),
+          SizedBox(height: 30),
+        ],
       ),
     );
-
-    return Scaffold(
-      backgroundColor: Colors.black.withOpacity(0.50),
-      body: _body
-    );
   }
 
-  Widget _buildSettingsBody(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Container(
-          alignment: Alignment.centerRight,
-          child: IconButton(icon: Icon(Icons.close), onPressed: () {Navigator.of(context).popUntil(ModalRoute.withName('/'));}),
-        ),
-        Expanded(child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            SizedBox(height: 30,),
-            Text('Icon Explanations',
-              style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),
+  Padding _makeExplanation(String iconAsset, String explanation) {
+    return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+        child: Row(
+          children: [
+            Image.asset(
+              iconAsset,
+              height: 30,
             ),
-            SizedBox(height: 30,),
-            _makeExplanation('assets/icons/saturday_clinic_club_fett.png', 'Saturday Clinic Club (SCC)'),
-            _makeExplanation('assets/icons/youth_club_fett.png', 'Community Youth Club (CTC)'),
-            _makeExplanation('assets/icons/phonecall_pe_fett.png', 'Phone Call by PE'),
-            _makeExplanation('assets/icons/homevisit_pe_fett.png', 'Home Visit by PE'),
-            _makeExplanation('assets/icons/nurse_clinic_fett.png', 'By the nurse at the clinic'),
-            _makeExplanation('assets/icons/schooltalk_pe_fett.png', 'School visit and health talk by PE'),
-          ],
-        ),
-        ),
-      ],
-    );
-  }
-
-}
-
-Padding _makeExplanation(String iconAsset, String explanation) {
-  return Padding(
-      padding: const EdgeInsets.only(left: 30),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Image.asset(
-            iconAsset,
-            height: 30,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Text(
-              explanation,
-              style: TextStyle(
-                fontSize: 20,
+            SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                explanation,
+                maxLines: 9, // may have as many lines as necessary
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 20,
+                ),
               ),
             ),
-          )
-        ],
-      )
-  );
+          ],
+        )
+    );
+  }
+
 }
