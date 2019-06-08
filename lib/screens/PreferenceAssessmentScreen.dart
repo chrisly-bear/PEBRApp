@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderDaysBeforeSelection.dart';
@@ -33,10 +34,13 @@ class PreferenceAssessmentScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Color.fromARGB(255, 224, 224, 224),
-        appBar: AppBar(
-          title: Text('Preference Assessment: ${this._patient.artNumber}'),
+        body: TransparentHeaderPage(
+          title: 'Preference Assessment',
+          subtitle: _patient.artNumber,
+          child: PreferenceAssessmentForm(_patient),
+          actions: <Widget>[IconButton(icon: Icon(Icons.close), onPressed: Navigator.of(context).pop)],
         ),
-        body: Center(child: PreferenceAssessmentForm(_patient)));
+    );
   }
 }
 
@@ -135,7 +139,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   Widget build(BuildContext context) {
     return Form(
         key: _formKey,
-        child: ListView(
+        child: Column(
       children: <Widget>[
         _buildTitle('ART Refill'),
         _buildARTRefillCard(),
