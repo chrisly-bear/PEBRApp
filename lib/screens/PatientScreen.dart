@@ -87,12 +87,14 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         Padding(padding: EdgeInsets.symmetric(horizontal: 20.0), child: Text('Use this option to correct a wrong entry from the database.', textAlign: TextAlign.center)),
         _buildPreferencesCard(),
         _buildTitle('Next Preference Assessment'),
-        Text(_nextAssessmentText),
+        Text(_nextAssessmentText, style: TextStyle(fontSize: 16.0)),
+        SizedBox(height: 10.0),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [PEBRAButtonRaised('Start Assessment', onPressed: () { _pushPreferenceAssessmentScreen(_context, _patient); })]),
         _buildTitle('Next ART Refill'),
-        Text(_nextRefillText),
+        Text(_nextRefillText, style: TextStyle(fontSize: 16.0)),
+        SizedBox(height: 10.0),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [PEBRAButtonRaised('Manage Refill', onPressed: () { _pushARTRefillScreen(_context, _patient, _nextRefillText); })]),
