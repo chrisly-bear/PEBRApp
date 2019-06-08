@@ -3,25 +3,23 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
+import 'package:pebrapp/components/animations/GrowTransition.dart';
 import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
-import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/UserData.dart';
-import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
-import 'package:pebrapp/screens/DebugScreen.dart';
 import 'package:pebrapp/screens/NewPatientScreen.dart';
 import 'dart:ui';
 
 import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:pebrapp/screens/IconExplanationsScreen.dart';
 import 'package:pebrapp/screens/PatientScreen.dart';
-import 'package:pebrapp/components/PageHeader.dart';
+import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
@@ -31,13 +29,18 @@ class MainScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
-  final _appBarHeight = 115.0;
+class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, TickerProviderStateMixin {
   // TODO: remove _context field and pass context via args if necessary
   BuildContext _context;
   bool _isLoading = true;
   List<Patient> _patients = [];
   Stream<AppState> _appStateStream;
+
+  static const int _ANIMATION_TIME = 800; // in milliseconds
+  final Animatable<double> _cardHeightTween = Tween<double>(begin: 0, end: 100).chain(
+      CurveTween(curve: Curves.ease)
+  );
+  Map<String, AnimationController> animationControllers = {};
 
   @override
   void initState() {
@@ -85,10 +88,17 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           if (indexOfExisting > -1) {
             // replace if patient exists (patient was edited)
             this._patients[indexOfExisting] = newPatient;
+            // make sure the animation has run
+            animationControllers[newPatient.artNumber].forward();
           } else {
             // add if not exists (new patient was added)
             if (newPatient.isEligible && newPatient.consentGiven) {
               this._patients.add(newPatient);
+              // add animation controller for this patient card
+              final controller = AnimationController(duration: const Duration(milliseconds: _ANIMATION_TIME), vsync: this);
+              animationControllers[newPatient.artNumber] = controller;
+              // start animation
+              controller.forward();
             }
           }
         });
@@ -198,20 +208,31 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           onPressed: _pushNewPatientScreen,
           child: Icon(Icons.add),
         ),
-        body: Stack(
-          children: <Widget>[
-            _bodyToDisplayBasedOnState(),
-            Container(
-              height: _appBarHeight,
-              child: ClipRect(
-                child: BackdropFilter(
-                  filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                  child: _customHeightAppBar(),
-                ),
-              ),
+        body: TransparentHeaderPage(
+          title: 'Patients',
+          subtitle: 'Overview',
+          child: _bodyToDisplayBasedOnState(),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.info),
+              onPressed: _pushIconExplanationsScreen,
+            ),
+            IconButton(
+                icon: Icon(Icons.refresh),
+                onPressed: () {
+                    // reset animation
+                    animationControllers.values.forEach((AnimationController c) => c.reset());
+                    // reload patients from SQLite database
+                    PatientBloc.instance.sinkAllPatientsFromDatabase();
+                  },
+            ),
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: _pushSettingsScreen,
             ),
           ],
-        ));
+        ),
+    );
   }
 
   // Gets called when the application comes to the foreground.
@@ -287,96 +308,35 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     }
   }
 
-  _customHeightAppBar() {
-    return AppBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      // This is a hack so we can increase the height of the AppBar
-//      bottom: PreferredSize(
-//        child: Container(),
-//        preferredSize: Size.fromHeight(35),
-//      ),
-      flexibleSpace: PageHeader(title: 'Patients', subtitle: 'Overview'),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.info),
-          onPressed: _pushIconExplanationsScreen,
-        ),
-        IconButton(
-          icon: Icon(Icons.bug_report),
-          onPressed: _pushDebugScreen,
-        ),
-        IconButton(
-          icon: Icon(Icons.refresh),
-          onPressed: PatientBloc.instance.sinkAllPatientsFromDatabase
-        ),
-        IconButton(
-          icon: Icon(Icons.settings),
-          onPressed: _pushSettingsScreen,
-        ),
-      ],
-    );
-  }
-
-  void _pushDebugScreen() {
-    Navigator.of(_context).push(
-      PageRouteBuilder<void>(
+  /// Pushes [newScreen] to the top of the navigation stack using a fade in
+  /// transition.
+  Future<T> _fadeInScreen<T extends Object>(Widget newScreen) {
+    return Navigator.of(_context).push(
+      PageRouteBuilder<T>(
         opaque: false,
         transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
           return FadeTransition(
             opacity: anim1,
-            child: widget,
+            child: widget, // child is the value returned by pageBuilder
           );
         },
         pageBuilder: (BuildContext context, _, __) {
-          return DebugScreen();
+          return newScreen;
         },
       ),
     );
   }
 
   void _pushSettingsScreen() {
-    Navigator.of(_context).push(
-      new PageRouteBuilder<void>(
-        opaque: false,
-        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
-          return FadeTransition(
-            opacity: anim1,
-            child: widget, // child is the value returned by pageBuilder
-          );
-        },
-        pageBuilder: (BuildContext context, _, __) {
-          return SettingsScreen();
-        },
-      ),
-    );
+    _fadeInScreen(SettingsScreen());
   }
 
   void _pushIconExplanationsScreen() {
-    Navigator.of(_context).push(
-      new PageRouteBuilder<void>(
-        opaque: false,
-        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
-          return FadeTransition(
-            opacity: anim1,
-            child: widget, // child is the value returned by pageBuilder
-          );
-        },
-        pageBuilder: (BuildContext context, _, __) {
-          return IconExplanationsScreen();
-        },
-      ),
-    );
+    _fadeInScreen(IconExplanationsScreen());
   }
 
   void _pushNewPatientScreen() {
-    Navigator.of(_context).push(
-      new MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          return NewPatientScreen();
-        },
-      ),
-    );
+    _fadeInScreen(NewPatientScreen());
   }
 
   void _pushPatientScreen(Patient patient) {
@@ -390,7 +350,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     );
   }
 
-  _bodyLoading() {
+  Center _bodyLoading() {
     return Center(
       child: CircularProgressIndicator(
           valueColor: AlwaysStoppedAnimation<Color>(Colors.white)
@@ -398,25 +358,32 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     );
   }
 
-  _bodyNoData() {
-    return Center(child: Text("No patients recorded yet. Add new patient by clicking the + icon."));
+  Widget _bodyNoData() {
+    return Padding(
+      padding: EdgeInsets.all(25.0),
+      child: Center(
+        child: Text(
+          "No patients recorded yet.\nAdd new patient by pressing the + icon.",
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
   }
 
-  _bodyPatientTable() {
-    return ListView(
+  Column _bodyPatientTable() {
+    return Column(
       children: _buildPatientCards(),
     );
   }
 
-  _buildPatientCards() {
+  List<Widget> _buildPatientCards() {
     const _cardMarginVertical = 5.0;
     const _cardMarginHorizontal = 10.0;
     const _rowPaddingVertical = 20.0;
     const _rowPaddingHorizontal = 15.0;
-    const _cardHeight = 100.0;
     const _colorBarWidth = 15.0;
 
-    _formatHeaderRowText(String text) {
+    Text _formatHeaderRowText(String text) {
       return Text(
         text.toUpperCase(),
         style: TextStyle(
@@ -426,7 +393,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       );
     }
 
-    _formatPatientRowText(String text, {bool isActivated: true, bool highlight: false}) {
+    Text _formatPatientRowText(String text, {bool isActivated: true, bool highlight: false}) {
       return Text(
         text,
         style: TextStyle(
@@ -501,12 +468,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       return Row(children: icons);
     }
 
-    var _patientCards = <Widget>[
-      // container acting as margin for the app bar
-      Container(
-        height: _appBarHeight - 10,
-        color: Colors.transparent,
-      ),
+    List<Widget> _patientCards = <Widget>[
       Container(
           padding: EdgeInsets.symmetric(
               vertical: _cardMarginVertical,
@@ -647,8 +609,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
               ]
             ),
           ),
-          child: SizedBox(
-            height: _cardHeight,
+          child: GrowTransition(
+            animation: _cardHeightTween.animate(animationControllers[curPatient.artNumber]),
             child: Card(
             color: curPatient.isActivated ? Colors.white : Colors.grey[300],
         elevation: 5.0,

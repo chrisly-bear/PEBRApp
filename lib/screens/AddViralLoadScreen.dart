@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
@@ -21,35 +22,11 @@ class AddViralLoadScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    Widget _body = Center(
-      child: Card(
-        margin: EdgeInsets.symmetric(vertical: 100.0, horizontal: 50.0),
-        color: Color.fromARGB(255, 224, 224, 224),
-        child: Column(
-          children: <Widget>[
-            SizedBox(height: 50),
-            Text('Add Viral Load', style: TextStyle(
-              fontSize: 28.0,
-              fontWeight: FontWeight.bold,
-            ),),
-            AddViralLoadForm(_patient),
-            Expanded(child: Container(),),
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              PEBRAButtonFlat(
-                'Cancel',
-                onPressed: () { _onPressCancel(context); },
-              )
-            ]),
-            SizedBox(height: 20),
-          ],
-        ),
-      ),
-    );
-
-    return Scaffold(
-      backgroundColor: Colors.black.withOpacity(0.50),
-      body: _body,
+    return PopupScreen(
+      title: 'Add Viral Load',
+      subtitle: _patient.artNumber,
+      actions: <Widget>[IconButton(icon: Icon(Icons.close), onPressed: () { _onPressCancel(context); })],
+      child: AddViralLoadForm(_patient)
     );
   }
 }
@@ -81,20 +58,21 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
 
   @override
   Widget build(BuildContext context) {
+    const double _spacing = 20.0;
     return Form(
       key: _formKey,
       child: Column(
         children: <Widget>[
-          SizedBox(height: 50),
+          SizedBox(height: _spacing),
           _buildQuestionCard(),
-          SizedBox(height: 50),
+          SizedBox(height: _spacing),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             PEBRAButtonRaised(
               'Save',
               onPressed: () { _onSubmitForm(context); },
             )
           ]),
-          SizedBox(height: 50), // padding at bottom
+          SizedBox(height: _spacing),
         ],
       ),
     );
@@ -241,32 +219,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
         initialDate: initialDate ?? now,
         firstDate: DateTime(now.year - 1, now.month, now.day),
         lastDate: DateTime.now(),
-        builder: (BuildContext context, Widget widget) {
-          return Center(
-            child: Card(
-              color: Color.fromARGB(255, 224, 224, 224),
-              child: Container(
-                width: 400,
-                height: 620,
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        child: Text(
-                          title,
-                          style: TextStyle(
-                            fontSize: 24.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      widget,
-                    ]
-                ),
-              ),
-            ),
-          );
-        });
+    );
   }
 
   bool _validateViralLoadBaselineDate() {

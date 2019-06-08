@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderMessage.dart';
@@ -25,10 +26,11 @@ class PatientScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Color.fromARGB(255, 224, 224, 224),
-        appBar: AppBar(
-          title: Text('Patient ${this._patient.artNumber}'),
-        ),
-        body: Center(child: _PatientScreenBody(context, _patient)));
+        body: TransparentHeaderPage(
+          title: 'Patient',
+          subtitle: _patient.artNumber,
+          actions: <Widget>[IconButton(onPressed: () { Navigator.of(context).pop(); }, icon: Icon(Icons.close),)],
+          child: _PatientScreenBody(context, _patient)));
   }
 }
 
@@ -69,7 +71,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       _nextRefillText = '—';
     }
 
-    return ListView(
+    return Column(
       children: <Widget>[
         _buildPatientCharacteristicsCard(),
         Row(
@@ -83,30 +85,21 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [PEBRAButtonFlat('add manual entry', onPressed: () { _addManualEntryPressed(_context, _patient); })]),
         Padding(padding: EdgeInsets.symmetric(horizontal: 20.0), child: Text('Use this option to correct a wrong entry from the database.', textAlign: TextAlign.center)),
-        _buildTitle('Preferences'),
         _buildPreferencesCard(),
-        Center(child: _buildTitle('Next Preference Assessment')),
-        Center(child: Text(_nextAssessmentText)),
+        _buildTitle('Next Preference Assessment'),
+        Text(_nextAssessmentText, style: TextStyle(fontSize: 16.0)),
+        SizedBox(height: 10.0),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [PEBRAButtonRaised('Start Assessment', onPressed: () { _pushPreferenceAssessmentScreen(_context, _patient); })]),
-        Center(child: _buildTitle('Next ART Refill')),
-        Center(child: Text(_nextRefillText)),
+        _buildTitle('Next ART Refill'),
+        Text(_nextRefillText, style: TextStyle(fontSize: 16.0)),
+        SizedBox(height: 10.0),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [PEBRAButtonRaised('Manage Refill', onPressed: () { _pushARTRefillScreen(_context, _patient, _nextRefillText); })]),
         Container(height: 50), // padding at bottom
       ],
-    );
-  }
-
-  void _pushEditPatientScreen(Patient patient) {
-    Navigator.of(_context).push(
-      new MaterialPageRoute<Patient>(
-        builder: (BuildContext context) {
-          return EditPatientScreen(patient);
-        },
-      ),
     );
   }
 
@@ -127,27 +120,6 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     // calling setState to trigger a re-render of the page and display the new
     // viral load history
     setState(() {});
-  }
-
-  void _addManualEntryPressed(BuildContext context, Patient patient) {
-    Navigator.of(context).push(
-      new PageRouteBuilder<void>(
-        opaque: false,
-        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
-          return FadeTransition(
-            opacity: anim1,
-            child: widget, // child is the value returned by pageBuilder
-          );
-        },
-        pageBuilder: (BuildContext context, _, __) {
-          return AddViralLoadScreen(patient);
-        },
-      ),
-    ).then((_) {
-      // calling setState to trigger a re-render of the page and display the new
-      // viral load history
-      setState(() {});
-    });
   }
 
   Widget _buildRow(String description, String content) {
@@ -540,111 +512,116 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
                 ),
               ))));
     }
-    return Card(
-      margin: EdgeInsets.symmetric(horizontal: 15),
-      child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          child: Table(
-            children: [
-              TableRow(children: [
-                TableCell(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: _tableRowPaddingVertical),
-                    child: Text('ART Refill'),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTitle('Preferences'),
+        Card(
+        margin: EdgeInsets.symmetric(horizontal: 15),
+        child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: Table(
+              children: [
+                TableRow(children: [
+                  TableCell(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                          vertical: _tableRowPaddingVertical),
+                      child: Text('ART Refill'),
+                    ),
                   ),
-                ),
-                TableCell(
-                  child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: _tableRowPaddingVertical),
-                      child: _buildARTRefillText()),
-                ),
-              ]),
-              TableRow(children: [
-                TableCell(
+                  TableCell(
                     child: Padding(
                         padding: EdgeInsets.symmetric(
                             vertical: _tableRowPaddingVertical),
-                        child: Text('Adherence Reminder Message'))),
-                TableCell(
-                    child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: _tableRowPaddingVertical),
-                        child: _buildAdherenceReminderMessageText())),
-              ]),
-              TableRow(children: [
-                TableCell(
-                    child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: _tableRowPaddingVertical),
-                        child: Text('Adherence Reminder Frequency'))),
-                TableCell(
-                    child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: _tableRowPaddingVertical),
-                        child: _buildAdherenceReminderFrequencyText())),
-              ]),
-              TableRow(children: [
-                TableCell(
-                  child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: _tableRowPaddingVertical),
-                      child: Text('Adherence Reminder Notification Time')),
-                ),
-                TableCell(
-                  child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: _tableRowPaddingVertical),
-                      child: _buildAdherenceReminderTimeText()),
-                ),
-              ]),
-              TableRow(children: [
-                TableCell(
-                  child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: _tableRowPaddingVertical),
-                      child: Text('Viral Load Message (suppressed)')),
-                ),
-                TableCell(
-                  child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: _tableRowPaddingVertical),
-                      child: _buildVLMessageSuppressedText()),
-                ),
-              ]),
-              TableRow(children: [
-                TableCell(
-                  child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: _tableRowPaddingVertical),
-                      child: Text('Viral Load Message (unsuppressed)')),
-                ),
-                TableCell(
-                  child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: _tableRowPaddingVertical),
-                      child: _buildVLMessageUnsuppressedText()),
-                ),
-              ]),
-              TableRow(children: [
-                TableCell(
-                  child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: _tableRowPaddingVertical),
-                      child: Text('Support')),
-                ),
-                TableCell(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: _tableRowPaddingVertical),
-                    child: _buildSupportOptions(),
+                        child: _buildARTRefillText()),
                   ),
-                ),
-              ]),
-            ],
-          )),
-    );
+                ]),
+                TableRow(children: [
+                  TableCell(
+                      child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: _tableRowPaddingVertical),
+                          child: Text('Adherence Reminder Message'))),
+                  TableCell(
+                      child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: _tableRowPaddingVertical),
+                          child: _buildAdherenceReminderMessageText())),
+                ]),
+                TableRow(children: [
+                  TableCell(
+                      child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: _tableRowPaddingVertical),
+                          child: Text('Adherence Reminder Frequency'))),
+                  TableCell(
+                      child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: _tableRowPaddingVertical),
+                          child: _buildAdherenceReminderFrequencyText())),
+                ]),
+                TableRow(children: [
+                  TableCell(
+                    child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            vertical: _tableRowPaddingVertical),
+                        child: Text('Adherence Reminder Notification Time')),
+                  ),
+                  TableCell(
+                    child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            vertical: _tableRowPaddingVertical),
+                        child: _buildAdherenceReminderTimeText()),
+                  ),
+                ]),
+                TableRow(children: [
+                  TableCell(
+                    child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            vertical: _tableRowPaddingVertical),
+                        child: Text('Viral Load Message (suppressed)')),
+                  ),
+                  TableCell(
+                    child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            vertical: _tableRowPaddingVertical),
+                        child: _buildVLMessageSuppressedText()),
+                  ),
+                ]),
+                TableRow(children: [
+                  TableCell(
+                    child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            vertical: _tableRowPaddingVertical),
+                        child: Text('Viral Load Message (unsuppressed)')),
+                  ),
+                  TableCell(
+                    child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            vertical: _tableRowPaddingVertical),
+                        child: _buildVLMessageUnsuppressedText()),
+                  ),
+                ]),
+                TableRow(children: [
+                  TableCell(
+                    child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            vertical: _tableRowPaddingVertical),
+                        child: Text('Support')),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                          vertical: _tableRowPaddingVertical),
+                      child: _buildSupportOptions(),
+                    ),
+                  ),
+                ]),
+              ],
+            )),
+      ),
+    ]);
 
   }
 
@@ -658,9 +635,11 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     );
   }
 
-  void _pushARTRefillScreen(BuildContext context, Patient patient, String nextRefillDate) {
-    Navigator.of(context).push(
-      new PageRouteBuilder<void>(
+  /// Pushes [newScreen] to the top of the navigation stack using a fade in
+  /// transition.
+  Future<T> _fadeInScreen<T extends Object>(Widget newScreen) {
+    return Navigator.of(_context).push(
+      PageRouteBuilder<T>(
         opaque: false,
         transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
           return FadeTransition(
@@ -669,10 +648,26 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           );
         },
         pageBuilder: (BuildContext context, _, __) {
-          return ARTRefillScreen(patient, nextRefillDate);
+          return newScreen;
         },
       ),
-    ).then((_) {
+    );
+  }
+
+  void _pushEditPatientScreen(Patient patient) {
+    _fadeInScreen(EditPatientScreen(patient));
+  }
+
+  void _addManualEntryPressed(BuildContext context, Patient patient) {
+    _fadeInScreen(AddViralLoadScreen(patient)).then((_) {
+      // calling setState to trigger a re-render of the page and display the new
+      // viral load history
+      setState(() {});
+    });
+  }
+
+  void _pushARTRefillScreen(BuildContext context, Patient patient, String nextRefillDate) {
+    _fadeInScreen(ARTRefillScreen(patient, nextRefillDate)).then((_) {
       // calling setState to trigger a re-render of the page and display the new
       // ART Refill Date
       setState(() {});

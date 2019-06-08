@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
@@ -34,6 +35,7 @@ class PatientBloc {
   /// [AppStatePatientData] events or an [AppStateNoData] event if there are no
   /// patients in the database.
   Future<void> sinkAllPatientsFromDatabase() async {
+    final random = Random();
     _appStateStreamController.sink.add(AppStateLoading());
     final List<Patient> patientList = await DatabaseProvider().retrieveLatestPatients();
     if (patientList.isEmpty) {
@@ -43,6 +45,7 @@ class PatientBloc {
     for (Patient p in patientList) {
       print('Putting patient ${p.artNumber} in the sink');
       _appStateStreamController.sink.add(AppStatePatientData(p));
+//      await Future.delayed(Duration(milliseconds: 200 + random.nextInt(1800)));
     }
   }
 

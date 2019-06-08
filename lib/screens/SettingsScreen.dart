@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/HealthCenter.dart';
 import 'package:pebrapp/database/models/UserData.dart';
@@ -37,22 +38,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
 
-    Widget _body = Center(
-      child: Card(
-        color: Color.fromARGB(255, 224, 224, 224),
+    if (_isLoading) {
+      print('~~~ LOADING SCREEN ~~~');
+      return PopupScreen(
+        actions: [],
         child: Container(
-          width: 400,
-          height: 700,
-          child: _isLoading ? Center(child: Text('Loading...')) : (
-              _loginData == null ? LoginBody() : Center(child: SettingsBody(this._loginData))),
+          padding: EdgeInsets.all(20.0),
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          ),
         ),
-      ),
+      );
+    }
+    if (_loginData == null) {
+      print('~~~ LOGIN/CREATE ACCOUNT SCREEN ~~~');
+      return PopupScreen(
+        actions: [],
+        child:LoginBody(),
+      );
+    }
+    print('~~~ SETTINGS SCREEN ~~~');
+    return PopupScreen(
+      title: 'Settings',
+      child: SettingsBody(this._loginData),
+      actions: [IconButton(icon: Icon(Icons.close), onPressed: () {Navigator.of(context).popUntil(ModalRoute.withName('/'));})],
     );
 
-    return Scaffold(
-      backgroundColor: Colors.black.withOpacity(0.50),
-      body: _body
-    );
   }
 }
 
@@ -86,45 +97,65 @@ class _SettingsBodyState extends State<SettingsBody> {
     });
   }
 
+  Widget _buildRow(String description, String content) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 5.0),
+      child: Row(
+        children: <Widget>[
+          Expanded(flex: 1, child: Text(description)),
+          Expanded(flex: 1, child: Text(content ?? '—')),
+        ],
+      ),
+    );
+  }
+
+  _buildUserDataCard() {
+    return Card(
+      margin: EdgeInsets.symmetric(horizontal: 15),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        child: Column(
+          children: [
+            _buildRow('Name', '${loginData.firstName} ${loginData.lastName}'),
+            _buildRow('Username', loginData.username),
+            _buildRow('Health Center', loginData.healthCenter.description),
+            _buildRow('Phone Number', loginData.phoneNumber),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    const double _spacing = 20.0;
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
+        _buildUserDataCard(),
+        SizedBox(height: _spacing),
+        PEBRAButtonRaised('Set PIN'),
+        SizedBox(height: _spacing),
+        PEBRAButtonRaised('Restore', onPressed: _isLoading ? null : () {_onPressRestoreButton(context);},),
+        PEBRAButtonRaised('Start Backup', onPressed: _isLoading ? null : () {_onPressBackupButton(context);},),
+        SizedBox(height: 5.0),
         Container(
-          alignment: Alignment.centerRight,
-          child: IconButton(icon: Icon(Icons.close), onPressed: () {Navigator.of(context).popUntil(ModalRoute.withName('/'));}),
-        ),
-        Expanded(child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-              Text('${loginData.username}',
-                style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              Text('${loginData.firstName} ${loginData.lastName}',
-                style: TextStyle(fontSize: 24.0),
-              ),
-              Text('${loginData.healthCenter.description}',
-                style: TextStyle(fontSize: 24.0),
-              ),
-            Text('${loginData.phoneNumber}',
-              style: TextStyle(fontSize: 24.0),
-            ),
-            _isLoading
-                ? Padding(padding: EdgeInsets.symmetric(vertical: 17.5), child: SizedBox(width: 15.0, height: 15.0, child: CircularProgressIndicator()))
-                : SizedBox(height: 50,),
-              PEBRAButtonRaised('Set PIN'),
-              PEBRAButtonRaised('Start Backup', onPressed: _isLoading ? null : () {_onPressBackupButton(context);},),
+          height: 40,
+          child: Column(
+            mainAxisAlignment: _isLoading ? MainAxisAlignment.center : MainAxisAlignment.start,
+            children: _isLoading ? [SizedBox(width: 15.0, height: 15.0, child: CircularProgressIndicator())] : [
               Text("last backup:"),
               Text(lastBackup),
-              PEBRAButtonRaised('Restore', onPressed: _isLoading ? null : () {_onPressRestoreButton(context);},),
-              PEBRAButtonRaised('Logout', onPressed: () {_onPressLogout(context);},),
-              PEBRAButtonRaised('Transfer Tablet', onPressed: () {_onPressTransferTablet(context);},),
-              Text('Use this option if you want to keep the patient data on the device but change the user or health center.', textAlign: TextAlign.center,),
-            ],
-          ),
+            ]),
         ),
+        SizedBox(height: _spacing),
+        PEBRAButtonRaised('Logout', onPressed: () {_onPressLogout(context);},),
+        PEBRAButtonRaised('Transfer Device', onPressed: () {_onPressTransferTablet(context);},),
+        SizedBox(height: 5.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25.0),
+          child: Text('Use this option if you want to keep the patient data on the device but change the user or health center.', textAlign: TextAlign.center,),
+        ),
+        SizedBox(height: _spacing),
       ],
     );
   }
@@ -276,7 +307,7 @@ class LoginBody extends StatefulWidget {
 class _LoginBodyState extends State<LoginBody> {
   final _loginFormKey = GlobalKey<FormState>();
   final _createAccountFormKey = GlobalKey<FormState>();
-  bool _createAccountMode = true;
+  bool _createAccountMode = false;
 
   UserData _userData = UserData();
   TextEditingController _usernameCtr = TextEditingController();
@@ -290,7 +321,6 @@ class _LoginBodyState extends State<LoginBody> {
     return Form(
       key: _createAccountMode ? _createAccountFormKey : _loginFormKey,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           _formBlock(),
           _switchModeBlock(),
@@ -409,9 +439,7 @@ class _LoginBodyState extends State<LoginBody> {
           padding: EdgeInsets.only(top: 25.0, bottom: 10.0),
           child: Text(_createAccountMode ? 'Create Account' : 'Login', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0),),
         ),
-        Container(
-          width: 500,
-          child: Card(
+        Card(
             margin: EdgeInsets.all(20),
             child: Padding(
               padding: EdgeInsets.all(20),
@@ -438,7 +466,6 @@ class _LoginBodyState extends State<LoginBody> {
                 ],
               ),
             ),
-          ),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -470,22 +497,20 @@ class _LoginBodyState extends State<LoginBody> {
   }
 
   _switchModeBlock() {
+    const double _spacing = 20.0;
     return Column(
       children: <Widget>[
+        SizedBox(height: _spacing),
         _createAccountMode
             ? Text("Already have an account?")
             : Text("Don't have an account yet?"),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: Center(
-            child: PEBRAButtonFlat(
-              _createAccountMode ? 'Log In' : 'Create Account',
-              onPressed: () {
-                setState(() => _createAccountMode = !_createAccountMode);
-              },
-            ),
-          ),
+        PEBRAButtonFlat(
+          _createAccountMode ? 'Log In' : 'Create Account',
+          onPressed: () {
+            setState(() => _createAccountMode = !_createAccountMode);
+          },
         ),
+        SizedBox(height: _spacing),
       ],
     );
   }

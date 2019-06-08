@@ -55,8 +55,8 @@ Future<void> restoreFromSWITCHtoolbox(String username) async {
   }
   final File backupFile = await _downloadLatestBackup(username);
   await DatabaseProvider().restoreFromFile(backupFile);
-  await PatientBloc.instance.sinkAllPatientsFromDatabase();
-  await storeLatestBackupInSharedPrefs();
+  PatientBloc.instance.sinkAllPatientsFromDatabase();
+  storeLatestBackupInSharedPrefs();
 }
 
 /// Downloads the latest backup file that matches the loginData from SWITCHtoolbox.

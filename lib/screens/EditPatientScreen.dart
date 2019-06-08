@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/PhoneAvailability.dart';
 import 'package:pebrapp/database/beans/SexualOrientation.dart';
@@ -16,28 +17,11 @@ class EditPatientScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Color.fromARGB(255, 224, 224, 224),
-        appBar: AppBar(
-          title: Text('Edit Patient: ${_existingPatient.artNumber}', key: Key('newOrEditPatientTitle')),
-        ),
-        body: Center(
-          child: _EditPatientScreenBody(_existingPatient),
-        ));
-  }
-}
-
-class _EditPatientScreenBody extends StatelessWidget {
-
-  final Patient _existingPatient;
-
-  _EditPatientScreenBody(this._existingPatient);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(children: [
-      Expanded(child: _EditPatientForm(_existingPatient)),
-    ]);
+    return PopupScreen(
+      title: 'Edit Patient',
+      subtitle: _existingPatient.artNumber,
+      child: _EditPatientForm(_existingPatient),
+    );
   }
 }
 
@@ -77,7 +61,7 @@ class _EditPatientFormState extends State<_EditPatientForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: ListView(
+      child: Column(
           children: [
             _personalInformationCard(),
             SizedBox(height: 16.0),
