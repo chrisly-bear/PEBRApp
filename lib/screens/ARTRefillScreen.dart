@@ -93,8 +93,15 @@ class ARTRefillScreen extends StatelessWidget {
 
   void _pushARTRefillNotDoneScreen(BuildContext context, Patient patient) {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) {
+      PageRouteBuilder<void>(
+        opaque: false,
+        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
+          return FadeTransition(
+            opacity: anim1,
+            child: widget, // child is the value returned by pageBuilder
+          );
+        },
+        pageBuilder: (BuildContext context, _, __) {
           return ARTRefillNotDoneScreen(patient);
         },
       ),

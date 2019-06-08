@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/database/beans/ARTRefillNotDoneReason.dart';
 import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
@@ -14,12 +15,11 @@ class ARTRefillNotDoneScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Color.fromARGB(255, 224, 224, 224),
-        appBar: AppBar(
-          title: Text('ART Refill Not Done: ${this._patient.artNumber}'),
-        ),
-        body: Center(child: ARTRefillNotDoneForm(_patient)));
+    return PopupScreen(
+      title: 'ART Refill Not Done',
+      subtitle: _patient.artNumber,
+      child: ARTRefillNotDoneForm(_patient),
+    );
   }
 }
 
@@ -57,20 +57,21 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
 
   @override
   Widget build(BuildContext context) {
+    const double _spacing = 20.0;
     return Form(
         key: _formKey,
-        child: ListView(
+        child: Column(
       children: <Widget>[
-        Container(height: 50), // padding at bottom
+        SizedBox(height: _spacing),
         _buildQuestionCard(),
-        Container(height: 50), // padding at bottom
+        SizedBox(height: _spacing),
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           PEBRAButtonRaised(
             'Save',
             onPressed: _onSubmitForm,
           )
         ]),
-        Container(height: 50), // padding at bottom
+        SizedBox(height: _spacing),
       ],
     )
     );
