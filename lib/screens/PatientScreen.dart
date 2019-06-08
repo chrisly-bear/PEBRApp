@@ -102,16 +102,6 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     );
   }
 
-  void _pushEditPatientScreen(Patient patient) {
-    Navigator.of(_context).push(
-      new MaterialPageRoute<Patient>(
-        builder: (BuildContext context) {
-          return EditPatientScreen(patient);
-        },
-      ),
-    );
-  }
-
   Future<void> _fetchFromDatabasePressed(BuildContext context, Patient patient) async {
     showDialog(
       context: context,
@@ -129,27 +119,6 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     // calling setState to trigger a re-render of the page and display the new
     // viral load history
     setState(() {});
-  }
-
-  void _addManualEntryPressed(BuildContext context, Patient patient) {
-    Navigator.of(context).push(
-      new PageRouteBuilder<void>(
-        opaque: false,
-        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
-          return FadeTransition(
-            opacity: anim1,
-            child: widget, // child is the value returned by pageBuilder
-          );
-        },
-        pageBuilder: (BuildContext context, _, __) {
-          return AddViralLoadScreen(patient);
-        },
-      ),
-    ).then((_) {
-      // calling setState to trigger a re-render of the page and display the new
-      // viral load history
-      setState(() {});
-    });
   }
 
   Widget _buildRow(String description, String content) {
@@ -660,9 +629,11 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     );
   }
 
-  void _pushARTRefillScreen(BuildContext context, Patient patient, String nextRefillDate) {
-    Navigator.of(context).push(
-      new PageRouteBuilder<void>(
+  /// Pushes [newScreen] to the top of the navigation stack using a fade in
+  /// transition.
+  Future<T> _fadeInScreen<T extends Object>(Widget newScreen) {
+    return Navigator.of(_context).push(
+      PageRouteBuilder<T>(
         opaque: false,
         transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
           return FadeTransition(
@@ -671,10 +642,26 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           );
         },
         pageBuilder: (BuildContext context, _, __) {
-          return ARTRefillScreen(patient, nextRefillDate);
+          return newScreen;
         },
       ),
-    ).then((_) {
+    );
+  }
+
+  void _pushEditPatientScreen(Patient patient) {
+    _fadeInScreen(EditPatientScreen(patient));
+  }
+
+  void _addManualEntryPressed(BuildContext context, Patient patient) {
+    _fadeInScreen(AddViralLoadScreen(patient)).then((_) {
+      // calling setState to trigger a re-render of the page and display the new
+      // viral load history
+      setState(() {});
+    });
+  }
+
+  void _pushARTRefillScreen(BuildContext context, Patient patient, String nextRefillDate) {
+    _fadeInScreen(ARTRefillScreen(patient, nextRefillDate)).then((_) {
       // calling setState to trigger a re-render of the page and display the new
       // ART Refill Date
       setState(() {});

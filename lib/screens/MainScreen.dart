@@ -315,9 +315,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
 
   /// Pushes [newScreen] to the top of the navigation stack using a fade in
   /// transition.
-  void _fadeInScreen(Widget newScreen) {
-    Navigator.of(_context).push(
-      new PageRouteBuilder<void>(
+  Future<T> _fadeInScreen<T extends Object>(Widget newScreen) {
+    return Navigator.of(_context).push(
+      PageRouteBuilder<T>(
         opaque: false,
         transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
           return FadeTransition(
