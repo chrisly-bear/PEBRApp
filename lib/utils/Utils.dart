@@ -34,8 +34,9 @@ void showFlushBar(BuildContext context, String message, {String title, bool erro
 
   // define the maximum width of the notification
   const double MAX_WIDTH = 600;
+  const double MIN_PADDING_HORIZONTAL = 10;
   final double screenWidth = MediaQuery.of(context).size.width;
-  final double padding = max(10, (screenWidth - MAX_WIDTH)/2);
+  final double padding = max(MIN_PADDING_HORIZONTAL, (screenWidth - MAX_WIDTH)/2);
 
   Flushbar(
     flushbarPosition: FlushbarPosition.TOP,
