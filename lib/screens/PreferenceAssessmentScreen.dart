@@ -155,8 +155,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         _buildUnsuppressedCard(),
 
         Center(child: _buildTitle('Next Preference Assessment')),
-        Center(child: Text(formatDate(calculateNextAssessment(DateTime.now(), isSuppressed(_patient))))),
-        Container(height: 50), // padding at bottom
+        Center(child: Text(formatDate(calculateNextAssessment(DateTime.now(), isSuppressed(_patient))), style: TextStyle(fontSize: 16.0))),
+        SizedBox(height: 50), // padding at bottom
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           PEBRAButtonRaised(
             'Save',
