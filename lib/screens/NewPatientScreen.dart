@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/PhoneAvailability.dart';
@@ -17,24 +18,10 @@ class NewPatientScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Color.fromARGB(255, 224, 224, 224),
-        appBar: AppBar(
-          title: const Text('New Patient', key: Key('newOrEditPatientTitle'),),
-        ),
-        body: Center(
-          child: _NewPatientScreenBody(),
-        ));
-  }
-}
-
-class _NewPatientScreenBody extends StatelessWidget {
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(children: [
-      Expanded(child: _NewPatientForm()),
-    ]);
+    return PopupScreen(
+      title: 'New Patient',
+      child: _NewPatientForm(),
+    );
   }
 }
 
@@ -99,7 +86,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: ListView(
+      child: Column(
           children: [
             _personalInformationCard(),
             _consentCard(),

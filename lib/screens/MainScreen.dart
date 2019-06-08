@@ -313,65 +313,39 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     }
   }
 
-  void _pushDebugScreen() {
+  /// Pushes [newScreen] to the top of the navigation stack using a fade in
+  /// transition.
+  void _fadeInScreen(Widget newScreen) {
     Navigator.of(_context).push(
-      PageRouteBuilder<void>(
+      new PageRouteBuilder<void>(
         opaque: false,
         transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
           return FadeTransition(
             opacity: anim1,
-            child: widget,
+            child: widget, // child is the value returned by pageBuilder
           );
         },
         pageBuilder: (BuildContext context, _, __) {
-          return DebugScreen();
+          return newScreen;
         },
       ),
     );
   }
 
   void _pushSettingsScreen() {
-    Navigator.of(_context).push(
-      new PageRouteBuilder<void>(
-        opaque: false,
-        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
-          return FadeTransition(
-            opacity: anim1,
-            child: widget, // child is the value returned by pageBuilder
-          );
-        },
-        pageBuilder: (BuildContext context, _, __) {
-          return SettingsScreen();
-        },
-      ),
-    );
+    _fadeInScreen(SettingsScreen());
+  }
+
+  void _pushDebugScreen() {
+    _fadeInScreen(DebugScreen());
   }
 
   void _pushIconExplanationsScreen() {
-    Navigator.of(_context).push(
-      new PageRouteBuilder<void>(
-        opaque: false,
-        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
-          return FadeTransition(
-            opacity: anim1,
-            child: widget, // child is the value returned by pageBuilder
-          );
-        },
-        pageBuilder: (BuildContext context, _, __) {
-          return IconExplanationsScreen();
-        },
-      ),
-    );
+    _fadeInScreen(IconExplanationsScreen());
   }
 
   void _pushNewPatientScreen() {
-    Navigator.of(_context).push(
-      new MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          return NewPatientScreen();
-        },
-      ),
-    );
+    _fadeInScreen(NewPatientScreen());
   }
 
   void _pushPatientScreen(Patient patient) {

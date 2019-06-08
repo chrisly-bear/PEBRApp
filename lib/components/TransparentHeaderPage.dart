@@ -71,8 +71,10 @@ class TransparentHeaderPage extends StatelessWidget {
           children: [
             // padding until bottom of header
             Container(height: _headerHeight),
-            // padding to avoid Gaussian blur
-            Container(height: _headerHeight == 0 ? 0 : (Platform.isIOS ? 10.0 : 12.0)),
+            // padding to avoid Gaussian blur,
+            // only required if we have a header and either blurring is enabled
+            // or a shadow is displayed
+            Container(height: (_headerHeight != 0 && (blurEnabled || elevationEnabled)) ? (Platform.isIOS ? 10.0 : 12.0) : 0),
             child,
           ],
         ),
