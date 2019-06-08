@@ -39,8 +39,8 @@ class TransparentHeaderPage extends StatelessWidget {
   /// the header which separates it from the content ([child]). NOTE: If no
   /// [color] is provided the header will become grey.
   ///
-  /// @param [safeArea] If true the header is rendered below the safe area at
-  /// the top of the screen.
+  /// @param [safeArea] Set to true if the title, subtitle, actions, and content
+  /// should be rendered within the safe area bounds.
   TransparentHeaderPage({@required this.child, this.title, this.subtitle,
     this.actions, this.color: Colors.transparent, this.blurEnabled: true,
     this.elevationEnabled: false, this.safeArea: true}) {
@@ -63,9 +63,9 @@ class TransparentHeaderPage extends StatelessWidget {
   Widget get _background {
     return SingleChildScrollView(
       child: SafeArea(
-        right: false,
-        left: false,
-        bottom: false,
+        right: safeArea,
+        left: safeArea,
+        bottom: safeArea,
         top: safeArea,
         child: Column(
           children: [
@@ -95,8 +95,8 @@ class TransparentHeaderPage extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: blurEnabled ? _BLUR_RADIUS : 0, sigmaY: blurEnabled ? _BLUR_RADIUS : 0),
           child: SafeArea(
-            right: false,
-            left: false,
+            right: safeArea,
+            left: safeArea,
             bottom: false,
             top: safeArea,
             child: Container(
