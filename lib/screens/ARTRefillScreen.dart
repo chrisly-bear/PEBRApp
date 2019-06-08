@@ -26,7 +26,8 @@ class ARTRefillScreen extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        Text(_nextRefillDate),
+        Text(_nextRefillDate, style: TextStyle(fontSize: 16.0)),
+        SizedBox(height: 10.0),
         PEBRAButtonRaised('Change Date', onPressed: () { _onPressChangeDate(context); },),
         SizedBox(height: 50),
         PEBRAButtonRaised('Refill Done', onPressed: () { _onPressRefillDone(context); },),
