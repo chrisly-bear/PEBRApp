@@ -140,6 +140,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     return Form(
         key: _formKey,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         _buildTitle('ART Refill'),
         _buildARTRefillCard(),
