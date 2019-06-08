@@ -37,7 +37,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   List<Patient> _patients = [];
   Stream<AppState> _appStateStream;
 
-  final Tween _cardHeightTween = Tween<double>(begin: 0, end: 100);
+  static const int _ANIMATION_TIME = 800; // in milliseconds
+  final Animatable<double> _cardHeightTween = Tween<double>(begin: 0, end: 100).chain(
+      CurveTween(curve: Curves.ease)
+  );
   Map<String, AnimationController> animationControllers = {};
 
   @override
@@ -93,7 +96,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
             if (newPatient.isEligible && newPatient.consentGiven) {
               this._patients.add(newPatient);
               // add animation controller for this patient card
-              final controller = AnimationController(duration: const Duration(milliseconds: 200), vsync: this);
+              final controller = AnimationController(duration: const Duration(milliseconds: _ANIMATION_TIME), vsync: this);
               animationControllers[newPatient.artNumber] = controller;
               // start animation
               controller.forward();
