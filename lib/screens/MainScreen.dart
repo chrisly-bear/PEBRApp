@@ -208,6 +208,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           key: Key('addPatient'), // key can be used to find the button in integration testing
           onPressed: _pushNewPatientScreen,
           child: Icon(Icons.add),
+          backgroundColor: FLOATING_ACTION_BUTTON,
         ),
         body: TransparentHeaderPage(
           title: 'Patients',

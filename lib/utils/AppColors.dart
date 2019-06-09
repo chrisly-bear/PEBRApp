@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 const Color BACKGROUND_COLOR = Color.fromARGB(255, 224, 224, 224);
 
 // buttons
-const Color FLAT_BUTTON = Color.fromRGBO(37, 55, 208, 1.0);
-const Color RAISED_BUTTON = Color.fromRGBO(37, 55, 208, 1.0);
+const Color _CUSTOM_BLUE = Color.fromRGBO(37, 55, 208, 1.0);
+const Color FLAT_BUTTON = _CUSTOM_BLUE;
+const Color RAISED_BUTTON = _CUSTOM_BLUE;
+const Color FLOATING_ACTION_BUTTON = _CUSTOM_BLUE;
 const Color RAISED_BUTTON_TEXT = Colors.white;
 const Color BUTTON_INACTIVE = Colors.grey;
 
