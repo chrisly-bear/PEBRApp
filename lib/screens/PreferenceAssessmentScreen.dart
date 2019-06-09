@@ -34,7 +34,7 @@ class PreferenceAssessmentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: AppColors.BACKGROUND_COLOR,
+        backgroundColor: BACKGROUND_COLOR,
         body: TransparentHeaderPage(
           title: 'Preference Assessment',
           subtitle: _patient.artNumber,
@@ -580,7 +580,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         child:
       Row(children: [
       Text(subtitle, style: TextStyle(
-        color: Colors.grey,
+        color: DATA_SUBTITLE_TEXT,
         fontStyle: FontStyle.italic,
         fontSize: 15.0,
       ),)
@@ -762,13 +762,13 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
                 }
               },
             ),
-            Divider(color: Colors.black87, height: 1.0,),
+            Divider(color: CUSTOM_FORM_FIELD_UNDERLINE, height: 1.0,),
             _adherenceReminderTimeValid ? Container() : Padding(
               padding: const EdgeInsets.only(top: 5.0),
               child: Text(
                 'Please select a time',
                 style: TextStyle(
-                  color: Colors.red,
+                  color: CUSTOM_FORM_FIELD_ERROR_TEXT,
                   fontSize: 12.0,
                 ),
               ),

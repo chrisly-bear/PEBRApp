@@ -26,8 +26,8 @@ class PEBRAButtonFlat extends StatelessWidget {
           this._buttonText.toUpperCase(),
           style: TextStyle(
             color: this.onPressed == null
-                ? Colors.grey
-                : AppColors.FLAT_BUTTON,
+                ? BUTTON_INACTIVE
+                : FLAT_BUTTON,
           ),
         ),
       ),

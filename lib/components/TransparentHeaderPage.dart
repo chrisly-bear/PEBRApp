@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:pebrapp/utils/AppColors.dart';
 
 class TransparentHeaderPage extends StatelessWidget {
   final String title, subtitle;
@@ -90,7 +91,7 @@ class TransparentHeaderPage extends StatelessWidget {
     );
 
     return Container(
-      decoration: BoxDecoration(color: color, boxShadow: elevationEnabled ? [BoxShadow(color: Colors.grey, spreadRadius: 10.0, blurRadius: 5.0)] : null),
+      decoration: BoxDecoration(color: color, boxShadow: elevationEnabled ? [BoxShadow(color: HEADER_DROPSHADOW, spreadRadius: 10.0, blurRadius: 5.0)] : null),
       child: ClipRect(
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: blurEnabled ? _BLUR_RADIUS : 0, sigmaY: blurEnabled ? _BLUR_RADIUS : 0),
@@ -154,7 +155,7 @@ class TransparentHeaderPage extends StatelessWidget {
       style: TextStyle(
         fontSize: 36,
         fontWeight: FontWeight.bold,
-        color: Colors.black,
+        color: HEADER_TITLE,
       ),
       overflow: TextOverflow.fade,
       softWrap: false,
@@ -167,7 +168,7 @@ class TransparentHeaderPage extends StatelessWidget {
       style: TextStyle(
         fontSize: 24,
         fontWeight: FontWeight.bold,
-        color: Colors.black,
+        color: HEADER_SUBTITLE,
       ),
       overflow: TextOverflow.fade,
       softWrap: false,

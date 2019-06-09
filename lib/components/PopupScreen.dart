@@ -40,14 +40,14 @@ class PopupScreen extends StatelessWidget {
     padding = max(MIN_PADDING, (screenWidth - MAX_WIDTH)/2);
 
     return Scaffold(
-      backgroundColor: Colors.black.withOpacity(0.50),
+      backgroundColor: POPUP_BEHIND,
       body: SafeArea(
         child: Center(
           child: Card(
             clipBehavior: Clip.antiAlias,
             elevation: 10.0,
             margin: EdgeInsets.symmetric(horizontal: padding, vertical: MIN_PADDING),
-            color: AppColors.BACKGROUND_COLOR,
+            color: BACKGROUND_COLOR,
 //          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0), side: BorderSide(color: Colors.black)),
             child: TransparentHeaderPage(
               safeArea: false,
@@ -62,7 +62,7 @@ class PopupScreen extends StatelessWidget {
                   onPressed: Navigator.of(context).pop,
                 ),
               ],
-              color: AppColors.BACKGROUND_COLOR,
+              color: BACKGROUND_COLOR,
               blurEnabled: false,
             ),
           ),

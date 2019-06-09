@@ -12,6 +12,7 @@ import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
+import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,7 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Container(
           padding: EdgeInsets.all(20.0),
           child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            valueColor: AlwaysStoppedAnimation<Color>(SPINNER_SETTINGS_SCREEN),
           ),
         ),
       );
@@ -475,7 +476,7 @@ class _LoginBodyState extends State<LoginBody> {
               widget: _isLoading
                   ? Container(
                       height: 10.0,
-                      child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                      child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(SPINNER_SETTINGS_SCREEN)),
                     )
                   : null,
               onPressed: _isLoading ? null : (_createAccountMode

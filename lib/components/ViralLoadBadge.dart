@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
+import 'package:pebrapp/utils/AppColors.dart';
 
 class ViralLoadBadge extends StatelessWidget {
   final ViralLoad viralLoad;
@@ -13,13 +14,13 @@ class ViralLoadBadge extends StatelessWidget {
     Color displayColor;
     if (viralLoad.isLowerThanDetectable) {
       displayText = "LTDL";
-      displayColor = Colors.grey;
+      displayColor = VL_BADGE_LTDL;
     } else if (viralLoad.isSuppressed) {
       displayText = smallSize ? "S" : "SUPPRESSED";
-      displayColor = Color.fromARGB(255, 36, 179, 124);
+      displayColor = VL_BADGE_SUPPRESSED;
     } else {
       displayText = smallSize ? "U" : "UNSUPPRESSED";
-      displayColor = Color.fromARGB(255, 255, 51, 102);
+      displayColor = VL_BADGE_UNSUPPRESSED;
     }
     return Card(
       color: displayColor,
@@ -39,7 +40,7 @@ class ViralLoadBadge extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: Colors.white,
+                color: VL_BADGE_TEXT,
   //              fontSize: 16.0,
                 fontWeight: FontWeight.w900,
               ),

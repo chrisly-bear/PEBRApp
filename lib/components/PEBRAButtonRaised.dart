@@ -22,11 +22,11 @@ class PEBRAButtonRaised extends StatelessWidget {
       ),
       child: RaisedButton(
         onPressed: this.onPressed,
-        color: AppColors.RAISED_BUTTON,
+        color: RAISED_BUTTON,
         child: widget != null ? widget : Text(
           this._buttonText.toUpperCase(),
           style: TextStyle(
-            color: Colors.white,
+            color: RAISED_BUTTON_TEXT,
           ),
         ),
       ),

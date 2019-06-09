@@ -10,6 +10,7 @@ import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
+import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pebrapp/database/beans/NoConsentReason.dart';
@@ -250,7 +251,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
               child: Text(
                 description,
                 style: TextStyle(
-                  color: value <= maxYearForEligibility && value >= minYearForEligibility ? Colors.black : Colors.grey,
+                  color: value <= maxYearForEligibility && value >= minYearForEligibility ? TEXT_ACTIVE : TEXT_INACTIVE,
                 ),
               ),
             );
@@ -490,13 +491,13 @@ class _NewPatientFormState extends State<_NewPatientForm> {
               }
             },
           ),
-          Divider(color: Colors.black87, height: 1.0,),
+          Divider(color: CUSTOM_FORM_FIELD_UNDERLINE, height: 1.0,),
           _viralLoadBaselineDateValid ? Container() : Padding(
             padding: const EdgeInsets.only(top: 5.0),
             child: Text(
               'Please select a date',
               style: TextStyle(
-                color: Colors.red,
+                color: CUSTOM_FORM_FIELD_ERROR_TEXT,
                 fontSize: 12.0,
               ),
             ),

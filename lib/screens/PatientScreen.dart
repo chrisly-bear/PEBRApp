@@ -26,7 +26,7 @@ class PatientScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: AppColors.BACKGROUND_COLOR,
+        backgroundColor: BACKGROUND_COLOR,
         body: TransparentHeaderPage(
           title: 'Patient',
           subtitle: _patient.artNumber,
@@ -188,7 +188,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
               child: Center(
                 child: Text(
                   "No viral load data available for this patient. Fetch data from the viral load database or add a new entry manually.",
-                  style: TextStyle(color: Colors.grey),
+                  style: TextStyle(color: NO_DATA_TEXT),
                 ),
               ),
             ),
@@ -202,7 +202,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           child:
           Row(children: [
             Text(subtitle, style: TextStyle(
-              color: Colors.grey,
+              color: DATA_SUBTITLE_TEXT,
               fontStyle: FontStyle.italic,
               fontSize: 15.0,
             ),)
@@ -228,7 +228,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         text.toUpperCase(),
         style: TextStyle(
           fontSize: 12.0,
-          color: Colors.grey,
+          color: VL_HISTORY_HEADER_TEXT,
           fontWeight: FontWeight.w600,
         ),
       );
@@ -301,7 +301,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     Widget _baselineVLRows() {
       Widget content;
       if (_patient.viralLoadBaselineManual == null && _patient.viralLoadBaselineDatabase == null) {
-        content = Text('No Baseline Viral Load data available', style: TextStyle(color: Colors.grey),);
+        content = Text('No Baseline Viral Load data available', style: TextStyle(color: NO_DATA_TEXT),);
       } else {
         content = Column(children: <Widget>[
           _buildViralLoadHeader(),
@@ -319,7 +319,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     Widget _followUpVLRows() {
       Widget content;
       if (vlFollowUps.length == 0) {
-        content = Text('No Follow Up Viral Load data available', style: TextStyle(color: Colors.grey),);
+        content = Text('No Follow Up Viral Load data available', style: TextStyle(color: NO_DATA_TEXT),);
       } else {
         content = Column(children: <Widget>[
           _buildViralLoadHeader(),
@@ -509,7 +509,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
                   child: Text(
                 "No preferences available for this patient. Start a new preference assessment below.",
                 style: TextStyle(
-                  color: Colors.grey,
+                  color: NO_DATA_TEXT,
                 ),
               ))));
     }
