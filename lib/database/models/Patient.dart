@@ -23,8 +23,8 @@ class Patient implements IExcelExportable {
   static final colStickerNumber = 'sticker_number';
   static final colYearOfBirth = 'year_of_birth';
   static final colIsEligible = 'is_eligible';
-  static final colIsVLBaselineAvailable = 'is_vl_baseline_available';
   // nullables:
+  static final colIsVLBaselineAvailable = 'is_vl_baseline_available';
   static final colGender = 'gender'; // nullable
   static final colSexualOrientation = 'sexual_orientation'; // nullable
   static final colVillage = 'village'; // nullable
@@ -78,8 +78,10 @@ class Patient implements IExcelExportable {
     this.stickerNumber = map[colStickerNumber];
     this.yearOfBirth = int.parse(map[colYearOfBirth]);
     this.isEligible = map[colIsEligible] == 1;
-    this.isVLBaselineAvailable = map[colIsVLBaselineAvailable] == 1;
     // nullables:
+    if (map[colIsVLBaselineAvailable] != null) {
+      this.isVLBaselineAvailable = map[colIsVLBaselineAvailable] == 1;
+    }
     this.gender = Gender.fromCode(map[colGender]);
     this.sexualOrientation = SexualOrientation.fromCode(map[colSexualOrientation]);
     this.village = map[colVillage];
@@ -107,8 +109,8 @@ class Patient implements IExcelExportable {
     map[colStickerNumber] = stickerNumber;
     map[colYearOfBirth] = yearOfBirth;
     map[colIsEligible] = isEligible;
-    map[colIsVLBaselineAvailable] = isVLBaselineAvailable;
     // nullables:
+    map[colIsVLBaselineAvailable] = isVLBaselineAvailable;
     map[colGender] = gender?.code;
     map[colSexualOrientation] = sexualOrientation?.code;
     map[colVillage] = village;
