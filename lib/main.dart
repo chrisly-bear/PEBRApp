@@ -3,7 +3,13 @@ import 'package:pebrapp/screens/MainScreen.dart';
 import 'package:pebrapp/screens/SettingsScreen.dart';
 import 'package:pebrapp/screens/IconExplanationsScreen.dart';
 
-void main() => runApp(PEBRApp());
+import 'package:flutter/foundation.dart'
+    show debugDefaultTargetPlatformOverride;
+
+void main() {
+  debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
+  runApp(PEBRApp());
+}
 
 class PEBRApp extends StatelessWidget {
   @override
