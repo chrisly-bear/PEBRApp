@@ -301,7 +301,7 @@ class DatabaseProvider {
       print('UPGRADE NOT IMPLEMENTED, DATA WILL BE RESET!');
       await db.execute("DROP TABLE Patient;");
       await db.execute("DROP TABLE PreferenceAssessment;");
-      _onCreate(db, 6);
+      await _onCreate(db, 6);
     }
     if (oldVersion < 7) {
       print('Upgrading to database version 7...');
@@ -330,7 +330,7 @@ class DatabaseProvider {
       await db.execute("DROP TABLE Patient;");
       await db.execute("DROP TABLE PreferenceAssessment;");
       await db.execute("DROP TABLE ARTRefill;");
-      _onCreate(db, 8);
+      await _onCreate(db, 8);
     }
     if (oldVersion < 9) {
       print('Upgrading to database version 9...');
@@ -338,25 +338,25 @@ class DatabaseProvider {
       await db.execute("DROP TABLE Patient;");
       await db.execute("DROP TABLE PreferenceAssessment;");
       await db.execute("DROP TABLE ARTRefill;");
-      _onCreate(db, 9);
+      await _onCreate(db, 9);
     }
     if (oldVersion < 10) {
       print('Upgrading to database version 10...');
       print('UPGRADE NOT IMPLEMENTED, VIRAL LOAD DATA WILL BE RESET!');
       await db.execute("DROP TABLE ViralLoad;");
-      _onCreate(db, 10);
+      await _onCreate(db, 10);
     }
     if (oldVersion < 11) {
       print('Upgrading to database version 11...');
       print('UPGRADE NOT IMPLEMENTED, ART REFILL DATA WILL BE RESET!');
       await db.execute("DROP TABLE ARTRefill;");
-      _onCreate(db, 11);
+      await _onCreate(db, 11);
     }
     if (oldVersion < 17) {
       print('Upgrading to database version 17...');
       print('UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
       await db.execute("DROP TABLE PreferenceAssessment;");
-      _onCreate(db, 17);
+      await _onCreate(db, 17);
     }
     if (oldVersion < 18) {
       print('Upgrading to database version 18...');
@@ -372,19 +372,19 @@ class DatabaseProvider {
       print('Upgrading to database version 21...');
       print('UPGRADE NOT IMPLEMENTED, ART REFILL DATA WILL BE RESET!');
       await db.execute("DROP TABLE ARTRefill;");
-      _onCreate(db, 21);
+      await _onCreate(db, 21);
     }
     if (oldVersion < 28) {
       print('Upgrading to database version 28...');
       print('UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
       await db.execute("DROP TABLE PreferenceAssessment;");
-      _onCreate(db, 28);
+      await _onCreate(db, 28);
     }
     if (oldVersion < 29) {
       print('Upgrading to database version 29...');
       print('UPGRADE NOT IMPLEMENTED, VIRAL LOAD DATA WILL BE RESET!');
       await db.execute("DROP TABLE ViralLoad;");
-      _onCreate(db, 29);
+      await _onCreate(db, 29);
     }
     if (oldVersion < 30) {
       print('Upgrading to database version 30...');
@@ -407,7 +407,7 @@ class DatabaseProvider {
       print('Upgrading to database version 31...');
       print('UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
       await db.execute("DROP TABLE PreferenceAssessment;");
-      _onCreate(db, 31);
+      await _onCreate(db, 31);
     }
     if (oldVersion < 32) {
       print('Upgrading to database version 32...');
@@ -416,7 +416,7 @@ class DatabaseProvider {
       await db.execute("DROP TABLE IF EXISTS PreferenceAssessment;");
       await db.execute("DROP TABLE IF EXISTS ARTRefill;");
       await db.execute("DROP TABLE IF EXISTS ViralLoad;");
-      _onCreate(db, 32);
+      await _onCreate(db, 32);
     }
   }
 
@@ -428,7 +428,7 @@ class DatabaseProvider {
     await db.execute("DROP TABLE IF EXISTS ARTRefill;");
     await db.execute("DROP TABLE IF EXISTS ViralLoad;");
     await db.execute("DROP TABLE IF EXISTS UserData;");
-    _onCreate(db, newVersion);
+    await _onCreate(db, newVersion);
   }
 
 
