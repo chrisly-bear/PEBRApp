@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
+import 'package:pebrapp/utils/AppColors.dart';
 
 class PopupScreen extends StatelessWidget {
   final Widget child;
@@ -46,7 +47,7 @@ class PopupScreen extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             elevation: 10.0,
             margin: EdgeInsets.symmetric(horizontal: padding, vertical: MIN_PADDING),
-            color: Color.fromARGB(255, 224, 224, 224),
+            color: AppColors.BACKGROUND_COLOR,
 //          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0), side: BorderSide(color: Colors.black)),
             child: TransparentHeaderPage(
               safeArea: false,
@@ -61,7 +62,7 @@ class PopupScreen extends StatelessWidget {
                   onPressed: Navigator.of(context).pop,
                 ),
               ],
-              color: Color.fromARGB(255, 224, 224, 224),
+              color: AppColors.BACKGROUND_COLOR,
               blurEnabled: false,
             ),
           ),

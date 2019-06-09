@@ -23,6 +23,7 @@ import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
+import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 class PreferenceAssessmentScreen extends StatelessWidget {
@@ -33,7 +34,7 @@ class PreferenceAssessmentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Color.fromARGB(255, 224, 224, 224),
+        backgroundColor: AppColors.BACKGROUND_COLOR,
         body: TransparentHeaderPage(
           title: 'Preference Assessment',
           subtitle: _patient.artNumber,

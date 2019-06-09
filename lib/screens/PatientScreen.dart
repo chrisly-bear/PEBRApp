@@ -15,6 +15,7 @@ import 'package:pebrapp/screens/ARTRefillScreen.dart';
 import 'package:pebrapp/screens/AddViralLoadScreen.dart';
 import 'package:pebrapp/screens/EditPatientScreen.dart';
 import 'package:pebrapp/screens/PreferenceAssessmentScreen.dart';
+import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 class PatientScreen extends StatelessWidget {
@@ -25,7 +26,7 @@ class PatientScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Color.fromARGB(255, 224, 224, 224),
+        backgroundColor: AppColors.BACKGROUND_COLOR,
         body: TransparentHeaderPage(
           title: 'Patient',
           subtitle: _patient.artNumber,

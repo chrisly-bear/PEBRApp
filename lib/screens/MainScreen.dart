@@ -22,6 +22,7 @@ import 'package:pebrapp/screens/PatientScreen.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
+import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 class MainScreen extends StatefulWidget {
@@ -202,7 +203,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   Widget build(BuildContext context) {
     _context = context;
     return Scaffold(
-        backgroundColor: Color.fromARGB(255, 224, 224, 224),
+        backgroundColor: AppColors.BACKGROUND_COLOR,
         floatingActionButton: FloatingActionButton(
           key: Key('addPatient'), // key can be used to find the button in integration testing
           onPressed: _pushNewPatientScreen,

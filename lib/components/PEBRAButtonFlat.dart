@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pebrapp/utils/AppColors.dart';
 
 class PEBRAButtonFlat extends StatelessWidget {
 
@@ -26,7 +27,7 @@ class PEBRAButtonFlat extends StatelessWidget {
           style: TextStyle(
             color: this.onPressed == null
                 ? Colors.grey
-                : Color.fromRGBO(37, 55, 208, 1.0),
+                : AppColors.FLAT_BUTTON,
           ),
         ),
       ),
