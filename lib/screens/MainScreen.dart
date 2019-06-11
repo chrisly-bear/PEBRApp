@@ -461,7 +461,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
         icons.add(_getPaddedIcon('assets/icons/no_support_fett.png', color: iconColor));
         icons.add(spacer);
       }
-      if (icons.last == spacer) {
+      if (icons.length > 0 && icons.last == spacer) {
         // remove last spacer as there are no more icons that follow it
         icons.removeLast();
       }
