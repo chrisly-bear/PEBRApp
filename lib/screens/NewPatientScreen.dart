@@ -360,6 +360,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     return _makeQuestion('Phone Number',
         child: TextFormField(
           controller: _phoneNumberCtr,
+          keyboardType: TextInputType.phone,
           validator: (value) {
             if (value.isEmpty) {
               return 'Please enter a phone number';
