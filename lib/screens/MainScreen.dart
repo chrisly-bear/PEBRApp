@@ -245,6 +245,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       return;
     }
 
+    lockApp(_context);
+
     // check if backup is due
     int daysSinceLastBackup = -1; // -1 means one day from today, i.e. tomorrow
     final DateTime lastBackup = await latestBackupFromSharedPrefs;
@@ -310,9 +312,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
 
   /// Pushes [newScreen] to the top of the navigation stack using a fade in
   /// transition.
-  Future<T> _fadeInScreen<T extends Object>(Widget newScreen) {
+  Future<T> _fadeInScreen<T extends Object>(Widget newScreen, {String routeName}) {
     return Navigator.of(_context).push(
       PageRouteBuilder<T>(
+        settings: RouteSettings(name: routeName),
         opaque: false,
         transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
           return FadeTransition(
@@ -328,15 +331,15 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   }
 
   void _pushSettingsScreen() {
-    _fadeInScreen(SettingsScreen());
+    _fadeInScreen(SettingsScreen(), routeName: '/settings');
   }
 
   void _pushIconExplanationsScreen() {
-    _fadeInScreen(IconExplanationsScreen());
+    _fadeInScreen(IconExplanationsScreen(), routeName: '/icon-explanations');
   }
 
   void _pushNewPatientScreen() {
-    _fadeInScreen(NewPatientScreen());
+    _fadeInScreen(NewPatientScreen(), routeName: '/new-patient');
   }
 
   void _pushPatientScreen(Patient patient) {

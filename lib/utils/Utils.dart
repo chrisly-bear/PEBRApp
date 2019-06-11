@@ -6,8 +6,11 @@ import 'package:flushbar/flushbar.dart';
 import 'package:pebrapp/config/SharedPreferencesConfig.dart';
 import 'package:intl/intl.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/screens/LockScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:password/password.dart';
+
 
 /// Displays a notification over the given [context].
 ///
@@ -254,4 +257,32 @@ void showErrorInPopup(e, StackTrace s, BuildContext context) {
 /// return false.
 bool isSuppressed(Patient patient) {
   return patient.mostRecentViralLoad?.isSuppressed ?? false;
+}
+
+/// Shows the lock screen, where the user has to enter their PIN code to unlock.
+Future<T> lockApp<T extends Object>(BuildContext context) {
+  return Navigator.of(context).push(
+    PageRouteBuilder<T>(
+      opaque: false,
+      settings: RouteSettings(name: '/lock'),
+      transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
+        return FadeTransition(
+          opacity: anim1,
+          child: widget, // child is the value returned by pageBuilder
+        );
+      },
+      pageBuilder: (BuildContext context, _, __) {
+        return LockScreen();
+      },
+    ),
+  );
+}
+
+hash(String string) {
+  return Password.hash(string, PBKDF2());
+}
+
+verifyHash(String string, String hash) {
+  return string == hash; // TODO: remove this and use the proper verification algorithm below
+  return Password.verify(string, hash);
 }
