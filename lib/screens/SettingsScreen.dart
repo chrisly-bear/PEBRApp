@@ -241,12 +241,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await prefs.remove(LAST_SUCCESSFUL_BACKUP_KEY);
     await DatabaseProvider().resetDatabase();
     await PatientBloc.instance.sinkAllPatientsFromDatabase();
-    // pop all flushbar notifications
-    Navigator.of(context).popUntil((Route<dynamic> route) {
-      return route.settings.name == '/settings';
+    setState(() {
+      this._loginData = null;
     });
-    // pop the settings screen itself
-    Navigator.of(context).pop();
     showFlushBar(context, 'Logged Out');
   }
 
@@ -255,12 +252,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await prefs.remove(LAST_SUCCESSFUL_BACKUP_KEY);
     await DatabaseProvider().deactivateCurrentUser();
     // Do not remove database data (otherwise this function is the same as the logout function)
-    // pop all flushbar notifications
-    Navigator.of(context).popUntil((Route<dynamic> route) {
-      return route.settings.name == '/settings';
+    setState(() {
+      this._loginData = null;
+      this._createAccountMode = true;
     });
-    // pop the settings screen itself
-    Navigator.of(context).pop();
     showFlushBar(context, 'Logged out. Create a new account now.');
   }
 
