@@ -35,6 +35,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   bool _isLoading = true;
   List<Patient> _patients = [];
   Stream<AppState> _appStateStream;
+  bool _loginLockCheckRunning = false;
+  bool _backupRunning = false;
 
   static const int _ANIMATION_TIME = 800; // in milliseconds
   final Animatable<double> _cardHeightTween = Tween<double>(begin: 0, end: 100).chain(
@@ -235,17 +237,56 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     );
   }
 
-  // Gets called when the application comes to the foreground.
+  /// Runs checks whether user is logged in / whether the app should be locked,
+  /// and whether a backup should be run simultaneously.
+  ///
+  /// Gets called when the application comes to the foreground or is run for the
+  /// first time.
   Future<void> _onAppResume() async {
+    _checkLoggedInAndLockStatus();
+    _runBackupIfDue();
+  }
+
+  /// Checks whether the user is logged in (if not shows the login screen) and
+  /// whether the app should be locked (if so it shows the PIN code screen).
+  Future<void> _checkLoggedInAndLockStatus() async {
+
+    // if _checkLoggedInAndLockStatus has already been called we do nothing
+    if (_loginLockCheckRunning) {
+      return;
+    }
+    // enable concurrency lock
+    _loginLockCheckRunning = true;
 
     // make user log in if he/she isn't already
     UserData loginData = await DatabaseProvider().retrieveLatestUserData();
     if (loginData == null) {
-      _pushSettingsScreen();
+      await _pushSettingsScreen();
+      _loginLockCheckRunning = false;
       return;
     }
 
-    lockApp(_context);
+    // lock the app
+    await lockApp(_context);
+    _loginLockCheckRunning = false;
+
+  }
+
+  /// Checks if a backup is due and if so, starts a backup.
+  Future<void> _runBackupIfDue() async {
+
+    // if backup is running, do not start another backup
+    if (_backupRunning) {
+      return;
+    }
+    _backupRunning = true;
+
+    // if user is not logged in, do not run a backup
+    UserData loginData = await DatabaseProvider().retrieveLatestUserData();
+    if (loginData == null) {
+      _backupRunning = false;
+      return;
+    }
 
     // check if backup is due
     int daysSinceLastBackup = -1; // -1 means one day from today, i.e. tomorrow
@@ -255,6 +296,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       print('days since last backup: $daysSinceLastBackup');
       if (daysSinceLastBackup < AUTO_BACKUP_EVERY_X_DAYS && daysSinceLastBackup >= 0) {
         print("backup not due yet (only due after $AUTO_BACKUP_EVERY_X_DAYS days)");
+        _backupRunning = false;
         return; // don't run a backup, we have already backed up today
       }
     }
@@ -297,7 +339,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       }
     }
     showFlushBar(_context, resultMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
-
+    _backupRunning = false;
   }
 
   Widget _bodyToDisplayBasedOnState() {
@@ -330,20 +372,20 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     );
   }
 
-  void _pushSettingsScreen() {
-    _fadeInScreen(SettingsScreen(), routeName: '/settings');
+  Future<void> _pushSettingsScreen() async {
+    await _fadeInScreen(SettingsScreen(), routeName: '/settings');
   }
 
-  void _pushIconExplanationsScreen() {
-    _fadeInScreen(IconExplanationsScreen(), routeName: '/icon-explanations');
+  Future<void> _pushIconExplanationsScreen() async {
+    await _fadeInScreen(IconExplanationsScreen(), routeName: '/icon-explanations');
   }
 
-  void _pushNewPatientScreen() {
-    _fadeInScreen(NewPatientScreen(), routeName: '/new-patient');
+  Future<void> _pushNewPatientScreen() async {
+    await _fadeInScreen(NewPatientScreen(), routeName: '/new-patient');
   }
 
-  void _pushPatientScreen(Patient patient) {
-    Navigator.of(_context).push(
+  Future<void> _pushPatientScreen(Patient patient) async {
+    await Navigator.of(_context).push(
       new MaterialPageRoute<void>(
         settings: RouteSettings(name: '/patient'),
         builder: (BuildContext context) {
