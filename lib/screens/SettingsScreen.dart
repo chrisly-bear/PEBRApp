@@ -39,6 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   TextEditingController _firstNameCtr = TextEditingController();
   TextEditingController _lastNameCtr = TextEditingController();
   TextEditingController _phoneNumberCtr = TextEditingController();
+  TextEditingController _pinCtr = TextEditingController();
   bool _isLoadingLoginBody = false;
 
 
@@ -412,6 +413,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
                 createAccountFields(),
+                TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'PIN Code',
+                    helperText: _createAccountMode ? 'at least 4 digits' : null,
+                  ),
+                  keyboardType: TextInputType.numberWithOptions(),
+                  obscureText: true,
+                  textAlign: TextAlign.center,
+                  controller: _pinCtr,
+                  inputFormatters: [
+                    WhitelistingTextInputFormatter(RegExp('[0-9]')),
+                  ],
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Please enter a PIN code';
+                    } else if (value.length < 4) {
+                      return 'At least 4 digits required';
+                    }
+                  },
+                ),
               ],
             ),
           ),
