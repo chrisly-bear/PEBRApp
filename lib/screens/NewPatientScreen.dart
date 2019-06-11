@@ -363,6 +363,8 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           validator: (value) {
             if (value.isEmpty) {
               return 'Please enter a phone number';
+            } else if (value.replaceAll(RegExp('[\\s\-]'), '').length != 8) {
+              return 'Exactly 8 digits required';
             }
           },
         ),
