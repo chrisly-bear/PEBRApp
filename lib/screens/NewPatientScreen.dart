@@ -359,8 +359,15 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     }
     return _makeQuestion('Phone Number',
         child: TextFormField(
+          decoration: InputDecoration(
+            prefixText: '+266',
+          ),
           controller: _phoneNumberCtr,
           keyboardType: TextInputType.phone,
+          inputFormatters: [
+            WhitelistingTextInputFormatter(RegExp('[0-9\\s\-]')),
+            LengthLimitingTextInputFormatter(10),
+          ],
           validator: (value) {
             if (value.isEmpty) {
               return 'Please enter a phone number';
