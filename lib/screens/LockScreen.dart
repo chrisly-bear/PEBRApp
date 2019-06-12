@@ -17,11 +17,13 @@ class _LockScreenState extends State<LockScreen> {
 
   @override
   void initState() {
-    DatabaseProvider().retrieveLatestUserData().then((UserData loginData) {
-      _storedPINHash = loginData.pinCodeHash;
-      setState(() {this._isLoading = false;});
-    });
     super.initState();
+    DatabaseProvider().retrieveLatestUserData().then((UserData loginData) {
+      loginData.pinCodeHash.then((String storedPINCodeHash) {
+        _storedPINHash = storedPINCodeHash;
+        setState(() { this._isLoading = false; });
+      });
+    });
   }
 
   @override

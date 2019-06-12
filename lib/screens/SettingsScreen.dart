@@ -210,7 +210,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     VoidCallback onNotificationButtonPress;
     setState(() { _isLoadingSettingsBody = true; });
     try {
-      await restoreFromSWITCHtoolbox(_loginData.username, _loginData.pinCodeHash);
+      await restoreFromSWITCHtoolbox(_loginData.username, await _loginData.pinCodeHash);
       setState(() {
         lastBackup = formatDateAndTime(DateTime.now());
       });
@@ -589,11 +589,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       VoidCallback onNotificationButtonPress;
       setState(() { _isLoadingLoginBody = true; });
       _userData.username = _usernameCtr.text;
-      _userData.pinCodeHash = hash(_pinCtr.text);
       _userData.firstName = _firstNameCtr.text;
       _userData.lastName = _lastNameCtr.text;
       _userData.phoneNumber = _formatPhoneNumber(_phoneNumberCtr.text, countryCode: '266');
       _userData.isActive = true;
+      final String pinCodeHash = hash(_pinCtr.text);
       try {
         final bool userExists = await existsBackupForUser(_userData.username);
         if (userExists) {
@@ -601,7 +601,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           title = 'Account could not be created';
           notificationMessage = 'User \'${_userData.username}\' already exists.';
         } else {
-          await DatabaseProvider().createFirstBackupOnSWITCH(_userData);
+          await DatabaseProvider().createFirstBackupOnSWITCH(_userData, pinCodeHash);
         }
       } catch (e, s) {
         error = true;

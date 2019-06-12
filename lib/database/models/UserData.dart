@@ -1,5 +1,9 @@
 
+import 'dart:io';
+
+import 'package:path/path.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
+import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/HealthCenter.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
@@ -12,7 +16,6 @@ class UserData implements IExcelExportable {
   static final colFirstName = 'first_name'; // foreign key to [Patient].art_number
   static final colLastName = 'last_name';
   static final colUsername = 'username';
-  static final colPINCode = 'pin_code';
   static final colPhoneNumber = 'phone_number';
   static final colHealthCenter = 'health_center';
   static final colIsActive = 'is_active';
@@ -22,7 +25,6 @@ class UserData implements IExcelExportable {
   String firstName;
   String lastName;
   String username;
-  String pinCodeHash;
   String phoneNumber;
   HealthCenter healthCenter;
   bool isActive;
@@ -31,14 +33,13 @@ class UserData implements IExcelExportable {
   // Constructors
   // ------------
 
-  UserData({this.firstName, this.lastName, this.username, this.pinCodeHash, this.phoneNumber, this.healthCenter, this.isActive});
+  UserData({this.firstName, this.lastName, this.username, this.phoneNumber, this.healthCenter, this.isActive});
 
   UserData.fromMap(map) {
     this._createdDate = DateTime.parse(map[colCreatedDate]);
     this.firstName = map[colFirstName];
     this.lastName = map[colLastName];
     this.username = map[colUsername];
-    this.pinCodeHash = map[colPINCode];
     this.phoneNumber = map[colPhoneNumber];
     this.healthCenter = HealthCenter.fromCode(map[colHealthCenter]);
     this.isActive = map[colIsActive] == 1;
@@ -55,7 +56,6 @@ class UserData implements IExcelExportable {
     map[colFirstName] = firstName;
     map[colLastName] = lastName;
     map[colUsername] = username;
-    map[colPINCode] = pinCodeHash;
     map[colPhoneNumber] = phoneNumber;
     map[colHealthCenter] = healthCenter.code;
     map[colIsActive] = isActive;
@@ -121,5 +121,11 @@ class UserData implements IExcelExportable {
 
   // ignore: unnecessary_getters_setters
   DateTime get deactivatedDate => _deactivatedDate;
+
+  Future<String> get pinCodeHash async {
+    final String filepath = join(await DatabaseProvider().databasesDirectoryPath, 'PEBRA-password');
+    final File passwordFile = File(filepath);
+    return await passwordFile.readAsString();
+  }
 
 }

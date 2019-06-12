@@ -19,7 +19,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 32;
+  static const int _DB_VERSION = 31;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -173,7 +173,6 @@ class DatabaseProvider {
           ${UserData.colId} INTEGER PRIMARY KEY,
           ${UserData.colCreatedDate} TEXT NOT NULL,
           ${UserData.colFirstName} TEXT NOT NULL,
-          ${UserData.colPINCode} TEXT NOT NULL,
           ${UserData.colLastName} TEXT NOT NULL,
           ${UserData.colUsername} TEXT NOT NULL,
           ${UserData.colPhoneNumber} TEXT NOT NULL,
@@ -410,12 +409,6 @@ class DatabaseProvider {
       await db.execute("DROP TABLE PreferenceAssessment;");
       _onCreate(db, 31);
     }
-    if (oldVersion < 32) {
-      print('Upgrading to database version 32...');
-      print('UPGRADE NOT IMPLEMENTED, USER DATA WILL BE RESET!');
-      await db.execute("DROP TABLE UserData;");
-      _onCreate(db, 32);
-    }
   }
 
   FutureOr<void> _onDowngrade(Database db, int oldVersion, int newVersion) async {
@@ -472,7 +465,7 @@ class DatabaseProvider {
   /// Throws `SWITCHLoginFailedException` if the login to SWITCHtoolbox fails.
   ///
   /// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
-  Future<void> createFirstBackupOnSWITCH(UserData loginData) async {
+  Future<void> createFirstBackupOnSWITCH(UserData loginData, String pinCodeHash) async {
     if (loginData == null) {
       throw NoLoginDataException();
     }
@@ -481,7 +474,7 @@ class DatabaseProvider {
     final String filename = '${loginData.username}_${loginData.firstName}_${loginData.lastName}';
     final File dbFile = await _databaseFile;
     final File excelFile = await DatabaseExporter.exportDatabaseToExcelFile();
-    final File passwordFile = await _createFileWithContent(filename, loginData.pinCodeHash);
+    final File passwordFile = await _createFileWithContent('PEBRA-password', pinCodeHash);
     // upload SQLite, password file, and Excel file
     await uploadFileToSWITCHtoolbox(dbFile, filename: filename, folderID: SWITCH_TOOLBOX_BACKUP_FOLDER_ID);
     await uploadFileToSWITCHtoolbox(passwordFile, filename: filename, folderID: SWITCH_TOOLBOX_PASSWORD_FOLDER_ID);

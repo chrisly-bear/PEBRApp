@@ -102,7 +102,7 @@ Future<File> _downloadPasswordFile(String username) async {
   );
 
   // store file in database directory
-  final String filepath = join(await DatabaseProvider().databasesDirectoryPath, 'PEBRApp-password');
+  final String filepath = join(await DatabaseProvider().databasesDirectoryPath, 'PEBRA-password');
   File passwordFile = File(filepath);
   passwordFile = await passwordFile.writeAsBytes(resp.bodyBytes, flush: true);
   return passwordFile;
