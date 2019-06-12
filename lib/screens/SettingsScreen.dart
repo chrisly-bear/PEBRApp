@@ -236,8 +236,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           resultMessage = 'Invalid PIN Code.';
           break;
         case NoPasswordFileException:
-          final bool newPINSuccess = await _setNewPIN(_loginData.username, context);
-          if (newPINSuccess) {
+          final String newPINHash = await _setNewPIN(_loginData.username, context);
+          if (newPINHash != null) {
             error = false;
             title = 'Restore Successful';
             resultMessage = 'New PIN set.';
@@ -258,9 +258,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showFlushBar(context, resultMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
   }
 
-  Future<bool> _setNewPIN(String username, BuildContext context) async {
+  Future<String> _setNewPIN(String username, BuildContext context) async {
     return Navigator.of(context).push(
-      PageRouteBuilder<bool>(
+      PageRouteBuilder<String>(
         settings: RouteSettings(name: '/new-pin'),
         opaque: false,
         transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
@@ -533,46 +533,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
       VoidCallback onNotificationButtonPress;
       setState(() { _isLoadingLoginBody = true; });
       final String username = _usernameCtr.text;
-      final String pinCodeHash = hash(_pinCtr.text);
-      try {
-        await restoreFromSWITCHtoolbox(username, pinCodeHash);
-        // restore was successful, go to home screen
-        Navigator.of(context).popUntil(ModalRoute.withName('/'));
-      } catch (e, s) {
-        error = true;
-        title = 'Login Failed';
-        switch (e.runtimeType) {
-        // NoLoginDataException case should never occur because we create the
-        // LoginData object at the beginning of this method
-          case SocketException:
-            notificationMessage = 'Make sure you are connected to the internet.';
-            break;
-          case SWITCHLoginFailedException:
-            notificationMessage = 'Login to SWITCH failed. Contact the development team.';
-            break;
-          case DocumentNotFoundException:
-            notificationMessage = 'User \'$username\' not found. Check your login data or create a new account.';
-            break;
-          case InvalidPINException:
-            notificationMessage = 'Invalid PIN Code.';
-            break;
-          case NoPasswordFileException:
-            final bool newPINSuccess = await _setNewPIN(username, context);
-            if (newPINSuccess) {
-              error = false;
-              title = 'Login Successful';
-              notificationMessage = 'New PIN set.';
-            } else {
-              notificationMessage = 'New PIN required.';
-            }
-            break;
-          default:
-            notificationMessage = 'An unknown error occured. Contact the development team.';
-            print('${e.runtimeType}: $e');
-            print(s);
-            onNotificationButtonPress = () {
-              showErrorInPopup(e, s, context);
-            };
+      String pinCodeHash = hash(_pinCtr.text);
+      bool retry = true;
+      while (retry) {
+        error = false;
+        onNotificationButtonPress = null;
+        retry = false;
+        try {
+          await restoreFromSWITCHtoolbox(username, pinCodeHash);
+          // restore was successful, go to home screen
+          Navigator.of(context).popUntil(ModalRoute.withName('/'));
+        } catch (e, s) {
+          error = true;
+          title = 'Login Failed';
+          switch (e.runtimeType) {
+          // NoLoginDataException case should never occur because we create the
+          // LoginData object at the beginning of this method
+            case SocketException:
+              notificationMessage =
+              'Make sure you are connected to the internet.';
+              break;
+            case SWITCHLoginFailedException:
+              notificationMessage =
+              'Login to SWITCH failed. Contact the development team.';
+              break;
+            case DocumentNotFoundException:
+              notificationMessage =
+              'User \'$username\' not found. Check your login data or create a new account.';
+              break;
+            case InvalidPINException:
+              notificationMessage = 'Invalid PIN Code.';
+              break;
+            case NoPasswordFileException:
+              final String newPINHash = await _setNewPIN(username, context);
+              if (newPINHash != null) {
+                error = false;
+                title = 'Login Successful';
+                notificationMessage = 'New PIN set.';
+                retry = true;
+                pinCodeHash = newPINHash;
+              } else {
+                notificationMessage = 'New PIN required.';
+              }
+              break;
+            default:
+              notificationMessage =
+              'An unknown error occured. Contact the development team.';
+              print('${e.runtimeType}: $e');
+              print(s);
+              onNotificationButtonPress = () {
+                showErrorInPopup(e, s, context);
+              };
+          }
         }
       }
       setState(() { _isLoadingLoginBody = false; });

@@ -91,16 +91,17 @@ class _NewPINScreenState extends State<NewPINScreen> {
         SizedBox(height: 15.0),
         PEBRAButtonFlat(
           'Cancel',
-          onPressed: _isLoading ? null : () { _closeScreen(false); },
+          onPressed: _isLoading ? null : () { _closeScreen(null); },
         ),
         SizedBox(height: 20.0),
       ],
     );
   }
 
-  /// @param [returnValue] Set to true if setting new pin was successful, false
-  /// if there was an error or the process was cancelled.
-  _closeScreen(bool returnValue) {
+  /// @param [returnValue] Set to the new pin hash if setting a new pin was
+  /// successful, set it to null if there was an error or the process was
+  /// cancelled.
+  _closeScreen(String returnValue) {
     // pop all flushbar notifications
     Navigator.of(context).popUntil((Route<dynamic> route) {
       return route.settings.name == '/new-pin';
@@ -120,7 +121,7 @@ class _NewPINScreenState extends State<NewPINScreen> {
         var file = File(filepath);
         file = await file.writeAsString(pinCodeHash, flush: true);
         await uploadFileToSWITCHtoolbox(file, filename: username, folderID: SWITCH_TOOLBOX_PASSWORD_FOLDER_ID);
-        _closeScreen(true);
+        _closeScreen(pinCodeHash);
       } catch (e, s) {
         switch (e.runtimeType) {
           case SocketException:
