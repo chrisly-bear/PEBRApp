@@ -42,6 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   TextEditingController _pinCtr = TextEditingController();
   bool _isLoadingLoginBody = false;
 
+  bool get _isLoggedIn => _loginData != null;
 
   @override
   void initState() {
@@ -72,7 +73,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       );
     }
-    if (_loginData == null) {
+    if (!_isLoggedIn) {
       print('~~~ LOGIN/CREATE ACCOUNT SCREEN ~~~');
       return WillPopScope(
         onWillPop: () => Future(() => false),
