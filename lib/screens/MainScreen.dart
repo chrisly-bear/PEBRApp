@@ -230,11 +230,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
             ),
             IconButton(
               icon: Icon(Icons.settings),
-              onPressed: () async {
-                _loginLockCheckRunning = true;
-                await _pushSettingsScreen();
-                _loginLockCheckRunning = false;
-                },
+              onPressed: _pushSettingsScreen,
             ),
           ],
         ),
