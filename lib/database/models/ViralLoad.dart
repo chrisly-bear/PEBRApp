@@ -135,9 +135,15 @@ class ViralLoad implements IExcelExportable {
   // ignore: unnecessary_getters_setters
   DateTime get createdDate => _createdDate;
 
-  /// Returns true if this viral load counts as suppressed, false if
-  /// unsuppressed, and null if viral load is not defined (e.g. because it was
-  /// lower than the detectable limit).
-  bool get isSuppressed => viralLoad == null ? null : viralLoad < VL_SUPPRESSED_THRESHOLD;
+  /// Returns true if this viral load counts as suppressed (which also the case
+  /// if it is lower than detectable limit), false if unsuppressed, and null if
+  /// viral load is not defined (which should actually never be the case).
+  bool get isSuppressed {
+    if (isLowerThanDetectable) {
+      return true;
+    }
+    // if not lower than detectable limit, then viralLoad should not be null
+    return viralLoad == null ? null : viralLoad < VL_SUPPRESSED_THRESHOLD;
+  }
 
 }

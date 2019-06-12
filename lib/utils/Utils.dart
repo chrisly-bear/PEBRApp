@@ -257,13 +257,12 @@ void showErrorInPopup(e, StackTrace s, BuildContext context) {
 }
 
 
-/// Returns true if the patient's most recent viral load is suppressed.
+/// Returns true if the patient's most recent viral load is LTDL (lower than
+/// detectable limit) or suppressed.
 ///
 /// Returns false if
 ///
 /// * there is no viral load data
-///
-/// * viral load data is lower than detectable limit
 ///
 /// * viral load data is unsuppressed.
 ///
