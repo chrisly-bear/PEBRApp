@@ -11,12 +11,15 @@ import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/InvalidPINException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
+import 'package:pebrapp/exceptions/NoPasswordFileException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pebrapp/config/SharedPreferencesConfig.dart';
+
+import 'NewPINScreen.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -232,6 +235,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         case InvalidPINException:
           resultMessage = 'Invalid PIN Code.';
           break;
+        case NoPasswordFileException:
+          await _setNewPIN(_loginData.username, context);
+          error = false;
+          title = 'Restore Successful';
+          resultMessage = 'New PIN set.';
+          break;
         default:
           resultMessage = 'An unknown error occured. Contact the development team.';
           print('${e.runtimeType}: $e');
@@ -243,6 +252,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
     setState(() { _isLoadingSettingsBody = false; });
     showFlushBar(context, resultMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
+  }
+
+  Future<void> _setNewPIN(String username, BuildContext context) async {
+    return Navigator.of(context).push(
+      PageRouteBuilder<void>(
+        settings: RouteSettings(name: '/new-pin'),
+        opaque: false,
+        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
+          return FadeTransition(
+            opacity: anim1,
+            child: widget,
+          );
+        },
+        pageBuilder: (BuildContext context, _, __) {
+          return NewPINScreen();
+        },
+      ),
+    );
   }
 
   _onPressLogout(BuildContext context) async {
@@ -524,6 +551,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             break;
           case InvalidPINException:
             notificationMessage = 'Invalid PIN Code.';
+            break;
+          case NoPasswordFileException:
+            await _setNewPIN(username, context);
+            error = false;
+            title = 'Login Successful';
+            notificationMessage = 'New PIN set.';
             break;
           default:
             notificationMessage = 'An unknown error occured. Contact the development team.';
