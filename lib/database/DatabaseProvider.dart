@@ -477,8 +477,8 @@ class DatabaseProvider {
     // upload SQLite, password file, and Excel file
     final String filename = '${loginData.username}_${loginData.firstName}_${loginData.lastName}';
     await uploadFileToSWITCHtoolbox(dbFile, filename: filename, folderID: SWITCH_TOOLBOX_BACKUP_FOLDER_ID);
-    await uploadFileToSWITCHtoolbox(passwordFile, filename: filename, folderID: SWITCH_TOOLBOX_PASSWORD_FOLDER_ID);
-    await uploadFileToSWITCHtoolbox(excelFile, filename: loginData.username, folderID: SWITCH_TOOLBOX_DATA_FOLDER_ID);
+    await uploadFileToSWITCHtoolbox(passwordFile, filename: loginData.username, folderID: SWITCH_TOOLBOX_PASSWORD_FOLDER_ID);
+    await uploadFileToSWITCHtoolbox(excelFile, filename: filename, folderID: SWITCH_TOOLBOX_DATA_FOLDER_ID);
     await storeLatestBackupInSharedPrefs();
   }
 
