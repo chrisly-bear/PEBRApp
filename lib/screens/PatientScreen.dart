@@ -261,13 +261,11 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     }
 
     Widget _buildViralLoadRow(vl) {
-      if (vl == null) { return Column(); }
+      if (vl?.isSuppressed == null) { return Column(); }
       Widget description = Text('${formatDateConsistent(vl.dateOfBloodDraw)}');
-      Widget viralLoadIcon = vl.isLowerThanDetectable
-          ? ViralLoadBadge(vl, smallSize: true)
-          : (vl.isSuppressed
-            ? _getPaddedIcon('assets/icons/viralload_suppressed.png')
-            : _getPaddedIcon('assets/icons/viralload_unsuppressed.png'));
+      Widget viralLoadIcon = vl.isSuppressed
+          ? _getPaddedIcon('assets/icons/viralload_suppressed.png')
+          : _getPaddedIcon('assets/icons/viralload_unsuppressed.png');
       Widget viralLoadBadge = ViralLoadBadge(vl, smallSize: false);
       Widget content = Row(
         children: <Widget>[
