@@ -7,7 +7,9 @@ import 'package:html/dom.dart' as dom;
 import 'package:pebrapp/config/SwitchConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
+import 'package:pebrapp/exceptions/InvalidPINException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
+import 'package:pebrapp/exceptions/NoPasswordFileException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
 import 'package:path/path.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
@@ -44,19 +46,66 @@ Future<void> uploadFileToSWITCHtoolbox(File sourceFile, {String filename, int fo
 ///
 /// Throws `NoLoginDataException` if loginData object is null.
 ///
+/// Throws `InvalidPINException` if the PIN code for the given user is incorrect.
+///
+/// Throws `NoPasswordFileException` if there is not password file on SWITCHtoolbox.
+///
 /// Throws `SWITCHLoginFailedException` if the login to SWITCHtoolbox fails.
 ///
 /// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
 ///
 /// Throws `DocumentNotFoundException` if backup for the loginData is not available.
-Future<void> restoreFromSWITCHtoolbox(String username) async {
+Future<void> restoreFromSWITCHtoolbox(String username, String pinCodeHash) async {
   if (username == null) {
     throw NoLoginDataException();
+  }
+  if (!(await _pinCodeValid(username, pinCodeHash))) {
+    throw InvalidPINException();
   }
   final File backupFile = await _downloadLatestBackup(username);
   await DatabaseProvider().restoreFromFile(backupFile);
   PatientBloc.instance.sinkAllPatientsFromDatabase();
   storeLatestBackupInSharedPrefs();
+}
+
+/// Throws `NoPasswordFileException` if there is no password file stored on
+/// SWITCHtoolbox.
+Future<bool> _pinCodeValid(String username, String pinCodeHash) async {
+  try {
+    final File passwordFile = await _downloadPasswordFile(username);
+    final String truePINCodeHash = await passwordFile.readAsString();
+    return pinCodeHash == truePINCodeHash;
+  } on DocumentNotFoundException {
+    throw NoPasswordFileException();
+  }
+}
+
+/// Downloads the password file from SWITCHtoolbox for the given [username].
+///
+/// Throws `DocumentNotFoundException` if no password file is available for the
+/// given [username].
+Future<File> _downloadPasswordFile(String username) async {
+
+  // get necessary cookies
+  final String _shibsessionCookie = await _getShibSession(SWITCH_USERNAME, SWITCH_PASSWORD);
+  final String _mydmssessionCookie = await _getMydmsSession(_shibsessionCookie);
+
+  final String documentName = await _getFirstDocumentNameForDocumentStartingWith(username, SWITCH_TOOLBOX_PASSWORD_FOLDER_ID, _shibsessionCookie, _mydmssessionCookie);
+  final int switchDocumentId = await _getFirstDocumentIdForDocumentWithName(documentName, SWITCH_TOOLBOX_PASSWORD_FOLDER_ID, _shibsessionCookie, _mydmssessionCookie);
+  final int latestVersion = await _getLatestVersionOfDocument(switchDocumentId, _shibsessionCookie, _mydmssessionCookie);
+  final String absoluteLink = 'https://letodms.toolbox.switch.ch/$SWITCH_TOOLBOX_PROJECT/op/op.Download.php?documentid=$switchDocumentId&version=$latestVersion';
+  final Uri downloadUri = Uri.parse(absoluteLink);
+
+  // download file
+  final resp = await http.get(downloadUri,
+    headers: {'Cookie': '$_shibsessionCookie; $_mydmssessionCookie'},
+  );
+
+  // store file in database directory
+  final String filepath = join(await DatabaseProvider().databasesDirectoryPath, 'PEBRApp-password');
+  File passwordFile = File(filepath);
+  passwordFile = await passwordFile.writeAsBytes(resp.bodyBytes, flush: true);
+  return passwordFile;
 }
 
 /// Downloads the latest backup file that matches the loginData from SWITCHtoolbox.

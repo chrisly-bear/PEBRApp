@@ -9,6 +9,7 @@ import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/HealthCenter.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
+import 'package:pebrapp/exceptions/InvalidPINException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
@@ -206,7 +207,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     VoidCallback onNotificationButtonPress;
     setState(() { _isLoadingSettingsBody = true; });
     try {
-      await restoreFromSWITCHtoolbox(_loginData.username);
+      await restoreFromSWITCHtoolbox(_loginData.username, _loginData.pinCodeHash);
       setState(() {
         lastBackup = formatDateAndTime(DateTime.now());
       });
@@ -227,6 +228,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           break;
         case DocumentNotFoundException:
           resultMessage = 'No backup found for user \'${_loginData.username}\'.';
+          break;
+        case InvalidPINException:
+          resultMessage = 'Invalid PIN Code.';
           break;
         default:
           resultMessage = 'An unknown error occured. Contact the development team.';
@@ -498,8 +502,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       VoidCallback onNotificationButtonPress;
       setState(() { _isLoadingLoginBody = true; });
       final String username = _usernameCtr.text;
+      final String pinCodeHash = hash(_pinCtr.text);
       try {
-        await restoreFromSWITCHtoolbox(username);
+        await restoreFromSWITCHtoolbox(username, pinCodeHash);
         // restore was successful, go to home screen
         Navigator.of(context).popUntil(ModalRoute.withName('/'));
       } catch (e, s) {
@@ -516,6 +521,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             break;
           case DocumentNotFoundException:
             notificationMessage = 'User \'$username\' not found. Check your login data or create a new account.';
+            break;
+          case InvalidPINException:
+            notificationMessage = 'Invalid PIN Code.';
             break;
           default:
             notificationMessage = 'An unknown error occured. Contact the development team.';

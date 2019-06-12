@@ -1,0 +1,1 @@
+class NoPasswordFileException implements Exception {}
