@@ -137,8 +137,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       children: <Widget>[
         _buildUserDataCard(),
         SizedBox(height: _spacing),
-        PEBRAButtonRaised('Set PIN'),
-        SizedBox(height: _spacing),
         PEBRAButtonRaised('Restore', onPressed: _isLoadingSettingsBody ? null : () {_onPressRestoreButton(context);},),
         PEBRAButtonRaised('Start Backup', onPressed: _isLoadingSettingsBody ? null : () {_onPressBackupButton(context);},),
         SizedBox(height: 5.0),
