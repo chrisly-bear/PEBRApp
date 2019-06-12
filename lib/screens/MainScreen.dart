@@ -22,6 +22,7 @@ import 'package:pebrapp/screens/PatientScreen.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
+import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 class MainScreen extends StatefulWidget {
@@ -219,11 +220,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     print('~~~ MainScreenState.build ~~~');
     _context = context;
     return Scaffold(
-        backgroundColor: Color.fromARGB(255, 224, 224, 224),
+        backgroundColor: BACKGROUND_COLOR,
         floatingActionButton: FloatingActionButton(
           key: Key('addPatient'), // key can be used to find the button in integration testing
           onPressed: _pushNewPatientScreen,
           child: Icon(Icons.add),
+          backgroundColor: FLOATING_ACTION_BUTTON,
         ),
         body: TransparentHeaderPage(
           title: 'Patients',
@@ -425,7 +427,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       height: size,
       width: size,
       child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.white)
+          valueColor: AlwaysStoppedAnimation<Color>(SPINNER_MAIN_SCREEN)
       ),
     );
   }
@@ -459,7 +461,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       return Text(
         text.toUpperCase(),
         style: TextStyle(
-          color: Colors.grey[600],
+          color: MAIN_SCREEN_HEADER_TEXT,
           fontWeight: FontWeight.bold,
         ),
       );
@@ -470,7 +472,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
         text,
         style: TextStyle(
           fontSize: 18,
-          color: isActivated ? Colors.black : Colors.grey,
+          color: isActivated ? TEXT_ACTIVE : TEXT_INACTIVE,
           fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
         ),
         maxLines: 2,
@@ -493,7 +495,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
 
     Widget _buildSupportIcons(SupportPreferencesSelection sps, {bool isActivated: true}) {
       List<Widget> icons = List<Widget>();
-      Color iconColor = isActivated ? Colors.black : Colors.grey;
+      Color iconColor = isActivated ? ICON_ACTIVE : ICON_INACTIVE;
       final Container spacer = Container(width: 3);
       if (sps == null) {
         return _formatPatientRowText('—', isActivated: isActivated);
@@ -568,7 +570,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       Widget _getViralLoadIndicator({bool isActivated: true}) {
         Widget viralLoadIcon = _formatPatientRowText('—', isActivated: isActivated);
         Widget viralLoadBadge = _formatPatientRowText('—', isActivated: isActivated);
-        Color iconColor = isActivated ? null : Colors.grey;
+        Color iconColor = isActivated ? null : ICON_INACTIVE;
         if (curPatient.mostRecentViralLoad?.isSuppressed != null && curPatient.mostRecentViralLoad.isSuppressed) {
           viralLoadIcon = _getPaddedIcon('assets/icons/viralload_suppressed.png', color: iconColor);
           viralLoadBadge = ViralLoadBadge(curPatient.mostRecentViralLoad, smallSize: true); // TODO: show greyed out version if isActivated is false
@@ -656,7 +658,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
               gradient: LinearGradient(
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
-                colors: [Colors.black, Colors.red],
+                colors: [MAIN_SCREEN_SLIDE_TO_DEACTIVATE, MAIN_SCREEN_SLIDE_TO_DELETE],
               ),
             ),
             child: Row(
@@ -667,7 +669,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
                 style: TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: MAIN_SCREEN_SLIDE_TO_DEACTIVATE_TEXT,
                 ),
               ),
               Text(
@@ -675,7 +677,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
                 style: TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: MAIN_SCREEN_SLIDE_TO_DELETE_TEXT,
                 ),
               ),
               ]
@@ -684,7 +686,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           child: GrowTransition(
             animation: _cardHeightTween.animate(animationControllers[curPatient.artNumber]),
             child: Card(
-            color: curPatient.isActivated ? Colors.white : Colors.grey[300],
+            color: curPatient.isActivated ? CARD_ACTIVE : CARD_INACTIVE,
         elevation: 5.0,
         margin: _curCardMargin,
         clipBehavior: Clip.antiAlias,
@@ -747,13 +749,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
 
     final int daysUntilNextAction = differenceInDays(DateTime.now(), dateOfNextAction);
     if (daysUntilNextAction <= 0) {
-      return Colors.red;
+      return URGENCY_HIGH;
     }
     if (daysUntilNextAction <= 2) {
-      return Colors.orange;
+      return URGENCY_MEDIUM;
     }
     if (daysUntilNextAction <= 7) {
-      return Colors.yellow;
+      return URGENCY_LOW;
     }
     return Colors.transparent;
   }

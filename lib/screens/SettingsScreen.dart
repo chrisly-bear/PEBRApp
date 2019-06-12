@@ -14,6 +14,7 @@ import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/exceptions/NoPasswordFileException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
+import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -72,7 +73,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Container(
           padding: EdgeInsets.all(20.0),
           child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            valueColor: AlwaysStoppedAnimation<Color>(SPINNER_SETTINGS_SCREEN),
           ),
         ),
       );
@@ -480,7 +481,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: PEBRAButtonRaised(
               _createAccountMode ? 'Create Account' : 'Login',
               widget: _isLoadingLoginBody
-                  ? SizedBox(height: 15.0, width: 15.0, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))) : null,
+                  ? SizedBox(height: 15.0, width: 15.0, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(SPINNER_SETTINGS_SCREEN))) : null,
               onPressed: _isLoadingLoginBody ? null : (_createAccountMode
                   ? _onSubmitCreateAccountForm
                   : _onSubmitLoginForm),

@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
+import 'package:pebrapp/utils/AppColors.dart';
 
 class PopupScreen extends StatelessWidget {
   final Widget child;
@@ -45,7 +46,7 @@ class PopupScreen extends StatelessWidget {
     padding = max(MIN_PADDING, (screenWidth - MAX_WIDTH)/2);
 
     return Scaffold(
-      backgroundColor: Colors.black.withOpacity(0.50),
+      backgroundColor: POPUP_BEHIND,
       body: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: backgroundBlur, sigmaY: backgroundBlur),
         child: SafeArea(
@@ -54,8 +55,8 @@ class PopupScreen extends StatelessWidget {
               clipBehavior: Clip.antiAlias,
               elevation: 10.0,
               margin: EdgeInsets.symmetric(horizontal: padding, vertical: MIN_PADDING),
-              color: Color.fromARGB(255, 224, 224, 224),
-//          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0), side: BorderSide(color: Colors.black)),
+              color: BACKGROUND_COLOR,
+//              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0), side: BorderSide(color: Colors.black)),
               child: TransparentHeaderPage(
                 safeArea: false,
                 title: title,
@@ -64,12 +65,12 @@ class PopupScreen extends StatelessWidget {
                 actions: actions ?? [
                   IconButton(
                     alignment: Alignment.topCenter,
-//                padding: EdgeInsets.all(0.0),
+//                    padding: EdgeInsets.all(0.0),
                     icon: Icon(Icons.close),
                     onPressed: Navigator.of(context).pop,
                   ),
                 ],
-                color: Color.fromARGB(255, 224, 224, 224),
+                color: BACKGROUND_COLOR,
                 blurEnabled: false,
               ),
             ),

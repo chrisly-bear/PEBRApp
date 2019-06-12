@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pebrapp/utils/AppColors.dart';
 
 class PEBRAButtonRaised extends StatelessWidget {
 
@@ -21,11 +22,11 @@ class PEBRAButtonRaised extends StatelessWidget {
       ),
       child: RaisedButton(
         onPressed: this.onPressed,
-        color: Color.fromRGBO(37, 55, 208, 1.0),
+        color: RAISED_BUTTON,
         child: widget != null ? widget : Text(
           this._buttonText.toUpperCase(),
           style: TextStyle(
-            color: Colors.white,
+            color: RAISED_BUTTON_TEXT,
           ),
         ),
       ),

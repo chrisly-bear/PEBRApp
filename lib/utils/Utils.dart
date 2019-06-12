@@ -8,6 +8,7 @@ import 'package:pebrapp/config/SharedPreferencesConfig.dart';
 import 'package:intl/intl.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/screens/LockScreen.dart';
+import 'package:pebrapp/utils/AppColors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:password/password.dart';
@@ -31,8 +32,8 @@ void showFlushBar(BuildContext context, String message, {String title, bool erro
     button = FlatButton(
       onPressed: onButtonPress,
       child: buttonText == null || buttonText == ''
-          ? Icon(Icons.info, color: Colors.white)
-          : Text(buttonText.toUpperCase(), style: TextStyle(color: Colors.white)),
+          ? Icon(Icons.info, color: NOTIFICATION_INFO_ICON)
+          : Text(buttonText.toUpperCase(), style: TextStyle(color: NOTIFICATION_INFO_TEXT)),
     );
   }
 
@@ -47,7 +48,7 @@ void showFlushBar(BuildContext context, String message, {String title, bool erro
     titleText: title == null ? null : Text(title,
       textAlign: TextAlign.center,
       style: TextStyle(
-        color: Colors.white,
+        color: NOTIFICATION_MESSAGE_TEXT,
         fontSize: 18.0,
         fontWeight: FontWeight.bold,
       ),
@@ -55,14 +56,14 @@ void showFlushBar(BuildContext context, String message, {String title, bool erro
     messageText: Text(
       message, textAlign: TextAlign.center,
       style: TextStyle(
-        color: Colors.white,
+        color: NOTIFICATION_MESSAGE_TEXT,
         fontSize: title == null ? 18.0 : 16.0,
       ),
     ),
     mainButton: button,
-    boxShadows: [BoxShadow(color: Colors.black, blurRadius: 5.0, offset: Offset(0.0, 0.0), spreadRadius: 0.0)],
+    boxShadows: [BoxShadow(color: NOTIFICATION_SHADOW, blurRadius: 5.0, offset: Offset(0.0, 0.0), spreadRadius: 0.0)],
     borderRadius: 5,
-    backgroundColor: error ? Colors.redAccent : Colors.black.withAlpha(200),
+    backgroundColor: error ? NOTIFICATION_ERROR : NOTIFICATION_NORMAL,
     aroundPadding: EdgeInsets.symmetric(horizontal: padding),
     duration: error ? null : Duration(seconds: 5),
   ).show(context);

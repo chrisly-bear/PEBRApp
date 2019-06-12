@@ -6,6 +6,7 @@ import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
+import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 class ARTRefillNotDoneScreen extends StatelessWidget {
@@ -161,13 +162,13 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
                 }
               },
             ),
-            Divider(color: Colors.black87, height: 1.0,),
+            Divider(color: CUSTOM_FORM_FIELD_UNDERLINE, height: 1.0,),
             _dateOfDeathValid ? Container() : Padding(
               padding: const EdgeInsets.only(top: 5.0),
               child: Text(
                 'Please select a date',
                 style: TextStyle(
-                  color: Colors.red,
+                  color: CUSTOM_FORM_FIELD_ERROR_TEXT,
                   fontSize: 12.0,
                 ),
               ),
@@ -266,13 +267,13 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
                 }
               },
             ),
-            Divider(color: Colors.black87, height: 1.0,),
+            Divider(color: CUSTOM_FORM_FIELD_UNDERLINE, height: 1.0,),
             _transferDateValid ? Container() : Padding(
               padding: const EdgeInsets.only(top: 5.0),
               child: Text(
                 'Please select a date',
                 style: TextStyle(
-                  color: Colors.red,
+                  color: CUSTOM_FORM_FIELD_ERROR_TEXT,
                   fontSize: 12.0,
                 ),
               ),
