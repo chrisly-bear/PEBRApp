@@ -471,14 +471,14 @@ class DatabaseProvider {
     }
     // store the user data in the database before creating the first backup
     insertUserData(loginData);
-    final String filename = '${loginData.username}_${loginData.firstName}_${loginData.lastName}';
     final File dbFile = await _databaseFile;
     final File excelFile = await DatabaseExporter.exportDatabaseToExcelFile();
     final File passwordFile = await _createFileWithContent('PEBRA-password', pinCodeHash);
     // upload SQLite, password file, and Excel file
+    final String filename = '${loginData.username}_${loginData.firstName}_${loginData.lastName}';
     await uploadFileToSWITCHtoolbox(dbFile, filename: filename, folderID: SWITCH_TOOLBOX_BACKUP_FOLDER_ID);
     await uploadFileToSWITCHtoolbox(passwordFile, filename: filename, folderID: SWITCH_TOOLBOX_PASSWORD_FOLDER_ID);
-    await uploadFileToSWITCHtoolbox(excelFile, filename: filename, folderID: SWITCH_TOOLBOX_DATA_FOLDER_ID);
+    await uploadFileToSWITCHtoolbox(excelFile, filename: loginData.username, folderID: SWITCH_TOOLBOX_DATA_FOLDER_ID);
     await storeLatestBackupInSharedPrefs();
   }
 

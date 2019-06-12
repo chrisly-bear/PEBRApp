@@ -1,22 +1,32 @@
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path/path.dart' show join;
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
+import 'package:pebrapp/config/SwitchConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
-import 'package:pebrapp/database/models/UserData.dart';
+import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
+import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 class NewPINScreen extends StatefulWidget {
+  final String username;
+  NewPINScreen(this.username);
   @override
-  createState() => _NewPINScreenState();
+  createState() => _NewPINScreenState(username);
 }
 
 class _NewPINScreenState extends State<NewPINScreen> {
+  final String username;
   bool _isLoading = false;
   final _pinCodeFormKey = GlobalKey<FormState>();
   TextEditingController _pinCtr = TextEditingController();
+
+  _NewPINScreenState(this.username);
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +86,7 @@ class _NewPINScreenState extends State<NewPINScreen> {
         PEBRAButtonRaised(
           'Set',
           widget: _isLoading ? SizedBox(height: 15.0, width: 15.0, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))) : null,
-          onPressed: _isLoading ? null : _onSubmitPINCodeForm,
+          onPressed: _isLoading ? null : () { _onSubmitPINCodeForm(context); },
         ),
         SizedBox(height: 15.0),
         PEBRAButtonFlat(
@@ -99,16 +109,43 @@ class _NewPINScreenState extends State<NewPINScreen> {
     Navigator.of(context).pop(returnValue);
   }
 
-  _onSubmitPINCodeForm() async {
+  _onSubmitPINCodeForm(BuildContext context) async {
     setState(() {
       _isLoading = true;
     });
     if (_pinCodeFormKey.currentState.validate()) {
-
-      // TODO: store PIN on SWITCHtoolbox, store it in local database, upload database to SWITCHtoolbox
-      await Future.delayed(Duration(seconds: 2));
-
-      _closeScreen(true);
+      try {
+        final String pinCodeHash = hash(_pinCtr.text);
+        final String filepath = join(await DatabaseProvider().databasesDirectoryPath, 'PEBRA-password');
+        var file = File(filepath);
+        file = await file.writeAsString(pinCodeHash, flush: true);
+        await uploadFileToSWITCHtoolbox(file, filename: username, folderID: SWITCH_TOOLBOX_PASSWORD_FOLDER_ID);
+        _closeScreen(true);
+      } catch (e, s) {
+        switch (e.runtimeType) {
+          case SocketException:
+            showFlushBar(
+                context, 'Make sure you are connected to the internet.',
+                title: 'PIN Update Failed', error: true);
+            break;
+          case SWITCHLoginFailedException:
+            showFlushBar(context,
+                'Login to SWITCH failed. Contact the development team.',
+                title: 'PIN Update Failed', error: true);
+            break;
+          default:
+            print('${e.runtimeType}: $e');
+            print(s);
+            VoidCallback onNotificationButtonPress = () {
+              showErrorInPopup(e, s, context);
+            };
+            showFlushBar(context,
+                'An unknown error occured. Contact the development team.',
+                title: 'PIN Update Failed',
+                error: true,
+                onButtonPress: onNotificationButtonPress);
+        }
+      }
     }
     setState(() {
       _isLoading = false;

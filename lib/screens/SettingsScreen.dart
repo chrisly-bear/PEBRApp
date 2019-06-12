@@ -270,7 +270,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           );
         },
         pageBuilder: (BuildContext context, _, __) {
-          return NewPINScreen();
+          return NewPINScreen(username);
         },
       ),
     );

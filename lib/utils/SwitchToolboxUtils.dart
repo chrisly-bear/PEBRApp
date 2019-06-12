@@ -20,6 +20,10 @@ import 'package:pebrapp/utils/Utils.dart';
 /// If `filename` is not provided the `sourceFile`'s file name will be used.
 ///
 /// If `folderID` is not provided the file will be uploaded to the root folder (folderID = 1).
+///
+/// Throws `SWITCHLoginFailedException` if the login to SWITCHtoolbox fails.
+///
+/// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
 Future<void> uploadFileToSWITCHtoolbox(File sourceFile, {String filename, int folderID = 1}) async {
 
   // get necessary cookies
