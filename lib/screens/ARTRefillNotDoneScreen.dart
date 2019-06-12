@@ -41,7 +41,6 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
 
   Patient _patient;
   ARTRefill _artRefill;
-  bool _transferDateValid = true;
   TextEditingController _causeOfDeathCtr = TextEditingController();
   TextEditingController _hospitalizedClinicCtr = TextEditingController();
   TextEditingController _otherClinicCtr = TextEditingController();
@@ -249,16 +248,6 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
               },
             ),
             Divider(color: CUSTOM_FORM_FIELD_UNDERLINE, height: 1.0,),
-            _transferDateValid ? Container() : Padding(
-              padding: const EdgeInsets.only(top: 5.0),
-              child: Text(
-                'Please select a date',
-                style: TextStyle(
-                  color: CUSTOM_FORM_FIELD_ERROR_TEXT,
-                  fontSize: 12.0,
-                ),
-              ),
-            ),
           ]
       ),
     );
@@ -289,25 +278,8 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
     );
   }
 
-  bool _validateTransferDate() {
-    // if the date of transfer is not specified when it should be show
-    // the error message under the date field and return false.
-    if ((_artRefill.notDoneReason == ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_LESOTHO()
-        || _artRefill.notDoneReason == ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_SA())
-        &&_artRefill.transferDate == null) {
-      setState(() {
-        _transferDateValid = false;
-      });
-      return false;
-    }
-    setState(() {
-      _transferDateValid = true;
-    });
-    return true;
-  }
-
   _onSubmitForm() async {
-    if (_formKey.currentState.validate() & _validateTransferDate()) {
+    if (_formKey.currentState.validate()) {
       _artRefill.causeOfDeath = _causeOfDeathCtr.text;
       _artRefill.hospitalizedClinic = _hospitalizedClinicCtr.text;
       _artRefill.otherClinic = _otherClinicCtr.text;
