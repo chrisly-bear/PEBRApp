@@ -50,7 +50,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     print('~~~ MainScreenState.initState ~~~');
     // listen to changes in the app lifecycle
     WidgetsBinding.instance.addObserver(this);
-    _onAppResume();
     _appStateStream = PatientBloc.instance.appState;
 
     /*
@@ -212,6 +211,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   @override
   Widget build(BuildContext context) {
     _context = context;
+    _onAppResume();
     return Scaffold(
         backgroundColor: Color.fromARGB(255, 224, 224, 224),
         floatingActionButton: FloatingActionButton(
