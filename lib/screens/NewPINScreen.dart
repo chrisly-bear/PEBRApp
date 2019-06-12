@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
@@ -77,9 +78,25 @@ class _NewPINScreenState extends State<NewPINScreen> {
           widget: _isLoading ? SizedBox(height: 15.0, width: 15.0, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))) : null,
           onPressed: _isLoading ? null : _onSubmitPINCodeForm,
         ),
+        SizedBox(height: 15.0),
+        PEBRAButtonFlat(
+          'Cancel',
+          onPressed: _isLoading ? null : () { _closeScreen(false); },
+        ),
         SizedBox(height: 20.0),
       ],
     );
+  }
+
+  /// @param [returnValue] Set to true if setting new pin was successful, false
+  /// if there was an error or the process was cancelled.
+  _closeScreen(bool returnValue) {
+    // pop all flushbar notifications
+    Navigator.of(context).popUntil((Route<dynamic> route) {
+      return route.settings.name == '/new-pin';
+    });
+    // pop the new-pin screen itself
+    Navigator.of(context).pop(returnValue);
   }
 
   _onSubmitPINCodeForm() async {
@@ -89,13 +106,9 @@ class _NewPINScreenState extends State<NewPINScreen> {
     if (_pinCodeFormKey.currentState.validate()) {
 
       // TODO: store PIN on SWITCHtoolbox, store it in local database, upload database to SWITCHtoolbox
+      await Future.delayed(Duration(seconds: 2));
 
-      // pop all flushbar notifications
-      Navigator.of(context).popUntil((Route<dynamic> route) {
-        return route.settings.name == '/new-pin';
-      });
-      // pop the new-pin screen itself
-      Navigator.of(context).pop();
+      _closeScreen(true);
     }
     setState(() {
       _isLoading = false;

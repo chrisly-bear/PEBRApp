@@ -236,10 +236,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           resultMessage = 'Invalid PIN Code.';
           break;
         case NoPasswordFileException:
-          await _setNewPIN(_loginData.username, context);
-          error = false;
-          title = 'Restore Successful';
-          resultMessage = 'New PIN set.';
+          final bool newPINSuccess = await _setNewPIN(_loginData.username, context);
+          if (newPINSuccess) {
+            error = false;
+            title = 'Restore Successful';
+            resultMessage = 'New PIN set.';
+          } else {
+            resultMessage = 'New PIN required.';
+          }
           break;
         default:
           resultMessage = 'An unknown error occured. Contact the development team.';
@@ -254,9 +258,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showFlushBar(context, resultMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
   }
 
-  Future<void> _setNewPIN(String username, BuildContext context) async {
+  Future<bool> _setNewPIN(String username, BuildContext context) async {
     return Navigator.of(context).push(
-      PageRouteBuilder<void>(
+      PageRouteBuilder<bool>(
         settings: RouteSettings(name: '/new-pin'),
         opaque: false,
         transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
@@ -553,10 +557,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             notificationMessage = 'Invalid PIN Code.';
             break;
           case NoPasswordFileException:
-            await _setNewPIN(username, context);
-            error = false;
-            title = 'Login Successful';
-            notificationMessage = 'New PIN set.';
+            final bool newPINSuccess = await _setNewPIN(username, context);
+            if (newPINSuccess) {
+              error = false;
+              title = 'Login Successful';
+              notificationMessage = 'New PIN set.';
+            } else {
+              notificationMessage = 'New PIN required.';
+            }
             break;
           default:
             notificationMessage = 'An unknown error occured. Contact the development team.';
