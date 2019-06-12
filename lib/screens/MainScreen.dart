@@ -418,8 +418,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     );
   }
 
-  Center _bodyLoading() {
-    return Center(
+  Widget _bodyLoading() {
+    final double size = 80.0;
+    return Container(
+      padding: EdgeInsets.all(20.0),
+      height: size,
+      width: size,
       child: CircularProgressIndicator(
           valueColor: AlwaysStoppedAnimation<Color>(Colors.white)
       ),
