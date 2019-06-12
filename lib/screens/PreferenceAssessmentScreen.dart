@@ -1212,7 +1212,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             })),
       ),
       _vmmcInfoFollowUpQuestions(),
-      _makeQuestion('',
+      _patient.gender == Gender.FEMALE() || _patient.gender == Gender.TRANSGENDER() ? _makeQuestion('',
         answer: CheckboxListTile(
 //            secondary: Container(width: 0.0),
             title: Text(SupportPreferencesSelection.YOUNG_MOTHERS_GROUP_DESCRIPTION),
@@ -1220,7 +1220,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             onChanged: (bool newValue) => this.setState(() {
               _pa.supportPreferences.YOUNG_MOTHERS_GROUP_selected = newValue;
             })),
-      ),
+      ) : Container(),
       _youngMothersFollowUpQuestions(),
       _patient.gender == Gender.FEMALE() || _patient.gender == Gender.TRANSGENDER() ? _makeQuestion('',
         answer: CheckboxListTile(
@@ -1796,7 +1796,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _youngMothersFollowUpQuestions() {
-    if (!_pa.supportPreferences.YOUNG_MOTHERS_GROUP_selected) {
+    if (!_pa.supportPreferences.YOUNG_MOTHERS_GROUP_selected || !(_patient.gender == Gender.FEMALE() || _patient.gender == Gender.TRANSGENDER())) {
       return Container();
     }
     return _makeQuestion(
