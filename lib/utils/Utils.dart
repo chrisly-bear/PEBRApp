@@ -128,9 +128,10 @@ String formatDate(DateTime date) {
   return DateFormat("dd.MM.yyyy").format(date.toLocal());
 }
 
-/// Turns a date into a formatted String. If the date is within 3 days from now
-/// it will return "In x days". If the date is today it will return "Today". If
-/// the date is in the past, it will return "x days ago".
+/// Turns a date into a formatted String with date and time. If the date is
+/// today it will return "Today, HH:mm". If the date was yesterday, it will
+/// return "Yesterday, HH:mm". If the date was before yesterday, it will return
+/// "X days ago".
 String formatDateAndTime(DateTime date) {
   final int daysFromToday = differenceInDays(DateTime.now(), date);
   if (daysFromToday == -1) {
