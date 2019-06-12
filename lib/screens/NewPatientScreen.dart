@@ -221,10 +221,20 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   Widget _stickerNumberQuestion() {
     return _makeQuestion('Sticker Number',
       child: TextFormField(
+        decoration: InputDecoration(
+          prefixText: 'PEBRA_',
+        ),
+        keyboardType: TextInputType.number,
+        inputFormatters: [
+          WhitelistingTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(3),
+        ],
         controller: _stickerNumberCtr,
         validator: (value) {
           if (value.isEmpty) {
             return 'Please enter the sticker number';
+          } else if (value.length != 3) {
+            return 'Exactly 3 digits required';
           }
         },
       ),
