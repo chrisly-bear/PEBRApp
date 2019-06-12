@@ -499,127 +499,129 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       }, children: supportOptions);
     }
 
+    Widget content;
+
     if (_patient.latestPreferenceAssessment == null) {
-      return Card(
-          margin: EdgeInsets.symmetric(horizontal: 15),
-          child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-              child: Center(
+      content = Center(
                   child: Text(
                 "No preferences available for this patient. Start a new preference assessment below.",
                 style: TextStyle(
                   color: Colors.grey,
                 ),
-              ))));
+              ));
+    } else {
+      content = Table(
+        children: [
+          TableRow(children: [
+            TableCell(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                    vertical: _tableRowPaddingVertical),
+                child: Text('ART Refill'),
+              ),
+            ),
+            TableCell(
+              child: Padding(
+                  padding: EdgeInsets.symmetric(
+                      vertical: _tableRowPaddingVertical),
+                  child: _buildARTRefillText()),
+            ),
+          ]),
+          TableRow(children: [
+            TableCell(
+                child: Padding(
+                    padding: EdgeInsets.symmetric(
+                        vertical: _tableRowPaddingVertical),
+                    child: Text('Adherence Reminder Message'))),
+            TableCell(
+                child: Padding(
+                    padding: EdgeInsets.symmetric(
+                        vertical: _tableRowPaddingVertical),
+                    child: _buildAdherenceReminderMessageText())),
+          ]),
+          TableRow(children: [
+            TableCell(
+                child: Padding(
+                    padding: EdgeInsets.symmetric(
+                        vertical: _tableRowPaddingVertical),
+                    child: Text('Adherence Reminder Frequency'))),
+            TableCell(
+                child: Padding(
+                    padding: EdgeInsets.symmetric(
+                        vertical: _tableRowPaddingVertical),
+                    child: _buildAdherenceReminderFrequencyText())),
+          ]),
+          TableRow(children: [
+            TableCell(
+              child: Padding(
+                  padding: EdgeInsets.symmetric(
+                      vertical: _tableRowPaddingVertical),
+                  child: Text('Adherence Reminder Notification Time')),
+            ),
+            TableCell(
+              child: Padding(
+                  padding: EdgeInsets.symmetric(
+                      vertical: _tableRowPaddingVertical),
+                  child: _buildAdherenceReminderTimeText()),
+            ),
+          ]),
+          TableRow(children: [
+            TableCell(
+              child: Padding(
+                  padding: EdgeInsets.symmetric(
+                      vertical: _tableRowPaddingVertical),
+                  child: Text('Viral Load Message (suppressed)')),
+            ),
+            TableCell(
+              child: Padding(
+                  padding: EdgeInsets.symmetric(
+                      vertical: _tableRowPaddingVertical),
+                  child: _buildVLMessageSuppressedText()),
+            ),
+          ]),
+          TableRow(children: [
+            TableCell(
+              child: Padding(
+                  padding: EdgeInsets.symmetric(
+                      vertical: _tableRowPaddingVertical),
+                  child: Text('Viral Load Message (unsuppressed)')),
+            ),
+            TableCell(
+              child: Padding(
+                  padding: EdgeInsets.symmetric(
+                      vertical: _tableRowPaddingVertical),
+                  child: _buildVLMessageUnsuppressedText()),
+            ),
+          ]),
+          TableRow(children: [
+            TableCell(
+              child: Padding(
+                  padding: EdgeInsets.symmetric(
+                      vertical: _tableRowPaddingVertical),
+                  child: Text('Support')),
+            ),
+            TableCell(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                    vertical: _tableRowPaddingVertical),
+                child: _buildSupportOptions(),
+              ),
+            ),
+          ]),
+        ],
+      );
     }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        SizedBox(height: 20.0),
         _buildTitle('Preferences'),
         Card(
         margin: EdgeInsets.symmetric(horizontal: 15),
         child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-            child: Table(
-              children: [
-                TableRow(children: [
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: _tableRowPaddingVertical),
-                      child: Text('ART Refill'),
-                    ),
-                  ),
-                  TableCell(
-                    child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: _tableRowPaddingVertical),
-                        child: _buildARTRefillText()),
-                  ),
-                ]),
-                TableRow(children: [
-                  TableCell(
-                      child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: _tableRowPaddingVertical),
-                          child: Text('Adherence Reminder Message'))),
-                  TableCell(
-                      child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: _tableRowPaddingVertical),
-                          child: _buildAdherenceReminderMessageText())),
-                ]),
-                TableRow(children: [
-                  TableCell(
-                      child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: _tableRowPaddingVertical),
-                          child: Text('Adherence Reminder Frequency'))),
-                  TableCell(
-                      child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: _tableRowPaddingVertical),
-                          child: _buildAdherenceReminderFrequencyText())),
-                ]),
-                TableRow(children: [
-                  TableCell(
-                    child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: _tableRowPaddingVertical),
-                        child: Text('Adherence Reminder Notification Time')),
-                  ),
-                  TableCell(
-                    child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: _tableRowPaddingVertical),
-                        child: _buildAdherenceReminderTimeText()),
-                  ),
-                ]),
-                TableRow(children: [
-                  TableCell(
-                    child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: _tableRowPaddingVertical),
-                        child: Text('Viral Load Message (suppressed)')),
-                  ),
-                  TableCell(
-                    child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: _tableRowPaddingVertical),
-                        child: _buildVLMessageSuppressedText()),
-                  ),
-                ]),
-                TableRow(children: [
-                  TableCell(
-                    child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: _tableRowPaddingVertical),
-                        child: Text('Viral Load Message (unsuppressed)')),
-                  ),
-                  TableCell(
-                    child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: _tableRowPaddingVertical),
-                        child: _buildVLMessageUnsuppressedText()),
-                  ),
-                ]),
-                TableRow(children: [
-                  TableCell(
-                    child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: _tableRowPaddingVertical),
-                        child: Text('Support')),
-                  ),
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: _tableRowPaddingVertical),
-                      child: _buildSupportOptions(),
-                    ),
-                  ),
-                ]),
-              ],
-            )),
+            child: content),
       ),
     ]);
 
