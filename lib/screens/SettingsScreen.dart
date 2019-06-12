@@ -74,9 +74,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
     if (_loginData == null) {
       print('~~~ LOGIN/CREATE ACCOUNT SCREEN ~~~');
-      return PopupScreen(
-        actions: [],
-        child: _loginBody,
+      return WillPopScope(
+        onWillPop: () => Future(() => false),
+        child: PopupScreen(
+          actions: [],
+          child: _loginBody,
+        ),
       );
     }
     print('~~~ SETTINGS SCREEN ~~~');
