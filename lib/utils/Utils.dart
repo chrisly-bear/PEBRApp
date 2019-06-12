@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:pebrapp/config/SharedPreferencesConfig.dart';
@@ -278,11 +279,27 @@ Future<T> lockApp<T extends Object>(BuildContext context) {
   );
 }
 
-hash(String string) {
-  return Password.hash(string, PBKDF2());
+/// Hashes the [string] and returns the hashed value.
+String hash(String string) {
+  return Password.hash(string, PBKDF2(iterationCount: 500));
 }
 
-verifyHash(String string, String hash) {
-  return string == hash; // TODO: remove this and use the proper verification algorithm below
+/// Verifies that the [string] corresponds to the [hash].
+///
+/// This method is blocking.
+bool verifyHash(String string, String hash) {
   return Password.verify(string, hash);
+}
+
+/// Verifies that the [string] corresponds to the [hash].
+///
+/// This method can run in the background.
+Future<bool> verifyHashAsync(String string, String hash) async {
+  return compute(_verifyHashOneArg, {'string': string, 'hash': hash});
+}
+
+/// Same as [verifyHash] but takes only one arguments so it can be passed to the
+/// compute function.
+bool _verifyHashOneArg(Map<String, String> stringAndHash) {
+  return Password.verify(stringAndHash['string'], stringAndHash['hash']);
 }

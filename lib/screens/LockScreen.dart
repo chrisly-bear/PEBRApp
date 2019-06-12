@@ -13,12 +13,12 @@ class LockScreen extends StatefulWidget {
 
 class _LockScreenState extends State<LockScreen> {
   bool _isLoading = true;
-  UserData _loginData;
+  String _storedPINHash;
 
   @override
   void initState() {
     DatabaseProvider().retrieveLatestUserData().then((UserData loginData) {
-      this._loginData = loginData;
+      _storedPINHash = loginData.pinCodeHash;
       setState(() {this._isLoading = false;});
     });
     super.initState();
@@ -44,7 +44,7 @@ class _LockScreenState extends State<LockScreen> {
     return PopupScreen(
       actions: [],
       backgroundBlur: backgroundBlur,
-      child: LockScreenBody('1234'), // TODO: replace with real, hashed PIN code from user (which you will probably receive from _userData object)
+      child: LockScreenBody(_storedPINHash),
     );
 
   }
@@ -62,6 +62,7 @@ class LockScreenBody extends StatefulWidget {
 class _LockScreenBodyState extends State<LockScreenBody> {
   final String _pinHashed;
   final _pinCodeFormKey = GlobalKey<FormState>();
+  bool _isLoading = false;
 
   _LockScreenBodyState(this._pinHashed);
 
@@ -113,20 +114,24 @@ class _LockScreenBodyState extends State<LockScreenBody> {
         ),
         PEBRAButtonRaised(
           'Unlock',
-          onPressed: _onSubmitPINCodeForm,
+          widget: _isLoading ? SizedBox(height: 15.0, width: 15.0, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))) : null,
+          onPressed: _isLoading ? null : _onSubmitPINCodeForm,
         ),
         SizedBox(height: 20.0),
       ],
     );
   }
 
-  bool get _validatePIN {
-    return verifyHash(_pinCtr.text, _pinHashed);
+  Future<bool> get validatePIN async {
+    return verifyHashAsync(_pinCtr.text, _pinHashed);
   }
 
-  _onSubmitPINCodeForm() {
+  _onSubmitPINCodeForm() async {
+    setState(() {
+      _isLoading = true;
+    });
     if (_pinCodeFormKey.currentState.validate()) {
-      if (_validatePIN) {
+      if (await validatePIN) {
         // pop all flushbar notifications
         Navigator.of(context).popUntil((Route<dynamic> route) {
           return route.settings.name == '/lock';
@@ -137,5 +142,8 @@ class _LockScreenBodyState extends State<LockScreenBody> {
         showFlushBar(context, 'Incorrect PIN Code', title: 'Error', error: true);
       }
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 }

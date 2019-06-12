@@ -427,7 +427,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                   validator: (value) {
                     if (value.isEmpty) {
-                      return 'Please enter a PIN code';
+                      return _createAccountMode ? 'Please enter a PIN code' : 'Please enter your PIN code';
                     } else if (value.length < 4) {
                       return 'At least 4 digits required';
                     }
@@ -536,6 +536,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       VoidCallback onNotificationButtonPress;
       setState(() { _isLoadingLoginBody = true; });
       _userData.username = _usernameCtr.text;
+      _userData.pinCodeHash = hash(_pinCtr.text);
       _userData.firstName = _firstNameCtr.text;
       _userData.lastName = _lastNameCtr.text;
       _userData.phoneNumber = _formatPhoneNumber(_phoneNumberCtr.text, countryCode: '266');
