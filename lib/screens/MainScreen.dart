@@ -276,11 +276,15 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
 
     // lock the app if it has been inactive for a certain time
     DateTime lastActive = await appLastActive;
-    DateTime now = DateTime.now();
-    Duration difference = now.difference(lastActive);
-    print('Seconds since app last active: ${difference.inSeconds}');
-    if (difference.inSeconds > SECONDS_UNTIL_APP_LOCK) {
+    if (lastActive == null) {
       await lockApp(_context);
+    } else {
+      DateTime now = DateTime.now();
+      Duration difference = now.difference(lastActive);
+      print('Seconds since app last active: ${difference.inSeconds}');
+      if (difference.inSeconds > SECONDS_UNTIL_APP_LOCK) {
+        await lockApp(_context);
+      }
     }
     _loginLockCheckRunning = false;
   }

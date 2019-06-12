@@ -210,7 +210,7 @@ Future<void> storeAppLastActiveInSharedPrefs() async {
 Future<DateTime> get appLastActive async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   final String lastActiveString = prefs.getString(LAST_APP_ACTIVE_KEY);
-  return DateTime.parse(lastActiveString);
+  return DateTime.tryParse(lastActiveString ?? '');
 }
 
 /// Gets the date of the last successful backup. Returns `null` if no date has
