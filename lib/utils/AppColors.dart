@@ -41,10 +41,9 @@ const Color CARD_ACTIVE = Colors.white;
 final Color CARD_INACTIVE = Colors.grey[300];
 
 // background layer on patient cards
-const Color MAIN_SCREEN_SLIDE_TO_DEACTIVATE_TEXT = Colors.white;
+const Color MAIN_SCREEN_SLIDE_TO_ACTIVATE_TEXT = Colors.white;
 const Color MAIN_SCREEN_SLIDE_TO_DELETE_TEXT = Colors.white;
-const Color MAIN_SCREEN_SLIDE_TO_DELETE = Colors.red;
-const Color MAIN_SCREEN_SLIDE_TO_DEACTIVATE = Colors.black;
+const Color MAIN_SCREEN_SLIDE_TO_ACTIVATE = Colors.black;
 
 // patient card highlighting
 const Color URGENCY_HIGH = Colors.red;

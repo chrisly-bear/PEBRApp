@@ -632,52 +632,27 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       // Dismissible's onDismissed callback to another function (e.g.
       // deactivating a patient)
       _patientCards.add(Dismissible(
+          direction: DismissDirection.startToEnd,
           key: Key(curPatient.artNumber),
           confirmDismiss: (DismissDirection direction) {
-            if (direction == DismissDirection.startToEnd) {
-              // deactivate gesture, do not dismiss but deactivate patient
-              curPatient.isActivated = !curPatient.isActivated;
-              PatientBloc.instance.sinkPatientData(curPatient);
-              return Future<bool>.value(false);
-            }
-            return Future<bool>.value(true);
-          },
-          onDismissed: (direction) {
-            if (direction == DismissDirection.endToStart) {
-              print('removing patient with ART number ${curPatient.artNumber}');
-              DatabaseProvider().deletePatient(curPatient).then((int rowsAffected) {
-                showFlushBar(context, 'Removed patient ${curPatient.artNumber} ($rowsAffected rows deleted in DB)');
-                _patients.removeWhere((p) => p.artNumber == curPatient.artNumber);
-              });
-            }
+            curPatient.isActivated = !curPatient.isActivated;
+            PatientBloc.instance.sinkPatientData(curPatient);
+            // do not remove patient card from list
+            return Future<bool>.value(false);
           },
           background: Container(
             margin: _curCardMargin,
             padding: EdgeInsets.symmetric(horizontal: _cardMarginHorizontal),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [MAIN_SCREEN_SLIDE_TO_DEACTIVATE, MAIN_SCREEN_SLIDE_TO_DELETE],
-              ),
-            ),
+            color: MAIN_SCREEN_SLIDE_TO_ACTIVATE,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
               Text(
                 curPatient.isActivated ? 'DEACTIVATE' : 'ACTIVATE',
                 style: TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.bold,
-                  color: MAIN_SCREEN_SLIDE_TO_DEACTIVATE_TEXT,
-                ),
-              ),
-              Text(
-                "DELETE",
-                style: TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                  color: MAIN_SCREEN_SLIDE_TO_DELETE_TEXT,
+                  color: MAIN_SCREEN_SLIDE_TO_ACTIVATE_TEXT,
                 ),
               ),
               ]
