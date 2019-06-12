@@ -9,4 +9,4 @@ const int SHOW_WARNING_AFTER_X_DAYS = 7;
 const int VL_SUPPRESSED_THRESHOLD = 1000;
 
 // how long after the app has been unused should the app be locked with a PIN
-const int SECONDS_UNTIL_APP_LOCK = 10;
+const int SECONDS_UNTIL_APP_LOCK = 60;
