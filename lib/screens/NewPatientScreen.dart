@@ -50,7 +50,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   List<int> birthYearOptions = List<int>.generate(birthYearOptionsEnd - birthYearOptionsStart + 1, (i) => birthYearOptionsStart + i);
 
   static final int minAgeForEligibility = 15;
-  static final int maxAgeForEligibility = 18;
+  static final int maxAgeForEligibility = 24;
   static final int minYearForEligibility = currentYear - maxAgeForEligibility;
   static final int maxYearForEligibility = currentYear - minAgeForEligibility;
   bool get _eligible => _newPatient.yearOfBirth != null && _newPatient.yearOfBirth >= minYearForEligibility && _newPatient.yearOfBirth <= maxYearForEligibility;
