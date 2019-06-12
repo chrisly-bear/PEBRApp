@@ -632,75 +632,75 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       // Dismissible's onDismissed callback to another function (e.g.
       // deactivating a patient)
       _patientCards.add(Dismissible(
-          direction: DismissDirection.startToEnd,
-          key: Key(curPatient.artNumber),
-          confirmDismiss: (DismissDirection direction) {
-            curPatient.isActivated = !curPatient.isActivated;
-            PatientBloc.instance.sinkPatientData(curPatient);
-            // do not remove patient card from list
-            return Future<bool>.value(false);
-          },
-          background: Container(
-            margin: _curCardMargin,
-            padding: EdgeInsets.symmetric(horizontal: _cardMarginHorizontal),
-            color: MAIN_SCREEN_SLIDE_TO_ACTIVATE,
-            child: Row(
+        direction: DismissDirection.startToEnd,
+        key: Key(curPatient.artNumber),
+        confirmDismiss: (DismissDirection direction) {
+          curPatient.isActivated = !curPatient.isActivated;
+          PatientBloc.instance.sinkPatientData(curPatient);
+          // do not remove patient card from list
+          return Future<bool>.value(false);
+        },
+        background: Container(
+          margin: _curCardMargin,
+          padding: EdgeInsets.symmetric(horizontal: _cardMarginHorizontal),
+          color: MAIN_SCREEN_SLIDE_TO_ACTIVATE,
+          child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-              Text(
-                curPatient.isActivated ? 'DEACTIVATE' : 'ACTIVATE',
-                style: TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                  color: MAIN_SCREEN_SLIDE_TO_ACTIVATE_TEXT,
+              children: <Widget>[
+                Text(
+                  curPatient.isActivated ? 'DEACTIVATE' : 'ACTIVATE',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                    color: MAIN_SCREEN_SLIDE_TO_ACTIVATE_TEXT,
+                  ),
                 ),
-              ),
               ]
-            ),
           ),
-          child: GrowTransition(
+        ),
+        child: GrowTransition(
             animation: _cardHeightTween.animate(animationControllers[curPatient.artNumber]),
             child: Card(
-            color: curPatient.isActivated ? CARD_ACTIVE : CARD_INACTIVE,
-        elevation: 5.0,
-        margin: _curCardMargin,
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-            onTap: () {
-              _pushPatientScreen(curPatient);
-            },
-            child: Row(
-              children: [
-              // color bar
-              Container(width: _colorBarWidth, color: _calculateCardColor(curPatient)),
-              // patient info
-              Expanded(child: Padding(
-                padding: EdgeInsets.symmetric(
-                    vertical: _rowPaddingVertical,
-                    horizontal: _rowPaddingHorizontal),
-                child: Row(
-                  children: <Widget>[
-                    // ART Nr.
-                    Expanded(child: _formatPatientRowText(patientART, isActivated: curPatient.isActivated)),
-                    // Next Refill
-                    Expanded(child: _formatPatientRowText(nextRefillText, isActivated: curPatient.isActivated, highlight: nextRefillTextHighlighted)),
-                    // Refill By
-                    Expanded(child: _formatPatientRowText(refillByText, isActivated: curPatient.isActivated)),
-                    // Support
-                    Expanded(
-                      flex: 2,
-                        child: _buildSupportIcons(curPatient?.latestPreferenceAssessment?.supportPreferences, isActivated: curPatient.isActivated),
-                    ),
-                    // Viral Load
-                    Expanded(
-                        child: Container(alignment: Alignment.centerLeft, child: _getViralLoadIndicator(isActivated: curPatient.isActivated)),
-                    ),
-                    // Next Assessment
-                    Expanded(child: _formatPatientRowText(nextAssessmentText, isActivated: curPatient.isActivated, highlight: nextAssessmentTextHighlighted)),
-                  ],
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                ))),
-                ])))),
+                color: curPatient.isActivated ? CARD_ACTIVE : CARD_INACTIVE,
+                elevation: 5.0,
+                margin: _curCardMargin,
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                    onTap: () {
+                      _pushPatientScreen(curPatient);
+                    },
+                    child: Row(
+                        children: [
+                          // color bar
+                          Container(width: _colorBarWidth, color: _calculateCardColor(curPatient)),
+                          // patient info
+                          Expanded(child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: _rowPaddingVertical,
+                                  horizontal: _rowPaddingHorizontal),
+                              child: Row(
+                                children: <Widget>[
+                                  // ART Nr.
+                                  Expanded(child: _formatPatientRowText(patientART, isActivated: curPatient.isActivated)),
+                                  // Next Refill
+                                  Expanded(child: _formatPatientRowText(nextRefillText, isActivated: curPatient.isActivated, highlight: nextRefillTextHighlighted)),
+                                  // Refill By
+                                  Expanded(child: _formatPatientRowText(refillByText, isActivated: curPatient.isActivated)),
+                                  // Support
+                                  Expanded(
+                                    flex: 2,
+                                    child: _buildSupportIcons(curPatient?.latestPreferenceAssessment?.supportPreferences, isActivated: curPatient.isActivated),
+                                  ),
+                                  // Viral Load
+                                  Expanded(
+                                    child: Container(alignment: Alignment.centerLeft, child: _getViralLoadIndicator(isActivated: curPatient.isActivated)),
+                                  ),
+                                  // Next Assessment
+                                  Expanded(child: _formatPatientRowText(nextAssessmentText, isActivated: curPatient.isActivated, highlight: nextAssessmentTextHighlighted)),
+                                ],
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              ))),
+                        ])))),
       ));
     }
     return _patientCards;
