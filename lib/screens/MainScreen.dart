@@ -201,7 +201,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
         break;
       case AppLifecycleState.paused:
         print('>>>>> $state');
-        storeAppLastActiveInSharedPrefs();
+        if (!_loginLockCheckRunning) {
+          // if the app is already locked do not update the last active date!
+          // otherwise, we can work around the lock by force closing the app and
+          // restarting it within the time limit
+          storeAppLastActiveInSharedPrefs();
+        }
         break;
       default:
         print('>>>>> UNHANDLED: $state');
