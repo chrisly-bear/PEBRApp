@@ -245,7 +245,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
             if (value == null) { return 'Please select a year of birth.'; }
           },
           items: birthYearOptions.map<DropdownMenuItem<int>>((int value) {
-            String description = value.toString();
+            String description = '$value (age ${DateTime.now().year - value})';
             return DropdownMenuItem<int>(
               value: value,
               child: Text(
