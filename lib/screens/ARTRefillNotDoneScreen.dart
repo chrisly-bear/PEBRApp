@@ -41,7 +41,6 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
 
   Patient _patient;
   ARTRefill _artRefill;
-  bool _dateOfDeathValid = true;
   bool _transferDateValid = true;
   TextEditingController _causeOfDeathCtr = TextEditingController();
   TextEditingController _hospitalizedClinicCtr = TextEditingController();
@@ -165,16 +164,6 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
               },
             ),
             Divider(color: CUSTOM_FORM_FIELD_UNDERLINE, height: 1.0,),
-            _dateOfDeathValid ? Container() : Padding(
-              padding: const EdgeInsets.only(top: 5.0),
-              child: Text(
-                'Please select a date',
-                style: TextStyle(
-                  color: CUSTOM_FORM_FIELD_ERROR_TEXT,
-                  fontSize: 12.0,
-                ),
-              ),
-            ),
           ]
       ),
     );
@@ -310,21 +299,6 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
     );
   }
 
-  bool _validateDateOfDeath() {
-    // if the date of death is not specified when it should be show
-    // the error message under the date field and return false.
-    if (_artRefill.notDoneReason == ARTRefillNotDoneReason.PATIENT_DIED() && _artRefill.dateOfDeath == null) {
-      setState(() {
-        _dateOfDeathValid = false;
-      });
-      return false;
-    }
-    setState(() {
-      _dateOfDeathValid = true;
-    });
-    return true;
-  }
-
   bool _validateTransferDate() {
     // if the date of transfer is not specified when it should be show
     // the error message under the date field and return false.
@@ -343,7 +317,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
   }
 
   _onSubmitForm() async {
-    if (_formKey.currentState.validate() & _validateDateOfDeath() & _validateTransferDate()) {
+    if (_formKey.currentState.validate() & _validateTransferDate()) {
       _artRefill.causeOfDeath = _causeOfDeathCtr.text;
       _artRefill.hospitalizedClinic = _hospitalizedClinicCtr.text;
       _artRefill.otherClinic = _otherClinicCtr.text;
