@@ -139,8 +139,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _buildUserDataCard(),
         SizedBox(height: _spacing),
         PEBRAButtonRaised('Restore', onPressed: _isLoadingSettingsBody ? null : () {_onPressRestoreButton(context);},),
+        SizedBox(height: 10.0),
         PEBRAButtonRaised('Start Backup', onPressed: _isLoadingSettingsBody ? null : () {_onPressBackupButton(context);},),
-        SizedBox(height: 5.0),
+        SizedBox(height: 10.0),
         Container(
           height: 40,
           child: Column(
@@ -152,6 +153,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         SizedBox(height: _spacing),
         PEBRAButtonRaised('Logout', onPressed: () {_onPressLogout(context);},),
+        SizedBox(height: 10.0),
         PEBRAButtonRaised('Transfer Device', onPressed: () {_onPressTransferTablet(context);},),
         SizedBox(height: 5.0),
         Padding(
