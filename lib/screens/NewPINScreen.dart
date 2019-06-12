@@ -75,7 +75,10 @@ class _NewPINScreenState extends State<NewPINScreen> {
         SizedBox(height: 25.0),
         Text('PIN Code Reset', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0)),
         SizedBox(height: 20.0),
-        Text('Your PIN code has been reset. Please set a new PIN code:'),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Text('Your PIN code has been reset. Please set a new PIN code:'),
+        ),
         Card(
           margin: EdgeInsets.all(20.0),
           child: Padding(
