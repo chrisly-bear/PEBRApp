@@ -43,7 +43,7 @@ class _LockScreenState extends State<LockScreen> {
     print('~~~ LOCK SCREEN ~~~');
     return WillPopScope(
       onWillPop: () => Future(() => false),
-        child: PopupScreen(
+      child: PopupScreen(
         actions: [],
         backgroundBlur: backgroundBlur,
         child: LockScreenBody(_storedPINHash),
