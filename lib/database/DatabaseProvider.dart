@@ -450,6 +450,12 @@ class DatabaseProvider {
     await _initDB();
   }
 
+  Future<File> _createFileWithContent(String filename, String content) async {
+    final String filepath = join(await databasesDirectoryPath, filename);
+    final file = File(filepath);
+    return file.writeAsString(content, flush: true);
+  }
+
   /// Backs up the SQLite database file and exports the data as Excel file to SWITCH.
   /// Use this if no previous backup for this user exists yet. This creates
   /// version 1 of the backup documents on SWITCHtoolbox.
@@ -459,7 +465,7 @@ class DatabaseProvider {
   /// Throws `SWITCHLoginFailedException` if the login to SWITCHtoolbox fails.
   ///
   /// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
-  Future<void> createFirstBackupOnSWITCH(UserData loginData) async {
+  Future<void> createFirstBackupOnSWITCH(UserData loginData, String pinCodeHash) async {
     if (loginData == null) {
       throw NoLoginDataException();
     }
@@ -467,9 +473,11 @@ class DatabaseProvider {
     insertUserData(loginData);
     final File dbFile = await _databaseFile;
     final File excelFile = await DatabaseExporter.exportDatabaseToExcelFile();
-    // upload SQLite and Excel file
+    final File passwordFile = await _createFileWithContent('PEBRA-password', pinCodeHash);
+    // upload SQLite, password file, and Excel file
     final String filename = '${loginData.username}_${loginData.firstName}_${loginData.lastName}';
     await uploadFileToSWITCHtoolbox(dbFile, filename: filename, folderID: SWITCH_TOOLBOX_BACKUP_FOLDER_ID);
+    await uploadFileToSWITCHtoolbox(passwordFile, filename: loginData.username, folderID: SWITCH_TOOLBOX_PASSWORD_FOLDER_ID);
     await uploadFileToSWITCHtoolbox(excelFile, filename: filename, folderID: SWITCH_TOOLBOX_DATA_FOLDER_ID);
     await storeLatestBackupInSharedPrefs();
   }

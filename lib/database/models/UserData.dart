@@ -1,5 +1,9 @@
 
+import 'dart:io';
+
+import 'package:path/path.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
+import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/HealthCenter.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
@@ -117,5 +121,11 @@ class UserData implements IExcelExportable {
 
   // ignore: unnecessary_getters_setters
   DateTime get deactivatedDate => _deactivatedDate;
+
+  Future<String> get pinCodeHash async {
+    final String filepath = join(await DatabaseProvider().databasesDirectoryPath, 'PEBRA-password');
+    final File passwordFile = File(filepath);
+    return await passwordFile.readAsString();
+  }
 
 }

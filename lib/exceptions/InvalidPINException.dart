@@ -1,0 +1,1 @@
+class InvalidPINException implements Exception {}

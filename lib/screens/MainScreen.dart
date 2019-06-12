@@ -35,6 +35,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   bool _isLoading = true;
   List<Patient> _patients = [];
   Stream<AppState> _appStateStream;
+  bool _loginLockCheckRunning = false;
+  bool _backupRunning = false;
 
   static const int _ANIMATION_TIME = 800; // in milliseconds
   final Animatable<double> _cardHeightTween = Tween<double>(begin: 0, end: 100).chain(
@@ -193,13 +195,28 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _onAppResume();
+    switch (state) {
+      case AppLifecycleState.resumed:
+        print('>>>>> $state');
+        _onAppResume();
+        break;
+      case AppLifecycleState.paused:
+        print('>>>>> $state');
+        if (!_loginLockCheckRunning) {
+          // if the app is already locked do not update the last active date!
+          // otherwise, we can work around the lock by force closing the app and
+          // restarting it within the time limit
+          storeAppLastActiveInSharedPrefs();
+        }
+        break;
+      default:
+        print('>>>>> UNHANDLED: $state');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    print('~~~ MainScreenState.build ~~~');
     _context = context;
     return Scaffold(
         backgroundColor: Color.fromARGB(255, 224, 224, 224),
@@ -235,13 +252,62 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     );
   }
 
-  // Gets called when the application comes to the foreground.
+  /// Runs checks whether user is logged in / whether the app should be locked,
+  /// and whether a backup should be run simultaneously.
+  ///
+  /// Gets called when the application comes to the foreground or is run for the
+  /// first time.
   Future<void> _onAppResume() async {
+    _checkLoggedInAndLockStatus();
+    _runBackupIfDue();
+  }
+
+  /// Checks whether the user is logged in (if not shows the login screen) and
+  /// whether the app should be locked (if so it shows the PIN code screen).
+  Future<void> _checkLoggedInAndLockStatus() async {
+    // if _checkLoggedInAndLockStatus has already been called we do nothing
+    if (_loginLockCheckRunning) {
+      return;
+    }
+    // enable concurrency lock
+    _loginLockCheckRunning = true;
 
     // make user log in if he/she isn't already
     UserData loginData = await DatabaseProvider().retrieveLatestUserData();
     if (loginData == null) {
-      _pushSettingsScreen();
+      await _pushSettingsScreen();
+      _loginLockCheckRunning = false;
+      return;
+    }
+
+    // lock the app if it has been inactive for a certain time
+    DateTime lastActive = await appLastActive;
+    if (lastActive == null) {
+      await lockApp(_context);
+    } else {
+      DateTime now = DateTime.now();
+      Duration difference = now.difference(lastActive);
+      print('Seconds since app last active: ${difference.inSeconds}');
+      if (difference.inSeconds >= SECONDS_UNTIL_APP_LOCK) {
+        await lockApp(_context);
+      }
+    }
+    _loginLockCheckRunning = false;
+  }
+
+  /// Checks if a backup is due and if so, starts a backup.
+  Future<void> _runBackupIfDue() async {
+
+    // if backup is running, do not start another backup
+    if (_backupRunning) {
+      return;
+    }
+    _backupRunning = true;
+
+    // if user is not logged in, do not run a backup
+    UserData loginData = await DatabaseProvider().retrieveLatestUserData();
+    if (loginData == null) {
+      _backupRunning = false;
       return;
     }
 
@@ -253,6 +319,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       print('days since last backup: $daysSinceLastBackup');
       if (daysSinceLastBackup < AUTO_BACKUP_EVERY_X_DAYS && daysSinceLastBackup >= 0) {
         print("backup not due yet (only due after $AUTO_BACKUP_EVERY_X_DAYS days)");
+        _backupRunning = false;
         return; // don't run a backup, we have already backed up today
       }
     }
@@ -286,7 +353,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           print('${e.runtimeType}: $e');
           print(s);
           onNotificationButtonPress = () {
-            showErrorInPopup(e, s, context);
+            showErrorInPopup(e, s, _context);
           };
       }
       // show additional warning if backup wasn't successful for a long time
@@ -295,7 +362,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       }
     }
     showFlushBar(_context, resultMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
-
+    _backupRunning = false;
   }
 
   Widget _bodyToDisplayBasedOnState() {
@@ -310,9 +377,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
 
   /// Pushes [newScreen] to the top of the navigation stack using a fade in
   /// transition.
-  Future<T> _fadeInScreen<T extends Object>(Widget newScreen) {
+  Future<T> _fadeInScreen<T extends Object>(Widget newScreen, {String routeName}) {
     return Navigator.of(_context).push(
       PageRouteBuilder<T>(
+        settings: RouteSettings(name: routeName),
         opaque: false,
         transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
           return FadeTransition(
@@ -327,20 +395,20 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     );
   }
 
-  void _pushSettingsScreen() {
-    _fadeInScreen(SettingsScreen());
+  Future<void> _pushSettingsScreen() async {
+    await _fadeInScreen(SettingsScreen(), routeName: '/settings');
   }
 
-  void _pushIconExplanationsScreen() {
-    _fadeInScreen(IconExplanationsScreen());
+  Future<void> _pushIconExplanationsScreen() async {
+    await _fadeInScreen(IconExplanationsScreen(), routeName: '/icon-explanations');
   }
 
-  void _pushNewPatientScreen() {
-    _fadeInScreen(NewPatientScreen());
+  Future<void> _pushNewPatientScreen() async {
+    await _fadeInScreen(NewPatientScreen(), routeName: '/new-patient');
   }
 
-  void _pushPatientScreen(Patient patient) {
-    Navigator.of(_context).push(
+  Future<void> _pushPatientScreen(Patient patient) async {
+    await Navigator.of(_context).push(
       new MaterialPageRoute<void>(
         settings: RouteSettings(name: '/patient'),
         builder: (BuildContext context) {
@@ -350,8 +418,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     );
   }
 
-  Center _bodyLoading() {
-    return Center(
+  Widget _bodyLoading() {
+    final double size = 80.0;
+    return Container(
+      padding: EdgeInsets.all(20.0),
+      height: size,
+      width: size,
       child: CircularProgressIndicator(
           valueColor: AlwaysStoppedAnimation<Color>(Colors.white)
       ),

@@ -13,7 +13,6 @@ import 'package:spreadsheet_decoder/spreadsheet_decoder.dart';
 /// Exports the database as a CSV file an uploads it to SWITCH.
 class DatabaseExporter {
 
-  static const CSV_FILENAME = 'PEBRA_Data.csv';
   static const EXCEL_FILENAME = 'PEBRA_Data.xlsx';
   static const _EXCEL_TEMPLATE_PATH = 'assets/excel/PEBRA_Data_template.xlsx';
 

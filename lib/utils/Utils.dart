@@ -1,13 +1,17 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:pebrapp/config/SharedPreferencesConfig.dart';
 import 'package:intl/intl.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/screens/LockScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:password/password.dart';
+
 
 /// Displays a notification over the given [context].
 ///
@@ -197,6 +201,18 @@ Future<void> storeLatestBackupInSharedPrefs() async {
   prefs.setString(LAST_SUCCESSFUL_BACKUP_KEY, DateTime.now().toIso8601String());
 }
 
+/// Updates the date and time when the app was last active (local time).
+Future<void> storeAppLastActiveInSharedPrefs() async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setString(LAST_APP_ACTIVE_KEY, DateTime.now().toIso8601String());
+}
+
+Future<DateTime> get appLastActive async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  final String lastActiveString = prefs.getString(LAST_APP_ACTIVE_KEY);
+  return DateTime.tryParse(lastActiveString ?? '');
+}
+
 /// Gets the date of the last successful backup. Returns `null` if no date has
 /// been stored in SharedPreferences yet.
 Future<DateTime> get latestBackupFromSharedPrefs async {
@@ -254,4 +270,48 @@ void showErrorInPopup(e, StackTrace s, BuildContext context) {
 /// return false.
 bool isSuppressed(Patient patient) {
   return patient.mostRecentViralLoad?.isSuppressed ?? false;
+}
+
+/// Shows the lock screen, where the user has to enter their PIN code to unlock.
+Future<T> lockApp<T extends Object>(BuildContext context) {
+  return Navigator.of(context).push(
+    PageRouteBuilder<T>(
+      opaque: false,
+      settings: RouteSettings(name: '/lock'),
+      transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
+        return FadeTransition(
+          opacity: anim1,
+          child: widget, // child is the value returned by pageBuilder
+        );
+      },
+      pageBuilder: (BuildContext context, _, __) {
+        return LockScreen();
+      },
+    ),
+  );
+}
+
+/// Hashes the [string] and returns the hashed value.
+String hash(String string) {
+  return Password.hash(string, PBKDF2(iterationCount: 500));
+}
+
+/// Verifies that the [string] corresponds to the [hash].
+///
+/// This method is blocking.
+bool verifyHash(String string, String hash) {
+  return Password.verify(string, hash);
+}
+
+/// Verifies that the [string] corresponds to the [hash].
+///
+/// This method can run in the background.
+Future<bool> verifyHashAsync(String string, String hash) async {
+  return compute(_verifyHashOneArg, {'string': string, 'hash': hash});
+}
+
+/// Same as [verifyHash] but takes only one arguments so it can be passed to the
+/// compute function.
+bool _verifyHashOneArg(Map<String, String> stringAndHash) {
+  return Password.verify(stringAndHash['string'], stringAndHash['hash']);
 }
