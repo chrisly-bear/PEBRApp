@@ -482,11 +482,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: PEBRAButtonRaised(
               _createAccountMode ? 'Create Account' : 'Login',
               widget: _isLoadingLoginBody
-                  ? Container(
-                height: 10.0,
-                child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
-              )
-                  : null,
+                  ? SizedBox(height: 15.0, width: 15.0, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))) : null,
               onPressed: _isLoadingLoginBody ? null : (_createAccountMode
                   ? _onSubmitCreateAccountForm
                   : _onSubmitLoginForm),
