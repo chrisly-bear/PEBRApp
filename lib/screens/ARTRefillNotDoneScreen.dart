@@ -333,8 +333,6 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
         return route.settings.name == '/patient';
       });
       showFlushBar(context, 'ART Refill saved');
-    } else {
-      showFlushBar(context, "Errors exist in the form. Please check the form.");
     }
   }
 
