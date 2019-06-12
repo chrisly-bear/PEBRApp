@@ -109,7 +109,7 @@ String formatDateIso(DateTime date) {
 ///
 /// * today it will return "Today"
 /// * tomorrow it will return "Tomorrow"
-/// * within 3 days from now it will return "x days from now"
+/// * within 7 days from now it will return "x days from now"
 /// * yesterday it will return "Yesterday"
 /// * in the past it will return "x days ago".
 String formatDate(DateTime date) {
@@ -118,7 +118,7 @@ String formatDate(DateTime date) {
     return "Today";
   } else if (daysFromToday == 1) {
       return "Tomorrow";
-  } else if (daysFromToday > 1 && daysFromToday <= 3) {
+  } else if (daysFromToday > 1 && daysFromToday <= 7) {
     return "$daysFromToday days from now";
   } else if (daysFromToday == -1) {
     return "Yesterday";
