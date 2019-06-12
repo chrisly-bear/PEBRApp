@@ -212,11 +212,16 @@ class _EditPatientFormState extends State<_EditPatientForm> {
   // ----------
 
   _onSubmitForm() async {
-    Patient newPatient;
     // Validate will return true if the form is valid, or false if the form is invalid.
     if (_formKey.currentState.validate()) {
       // TODO: check that all fields are updated
-      await PatientBloc.instance.sinkPatientData(newPatient);
+      if (_existingPatient.phoneAvailability != null && _existingPatient.phoneAvailability == PhoneAvailability.YES()) {
+        _existingPatient.phoneNumber = _phoneNumberCtr.text;
+      } else {
+        _existingPatient.phoneNumber = null;
+      }
+      _existingPatient.village = _villageCtr.text;
+      await PatientBloc.instance.sinkPatientData(_existingPatient);
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return (route.settings.name == '/patient' || route.settings.name == '/');
       });
