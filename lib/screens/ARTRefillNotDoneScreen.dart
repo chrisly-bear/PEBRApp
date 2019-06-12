@@ -176,11 +176,6 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
     return _makeQuestion('Cause of Death',
       child: TextFormField(
         controller: _causeOfDeathCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please enter the cause of death';
-          }
-        },
       ),
     );
   }
