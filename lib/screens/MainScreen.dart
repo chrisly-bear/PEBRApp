@@ -343,7 +343,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           print('${e.runtimeType}: $e');
           print(s);
           onNotificationButtonPress = () {
-            showErrorInPopup(e, s, context);
+            showErrorInPopup(e, s, _context);
           };
       }
       // show additional warning if backup wasn't successful for a long time
