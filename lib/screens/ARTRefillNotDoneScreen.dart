@@ -43,7 +43,6 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
   ARTRefill _artRefill;
   bool _dateOfDeathValid = true;
   bool _transferDateValid = true;
-  bool _deactivatePatient;
   TextEditingController _causeOfDeathCtr = TextEditingController();
   TextEditingController _hospitalizedClinicCtr = TextEditingController();
   TextEditingController _otherClinicCtr = TextEditingController();
@@ -53,7 +52,6 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
   _ARTRefillNotDoneFormState(Patient patient) {
     _patient = patient;
     _artRefill = ARTRefill(patient.artNumber, RefillType.NOT_DONE());
-    _deactivatePatient = !patient.isActivated;
   }
 
   @override
@@ -65,6 +63,11 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
       children: <Widget>[
         SizedBox(height: _spacing),
         _buildQuestionCard(),
+        SizedBox(height: _spacing),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.0),
+          child: Text('Patient will be deactivated and appear greyed out in the main screen.', textAlign: TextAlign.center,),
+        ),
         SizedBox(height: _spacing),
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           PEBRAButtonRaised(
@@ -92,7 +95,6 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
             _otherClinicQuestion(),
             _transferDateQuestion(),
             _notTakingARTAnymoreQuestion(),
-            _deactivatePatientQuestion(),
           ],
         ),
       ),
@@ -308,27 +310,6 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
     );
   }
 
-  Widget _deactivatePatientQuestion() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            Text('Deactivate Patient?')),
-        Expanded(
-          flex: _answersFlex,
-          child: CheckboxListTile(
-                  value: _deactivatePatient,
-                  onChanged: (bool newState) {
-                    setState(() { _deactivatePatient = newState; });
-                  },
-                ),
-          ),
-      ],
-    );
-  }
-
   bool _validateDateOfDeath() {
     // if the date of death is not specified when it should be show
     // the error message under the date field and return false.
@@ -369,13 +350,11 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
       _artRefill.notTakingARTReason = _notTakingARTAnymoreCtr.text;
       print('NEW ART REFILL (_id will be given by SQLite database):\n$_artRefill');
       await PatientBloc.instance.sinkARTRefillData(_artRefill);
-      if (patientActivatedWillChange(_patient, !_deactivatePatient)) {
-        print('patient will change activation status, sinking patient data...');
-        print('current: ${_patient.isActivated}, new: ${!_deactivatePatient}');
-        _patient.isActivated = !_deactivatePatient;
+      if (_patient.isActivated) {
+        print('patient will change from being activated to being deactivated, sinking patient data...');
+        _patient.isActivated = false;
         PatientBloc.instance.sinkPatientData(_patient);
       }
-      // we will also have to sink a PatientData event in case the patient's isActivated state changes
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return route.settings.name == '/patient';
       });
@@ -409,10 +388,6 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
         firstDate: DateTime.fromMillisecondsSinceEpoch(0),
         lastDate: DateTime.now(),
     );
-  }
-
-  patientActivatedWillChange(Patient patient, bool newStatus) {
-    return patient.isActivated != newStatus;
   }
 
 }
