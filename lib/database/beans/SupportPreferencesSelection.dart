@@ -39,7 +39,7 @@ class SupportPreferencesSelection {
   static String get CONTRACEPTIVES_INFO_DESCRIPTION => "More information about contraceptives";
   static String get VMMC_INFO_DESCRIPTION => "More information about VMMC";
   static String get YOUNG_MOTHERS_GROUP_DESCRIPTION => "Linkage to young mothers group (DREAMS or Mothers-to-Mothers)";
-  static String get FEMALE_WORTH_GROUP_DESCRIPTION => "For females: Linkage to a female WORTH group (Social Asset Building Model)";
+  static String get FEMALE_WORTH_GROUP_DESCRIPTION => "Linkage to a female WORTH group (Social Asset Building Model)";
   static String get LEGAL_AID_INFO_DESCRIPTION => "Legal aid information";
   static String get TUNE_ME_ORG_DESCRIPTION => "Show me tuneme.org (teenage topics)";
   static String get NTLAFATSO_FOUNDATION_DESCRIPTION => "Show me Ntlafatso Foundation Facebook (HIV stigma/discrimination topics)";

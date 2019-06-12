@@ -10,6 +10,7 @@ import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderMessage.dart';
 import 'package:pebrapp/database/beans/CondomUsageNotDemonstratedReason.dart';
+import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/HomeVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
 import 'package:pebrapp/database/beans/PhoneAvailability.dart';
@@ -1221,7 +1222,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             })),
       ),
       _youngMothersFollowUpQuestions(),
-      _makeQuestion('',
+      _patient.gender == Gender.FEMALE() || _patient.gender == Gender.TRANSGENDER() ? _makeQuestion('',
         answer: CheckboxListTile(
 //            secondary: Container(width: 0.0),
             title: Text(SupportPreferencesSelection.FEMALE_WORTH_GROUP_DESCRIPTION),
@@ -1229,7 +1230,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             onChanged: (bool newValue) => this.setState(() {
               _pa.supportPreferences.FEMALE_WORTH_GROUP_selected = newValue;
             })),
-      ),
+      ) : Container(),
       _femaleWorthFollowUpQuestions(),
       _makeQuestionCustom(
         question: Container(
@@ -1833,7 +1834,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _femaleWorthFollowUpQuestions() {
-    if (!_pa.supportPreferences.FEMALE_WORTH_GROUP_selected) {
+    if (!_pa.supportPreferences.FEMALE_WORTH_GROUP_selected || !(_patient.gender == Gender.FEMALE() || _patient.gender == Gender.TRANSGENDER())) {
       return Container();
     }
     return _makeQuestion(
