@@ -58,10 +58,13 @@ Future<void> uploadFileToSWITCHtoolbox(File sourceFile, {String filename, int fo
 ///
 /// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
 ///
-/// Throws `DocumentNotFoundException` if backup for the loginData is not available.
+/// Throws `DocumentNotFoundException` if backup for the given [username] is not available.
 Future<void> restoreFromSWITCHtoolbox(String username, String pinCodeHash) async {
   if (username == null) {
     throw NoLoginDataException();
+  }
+  if (!(await existsBackupForUser(username))) {
+    throw DocumentNotFoundException();
   }
   if (!(await _pinCodeValid(username, pinCodeHash))) {
     throw InvalidPINException();
