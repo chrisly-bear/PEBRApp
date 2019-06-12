@@ -211,11 +211,6 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
           flex: _answersFlex,
           child: TextFormField(
             controller: _otherClinicCtr,
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter the name of the clinic';
-              }
-            },
           ),)
       ],
     );
