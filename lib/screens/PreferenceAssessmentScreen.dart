@@ -2062,6 +2062,9 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   _buildUnsuppressedCard() {
+    if (_patient.mostRecentViralLoad.isSuppressed) {
+      return Column();
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
