@@ -288,7 +288,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       DateTime now = DateTime.now();
       Duration difference = now.difference(lastActive);
       print('Seconds since app last active: ${difference.inSeconds}');
-      if (difference.inSeconds > SECONDS_UNTIL_APP_LOCK) {
+      if (difference.inSeconds >= SECONDS_UNTIL_APP_LOCK) {
         await lockApp(_context);
       }
     }
