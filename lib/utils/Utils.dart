@@ -201,6 +201,18 @@ Future<void> storeLatestBackupInSharedPrefs() async {
   prefs.setString(LAST_SUCCESSFUL_BACKUP_KEY, DateTime.now().toIso8601String());
 }
 
+/// Updates the date and time when the app was last active (local time).
+Future<void> storeAppLastActiveInSharedPrefs() async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setString(LAST_APP_ACTIVE_KEY, DateTime.now().toIso8601String());
+}
+
+Future<DateTime> get appLastActive async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  final String lastActiveString = prefs.getString(LAST_APP_ACTIVE_KEY);
+  return DateTime.parse(lastActiveString);
+}
+
 /// Gets the date of the last successful backup. Returns `null` if no date has
 /// been stored in SharedPreferences yet.
 Future<DateTime> get latestBackupFromSharedPrefs async {

@@ -195,8 +195,17 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _onAppResume();
+    switch (state) {
+      case AppLifecycleState.resumed:
+        print('>>>>> $state');
+        _onAppResume();
+        break;
+      case AppLifecycleState.paused:
+        print('>>>>> $state');
+        storeAppLastActiveInSharedPrefs();
+        break;
+      default:
+        print('>>>>> UNHANDLED: $state');
     }
   }
 
@@ -250,7 +259,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   /// Checks whether the user is logged in (if not shows the login screen) and
   /// whether the app should be locked (if so it shows the PIN code screen).
   Future<void> _checkLoggedInAndLockStatus() async {
-
     // if _checkLoggedInAndLockStatus has already been called we do nothing
     if (_loginLockCheckRunning) {
       return;
@@ -266,10 +274,15 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       return;
     }
 
-    // lock the app
-    await lockApp(_context);
+    // lock the app if it has been inactive for a certain time
+    DateTime lastActive = await appLastActive;
+    DateTime now = DateTime.now();
+    Duration difference = now.difference(lastActive);
+    print('Seconds since app last active: ${difference.inSeconds}');
+    if (difference.inSeconds > SECONDS_UNTIL_APP_LOCK) {
+      await lockApp(_context);
+    }
     _loginLockCheckRunning = false;
-
   }
 
   /// Checks if a backup is due and if so, starts a backup.
