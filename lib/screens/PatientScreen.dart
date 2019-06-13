@@ -3,6 +3,7 @@ import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
+import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderMessage.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
@@ -365,9 +366,41 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           ),
         );
       } else {
+
+        Widget _vhwInfo() {
+          ARTRefillOption lastOption = _patient.latestPreferenceAssessment?.lastRefillOption;
+          if (lastOption == null || lastOption != ARTRefillOption.VHW()) {
+            return Container();
+          }
+          return Column(
+              children: [
+                _buildRow('VHW Name', _patient.latestPreferenceAssessment?.artRefillVHWName),
+                _buildRow("VHW's Village", _patient.latestPreferenceAssessment?.artRefillVHWVillage),
+                _buildRow("VHW's Phone Number", _patient.latestPreferenceAssessment?.artRefillVHWPhoneNumber),
+              ],
+          );
+        }
+
+        Widget _treatmentBuddyInfo() {
+          ARTRefillOption lastOption = _patient.latestPreferenceAssessment?.lastRefillOption;
+          if (lastOption == null || lastOption != ARTRefillOption.TREATMENT_BUDDY()) {
+            return Container();
+          }
+          return Column(
+            children: [
+              _buildRow("Treatment Buddy's ART Nr.", _patient.latestPreferenceAssessment?.artRefillTreatmentBuddyART),
+              _buildRow("Treatment Buddy's Village", _patient.latestPreferenceAssessment?.artRefillTreatmentBuddyVillage),
+              _buildRow("Treatment Buddy's Phone Number", _patient.latestPreferenceAssessment?.artRefillTreatmentBuddyPhoneNumber),
+            ],
+          );
+        }
+
         return Column(
           children: [
             _buildRow('ART Refill', _patient.latestPreferenceAssessment?.lastRefillOption?.description),
+            _vhwInfo(),
+            _treatmentBuddyInfo(),
+            _buildRow('ART Supply Amount', _patient.latestPreferenceAssessment?.artSupplyAmount?.description),
             _buildRow('Adherence Reminder Message', _patient.latestPreferenceAssessment?.adherenceReminderMessage?.description),
             _buildRow('Adherence Reminder Frequency', _patient.latestPreferenceAssessment?.adherenceReminderFrequency?.description),
             _buildRow('Adherence Reminder Notification Time', formatTime(_patient.latestPreferenceAssessment?.adherenceReminderTime)),
