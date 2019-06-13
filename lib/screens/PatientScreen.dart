@@ -471,7 +471,11 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         Widget _unsuppressedVlInfo() {
           final YesNoRefused answer = _patient.latestPreferenceAssessment?.unsuppressedSafeEnvironmentAnswer;
           if (answer == null) {
-            return Container();
+            return Text(
+              'The patient was suppressed at the time of the preference assessment. Thus, this section was not covered during the assessment.',
+              style: TextStyle(color: TEXT_INACTIVE),
+              textAlign: TextAlign.center,
+            );
           }
           final bool notSafe = answer == YesNoRefused.NO();
           return Column(
