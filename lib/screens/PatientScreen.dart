@@ -395,18 +395,29 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           );
         }
 
+        final double _spacingBetweenPreferences = 20.0;
         return Column(
           children: [
+            SizedBox(height: 5.0),
+            _buildSubtitle('ART Refill'), Divider(),
             _buildRow('ART Refill', _patient.latestPreferenceAssessment?.lastRefillOption?.description),
             _vhwInfo(),
             _treatmentBuddyInfo(),
             _buildRow('ART Supply Amount', _patient.latestPreferenceAssessment?.artSupplyAmount?.description),
+            SizedBox(height: _spacingBetweenPreferences),
+            _buildSubtitle('Notifications'), Divider(),
             _buildRow('Adherence Reminder Message', _patient.latestPreferenceAssessment?.adherenceReminderMessage?.description),
             _buildRow('Adherence Reminder Frequency', _patient.latestPreferenceAssessment?.adherenceReminderFrequency?.description),
             _buildRow('Adherence Reminder Notification Time', formatTime(_patient.latestPreferenceAssessment?.adherenceReminderTime)),
             _buildRow('Viral Load Message (suppressed)', _patient.latestPreferenceAssessment?.vlNotificationMessageSuppressed?.description),
             _buildRow('Viral Load Message (unsuppressed)', _patient.latestPreferenceAssessment?.vlNotificationMessageUnsuppressed?.description),
+            SizedBox(height: _spacingBetweenPreferences),
+            _buildSubtitle('Support'), Divider(),
             _buildSupportOptions(),
+            SizedBox(height: _spacingBetweenPreferences),
+            _buildSubtitle('Psychosocial Support'), Divider(),
+            SizedBox(height: _spacingBetweenPreferences),
+            _buildSubtitle('Unsuppressed Viral Load'), Divider(),
           ],
         );
       }
