@@ -461,8 +461,9 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           final bool shareSomething = shareSomethingAnswer != null && shareSomethingAnswer == YesNoRefused.YES();
           return Column(
             children: [
+              _buildRow('Did the patient want to share something:', shareSomethingAnswer.description),
               shareSomething ? _buildRow('The patient shared:', _patient.latestPreferenceAssessment?.psychosocialShareSomethingContent) : Container(),
-              _buildRow('How the patient was doing:', _patient.latestPreferenceAssessment?.psychosocialHowDoing),
+              _buildRow('How was the patient doing:', _patient.latestPreferenceAssessment?.psychosocialHowDoing),
             ],
           );
         }
