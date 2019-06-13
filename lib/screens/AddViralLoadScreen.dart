@@ -46,6 +46,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
   final _formKey = GlobalKey<FormState>();
   final int _questionsFlex = 1;
   final int _answersFlex = 1;
+  double _screenWidth = double.infinity;
 
   ViralLoad _viralLoad;
   bool _viralLoadBaselineDateValid = true;
@@ -59,6 +60,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
 
   @override
   Widget build(BuildContext context) {
+    _screenWidth = MediaQuery.of(context).size.width;
     const double _spacing = 20.0;
     return Form(
       key: _formKey,
@@ -98,7 +100,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
 
   Widget _viralLoadBaselineDateQuestion() {
     return _makeQuestion('Date of most recent viral load (put the date when blood was taken)',
-      child: Column(
+      answer: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FlatButton(
@@ -142,7 +144,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
 
   Widget _viralLoadBaselineLowerThanDetectableQuestion() {
     return _makeQuestion('Was the viral load baseline result lower than detectable limit (<20 copies/mL)?',
-      child: DropdownButtonFormField<bool>(
+      answer: DropdownButtonFormField<bool>(
         value: _viralLoad.isLowerThanDetectable,
         onChanged: (bool newValue) {
           setState(() {
@@ -168,7 +170,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
       return Container();
     }
     return _makeQuestion('What was the result of the viral load baseline (in c/mL)',
-      child: TextFormField(
+      answer: TextFormField(
         inputFormatters: [
           WhitelistingTextInputFormatter(RegExp('[0-9]')),
 //          LengthLimitingTextInputFormatter(5),
@@ -186,7 +188,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
 
   Widget _viralLoadBaselineLabNumberQuestion() {
     return _makeQuestion('Lab number of the viral load baseline',
-      child: TextFormField(
+      answer: TextFormField(
         controller: _viralLoadLabNumberCtr,
         validator: (value) {
           if (value.isEmpty) {
@@ -197,7 +199,19 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
     );
   }
 
-  Widget _makeQuestion(String question, {@required Widget child}) {
+  Widget _makeQuestion(String question, {@required Widget answer}) {
+    if (_screenWidth < 400.0) {
+      final double _spacingBetweenQuestions = 8.0;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: _spacingBetweenQuestions),
+          Text(question),
+          answer,
+          SizedBox(height: _spacingBetweenQuestions),
+        ],
+      );
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -207,7 +221,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
         ),
         Expanded(
           flex: _answersFlex,
-          child: child,
+          child: answer,
         ),
       ],
     );
