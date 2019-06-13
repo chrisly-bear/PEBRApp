@@ -64,8 +64,6 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   bool SCHOOL_VISIT_PE_done = false;
   bool PITSO_VISIT_PE_done = false;
 
-  bool dummy_item_done = false;
-
   _PatientScreenBodyState(this._context, this._patient);
   
   @override
@@ -327,14 +325,6 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           icon: _getPaddedIcon('assets/icons/pitso.png', width: iconWidth, height: iconHeight, color: PITSO_VISIT_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
         ));
       }
-
-      // TODO: remove this demo option (it is just an idea how to display completed items)
-      supportOptions.add(_buildSupportOption('Completed Item',
-          checkboxState: dummy_item_done,
-          onChanged: (bool newState) { setState(() { dummy_item_done = newState; }); },
-          icon: Icon(Icons.description, color: dummy_item_done ? ICON_INACTIVE : ICON_ACTIVE),
-          doneText: 'done on 04.02.2019'),
-      );
 
       final String supportDisclaimer = "The following support options require "
           "additional action. Tick off any options that are completed.";
