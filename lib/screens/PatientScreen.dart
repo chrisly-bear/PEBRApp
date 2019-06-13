@@ -421,6 +421,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       Row(
         children: <Widget>[
           Expanded(flex: _descriptionFlex, child: Text(description)),
+          SizedBox(width: 5.0),
           Expanded(flex: _contentFlex, child: content),
         ],
       ),
