@@ -121,11 +121,16 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       ],
     );
 
-    final Widget finishStep = Row(
-      children: <Widget>[
-        Text(_patientSaved ? "All done! You can close this screen by tapping 'Continue' below." : 'Please complete the previous steps!'),
-      ],
-    );
+    Widget finishStep() {
+      if (_patientSaved) {
+        return Row(children: [
+          Text("All done! You can close this screen by tapping "),
+          Icon(Icons.check, size: 20.0),
+          Text(" below."),
+        ]);
+      }
+      return Text('Please complete the previous steps!');
+    }
 
     List<Step> steps = [
       Step(
@@ -151,7 +156,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
         title: const Text('Finish'),
         isActive: currentStep == 2,
         state: StepState.indexed,
-        content: finishStep,
+        content: finishStep(),
       ),
     ];
 
