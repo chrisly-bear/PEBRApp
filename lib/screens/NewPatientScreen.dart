@@ -130,7 +130,9 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           Text(" below."),
         ]);
       }
-      return Text('Please complete the previous steps!');
+      return Row(children: [
+        Text('Please complete the previous steps!'),
+      ]);
     }
 
     List<Step> steps = [
