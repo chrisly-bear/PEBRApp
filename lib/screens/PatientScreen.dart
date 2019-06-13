@@ -468,15 +468,18 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   }
 
   Widget _buildSubtitle(String subtitle) {
-    return Padding(padding: EdgeInsets.only(top: 20, bottom: 10),
-        child:
-        Row(children: [
-          Text(subtitle, style: TextStyle(
+    return Row(
+      children: [
+        Text(
+          subtitle,
+          style: TextStyle(
             color: DATA_SUBTITLE_TEXT,
             fontStyle: FontStyle.italic,
             fontSize: 15.0,
-          ),)
-        ]));
+          ),
+        ),
+      ],
+    );
   }
 
   ClipRect _getPaddedIcon(String assetLocation, {Color color, double width: 25.0, double height: 25.0}) {
