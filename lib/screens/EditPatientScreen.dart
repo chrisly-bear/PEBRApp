@@ -45,6 +45,7 @@ class _EditPatientFormState extends State<_EditPatientForm> {
 
   final _questionsFlex = 1;
   final _answersFlex = 1;
+  double _screenWidth = double.infinity;
 
   final Patient _existingPatient;
   TextEditingController _villageCtr = TextEditingController();
@@ -59,6 +60,7 @@ class _EditPatientFormState extends State<_EditPatientForm> {
 
   @override
   Widget build(BuildContext context) {
+    _screenWidth = MediaQuery.of(context).size.width;
     return Form(
       key: _formKey,
       child: Column(
@@ -110,9 +112,8 @@ class _EditPatientFormState extends State<_EditPatientForm> {
   // ----------
 
   Widget _genderQuestion() {
-    return _makeQuestion(
-      'Gender',
-      child: DropdownButtonFormField<Gender>(
+    return _makeQuestion('Gender',
+      answer: DropdownButtonFormField<Gender>(
         value: _existingPatient.gender,
         onChanged: (Gender newValue) {
           setState(() {
@@ -133,9 +134,8 @@ class _EditPatientFormState extends State<_EditPatientForm> {
   }
 
   Widget _sexualOrientationQuestion() {
-    return _makeQuestion(
-      'Sexual Orientation',
-      child: DropdownButtonFormField<SexualOrientation>(
+    return _makeQuestion('Sexual Orientation',
+      answer: DropdownButtonFormField<SexualOrientation>(
         value: _existingPatient.sexualOrientation,
         onChanged: (SexualOrientation newValue) {
           setState(() {
@@ -156,9 +156,8 @@ class _EditPatientFormState extends State<_EditPatientForm> {
   }
 
   Widget _villageQuestion() {
-    return _makeQuestion(
-      'Village',
-      child: TextFormField(
+    return _makeQuestion('Village',
+      answer: TextFormField(
           controller: _villageCtr,
           validator: (value) {
             if (value.isEmpty) {
@@ -171,7 +170,7 @@ class _EditPatientFormState extends State<_EditPatientForm> {
 
   Widget _phoneAvailabilityQuestion() {
     return _makeQuestion('Do you have regular access to a phone (with Lesotho number) where you can receive confidential information?',
-      child: DropdownButtonFormField<PhoneAvailability>(
+      answer: DropdownButtonFormField<PhoneAvailability>(
         value: _existingPatient.phoneAvailability,
         onChanged: (PhoneAvailability newValue) {
           setState(() {
@@ -196,7 +195,7 @@ class _EditPatientFormState extends State<_EditPatientForm> {
       return Container();
     }
     return _makeQuestion('Phone Number',
-        child: TextFormField(
+        answer: TextFormField(
           controller: _phoneNumberCtr,
           validator: (value) {
             if (value.isEmpty) {
@@ -243,7 +242,19 @@ class _EditPatientFormState extends State<_EditPatientForm> {
     );
   }
 
-  Widget _makeQuestion(String question, {@required Widget child}) {
+  Widget _makeQuestion(String question, {@required Widget answer}) {
+    if (_screenWidth < 400.0) {
+      final double _spacingBetweenQuestions = 8.0;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: _spacingBetweenQuestions),
+          Text(question),
+          answer,
+          SizedBox(height: _spacingBetweenQuestions),
+        ],
+      );
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -253,7 +264,7 @@ class _EditPatientFormState extends State<_EditPatientForm> {
         ),
         Expanded(
           flex: _answersFlex,
-          child: child,
+          child: answer,
         ),
       ],
     );
