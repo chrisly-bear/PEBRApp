@@ -51,7 +51,7 @@ class ARTRefillScreen extends StatelessWidget {
   }
 
   void _onPressRefillDone(BuildContext context) async {
-    DateTime newDate = await _showDatePicker(context);
+    DateTime newDate = await _showDatePickerWithTitle(context, 'Select the Next ART Refill Date');
     if (newDate != null) {
       final ARTRefill artRefill = ARTRefill(this._patient.artNumber, RefillType.DONE(), nextRefillDate: newDate);
       await PatientBloc.instance.sinkARTRefillData(artRefill);
@@ -65,6 +65,34 @@ class ARTRefillScreen extends StatelessWidget {
   Future<DateTime> _showDatePicker(BuildContext context) async {
     final DateTime now = DateTime.now();
     return showDatePicker(context: context, initialDate: now, firstDate: now.subtract(Duration(days: 1)), lastDate: DateTime(2050));
+  }
+
+  Future<DateTime> _showDatePickerWithTitle(BuildContext context, String title) async {
+    final DateTime now = DateTime.now();
+    return showDatePicker(context: context, initialDate: now, firstDate: now.subtract(Duration(days: 1)), lastDate: DateTime(2050), builder: (BuildContext context, Widget widget) {
+      return PopupScreen(
+        backgroundColor: Colors.transparent,
+        actions: [],
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(height: 20.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 24.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              widget,
+            ]
+        ),
+      );
+    });
   }
 
   void _pushARTRefillNotDoneScreen(BuildContext context, Patient patient) {

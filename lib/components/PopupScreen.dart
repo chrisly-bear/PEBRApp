@@ -10,6 +10,7 @@ class PopupScreen extends StatelessWidget {
   final String title, subtitle;
   final List<Widget> actions;
   final double backgroundBlur;
+  final Color backgroundColor;
 
   // define the maximum width of the popup screen
   static const double MAX_WIDTH = 600;
@@ -36,8 +37,12 @@ class PopupScreen extends StatelessWidget {
   ///
   /// @param [backgroundBlur] The amount with which the content behind the popup
   /// screen should be blurred.
+  ///
+  /// @param [backgroundColor] The color with which the content behind the popup
+  /// screen should be overlayed. If this is null then it will use
+  /// [POPUP_BEHIND].
   PopupScreen({@required this.child, this.title, this.subtitle, this.actions,
-  this.backgroundBlur: 0.0});
+  this.backgroundBlur: 0.0, this.backgroundColor});
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +51,7 @@ class PopupScreen extends StatelessWidget {
     padding = max(MIN_PADDING, (screenWidth - MAX_WIDTH)/2);
 
     return Scaffold(
-      backgroundColor: POPUP_BEHIND,
+      backgroundColor: backgroundColor ?? POPUP_BEHIND,
       body: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: backgroundBlur, sigmaY: backgroundBlur),
         child: SafeArea(
