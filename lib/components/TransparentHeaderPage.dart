@@ -62,25 +62,26 @@ class TransparentHeaderPage extends StatelessWidget {
   }
 
   Widget get _background {
-    return SingleChildScrollView(
-      child: SafeArea(
-        right: safeArea,
-        left: safeArea,
-        bottom: safeArea,
-        top: safeArea,
-        child: Column(
-          children: [
-            // padding until bottom of header
-            Container(height: _headerHeight),
-            // padding to avoid Gaussian blur,
-            // only required if we have a header and either blurring is enabled
-            // or a shadow is displayed
-            Container(height: (_headerHeight != 0 && (blurEnabled || elevationEnabled)) ? (Platform.isIOS ? 10.0 : 12.0) : 0),
-            child,
-          ],
-        ),
+
+    // padding until bottom of header
+    final double paddingUntilBottomOfHeader = _headerHeight;
+    // padding to avoid Gaussian blur,
+    // only required if we have a header and either blurring is enabled
+    // or a shadow is displayed
+    final double paddingToAvoidBlur = (_headerHeight != 0 && (blurEnabled || elevationEnabled)) ? (Platform.isIOS ? 10.0 : 12.0) : 0;
+
+    final Widget content = SafeArea(
+      right: safeArea,
+      left: safeArea,
+      bottom: safeArea,
+      top: safeArea,
+      child: Padding(
+        padding: EdgeInsets.only(top: paddingUntilBottomOfHeader + paddingToAvoidBlur),
+        child: child,
       ),
     );
+
+    return content;
   }
 
   Widget get _foreground {
