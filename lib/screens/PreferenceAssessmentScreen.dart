@@ -1113,7 +1113,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     return Column(children: <Widget>[
       _makeQuestion('What kind of support do you mainly wish? (tick all that apply)',
         answer: CheckboxListTile(
-            secondary: _getPaddedIcon('assets/icons/nurse_clinic_fett.png'),
+            secondary: _getPaddedIcon('assets/icons/nurse_clinic.png'),
             title: Text(SupportPreferencesSelection.NURSE_CLINIC_DESCRIPTION),
 //            dense: true,
             value: _pa.supportPreferences.NURSE_CLINIC_selected,
@@ -1123,7 +1123,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       ),
       _makeQuestion('',
         answer: CheckboxListTile(
-            secondary: _getPaddedIcon('assets/icons/saturday_clinic_club_black.png'),
+            secondary: _getPaddedIcon('assets/icons/saturday_clinic_club.png'),
             title: Text(SupportPreferencesSelection.SATURDAY_CLINIC_CLUB_DESCRIPTION),
             value: _pa.supportPreferences.SATURDAY_CLINIC_CLUB_selected,
             onChanged: (bool newValue) => this.setState(() {
@@ -1134,7 +1134,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       _saturdayClinicClubFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
-            secondary: _getPaddedIcon('assets/icons/youth_club_black.png'),
+            secondary: _getPaddedIcon('assets/icons/youth_club.png'),
             title: Text(SupportPreferencesSelection.COMMUNITY_YOUTH_CLUB_DESCRIPTION),
             value: _pa.supportPreferences.COMMUNITY_YOUTH_CLUB_selected,
             onChanged: (bool newValue) => this.setState(() {
@@ -1145,7 +1145,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       _communityYouthClubFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
-            secondary: _getPaddedIcon('assets/icons/phonecall_pe_black.png'),
+            secondary: _getPaddedIcon('assets/icons/phonecall_pe.png'),
             title: Text(SupportPreferencesSelection.PHONE_CALL_PE_DESCRIPTION),
             value: _pa.supportPreferences.PHONE_CALL_PE_selected,
             onChanged: (bool newValue) => this.setState(() {
@@ -1154,7 +1154,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       ),
       _makeQuestion('',
         answer: CheckboxListTile(
-            secondary: _getPaddedIcon('assets/icons/homevisit_pe_black.png'),
+            secondary: _getPaddedIcon('assets/icons/homevisit_pe.png'),
             title: Text(SupportPreferencesSelection.HOME_VISIT_PE_DESCRIPTION),
             value: _pa.supportPreferences.HOME_VISIT_PE_selected,
             onChanged: (bool newValue) => this.setState(() {
@@ -1164,7 +1164,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       _homeVisitPEFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
-            secondary: _getPaddedIcon('assets/icons/schooltalk_pe_black.png'),
+            secondary: _getPaddedIcon('assets/icons/schooltalk_pe.png'),
             title: Text(SupportPreferencesSelection.SCHOOL_VISIT_PE_DESCRIPTION),
             value: _pa.supportPreferences.SCHOOL_VISIT_PE_selected,
             onChanged: (bool newValue) => this.setState(() {
@@ -1174,7 +1174,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       _schoolVisitPEFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
-            secondary: _getPaddedIcon('assets/icons/pitso_black.png'),
+            secondary: _getPaddedIcon('assets/icons/pitso.png'),
             title: Text(SupportPreferencesSelection.PITSO_VISIT_PE_DESCRIPTION),
             value: _pa.supportPreferences.PITSO_VISIT_PE_selected,
             onChanged: (bool newValue) => this.setState(() {
@@ -1285,7 +1285,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       _ntlafatsoFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
-            secondary: _getPaddedIcon('assets/icons/no_support_fett.png'),
+            secondary: _getPaddedIcon('assets/icons/no_support.png'),
             title: Text(SupportPreferencesSelection.NONE_DESCRIPTION),
             value: _pa.supportPreferences.areAllDeselected,
             onChanged: (bool newValue) {
