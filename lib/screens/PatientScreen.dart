@@ -333,24 +333,44 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           doneText: 'done on 04.02.2019'),
       );
 
+      final String supportDisclaimer = "The following support options require "
+          "additional action. Tick off any options that are completed.";
+
       // small screen option:
-      // shows a 'Support' line first, then the support options in full width
+      // shows disclaimer first, then the support options below, both in full
+      // width
       print('screen width: $_screenWidth');
       if (_screenWidth < 400.0) {
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildRow('Support', ''),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5.0),
+              child: Text(supportDisclaimer),
+            ),
             ...supportOptions,
           ],
         );
       }
 
       // wide screen option:
-      // shows 'Support' on the left (as all the other descriptors above), then
-      // the support options on the right (as all the other contents above)
-      return _buildRowWithWidget('Support',
-        Column(children: [...supportOptions],
-        ),
+      // shows disclaimer on the left (as all the other descriptors above),
+      // and the support options on the right (as all the other contents above)
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5.0),
+              child: Text(supportDisclaimer),
+            ),
+          ),
+          SizedBox(width: 5.0),
+          Expanded(
+            child: Column(children: [...supportOptions],
+            ),
+          ),
+        ],
       );
 
     }
@@ -461,8 +481,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   Widget _buildRowWithWidget(String description, Widget content) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 5.0),
-      child:
-      Row(
+      child: Row(
         children: <Widget>[
           Expanded(flex: _descriptionFlex, child: Text(description)),
           SizedBox(width: 5.0),
