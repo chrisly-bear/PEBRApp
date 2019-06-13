@@ -429,7 +429,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           controller: _vhwVillageCtr,
           validator: (value) {
             if (value.isEmpty) {
-              return 'Please specify the reason';
+              return "Please enter the VHW's village";
             }
           },
         ),
