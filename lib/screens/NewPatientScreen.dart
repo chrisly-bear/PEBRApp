@@ -21,6 +21,7 @@ class NewPatientScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopupScreen(
       title: 'New Patient',
+      actions: [],
       child: _NewPatientForm(),
       scrollable: false,
     );
