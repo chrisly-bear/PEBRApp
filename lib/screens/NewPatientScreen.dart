@@ -74,6 +74,8 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   List<String> _artNumbersInDB;
   bool _isLoading = true;
 
+  double _screenWidth;
+
   // stepper state
   bool _patientSaved = false;
   int currentStep = 0;
@@ -91,6 +93,8 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
   @override
   Widget build(BuildContext context) {
+
+    _screenWidth = MediaQuery.of(context).size.width;
 
     final Form patientCharacteristicsStep = Form(
       key: _formKey,
@@ -255,7 +259,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
   Widget _artNumberQuestion() {
     return _makeQuestion('ART Number',
-      child: TextFormField(
+      answer: TextFormField(
         controller: _artNumberCtr,
         validator: (value) {
           if (value.isEmpty) {
@@ -270,7 +274,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
   Widget _stickerNumberQuestion() {
     return _makeQuestion('Sticker Number',
-      child: TextFormField(
+      answer: TextFormField(
         controller: _stickerNumberCtr,
         validator: (value) {
           if (value.isEmpty) {
@@ -283,7 +287,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
   Widget _yearOfBirthQuestion() {
     return _makeQuestion('Year of Birth',
-        child: DropdownButtonFormField<int>(
+        answer: DropdownButtonFormField<int>(
           value: _newPatient.yearOfBirth,
           onChanged: (int newValue) {
             setState(() {
@@ -315,7 +319,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     }
     return _makeQuestion(
       'Gender',
-      child: DropdownButtonFormField<Gender>(
+      answer: DropdownButtonFormField<Gender>(
         value: _newPatient.gender,
         onChanged: (Gender newValue) {
           setState(() {
@@ -341,7 +345,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     }
     return _makeQuestion(
       'Sexual Orientation',
-      child: DropdownButtonFormField<SexualOrientation>(
+      answer: DropdownButtonFormField<SexualOrientation>(
         value: _newPatient.sexualOrientation,
         onChanged: (SexualOrientation newValue) {
           setState(() {
@@ -367,7 +371,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     }
     return _makeQuestion(
       'Village',
-      child: TextFormField(
+      answer: TextFormField(
           controller: _villageCtr,
           validator: (value) {
             if (value.isEmpty) {
@@ -383,7 +387,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       return Container();
     }
     return _makeQuestion('Do you have regular access to a phone (with Lesotho number) where you can receive confidential information?',
-      child: DropdownButtonFormField<PhoneAvailability>(
+      answer: DropdownButtonFormField<PhoneAvailability>(
         value: _newPatient.phoneAvailability,
         onChanged: (PhoneAvailability newValue) {
           setState(() {
@@ -408,7 +412,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       return Container();
     }
     return _makeQuestion('Phone Number',
-        child: TextFormField(
+        answer: TextFormField(
           controller: _phoneNumberCtr,
           validator: (value) {
             if (value.isEmpty) {
@@ -421,7 +425,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
   Widget _consentGivenQuestion() {
     return _makeQuestion('Has the patient signed the consent form?',
-      child: DropdownButtonFormField<bool>(
+      answer: DropdownButtonFormField<bool>(
         value: _newPatient.consentGiven,
         onChanged: (bool newValue) {
           setState(() {
@@ -447,7 +451,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       return Container();
     }
     return _makeQuestion('Reason for refusal',
-      child: DropdownButtonFormField<NoConsentReason>(
+      answer: DropdownButtonFormField<NoConsentReason>(
         value: _newPatient.noConsentReason,
         onChanged: (NoConsentReason newValue) {
           setState(() {
@@ -472,7 +476,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       return Container();
     }
     return _makeQuestion('Other, specify',
-      child: TextFormField(
+      answer: TextFormField(
         controller: _noConsentReasonOtherCtr,
         validator: (value) {
           if (value.isEmpty) {
@@ -485,7 +489,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
   Widget _viralLoadBaselineAvailableQuestion() {
     return _makeQuestion('Is there any viral load within the last 12 months available (laboratory report, bukana, patient file)?',
-      child: DropdownButtonFormField<bool>(
+      answer: DropdownButtonFormField<bool>(
         value: _newPatient.isVLBaselineAvailable,
         onChanged: (bool newValue) {
           if (!newValue) {
@@ -514,7 +518,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       return Container();
     }
     return _makeQuestion('Date of most recent viral load (put the date when blood was taken)',
-      child: Column(
+      answer: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           FlatButton(
@@ -561,7 +565,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       return Container();
     }
     return _makeQuestion('Was the viral load baseline result lower than detectable limit (<20 copies/mL)?',
-      child: DropdownButtonFormField<bool>(
+      answer: DropdownButtonFormField<bool>(
         value: _viralLoadBaseline.isLowerThanDetectable,
         onChanged: (bool newValue) {
           setState(() {
@@ -587,7 +591,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       return Container();
     }
     return _makeQuestion('What was the result of the viral load baseline (in c/mL)',
-      child: TextFormField(
+      answer: TextFormField(
         inputFormatters: [
           WhitelistingTextInputFormatter(RegExp('[0-9]')),
 //          LengthLimitingTextInputFormatter(5),
@@ -608,7 +612,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       return Container();
     }
     return _makeQuestion('Lab number of the viral load baseline',
-      child: TextFormField(
+      answer: TextFormField(
         controller: _viralLoadBaselineLabNumberCtr,
         validator: (value) {
           if (value.isEmpty) {
@@ -745,7 +749,21 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     );
   }
 
-  Widget _makeQuestion(String question, {@required Widget child}) {
+  Widget _makeQuestion(String question, {@required Widget answer}) {
+
+    if (_screenWidth < 400.0) {
+      final double _spacingBetweenQuestions = 8.0;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: _spacingBetweenQuestions),
+          Text(question),
+          answer,
+          SizedBox(height: _spacingBetweenQuestions),
+        ],
+      );
+    }
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -756,10 +774,11 @@ class _NewPatientFormState extends State<_NewPatientForm> {
         SizedBox(width: 10.0),
         Expanded(
           flex: _answersFlex,
-          child: child,
+          child: answer,
         ),
       ],
     );
+    
   }
 
   bool _artNumberExists(artNumber) {
