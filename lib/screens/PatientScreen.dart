@@ -257,7 +257,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         ]);
       }
       return Column(children: <Widget>[
-        _makeSubtitle('Baseline Viral Load'),
+        _buildSubtitle('Baseline Viral Load'),
         Divider(),
         content,
       ]);
@@ -274,7 +274,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         ]);
       }
       return Column(children: <Widget>[
-        _makeSubtitle('Follow Up Viral Loads'),
+        _buildSubtitle('Follow Up Viral Loads'),
         Divider(),
         content,
       ]);
@@ -482,7 +482,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     );
   }
 
-  Widget _makeSubtitle(String subtitle) {
+  Widget _buildSubtitle(String subtitle) {
     return Padding(padding: EdgeInsets.only(top: 20, bottom: 10),
         child:
         Row(children: [
