@@ -4,6 +4,7 @@ import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/UserData.dart';
+import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 class LockScreen extends StatefulWidget {
@@ -34,10 +35,12 @@ class _LockScreenState extends State<LockScreen> {
       return PopupScreen(
         actions: [],
         backgroundBlur: backgroundBlur,
-        child: Container(
-          padding: EdgeInsets.all(20.0),
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        child: Center(
+          child: Container(
+            padding: EdgeInsets.all(20.0),
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(SPINNER_LOCK_SCREEN),
+            ),
           ),
         ),
       );

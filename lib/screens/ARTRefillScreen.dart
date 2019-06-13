@@ -18,13 +18,12 @@ class ARTRefillScreen extends StatelessWidget {
     return PopupScreen(
       title: 'Next ART Refill',
       subtitle: _patient.artNumber,
-      child: _buildBody(context, _patient),
+      child: Center(child: _buildBody(context, _patient)),
     );
   }
 
   Widget _buildBody(BuildContext context, Patient patient) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
         Text(_nextRefillDate, style: TextStyle(fontSize: 16.0)),
         SizedBox(height: 10.0),

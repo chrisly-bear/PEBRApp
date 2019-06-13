@@ -230,7 +230,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
         body: TransparentHeaderPage(
           title: 'Patients',
           subtitle: 'Overview',
-          child: _bodyToDisplayBasedOnState(),
+          child: Center(child: _bodyToDisplayBasedOnState()),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.info),

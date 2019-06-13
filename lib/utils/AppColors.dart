@@ -51,6 +51,7 @@ const Color URGENCY_MEDIUM = Colors.orange;
 const Color URGENCY_LOW = Colors.yellow;
 
 // loading indicator
+const Color SPINNER_LOCK_SCREEN = Colors.white;
 const Color SPINNER_MAIN_SCREEN = Colors.white;
 const Color SPINNER_SETTINGS_SCREEN = Colors.white;
 
