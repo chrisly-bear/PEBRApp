@@ -132,54 +132,6 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     );
   }
 
-  Future<void> _fetchFromDatabasePressed(BuildContext context, Patient patient) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Not Implemented'),
-          content: Text('This feature is not yet available.'),
-          actions: [
-            FlatButton(
-              child: Text("Dismiss"),
-              onPressed: () { Navigator.of(context).pop(); },
-            ),
-          ],
-        );
-      },
-    );
-    // TODO: implement call to viral load database API
-    // calling setState to trigger a re-render of the page and display the new
-    // viral load history
-    setState(() {});
-  }
-
-  Widget _buildRow(String description, String content) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 5.0),
-      child:
-      Row(
-        children: <Widget>[
-          Expanded(flex: _descriptionFlex, child: Text(description)),
-          Expanded(flex: _contentFlex, child: Text(content ?? '—')),
-        ],
-      ),
-    );
-  }
-
-  _buildTitle(String title) {
-    return Padding(
-      padding: EdgeInsets.all(15),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
   _buildPatientCharacteristicsCard() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -471,6 +423,19 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
    * Helper Functions
    */
 
+  Widget _buildRow(String description, String content) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 5.0),
+      child:
+      Row(
+        children: <Widget>[
+          Expanded(flex: _descriptionFlex, child: Text(description)),
+          Expanded(flex: _contentFlex, child: Text(content ?? '—')),
+        ],
+      ),
+    );
+  }
+
   TableRow _buildTableRow(String description, String content) {
     return _buildTableRowWithWidget(description, Text(content ?? '—'));
   }
@@ -500,6 +465,19 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         fontSize: 12.0,
         color: VL_HISTORY_HEADER_TEXT,
         fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+
+  Widget _buildTitle(String title) {
+    return Padding(
+      padding: EdgeInsets.all(15),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
@@ -608,6 +586,28 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       // ART Refill Date
       setState(() {});
     });
+  }
+  
+  Future<void> _fetchFromDatabasePressed(BuildContext context, Patient patient) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Not Implemented'),
+          content: Text('This feature is not yet available.'),
+          actions: [
+            FlatButton(
+              child: Text("Dismiss"),
+              onPressed: () { Navigator.of(context).pop(); },
+            ),
+          ],
+        );
+      },
+    );
+    // TODO: implement call to viral load database API
+    // calling setState to trigger a re-render of the page and display the new
+    // viral load history
+    setState(() {});
   }
 
 }
