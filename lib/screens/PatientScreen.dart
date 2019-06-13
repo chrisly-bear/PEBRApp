@@ -354,42 +354,29 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     );
   }
 
+  TableRow _buildTableRow(String description, String content) {
+    return _buildTableRowWithWidget(description, Text(content ?? '—'));
+  }
+
+  TableRow _buildTableRowWithWidget(String description, Widget content) {
+    return TableRow(children: [
+      TableCell(
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+              vertical: _tableRowPaddingVertical),
+          child: Text(description),
+        ),
+      ),
+      TableCell(
+        child: Padding(
+            padding: EdgeInsets.symmetric(
+                vertical: _tableRowPaddingVertical),
+            child: content),
+      ),
+    ]);
+  }
+
   _buildPreferencesCard() {
-
-    _buildARTRefillText() {
-      String text = _patient.latestPreferenceAssessment.lastRefillOption.description;
-      return Text(text);
-    }
-
-    _buildAdherenceReminderMessageText() {
-      AdherenceReminderMessage message = _patient.latestPreferenceAssessment.adherenceReminderMessage;
-      String text = message == null ? '—' : message.description;
-      return Text(text);
-    }
-
-    _buildAdherenceReminderFrequencyText() {
-      final AdherenceReminderFrequency freq = _patient.latestPreferenceAssessment.adherenceReminderFrequency;
-      String text = freq == null ? '—' : freq.description;
-      return Text(text);
-    }
-
-    _buildAdherenceReminderTimeText() {
-      final TimeOfDay adherenceReminderTime = _patient.latestPreferenceAssessment.adherenceReminderTime;
-      String text = adherenceReminderTime == null ? '—' : formatTime(adherenceReminderTime);
-      return Text(text);
-    }
-
-    _buildVLMessageSuppressedText() {
-      VLSuppressedMessage message = _patient.latestPreferenceAssessment.vlNotificationMessageSuppressed;
-      String text = message == null ? '—' : message.description;
-      return Text(text);
-    }
-
-    _buildVLMessageUnsuppressedText() {
-      VLUnsuppressedMessage message = _patient.latestPreferenceAssessment.vlNotificationMessageUnsuppressed;
-      String text = message == null ? '—' : message.description;
-      return Text(text);
-    }
 
     TableRow _buildSupportOption(String title, {Widget icon}) {
       return TableRow(children: [
@@ -513,102 +500,13 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     } else {
       content = Table(
         children: [
-          TableRow(children: [
-            TableCell(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                    vertical: _tableRowPaddingVertical),
-                child: Text('ART Refill'),
-              ),
-            ),
-            TableCell(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      vertical: _tableRowPaddingVertical),
-                  child: _buildARTRefillText()),
-            ),
-          ]),
-          TableRow(children: [
-            TableCell(
-                child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: _tableRowPaddingVertical),
-                    child: Text('Adherence Reminder Message'))),
-            TableCell(
-                child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: _tableRowPaddingVertical),
-                    child: _buildAdherenceReminderMessageText())),
-          ]),
-          TableRow(children: [
-            TableCell(
-                child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: _tableRowPaddingVertical),
-                    child: Text('Adherence Reminder Frequency'))),
-            TableCell(
-                child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: _tableRowPaddingVertical),
-                    child: _buildAdherenceReminderFrequencyText())),
-          ]),
-          TableRow(children: [
-            TableCell(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      vertical: _tableRowPaddingVertical),
-                  child: Text('Adherence Reminder Notification Time')),
-            ),
-            TableCell(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      vertical: _tableRowPaddingVertical),
-                  child: _buildAdherenceReminderTimeText()),
-            ),
-          ]),
-          TableRow(children: [
-            TableCell(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      vertical: _tableRowPaddingVertical),
-                  child: Text('Viral Load Message (suppressed)')),
-            ),
-            TableCell(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      vertical: _tableRowPaddingVertical),
-                  child: _buildVLMessageSuppressedText()),
-            ),
-          ]),
-          TableRow(children: [
-            TableCell(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      vertical: _tableRowPaddingVertical),
-                  child: Text('Viral Load Message (unsuppressed)')),
-            ),
-            TableCell(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      vertical: _tableRowPaddingVertical),
-                  child: _buildVLMessageUnsuppressedText()),
-            ),
-          ]),
-          TableRow(children: [
-            TableCell(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      vertical: _tableRowPaddingVertical),
-                  child: Text('Support')),
-            ),
-            TableCell(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                    vertical: _tableRowPaddingVertical),
-                child: _buildSupportOptions(),
-              ),
-            ),
-          ]),
+          _buildTableRow('ART Refill', _patient.latestPreferenceAssessment?.lastRefillOption?.description),
+          _buildTableRow('Adherence Reminder Message', _patient.latestPreferenceAssessment?.adherenceReminderMessage?.description),
+          _buildTableRow('Adherence Reminder Frequency', _patient.latestPreferenceAssessment?.adherenceReminderFrequency?.description),
+          _buildTableRow('Adherence Reminder Notification Time', formatTime(_patient.latestPreferenceAssessment?.adherenceReminderTime)),
+          _buildTableRow('Viral Load Message (suppressed)', _patient.latestPreferenceAssessment?.vlNotificationMessageSuppressed?.description),
+          _buildTableRow('Viral Load Message (unsuppressed)', _patient.latestPreferenceAssessment?.vlNotificationMessageUnsuppressed?.description),
+          _buildTableRowWithWidget('Support', _buildSupportOptions()),
         ],
       );
     }
