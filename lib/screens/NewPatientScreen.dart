@@ -124,15 +124,19 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
     Widget finishStep() {
       if (_patientSaved) {
-        return Row(children: [
-          Text("All done! You can close this screen by tapping "),
-          Icon(Icons.check, size: 20.0),
-          Text(" below."),
-        ]);
+        return Container(
+          width: double.infinity,
+          child: Wrap(
+            children: [
+              Text("All done! You can close this screen by tapping "),
+              Icon(Icons.check, size: 20.0),
+              Text(" below."),
+            ],
+          ),
+        );
       }
-      return Row(children: [
-        Text('Please complete the previous steps!'),
-      ]);
+      return
+        Container(width: double.infinity, child: Text('Please complete the previous steps!'));
     }
 
     List<Step> steps = [
