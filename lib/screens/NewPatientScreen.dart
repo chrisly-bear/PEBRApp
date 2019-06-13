@@ -200,29 +200,20 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   // ----------
 
   Widget _personalInformationCard() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildTitle('Personal Information'),
-        Card(
-          margin: EdgeInsets.symmetric(horizontal: 15),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-            child: Column(
-              children: [
-                _artNumberQuestion(),
-                _stickerNumberQuestion(),
-                _yearOfBirthQuestion(),
-                _genderQuestion(),
-                _sexualOrientationQuestion(),
-                _villageQuestion(),
-                _phoneAvailabilityQuestion(),
-                _phoneNumberQuestion(),
-              ],
-            ),
-          ),
-        ),
-      ],
+    return _buildCard('Personal Information',
+      withTopPadding: false,
+      child: Column(
+        children: [
+          _artNumberQuestion(),
+          _stickerNumberQuestion(),
+          _yearOfBirthQuestion(),
+          _genderQuestion(),
+          _sexualOrientationQuestion(),
+          _villageQuestion(),
+          _phoneAvailabilityQuestion(),
+          _phoneNumberQuestion(),
+        ],
+      ),
     );
   }
 
@@ -230,24 +221,14 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     if (!_eligible) {
       return Container();
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildTitle('Consent'),
-        Card(
-          margin: EdgeInsets.symmetric(horizontal: 15),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-            child: Column(
-              children: [
-                _consentGivenQuestion(),
-                _noConsentReasonQuestion(),
-                _noConsentReasonOtherQuestion(),
-              ],
-            ),
-          ),
-        ),
-      ],
+    return _buildCard('Consent',
+      child: Column(
+        children: [
+          _consentGivenQuestion(),
+          _noConsentReasonQuestion(),
+          _noConsentReasonOtherQuestion(),
+        ],
+      ),
     );
   }
 
@@ -255,26 +236,16 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
       return Container();
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildTitle('Viral Load Baseline'),
-        Card(
-          margin: EdgeInsets.symmetric(horizontal: 15),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-            child: Column(
-              children: [
-                _viralLoadBaselineAvailableQuestion(),
-                _viralLoadBaselineDateQuestion(),
-                _viralLoadBaselineLowerThanDetectableQuestion(),
-                _viralLoadBaselineResultQuestion(),
-                _viralLoadBaselineLabNumberQuestion(),
-              ],
-            ),
-          ),
-        ),
-      ],
+    return _buildCard('Viral Load Baseline',
+      child: Column(
+        children: [
+          _viralLoadBaselineAvailableQuestion(),
+          _viralLoadBaselineDateQuestion(),
+          _viralLoadBaselineLowerThanDetectableQuestion(),
+          _viralLoadBaselineResultQuestion(),
+          _viralLoadBaselineLabNumberQuestion(),
+        ],
+      ),
     );
   }
 
@@ -728,13 +699,13 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     return false;
   }
 
-  _closeScreen() {
+  void _closeScreen() {
     Navigator.of(context).popUntil((Route<dynamic> route) {
       return (route.settings.name == '/patient' || route.settings.name == '/');
     });
   }
 
-  _openKoBoCollect() async {
+  Future<void> _openKoBoCollect() async {
     const appUrl = 'android-app://org.koboc.collect.android';
     const marketUrl = 'market://details?id=org.koboc.collect.android';
     if (await canLaunch(appUrl)) {
@@ -746,15 +717,30 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     }
   }
 
-  _buildTitle(String title) {
-    return Padding(
-      padding: EdgeInsets.all(15),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
+  Widget _buildCard(String title, {@required Widget child, bool withTopPadding: true}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: withTopPadding ? 20.0 : 0.0),
+        _buildTitle(title),
+        SizedBox(height: 10.0),
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 0.0),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: child,
+          ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildTitle(String title) {
+    return Text(
+      title,
+      style: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
       ),
     );
   }
@@ -767,6 +753,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           flex: _questionsFlex,
           child: Text(question),
         ),
+        SizedBox(width: 10.0),
         Expanded(
           flex: _answersFlex,
           child: child,
