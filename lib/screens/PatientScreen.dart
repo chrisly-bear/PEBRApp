@@ -160,6 +160,8 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             child: Column(
               children: [
+                _buildRow('Enrolment Date', formatDateConsistent(_patient.enrolmentDate)),
+                _buildRow('ART Number', _patient.artNumber),
                 _buildRow('Sticker Number', _patient.stickerNumber),
                 _buildRow('Year of Birth', _patient.yearOfBirth.toString()),
                 _buildRow('Gender', _patient.gender.description),
