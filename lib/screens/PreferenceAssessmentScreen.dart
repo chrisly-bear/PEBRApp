@@ -61,6 +61,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   final _formKey = GlobalKey<FormState>();
   int _questionsFlex = 1;
   int _answersFlex = 1;
+  double _screenWidth;
 
   Patient _patient;
   // if this is true we will store another row in Patient table of the database
@@ -139,6 +140,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   @override
   Widget build(BuildContext context) {
+    _screenWidth = MediaQuery.of(context).size.width;
     return Form(
         key: _formKey,
         child: Column(
@@ -238,44 +240,33 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     }
 
     var displayValue = _artRefillOptionSelections[optionNumber];
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            optionNumber == 0 ?
-            Text('How and where do you want to refill your ART mainly?') :
-            Text('Choose another option additionally')),
-        Expanded(
-            flex: _answersFlex,
-            child: DropdownButtonFormField<ARTRefillOption>(
-              value: displayValue,
-              onChanged: (ARTRefillOption newValue) {
-                if (newValue != _artRefillOptionSelections[optionNumber]) {
-                  setState(() {
-                    _artRefillOptionSelections[optionNumber] = newValue;
-                    // reset any following selections
-                    for (var i = optionNumber + 1; i <
-                        _artRefillOptionSelections.length; i++) {
-                      _artRefillOptionSelections[i] = null;
-                      _artRefillOptionAvailable[i - 1] = null;
-                    }
-                  });
+
+    return _makeQuestion(optionNumber == 0 ? 'How and where do you want to refill your ART mainly?' : 'Choose another option additionally',
+        answer: DropdownButtonFormField<ARTRefillOption>(
+          value: displayValue,
+          onChanged: (ARTRefillOption newValue) {
+            if (newValue != _artRefillOptionSelections[optionNumber]) {
+              setState(() {
+                _artRefillOptionSelections[optionNumber] = newValue;
+                // reset any following selections
+                for (var i = optionNumber + 1; i <
+                    _artRefillOptionSelections.length; i++) {
+                  _artRefillOptionSelections[i] = null;
+                  _artRefillOptionAvailable[i - 1] = null;
                 }
-              },
-              validator: (value) {
-                if (value == null) { return 'Please answer this question'; }
-              },
-              items: remainingOptions.map<DropdownMenuItem<ARTRefillOption>>((ARTRefillOption value) {
-                return DropdownMenuItem<ARTRefillOption>(
-                  value: value,
-                  child: Text(value.description),
-                );
-              }).toList(),
-            ),
-        )
-      ],
+              });
+            }
+          },
+          validator: (value) {
+            if (value == null) { return 'Please answer this question'; }
+          },
+          items: remainingOptions.map<DropdownMenuItem<ARTRefillOption>>((ARTRefillOption value) {
+            return DropdownMenuItem<ARTRefillOption>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
     );
   }
 
@@ -300,53 +291,44 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         question = "This means you want to get your ART mainly through a Treatment Buddy. Do you have a Treatment Buddy?";
       }
 
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Expanded(
-              flex: _questionsFlex,
-              child: Text(question)),
-          Expanded(
-              flex: _answersFlex,
-              child: DropdownButtonFormField<bool>(
-                value: displayValue,
-                onChanged: (bool newValue) {
-                    if (newValue != _artRefillOptionAvailable[optionNumber]) {
-                      setState(() {
-                        _artRefillOptionAvailable[optionNumber] = newValue;
-                        // reset any following selections
-                        _artRefillOptionSelections[optionNumber+1] = null;
-                        for (var i = optionNumber + 1; i < _artRefillOptionAvailable.length; i++) {
-                          _artRefillOptionAvailable[i] = null;
-                          _artRefillOptionSelections[i+1] = null;
-                        }
-                      });
-                    }
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'Please answer this question';
+      return _makeQuestion(question,
+          answer: DropdownButtonFormField<bool>(
+            value: displayValue,
+            onChanged: (bool newValue) {
+              if (newValue != _artRefillOptionAvailable[optionNumber]) {
+                setState(() {
+                  _artRefillOptionAvailable[optionNumber] = newValue;
+                  // reset any following selections
+                  _artRefillOptionSelections[optionNumber+1] = null;
+                  for (var i = optionNumber + 1; i < _artRefillOptionAvailable.length; i++) {
+                    _artRefillOptionAvailable[i] = null;
+                    _artRefillOptionSelections[i+1] = null;
                   }
-                },
-                items:
-                <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
-                  String description;
-                  switch (value) {
-                    case true:
-                      description = 'Yes';
-                      break;
-                    case false:
-                      description = 'No';
-                      break;
-                  }
-                  return DropdownMenuItem<bool>(
-                    value: value,
-                    child: Text(description),
-                  );
-                }).toList(),
-              ),
+                });
+              }
+            },
+            validator: (value) {
+              if (value == null) {
+                return 'Please answer this question';
+              }
+            },
+            items:
+            <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+              String description;
+              switch (value) {
+                case true:
+                  description = 'Yes';
+                  break;
+                case false:
+                  description = 'No';
+                  break;
+              }
+              return DropdownMenuItem<bool>(
+                value: value,
+                child: Text(description),
+              );
+            }).toList(),
           ),
-        ],
       );
     }
 
@@ -588,37 +570,28 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     ]));
   }
 
-  Row _phoneAvailableQuestion() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child: Text(
-                'Do you have regular access to a phone where you can receive confidential information?')),
-        Expanded(
-            flex: _answersFlex,
-            child: DropdownButtonFormField<PhoneAvailability>(
-              value: _patient.phoneAvailability,
-              onChanged: (PhoneAvailability newValue) {
-                setState(() {
-                  _patient.phoneAvailability = newValue;
-                });
-                // if the new value is different from before we should update the patient table in the database
-                _patientUpdated = _phoneAvailabilityBeforeAssessment != newValue;
-              },
-              validator: (value) {
-                if (value == null) { return 'Please answer this question'; }
-              },
-              items:
-                  PhoneAvailability.allValues.map<DropdownMenuItem<PhoneAvailability>>((PhoneAvailability value) {
-                return DropdownMenuItem<PhoneAvailability>(
-                  value: value,
-                  child: Text(value.description),
-                );
-              }).toList(),
-            ))
-      ],
+  Widget _phoneAvailableQuestion() {
+    return _makeQuestion('Do you have regular access to a phone where you can receive confidential information?',
+        answer: DropdownButtonFormField<PhoneAvailability>(
+          value: _patient.phoneAvailability,
+          onChanged: (PhoneAvailability newValue) {
+            setState(() {
+              _patient.phoneAvailability = newValue;
+            });
+            // if the new value is different from before we should update the patient table in the database
+            _patientUpdated = _phoneAvailabilityBeforeAssessment != newValue;
+          },
+          validator: (value) {
+            if (value == null) { return 'Please answer this question'; }
+          },
+          items:
+          PhoneAvailability.allValues.map<DropdownMenuItem<PhoneAvailability>>((PhoneAvailability value) {
+            return DropdownMenuItem<PhoneAvailability>(
+              value: value,
+              child: Text(value.description),
+            );
+          }).toList(),
+        ),
     );
   }
 
@@ -626,24 +599,15 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            Text('Patient Phone Number')),
-        Expanded(
-          flex: _answersFlex,
-          child: TextFormField(
-            controller: _patientPhoneNumberCtr,
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter a phone number';
-              }
-            },
-          ),)
-      ],
+    return _makeQuestion('Patient Phone Number',
+        answer: TextFormField(
+          controller: _patientPhoneNumberCtr,
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'Please enter a phone number';
+            }
+          },
+        ),
     );
   }
 
@@ -658,42 +622,34 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child: Text('Do you want to receive adherence reminders?')),
-        Expanded(
-            flex: _answersFlex,
-            child: DropdownButtonFormField<bool>(
-              value: _pa.adherenceReminderEnabled,
-              onChanged: (bool newValue) {
-                setState(() {
-                  _pa.adherenceReminderEnabled = newValue;
-                });
-              },
-              validator: (value) {
-                if (value == null) { return 'Please answer this question'; }
-              },
-              items:
-              <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
-                String description;
-                switch (value) {
-                  case true:
-                    description = 'Yes';
-                    break;
-                  case false:
-                    description = 'No';
-                    break;
-                }
-                return DropdownMenuItem<bool>(
-                  value: value,
-                  child: Text(description),
-                );
-              }).toList(),
-            ))
-      ],
+    return _makeQuestion('Do you want to receive adherence reminders?',
+      answer: DropdownButtonFormField<bool>(
+        value: _pa.adherenceReminderEnabled,
+        onChanged: (bool newValue) {
+          setState(() {
+            _pa.adherenceReminderEnabled = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) { return 'Please answer this question'; }
+        },
+        items:
+        <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+          String description;
+          switch (value) {
+            case true:
+              description = 'Yes';
+              break;
+            case false:
+              description = 'No';
+              break;
+          }
+          return DropdownMenuItem<bool>(
+            value: value,
+            child: Text(description),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -702,33 +658,24 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         _pa.adherenceReminderEnabled == null || !_pa.adherenceReminderEnabled) {
       return Container();
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            Text('How often do you want to receive adherence reminders?')),
-        Expanded(
-            flex: _answersFlex,
-            child: DropdownButtonFormField<AdherenceReminderFrequency>(
-              value: _pa.adherenceReminderFrequency,
-              onChanged: (AdherenceReminderFrequency newValue) {
-                setState(() {
-                  _pa.adherenceReminderFrequency = newValue;
-                });
-              },
-              validator: (value) {
-                if (value == null) { return 'Please answer this question'; }
-              },
-              items: AdherenceReminderFrequency.allValues.map<DropdownMenuItem<AdherenceReminderFrequency>>((AdherenceReminderFrequency value) {
-                return DropdownMenuItem<AdherenceReminderFrequency>(
-                  value: value,
-                  child: Text(value.description),
-                );
-              }).toList(),
-            ))
-      ],
+    return _makeQuestion('How often do you want to receive adherence reminders?',
+      answer: DropdownButtonFormField<AdherenceReminderFrequency>(
+        value: _pa.adherenceReminderFrequency,
+        onChanged: (AdherenceReminderFrequency newValue) {
+          setState(() {
+            _pa.adherenceReminderFrequency = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) { return 'Please answer this question'; }
+        },
+        items: AdherenceReminderFrequency.allValues.map<DropdownMenuItem<AdherenceReminderFrequency>>((AdherenceReminderFrequency value) {
+          return DropdownMenuItem<AdherenceReminderFrequency>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -784,33 +731,25 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         _pa.adherenceReminderEnabled == null || !_pa.adherenceReminderEnabled) {
       return Container();
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            Text('Which adherence reminder do you want to receive?')),
-        Expanded(
-            flex: _answersFlex,
-            child: DropdownButtonFormField<AdherenceReminderMessage>(
-              value: _pa.adherenceReminderMessage,
-              onChanged: (AdherenceReminderMessage newValue) {
-                setState(() {
-                  _pa.adherenceReminderMessage = newValue;
-                });
-              },
-              validator: (value) {
-                if (value == null) { return 'Please answer this question'; }
-              },
-              items: AdherenceReminderMessage.allValues.map<DropdownMenuItem<AdherenceReminderMessage>>((AdherenceReminderMessage value) {
-                return DropdownMenuItem<AdherenceReminderMessage>(
-                  value: value,
-                  child: Text(value.description),
-                );
-              }).toList(),
-            ))
-      ],
+
+    return _makeQuestion('Which adherence reminder do you want to receive?',
+      answer: DropdownButtonFormField<AdherenceReminderMessage>(
+        value: _pa.adherenceReminderMessage,
+        onChanged: (AdherenceReminderMessage newValue) {
+          setState(() {
+            _pa.adherenceReminderMessage = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) { return 'Please answer this question'; }
+        },
+        items: AdherenceReminderMessage.allValues.map<DropdownMenuItem<AdherenceReminderMessage>>((AdherenceReminderMessage value) {
+          return DropdownMenuItem<AdherenceReminderMessage>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -825,44 +764,36 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child: Text('Do you want to receive ART refill reminders?')),
-        Expanded(
-            flex: _answersFlex,
-            child: DropdownButtonFormField<bool>(
-              value: _pa.artRefillReminderEnabled,
-              onChanged: (bool newValue) {
-                setState(() {
-                  _pa.artRefillReminderEnabled = newValue;
-                  // initialize the artRefillReminderDaysBefore object
-                  _pa.artRefillReminderDaysBefore = newValue ? ARTRefillReminderDaysBeforeSelection() : null;
-                });
-              },
-              validator: (value) {
-                if (value == null) { return 'Please answer this question'; }
-              },
-              items:
-              <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
-                String description;
-                switch (value) {
-                  case true:
-                    description = 'Yes';
-                    break;
-                  case false:
-                    description = 'No';
-                    break;
-                }
-                return DropdownMenuItem<bool>(
-                  value: value,
-                  child: Text(description),
-                );
-              }).toList(),
-            ))
-      ],
+    return _makeQuestion('Do you want to receive ART refill reminders?',
+      answer: DropdownButtonFormField<bool>(
+        value: _pa.artRefillReminderEnabled,
+        onChanged: (bool newValue) {
+          setState(() {
+            _pa.artRefillReminderEnabled = newValue;
+            // initialize the artRefillReminderDaysBefore object
+            _pa.artRefillReminderDaysBefore = newValue ? ARTRefillReminderDaysBeforeSelection() : null;
+          });
+        },
+        validator: (value) {
+          if (value == null) { return 'Please answer this question'; }
+        },
+        items:
+        <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+          String description;
+          switch (value) {
+            case true:
+              description = 'Yes';
+              break;
+            case false:
+              description = 'No';
+              break;
+          }
+          return DropdownMenuItem<bool>(
+            value: value,
+            child: Text(description),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -955,42 +886,34 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child: Text('Do you want to receive a notification after a VL measurement?')),
-        Expanded(
-            flex: _answersFlex,
-            child: DropdownButtonFormField<bool>(
-              value: _pa.vlNotificationEnabled,
-              onChanged: (bool newValue) {
-                setState(() {
-                  _pa.vlNotificationEnabled = newValue;
-                });
-              },
-              validator: (value) {
-                if (value == null) { return 'Please answer this question'; }
-              },
-              items:
-              <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
-                String description;
-                switch (value) {
-                  case true:
-                    description = 'Yes';
-                    break;
-                  case false:
-                    description = 'No';
-                    break;
-                }
-                return DropdownMenuItem<bool>(
-                  value: value,
-                  child: Text(description),
-                );
-              }).toList(),
-            ))
-      ],
+    return _makeQuestion('Do you want to receive a notification after a VL measurement?',
+      answer: DropdownButtonFormField<bool>(
+        value: _pa.vlNotificationEnabled,
+        onChanged: (bool newValue) {
+          setState(() {
+            _pa.vlNotificationEnabled = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) { return 'Please answer this question'; }
+        },
+        items:
+        <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
+          String description;
+          switch (value) {
+            case true:
+              description = 'Yes';
+              break;
+            case false:
+              description = 'No';
+              break;
+          }
+          return DropdownMenuItem<bool>(
+            value: value,
+            child: Text(description),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -999,33 +922,24 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         _pa.vlNotificationEnabled == null || !_pa.vlNotificationEnabled) {
       return Container();
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            Text('Which message do you want to receive if VL is suppressed?')),
-        Expanded(
-            flex: _answersFlex,
-            child: DropdownButtonFormField<VLSuppressedMessage>(
-              value: _pa.vlNotificationMessageSuppressed,
-              onChanged: (VLSuppressedMessage newValue) {
-                setState(() {
-                  _pa.vlNotificationMessageSuppressed = newValue;
-                });
-              },
-              validator: (value) {
-                if (value == null) { return 'Please answer this question'; }
-              },
-              items: VLSuppressedMessage.allValues.map<DropdownMenuItem<VLSuppressedMessage>>((VLSuppressedMessage value) {
-                return DropdownMenuItem<VLSuppressedMessage>(
-                  value: value,
-                  child: Text(value.description),
-                );
-              }).toList(),
-            ))
-      ],
+    return _makeQuestion('Which message do you want to receive if VL is suppressed?',
+      answer: DropdownButtonFormField<VLSuppressedMessage>(
+        value: _pa.vlNotificationMessageSuppressed,
+        onChanged: (VLSuppressedMessage newValue) {
+          setState(() {
+            _pa.vlNotificationMessageSuppressed = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) { return 'Please answer this question'; }
+        },
+        items: VLSuppressedMessage.allValues.map<DropdownMenuItem<VLSuppressedMessage>>((VLSuppressedMessage value) {
+          return DropdownMenuItem<VLSuppressedMessage>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -1034,33 +948,24 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         _pa.vlNotificationEnabled == null || !_pa.vlNotificationEnabled) {
       return Container();
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            Text('Which message do you want to receive if VL is unsuppressed?')),
-        Expanded(
-            flex: _answersFlex,
-            child: DropdownButtonFormField<VLUnsuppressedMessage>(
-              value: _pa.vlNotificationMessageUnsuppressed,
-              onChanged: (VLUnsuppressedMessage newValue) {
-                setState(() {
-                  _pa.vlNotificationMessageUnsuppressed = newValue;
-                });
-              },
-              validator: (value) {
-                if (value == null) { return 'Please answer this question'; }
-              },
-              items: VLUnsuppressedMessage.allValues.map<DropdownMenuItem<VLUnsuppressedMessage>>((VLUnsuppressedMessage value) {
-                return DropdownMenuItem<VLUnsuppressedMessage>(
-                  value: value,
-                  child: Text(value.description),
-                );
-              }).toList(),
-            ))
-      ],
+    return _makeQuestion('Which message do you want to receive if VL is unsuppressed?',
+      answer: DropdownButtonFormField<VLUnsuppressedMessage>(
+        value: _pa.vlNotificationMessageUnsuppressed,
+        onChanged: (VLUnsuppressedMessage newValue) {
+          setState(() {
+            _pa.vlNotificationMessageUnsuppressed = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) { return 'Please answer this question'; }
+        },
+        items: VLUnsuppressedMessage.allValues.map<DropdownMenuItem<VLUnsuppressedMessage>>((VLUnsuppressedMessage value) {
+          return DropdownMenuItem<VLUnsuppressedMessage>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -1075,24 +980,15 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            Text('PE Phone Number')),
-        Expanded(
-          flex: _answersFlex,
-          child: TextFormField(
-            controller: _pePhoneNumberCtr,
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter a phone number';
-              }
-            },
-          ),)
-      ],
+    return _makeQuestion('PE Phone Number',
+      answer: TextFormField(
+        controller: _pePhoneNumberCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter a phone number';
+          }
+        },
+      ),
     );
   }
 
@@ -2151,6 +2047,20 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _makeQuestionCustom({@required Widget question, @required Widget answer}) {
+
+    if (_screenWidth < 400.0) {
+      final double _spacingBetweenQuestions = 8.0;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: _spacingBetweenQuestions),
+          question,
+          answer,
+          SizedBox(height: _spacingBetweenQuestions),
+        ],
+      );
+    }
+
     return Row(
       children: <Widget>[
         Expanded(
