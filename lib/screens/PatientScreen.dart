@@ -312,7 +312,9 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         ));
       }
       if (sps.SCHOOL_VISIT_PE_selected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.SCHOOL_VISIT_PE_DESCRIPTION,
+        String schoolNameAndVillage = _patient.latestPreferenceAssessment?.school;
+        schoolNameAndVillage = schoolNameAndVillage == null ? '' : '\n($schoolNameAndVillage)';
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.SCHOOL_VISIT_PE_DESCRIPTION + schoolNameAndVillage,
           checkboxState: SCHOOL_VISIT_PE_done,
           onChanged: (bool newState) { setState(() { SCHOOL_VISIT_PE_done = newState; }); },
           icon: _getPaddedIcon('assets/icons/schooltalk_pe.png', width: iconWidth, height: iconHeight),
