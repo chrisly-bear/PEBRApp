@@ -2062,7 +2062,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   _buildUnsuppressedCard() {
-    if (_patient.mostRecentViralLoad.isSuppressed) {
+    if (_patient.mostRecentViralLoad?.isSuppressed ?? false) {
       return Column();
     }
     return Column(
