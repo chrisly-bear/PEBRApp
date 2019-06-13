@@ -280,35 +280,35 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         supportOptions.add(_buildSupportOption(SupportPreferencesSelection.NURSE_CLINIC_DESCRIPTION,
           checkboxState: NURSE_CLINIC_done,
           onChanged: (bool newState) { setState(() { NURSE_CLINIC_done = newState; }); },
-          icon: _getPaddedIcon('assets/icons/nurse_clinic.png', width: iconWidth, height: iconHeight),
+          icon: _getPaddedIcon('assets/icons/nurse_clinic.png', width: iconWidth, height: iconHeight, color: NURSE_CLINIC_done ? ICON_INACTIVE : ICON_ACTIVE),
         ));
       }
       if (sps.SATURDAY_CLINIC_CLUB_selected) {
         supportOptions.add(_buildSupportOption(SupportPreferencesSelection.SATURDAY_CLINIC_CLUB_DESCRIPTION,
           checkboxState: SATURDAY_CLINIC_CLUB_done,
           onChanged: (bool newState) { setState(() { SATURDAY_CLINIC_CLUB_done = newState; }); },
-          icon: _getPaddedIcon('assets/icons/saturday_clinic_club.png', width: iconWidth, height: iconHeight),
+          icon: _getPaddedIcon('assets/icons/saturday_clinic_club.png', width: iconWidth, height: iconHeight, color: SATURDAY_CLINIC_CLUB_done ? ICON_INACTIVE : ICON_ACTIVE),
         ));
       }
       if (sps.COMMUNITY_YOUTH_CLUB_selected) {
         supportOptions.add(_buildSupportOption(SupportPreferencesSelection.COMMUNITY_YOUTH_CLUB_DESCRIPTION,
           checkboxState: COMMUNITY_YOUTH_CLUB_done,
           onChanged: (bool newState) { setState(() { COMMUNITY_YOUTH_CLUB_done = newState; }); },
-          icon: _getPaddedIcon('assets/icons/youth_club.png', width: iconWidth, height: iconHeight),
+          icon: _getPaddedIcon('assets/icons/youth_club.png', width: iconWidth, height: iconHeight, color: COMMUNITY_YOUTH_CLUB_done ? ICON_INACTIVE : ICON_ACTIVE),
         ));
       }
       if (sps.PHONE_CALL_PE_selected) {
         supportOptions.add(_buildSupportOption(SupportPreferencesSelection.PHONE_CALL_PE_DESCRIPTION,
           checkboxState: PHONE_CALL_PE_done,
           onChanged: (bool newState) { setState(() { PHONE_CALL_PE_done = newState; }); },
-          icon: _getPaddedIcon('assets/icons/phonecall_pe.png', width: iconWidth, height: iconHeight),
+          icon: _getPaddedIcon('assets/icons/phonecall_pe.png', width: iconWidth, height: iconHeight, color: PHONE_CALL_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
         ));
       }
       if (sps.HOME_VISIT_PE_selected) {
         supportOptions.add(_buildSupportOption(SupportPreferencesSelection.HOME_VISIT_PE_DESCRIPTION,
           checkboxState: HOME_VISIT_PE_done,
           onChanged: (bool newState) { setState(() { HOME_VISIT_PE_done = newState; }); },
-          icon: _getPaddedIcon('assets/icons/homevisit_pe.png', width: iconWidth, height: iconHeight),
+          icon: _getPaddedIcon('assets/icons/homevisit_pe.png', width: iconWidth, height: iconHeight, color: HOME_VISIT_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
         ));
       }
       if (sps.SCHOOL_VISIT_PE_selected) {
@@ -317,14 +317,14 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         supportOptions.add(_buildSupportOption(SupportPreferencesSelection.SCHOOL_VISIT_PE_DESCRIPTION + schoolNameAndVillage,
           checkboxState: SCHOOL_VISIT_PE_done,
           onChanged: (bool newState) { setState(() { SCHOOL_VISIT_PE_done = newState; }); },
-          icon: _getPaddedIcon('assets/icons/schooltalk_pe.png', width: iconWidth, height: iconHeight),
+          icon: _getPaddedIcon('assets/icons/schooltalk_pe.png', width: iconWidth, height: iconHeight, color: SCHOOL_VISIT_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
         ));
       }
       if (sps.PITSO_VISIT_PE_selected) {
         supportOptions.add(_buildSupportOption(SupportPreferencesSelection.PITSO_VISIT_PE_DESCRIPTION,
           checkboxState: PITSO_VISIT_PE_done,
           onChanged: (bool newState) { setState(() { PITSO_VISIT_PE_done = newState; }); },
-          icon: _getPaddedIcon('assets/icons/pitso.png', width: iconWidth, height: iconHeight),
+          icon: _getPaddedIcon('assets/icons/pitso.png', width: iconWidth, height: iconHeight, color: PITSO_VISIT_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
         ));
       }
 
