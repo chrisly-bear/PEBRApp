@@ -12,6 +12,7 @@ class TransparentHeaderPage extends StatelessWidget {
   final bool blurEnabled;
   final bool elevationEnabled;
   final bool safeArea;
+  final bool scrollable;
 
   double _headerHeight = Platform.isIOS ? 82.0 : 80.0;
   static const double _BLUR_RADIUS = 5.0;
@@ -42,9 +43,13 @@ class TransparentHeaderPage extends StatelessWidget {
   ///
   /// @param [safeArea] Set to true if the title, subtitle, actions, and content
   /// should be rendered within the safe area bounds.
+  ///
+  /// @param [scrollable] If set to true the content behind the transparent
+  /// header can be scrolled. This is useful for small devices and/or content
+  /// with large heights. Defaults to true.
   TransparentHeaderPage({@required this.child, this.title, this.subtitle,
     this.actions, this.color: Colors.transparent, this.blurEnabled: true,
-    this.elevationEnabled: false, this.safeArea: true}) {
+    this.elevationEnabled: false, this.safeArea: true, this.scrollable: true}) {
     if (title == null) {
       _headerHeight -= 25;
     }
@@ -81,7 +86,7 @@ class TransparentHeaderPage extends StatelessWidget {
       ),
     );
 
-    return content;
+    return scrollable ? SingleChildScrollView(child: content) : content;
   }
 
   Widget get _foreground {

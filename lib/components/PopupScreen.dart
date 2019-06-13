@@ -11,6 +11,7 @@ class PopupScreen extends StatelessWidget {
   final List<Widget> actions;
   final double backgroundBlur;
   final Color backgroundColor;
+  final bool scrollable;
 
   // define the maximum width of the popup screen
   static const double MAX_WIDTH = 600;
@@ -41,8 +42,12 @@ class PopupScreen extends StatelessWidget {
   /// @param [backgroundColor] The color with which the content behind the popup
   /// screen should be overlayed. If this is null then it will use
   /// [POPUP_BEHIND].
+  ///
+  /// @param [scrollable] If set to true the content of the popup screen can be
+  /// scrolled. This is useful for small devices and/or content with large
+  /// heights. Defaults to true.
   PopupScreen({@required this.child, this.title, this.subtitle, this.actions,
-  this.backgroundBlur: 0.0, this.backgroundColor});
+  this.backgroundBlur: 0.0, this.backgroundColor, this.scrollable: true});
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +82,7 @@ class PopupScreen extends StatelessWidget {
                 ],
                 color: BACKGROUND_COLOR,
                 blurEnabled: false,
+                scrollable: scrollable,
               ),
             ),
           ),
