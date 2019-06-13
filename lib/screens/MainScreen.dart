@@ -501,39 +501,41 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
         return _formatPatientRowText('—', isActivated: isActivated);
       }
       if (sps.NURSE_CLINIC_selected) {
-        icons.add(_getPaddedIcon('assets/icons/nurse_clinic_fett.png', color: iconColor));
+        icons.add(_getPaddedIcon('assets/icons/nurse_clinic.png', color: iconColor));
         icons.add(spacer);
       }
       if (sps.SATURDAY_CLINIC_CLUB_selected) {
-        icons.add(_getPaddedIcon('assets/icons/saturday_clinic_club_black.png', color: iconColor));
+        icons.add(_getPaddedIcon('assets/icons/saturday_clinic_club.png', color: iconColor));
         icons.add(spacer);
       }
       if (sps.COMMUNITY_YOUTH_CLUB_selected) {
-        icons.add(_getPaddedIcon('assets/icons/youth_club_black.png', color: iconColor));
+        icons.add(_getPaddedIcon('assets/icons/youth_club.png', color: iconColor));
         icons.add(spacer);
       }
       if (sps.PHONE_CALL_PE_selected) {
 //        icons.add(Icon(Icons.phone));
-        icons.add(_getPaddedIcon('assets/icons/phonecall_pe_black.png', color: iconColor));
+        icons.add(_getPaddedIcon('assets/icons/phonecall_pe.png', color: iconColor));
         icons.add(spacer);
       }
       if (sps.HOME_VISIT_PE_selected) {
 //        icons.add(Icon(Icons.home));
-        icons.add(_getPaddedIcon('assets/icons/homevisit_pe_black.png', color: iconColor));
+        icons.add(_getPaddedIcon('assets/icons/homevisit_pe.png', color: iconColor));
         icons.add(spacer);
       }
       if (sps.SCHOOL_VISIT_PE_selected) {
 //        icons.add(Icon(Icons.school));
-        icons.add(_getPaddedIcon('assets/icons/schooltalk_pe_black.png', color: iconColor));
+        icons.add(_getPaddedIcon('assets/icons/schooltalk_pe.png', color: iconColor));
         icons.add(spacer);
       }
       if (sps.PITSO_VISIT_PE_selected) {
-        icons.add(_getPaddedIcon('assets/icons/pitso_black.png', color: iconColor));
+        icons.add(_getPaddedIcon('assets/icons/pitso.png', color: iconColor));
         icons.add(spacer);
       }
       if (sps.areAllDeselected) {
-        icons.add(_getPaddedIcon('assets/icons/no_support_fett.png', color: iconColor));
+        icons.add(_getPaddedIcon('assets/icons/no_support.png', color: iconColor));
         icons.add(spacer);
+      } else if (sps.areAllWithTodoDeselected) {
+        return _formatPatientRowText('—', isActivated: isActivated);
       }
       if (icons.length > 0 && icons.last == spacer) {
         // remove last spacer as there are no more icons that follow it

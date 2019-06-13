@@ -3,12 +3,14 @@ import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
+import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderMessage.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/beans/VLSuppressedMessage.dart';
 import 'package:pebrapp/database/beans/VLUnsuppressedMessage.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
+import 'package:pebrapp/database/beans/YesNoRefused.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/screens/ARTRefillScreen.dart';
@@ -48,16 +50,26 @@ class _PatientScreenBody extends StatefulWidget {
 class _PatientScreenBodyState extends State<_PatientScreenBody> {
   final int _descriptionFlex = 1;
   final int _contentFlex = 1;
-  final _tableRowPaddingVertical = 5.0;
   final BuildContext _context;
   Patient _patient;
   String _nextAssessmentText = '—';
   String _nextRefillText = '—';
+  double _screenWidth;
+
+  bool NURSE_CLINIC_done = false;
+  bool SATURDAY_CLINIC_CLUB_done = false;
+  bool COMMUNITY_YOUTH_CLUB_done = false;
+  bool PHONE_CALL_PE_done = false;
+  bool HOME_VISIT_PE_done = false;
+  bool SCHOOL_VISIT_PE_done = false;
+  bool PITSO_VISIT_PE_done = false;
 
   _PatientScreenBodyState(this._context, this._patient);
   
   @override
   Widget build(BuildContext context) {
+
+    _screenWidth = MediaQuery.of(context).size.width;
 
     DateTime lastAssessmentDate = _patient.latestPreferenceAssessment?.createdDate;
     if (lastAssessmentDate != null) {
@@ -72,164 +84,64 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       _nextRefillText = '—';
     }
 
+    final double _spacingBetweenCards = 40.0;
     return Column(
       children: <Widget>[
         _buildPatientCharacteristicsCard(),
-        Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [PEBRAButtonFlat('Edit Characteristics', onPressed: () { _pushEditPatientScreen(_patient); })]),
+        _makeButton('Edit Characteristics', onPressed: () { _editCharacteristicsPressed(_patient); }, flat: true),
+        SizedBox(height: _spacingBetweenCards),
         _buildViralLoadHistoryCard(),
-        Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [PEBRAButtonFlat('fetch from database', onPressed: () { _fetchFromDatabasePressed(_context, _patient); })]),
-        Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [PEBRAButtonFlat('add manual entry', onPressed: () { _addManualEntryPressed(_context, _patient); })]),
-        Padding(padding: EdgeInsets.symmetric(horizontal: 20.0), child: Text('Use this option to correct a wrong entry from the database.', textAlign: TextAlign.center)),
+        _makeButton('fetch from database', onPressed: () { _fetchFromDatabasePressed(_context, _patient); }, flat: true),
+        _makeButton('add manual entry', onPressed: () { _addManualEntryPressed(_context, _patient); }, flat: true),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.0),
+          child: Text('Use this option to correct a wrong entry from the database.', textAlign: TextAlign.center),
+        ),
+        SizedBox(height: _spacingBetweenCards),
         _buildPreferencesCard(),
+        SizedBox(height: _spacingBetweenCards),
         _buildTitle('Next Preference Assessment'),
         Text(_nextAssessmentText, style: TextStyle(fontSize: 16.0)),
         SizedBox(height: 10.0),
-        Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [PEBRAButtonRaised('Start Assessment', onPressed: () { _pushPreferenceAssessmentScreen(_context, _patient); })]),
+        _makeButton('Start Assessment', onPressed: () { _startAssessmentPressed(_context, _patient); }),
+        SizedBox(height: _spacingBetweenCards),
         _buildTitle('Next ART Refill'),
         Text(_nextRefillText, style: TextStyle(fontSize: 16.0)),
         SizedBox(height: 10.0),
-        Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [PEBRAButtonRaised('Manage Refill', onPressed: () { _pushARTRefillScreen(_context, _patient, _nextRefillText); })]),
-        Container(height: 50), // padding at bottom
+        _makeButton('Manage Refill', onPressed: () { _manageRefillPressed(_context, _patient, _nextRefillText); }),
+        SizedBox(height: _spacingBetweenCards),
       ],
-    );
-  }
-
-  Future<void> _fetchFromDatabasePressed(BuildContext context, Patient patient) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-            title: Text('Not Implemented'),
-            content: Text('This feature is not yet available.'),
-            actions: <Widget>[FlatButton(
-              child: Text("Dismiss"),
-              onPressed: () { Navigator.of(context).pop(); },
-            )]);
-      },
-    );
-    // TODO: implement call to viral load database API
-    // calling setState to trigger a re-render of the page and display the new
-    // viral load history
-    setState(() {});
-  }
-
-  Widget _buildRow(String description, String content) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 5.0),
-      child:
-        Row(
-          children: <Widget>[
-            Expanded(flex: _descriptionFlex, child: Text(description)),
-            Expanded(flex: _contentFlex, child: Text(content ?? '—')),
-          ],
-        ),
-    );
-  }
-
-  _buildTitle(String title) {
-    return Padding(
-      padding: EdgeInsets.all(15),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
     );
   }
 
   _buildPatientCharacteristicsCard() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildTitle('Patient Characterstics'),
-        Card(
-          margin: EdgeInsets.symmetric(horizontal: 15),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-            child: Column(
-              children: [
-                _buildRow('Sticker Number', _patient.stickerNumber),
-                _buildRow('Year of Birth', _patient.yearOfBirth.toString()),
-                _buildRow('Gender', _patient.gender.description),
-                _buildRow('Sexual Orientation', _patient.sexualOrientation.description),
-                _buildRow('Village', _patient.village),
-                _buildRow('Phone Number', _patient.phoneNumber),
-              ],
-            ),
-          ),
-        ),
-      ],
+    return _buildCard(
+      title: 'Patient Characterstics',
+      child: Column(
+        children: [
+          _buildRow('Enrolment Date', formatDateConsistent(_patient.enrolmentDate)),
+          _buildRow('ART Number', _patient.artNumber),
+          _buildRow('Sticker Number', _patient.stickerNumber),
+          _buildRow('Year of Birth', _patient.yearOfBirth.toString()),
+          _buildRow('Gender', _patient.gender.description),
+          _buildRow('Sexual Orientation', _patient.sexualOrientation.description),
+          _buildRow('Village', _patient.village),
+          _buildRow('Phone Number', _patient.phoneNumber),
+        ],
+      ),
     );
   }
 
   _buildViralLoadHistoryCard() {
 
     if (_patient.mostRecentViralLoad == null) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildTitle('Viral Load History'),
-          Card(
-            margin: EdgeInsets.symmetric(horizontal: 15),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-              child: Center(
-                child: Text(
-                  "No viral load data available for this patient. Fetch data from the viral load database or add a new entry manually.",
-                  style: TextStyle(color: NO_DATA_TEXT),
-                ),
-              ),
-            ),
+      return _buildCard(
+        title: 'Viral Load History',
+        child: Center(
+          child: Text(
+            "No viral load data available for this patient. Fetch data from the viral load database or add a new entry manually.",
+            style: TextStyle(color: NO_DATA_TEXT),
           ),
-        ],
-      );
-    }
-
-    Widget _makeSubtitle(String subtitle) {
-      return Padding(padding: EdgeInsets.only(top: 20, bottom: 10),
-          child:
-          Row(children: [
-            Text(subtitle, style: TextStyle(
-              color: DATA_SUBTITLE_TEXT,
-              fontStyle: FontStyle.italic,
-              fontSize: 15.0,
-            ),)
-          ]));
-    }
-
-    ClipRect _getPaddedIcon(String assetLocation, {Color color}) {
-      return ClipRect(
-        clipBehavior: Clip.antiAlias,
-        child: SizedOverflowBox(
-          size: Size(32.0, 30.0),
-          child: Image(
-            height: 30.0,
-            color: color,
-            image: AssetImage(assetLocation),
-          ),
-        ),
-      );
-    }
-
-    Widget _formatHeaderRowText(String text) {
-      return Text(
-        text.toUpperCase(),
-        style: TextStyle(
-          fontSize: 12.0,
-          color: VL_HISTORY_HEADER_TEXT,
-          fontWeight: FontWeight.w600,
         ),
       );
     }
@@ -238,10 +150,10 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       Widget content = Row(
         children: <Widget>[
           Expanded(
-              child: Container(
-                alignment: Alignment.centerLeft,
-                child: _formatHeaderRowText('Viral Load'),
-              )
+            child: Container(
+              alignment: Alignment.centerLeft,
+              child: _formatHeaderRowText('Viral Load'),
+            ),
           ),
           SizedBox(width: 10.0),
           Expanded(child: _formatHeaderRowText('Lab Number')),
@@ -261,35 +173,32 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     }
 
     Widget _buildViralLoadRow(vl) {
+
       if (vl?.isSuppressed == null) { return Column(); }
-      Widget description = Text('${formatDateConsistent(vl.dateOfBloodDraw)}');
+
+      final String description = '${formatDateConsistent(vl.dateOfBloodDraw)}';
+      final double vlIconSize = 25.0;
       Widget viralLoadIcon = vl.isSuppressed
-          ? _getPaddedIcon('assets/icons/viralload_suppressed.png')
-          : _getPaddedIcon('assets/icons/viralload_unsuppressed.png');
+          ? _getPaddedIcon('assets/icons/viralload_suppressed.png', width: vlIconSize, height: vlIconSize)
+          : _getPaddedIcon('assets/icons/viralload_unsuppressed.png', width: vlIconSize, height: vlIconSize);
       Widget viralLoadBadge = ViralLoadBadge(vl, smallSize: false);
+
       Widget content = Row(
         children: <Widget>[
           Expanded(
-              child: Container(
-                alignment: Alignment.centerLeft,
-                child: viralLoadIcon,
-//                child: viralLoadBadge,
-              )
+            child: Container(
+              alignment: Alignment.centerLeft,
+              child: viralLoadIcon,
+//              child: viralLoadBadge,
+            ),
           ),
           SizedBox(width: 10.0),
           Expanded(child: Text(vl.labNumber)),
           Expanded(child: Text(vl.source == ViralLoadSource.MANUAL_INPUT() ? 'manual' : 'database')),
         ],
       );
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: 5.0),
-        child: Row(
-          children: <Widget>[
-            Expanded(flex: _descriptionFlex, child: description),
-            Expanded(flex: _contentFlex, child: content),
-          ],
-        ),
-      );
+
+      return _buildRowWithWidget(description, content);
     }
 
     final vlFollowUps = _patient.viralLoadFollowUps.map((ViralLoad vl) {
@@ -308,7 +217,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         ]);
       }
       return Column(children: <Widget>[
-        _makeSubtitle('Baseline Viral Load'),
+        _buildSubtitle('Baseline Viral Load'),
         Divider(),
         content,
       ]);
@@ -325,315 +234,401 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         ]);
       }
       return Column(children: <Widget>[
-        _makeSubtitle('Follow Up Viral Loads'),
+        _buildSubtitle('Follow Up Viral Loads'),
         Divider(),
         content,
       ]);
     }
 
+    return _buildCard(
+      title: 'Viral Load History',
+      child: Column(
+        children: [
+          _baselineVLRows(),
+          SizedBox(height: 20.0),
+          _followUpVLRows(),
+        ],
+      ),
+    );
+
+  }
+
+  _buildPreferencesCard() {
+
+    Widget _buildSupportOptions() {
+      final SupportPreferencesSelection sps = _patient.latestPreferenceAssessment.supportPreferences;
+      final double iconWidth = 28.0;
+      final double iconHeight = 28.0;
+      if (sps.areAllDeselected) {
+        return _buildRowWithWidget('Support',
+          Row(
+            children: [
+            _getPaddedIcon('assets/icons/no_support.png', width: iconWidth, height: iconHeight),
+            SizedBox(width: 5.0),
+            Text(SupportPreferencesSelection.NONE_DESCRIPTION),
+            ],
+          ),
+        );
+      }
+      if (sps.areAllWithTodoDeselected) {
+        return _buildRow('Support', '—');
+      }
+      List<Widget> supportOptions = [];
+      if (sps.NURSE_CLINIC_selected) {
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.NURSE_CLINIC_DESCRIPTION,
+          checkboxState: NURSE_CLINIC_done,
+          onChanged: (bool newState) { setState(() { NURSE_CLINIC_done = newState; }); },
+          icon: _getPaddedIcon('assets/icons/nurse_clinic.png', width: iconWidth, height: iconHeight, color: NURSE_CLINIC_done ? ICON_INACTIVE : ICON_ACTIVE),
+        ));
+      }
+      if (sps.SATURDAY_CLINIC_CLUB_selected) {
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.SATURDAY_CLINIC_CLUB_DESCRIPTION,
+          checkboxState: SATURDAY_CLINIC_CLUB_done,
+          onChanged: (bool newState) { setState(() { SATURDAY_CLINIC_CLUB_done = newState; }); },
+          icon: _getPaddedIcon('assets/icons/saturday_clinic_club.png', width: iconWidth, height: iconHeight, color: SATURDAY_CLINIC_CLUB_done ? ICON_INACTIVE : ICON_ACTIVE),
+        ));
+      }
+      if (sps.COMMUNITY_YOUTH_CLUB_selected) {
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.COMMUNITY_YOUTH_CLUB_DESCRIPTION,
+          checkboxState: COMMUNITY_YOUTH_CLUB_done,
+          onChanged: (bool newState) { setState(() { COMMUNITY_YOUTH_CLUB_done = newState; }); },
+          icon: _getPaddedIcon('assets/icons/youth_club.png', width: iconWidth, height: iconHeight, color: COMMUNITY_YOUTH_CLUB_done ? ICON_INACTIVE : ICON_ACTIVE),
+        ));
+      }
+      if (sps.PHONE_CALL_PE_selected) {
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.PHONE_CALL_PE_DESCRIPTION,
+          checkboxState: PHONE_CALL_PE_done,
+          onChanged: (bool newState) { setState(() { PHONE_CALL_PE_done = newState; }); },
+          icon: _getPaddedIcon('assets/icons/phonecall_pe.png', width: iconWidth, height: iconHeight, color: PHONE_CALL_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
+        ));
+      }
+      if (sps.HOME_VISIT_PE_selected) {
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.HOME_VISIT_PE_DESCRIPTION,
+          checkboxState: HOME_VISIT_PE_done,
+          onChanged: (bool newState) { setState(() { HOME_VISIT_PE_done = newState; }); },
+          icon: _getPaddedIcon('assets/icons/homevisit_pe.png', width: iconWidth, height: iconHeight, color: HOME_VISIT_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
+        ));
+      }
+      if (sps.SCHOOL_VISIT_PE_selected) {
+        String schoolNameAndVillage = _patient.latestPreferenceAssessment?.school;
+        schoolNameAndVillage = schoolNameAndVillage == null ? '' : '\n($schoolNameAndVillage)';
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.SCHOOL_VISIT_PE_DESCRIPTION + schoolNameAndVillage,
+          checkboxState: SCHOOL_VISIT_PE_done,
+          onChanged: (bool newState) { setState(() { SCHOOL_VISIT_PE_done = newState; }); },
+          icon: _getPaddedIcon('assets/icons/schooltalk_pe.png', width: iconWidth, height: iconHeight, color: SCHOOL_VISIT_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
+        ));
+      }
+      if (sps.PITSO_VISIT_PE_selected) {
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.PITSO_VISIT_PE_DESCRIPTION,
+          checkboxState: PITSO_VISIT_PE_done,
+          onChanged: (bool newState) { setState(() { PITSO_VISIT_PE_done = newState; }); },
+          icon: _getPaddedIcon('assets/icons/pitso.png', width: iconWidth, height: iconHeight, color: PITSO_VISIT_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
+        ));
+      }
+
+      final String supportDisclaimer = "The following support options require "
+          "additional action. Tick off any options that are completed.";
+
+      // small screen option:
+      // shows disclaimer first, then the support options below, both in full
+      // width
+      print('screen width: $_screenWidth');
+      if (_screenWidth < 400.0) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5.0),
+              child: Text(supportDisclaimer),
+            ),
+            ...supportOptions,
+          ],
+        );
+      }
+
+      // wide screen option:
+      // shows disclaimer on the left (as all the other descriptors above),
+      // and the support options on the right (as all the other contents above)
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5.0),
+              child: Text(supportDisclaimer),
+            ),
+          ),
+          SizedBox(width: 5.0),
+          Expanded(
+            child: Column(children: [...supportOptions],
+            ),
+          ),
+        ],
+      );
+
+    }
+
+    Widget _buildPreferencesCardContent() {
+      if (_patient.latestPreferenceAssessment == null) {
+        return Center(
+          child: Text(
+            "No preferences available for this patient. Start a new preference assessment below.",
+            style: TextStyle(
+              color: NO_DATA_TEXT,
+            ),
+          ),
+        );
+      } else {
+
+        Widget _vhwInfo() {
+          ARTRefillOption lastOption = _patient.latestPreferenceAssessment?.lastRefillOption;
+          if (lastOption == null || lastOption != ARTRefillOption.VHW()) {
+            return Container();
+          }
+          return Column(
+              children: [
+                _buildRow('VHW Name', _patient.latestPreferenceAssessment?.artRefillVHWName),
+                _buildRow("VHW's Village", _patient.latestPreferenceAssessment?.artRefillVHWVillage),
+                _buildRow("VHW's Phone Number", _patient.latestPreferenceAssessment?.artRefillVHWPhoneNumber),
+              ],
+          );
+        }
+
+        Widget _treatmentBuddyInfo() {
+          ARTRefillOption lastOption = _patient.latestPreferenceAssessment?.lastRefillOption;
+          if (lastOption == null || lastOption != ARTRefillOption.TREATMENT_BUDDY()) {
+            return Container();
+          }
+          return Column(
+            children: [
+              _buildRow("Treatment Buddy's ART Nr.", _patient.latestPreferenceAssessment?.artRefillTreatmentBuddyART),
+              _buildRow("Treatment Buddy's Village", _patient.latestPreferenceAssessment?.artRefillTreatmentBuddyVillage),
+              _buildRow("Treatment Buddy's Phone Number", _patient.latestPreferenceAssessment?.artRefillTreatmentBuddyPhoneNumber),
+            ],
+          );
+        }
+
+        Widget _adherenceReminderInfo() {
+          bool enabled = _patient.latestPreferenceAssessment?.adherenceReminderEnabled;
+          if (enabled == null || !enabled) {
+            return _buildRow('Adherence Reminders', 'disabled');
+          }
+          return Column(
+            children: [
+              _buildRow('Adherence Reminder Frequency', _patient.latestPreferenceAssessment?.adherenceReminderFrequency?.description),
+              _buildRow('Adherence Reminder Notification Time', formatTime(_patient.latestPreferenceAssessment?.adherenceReminderTime)),
+              _buildRow('Adherence Reminder Message', _patient.latestPreferenceAssessment?.adherenceReminderMessage?.description),
+            ],
+          );
+        }
+
+        Widget _refillReminderInfo() {
+          bool enabled = _patient.latestPreferenceAssessment?.artRefillReminderEnabled;
+          if (enabled == null || !enabled) {
+            return _buildRow('ART Refill Reminders', 'disabled');
+          }
+          return Column(
+            children: [
+              _buildRow('ART Refill Reminder Time', _patient.latestPreferenceAssessment?.artRefillReminderDaysBefore?.description),
+              _buildRow('ART Refill Reminder Message', _patient.latestPreferenceAssessment?.artRefillReminderMessage?.description),
+            ],
+          );
+        }
+
+        Widget _vlNotificationInfo() {
+          bool enabled = _patient.latestPreferenceAssessment?.vlNotificationEnabled;
+          if (enabled == null || !enabled) {
+            return _buildRow('Viral Load Notifications', 'disabled');
+          }
+          return Column(
+            children: [
+              _buildRow('Viral Load Message (suppressed)', _patient.latestPreferenceAssessment?.vlNotificationMessageSuppressed?.description),
+              _buildRow('Viral Load Message (unsuppressed)', _patient.latestPreferenceAssessment?.vlNotificationMessageUnsuppressed?.description),
+            ],
+          );
+        }
+
+        Widget _psychosocialSupportInfo() {
+          final YesNoRefused answer = _patient.latestPreferenceAssessment?.psychosocialShareSomethingAnswer;
+          final bool shareSomething = answer != null && answer == YesNoRefused.YES();
+          return Column(
+            children: [
+              _buildRow('Did the patient want to share something?', answer.description),
+              shareSomething ? _buildRow('The patient shared:', _patient.latestPreferenceAssessment?.psychosocialShareSomethingContent) : Container(),
+              _buildRow('How was the patient doing?', _patient.latestPreferenceAssessment?.psychosocialHowDoing),
+            ],
+          );
+        }
+
+        Widget _unsuppressedVlInfo() {
+          final YesNoRefused answer = _patient.latestPreferenceAssessment?.unsuppressedSafeEnvironmentAnswer;
+          if (answer == null) {
+            return Text(
+              'The patient was suppressed at the time of the preference assessment. Thus, this section was not covered during the assessment.',
+              style: TextStyle(color: TEXT_INACTIVE),
+              textAlign: TextAlign.center,
+            );
+          }
+          final bool notSafe = answer == YesNoRefused.NO();
+          return Column(
+            children: [
+              _buildRow('Does the patient have a safe environment to take the medication?', answer.description),
+              notSafe ? _buildRow('Why is the environment not safe?', _patient.latestPreferenceAssessment?.unsuppressedWhyNotSafe) : Container(),
+            ],
+          );
+        }
+
+        final double _spacingBetweenPreferences = 20.0;
+        final double _spacingBetweenNotificationsInfos = 10.0;
+        return Column(
+          children: [
+            SizedBox(height: 5.0),
+            _buildSubtitle('ART Refill'), Divider(),
+            _buildRow('ART Refill', _patient.latestPreferenceAssessment?.lastRefillOption?.description),
+            _vhwInfo(),
+            _treatmentBuddyInfo(),
+            _buildRow('ART Supply Amount', _patient.latestPreferenceAssessment?.artSupplyAmount?.description),
+            SizedBox(height: _spacingBetweenPreferences),
+            _buildSubtitle('Notifications'), Divider(),
+            _adherenceReminderInfo(),
+            SizedBox(height: _spacingBetweenNotificationsInfos),
+            _refillReminderInfo(),
+            SizedBox(height: _spacingBetweenNotificationsInfos),
+            _vlNotificationInfo(),
+            SizedBox(height: _spacingBetweenPreferences),
+            _buildSubtitle('Support'), Divider(),
+            _buildSupportOptions(),
+            SizedBox(height: _spacingBetweenPreferences),
+            _buildSubtitle('Psychosocial Support'), Divider(),
+            _psychosocialSupportInfo(),
+            SizedBox(height: _spacingBetweenPreferences),
+            _buildSubtitle('Unsuppressed Viral Load'), Divider(),
+            _unsuppressedVlInfo(),
+          ],
+        );
+      }
+    }
+
+    return _buildCard(
+      title: 'Preferences',
+      child: Container(
+        width: double.infinity,
+        child: _buildPreferencesCardContent(),
+      ),
+    );
+
+  }
+
+
+  /*
+   * Helper Functions
+   */
+
+  Widget _buildCard({@required Widget child, String title}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildTitle('Viral Load History'),
+        (title == null || title == '') ? Container() : _buildTitle(title),
         Card(
           margin: EdgeInsets.symmetric(horizontal: 15),
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-            child: Column(
-              children: [
-                _baselineVLRows(),
-                SizedBox(height: 20.0),
-                _followUpVLRows(),
-              ],
-            ),
+            child: child,
           ),
         ),
       ],
     );
   }
 
-  _buildPreferencesCard() {
-
-    _buildARTRefillText() {
-      String text = _patient.latestPreferenceAssessment.lastRefillOption.description;
-      return Text(text);
-    }
-
-    _buildAdherenceReminderMessageText() {
-      AdherenceReminderMessage message = _patient.latestPreferenceAssessment.adherenceReminderMessage;
-      String text = message == null ? '—' : message.description;
-      return Text(text);
-    }
-
-    _buildAdherenceReminderFrequencyText() {
-      final AdherenceReminderFrequency freq = _patient.latestPreferenceAssessment.adherenceReminderFrequency;
-      String text = freq == null ? '—' : freq.description;
-      return Text(text);
-    }
-
-    _buildAdherenceReminderTimeText() {
-      final TimeOfDay adherenceReminderTime = _patient.latestPreferenceAssessment.adherenceReminderTime;
-      String text = adherenceReminderTime == null ? '—' : formatTime(adherenceReminderTime);
-      return Text(text);
-    }
-
-    _buildVLMessageSuppressedText() {
-      VLSuppressedMessage message = _patient.latestPreferenceAssessment.vlNotificationMessageSuppressed;
-      String text = message == null ? '—' : message.description;
-      return Text(text);
-    }
-
-    _buildVLMessageUnsuppressedText() {
-      VLUnsuppressedMessage message = _patient.latestPreferenceAssessment.vlNotificationMessageUnsuppressed;
-      String text = message == null ? '—' : message.description;
-      return Text(text);
-    }
-
-    TableRow _buildSupportOption(String title, {Widget icon}) {
-      return TableRow(children: [
-        TableCell(
-          child: CheckboxListTile(
-            secondary: icon,
-            title: Text(title),
-            dense: true,
-            value: false,
-            onChanged: (bool newState) {
-              print('Checkbox clicked: $newState');
-            },
-          ),
-        ),
-        TableCell(
-          verticalAlignment: TableCellVerticalAlignment.middle,
-          child: Text(''),
-        ),
-      ]);
-    }
-
-    ClipRect _getPaddedIcon(String assetLocation, {Color color}) {
-      return ClipRect(
-          clipBehavior: Clip.antiAlias,
-          child: SizedOverflowBox(
-              size: Size(25.0, 25.0),
-              child: Image(
-                height: 25.0,
-                color: color,
-                image: AssetImage(
-                    assetLocation),
-              )));
-    }
-
-    _buildSupportOptions() {
-      final SupportPreferencesSelection sps = _patient.latestPreferenceAssessment.supportPreferences;
-      if (sps.areAllDeselected) {
-        return Text('—');
-      }
-      List<TableRow> supportOptions = List<TableRow>();
-      if (sps.NURSE_CLINIC_selected) {
-        supportOptions.add(
-            _buildSupportOption(SupportPreferencesSelection.NURSE_CLINIC_DESCRIPTION,
-                icon: _getPaddedIcon('assets/icons/nurse_clinic_fett.png')
-            ));
-      }
-      if (sps.SATURDAY_CLINIC_CLUB_selected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.SATURDAY_CLINIC_CLUB_DESCRIPTION,
-            icon: _getPaddedIcon('assets/icons/saturday_clinic_club_black.png')
-        ));
-      }
-      if (sps.COMMUNITY_YOUTH_CLUB_selected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.COMMUNITY_YOUTH_CLUB_DESCRIPTION,
-            icon: _getPaddedIcon('assets/icons/youth_club_black.png')
-        ));
-      }
-      if (sps.PHONE_CALL_PE_selected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.PHONE_CALL_PE_DESCRIPTION,
-            icon: _getPaddedIcon('assets/icons/phonecall_pe_black.png')
-        ));
-      }
-      if (sps.HOME_VISIT_PE_selected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.HOME_VISIT_PE_DESCRIPTION,
-            icon: _getPaddedIcon('assets/icons/homevisit_pe_black.png')
-        ));
-      }
-      if (sps.SCHOOL_VISIT_PE_selected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.SCHOOL_VISIT_PE_DESCRIPTION,
-            icon: _getPaddedIcon('assets/icons/schooltalk_pe_black.png')
-        ));
-      }
-      if (sps.PITSO_VISIT_PE_selected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.PITSO_VISIT_PE_DESCRIPTION,
-            icon: _getPaddedIcon('assets/icons/pitso_black.png')
-        ));
-      }
-
-      // TODO: remove this demo option (it is just an idea how to display completed items)
-      supportOptions.add(
-        TableRow(children: [
-          TableCell(
-            verticalAlignment: TableCellVerticalAlignment.middle,
-            child: CheckboxListTile(
-              // secondary: const Icon(Icons.local_hospital),
-              title: Text(
-                'Completed Item',
-                style: TextStyle(
-                    decoration: TextDecoration.lineThrough),
-              ),
-              dense: true,
-              value: true,
-              onChanged: (bool newState) {
-                print('Checkbox clicked: $newState');
-              },
-            ),
-          ),
-          TableCell(
-            verticalAlignment: TableCellVerticalAlignment.middle,
-            child: Text('done on 04.02.2019'),
-          ),
-        ]),
-      );
-
-      return Table(columnWidths: {
-        0: FixedColumnWidth(250.0),
-        // 0: IntrinsicColumnWidth(),
-        // 1: FixedColumnWidth(250.0),
-      }, children: supportOptions);
-    }
-
-    Widget content;
-
-    if (_patient.latestPreferenceAssessment == null) {
-      content = Center(
-                  child: Text(
-                "No preferences available for this patient. Start a new preference assessment below.",
-                style: TextStyle(
-                  color: NO_DATA_TEXT,
-                ),
-              ));
-    } else {
-      content = Table(
-        children: [
-          TableRow(children: [
-            TableCell(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                    vertical: _tableRowPaddingVertical),
-                child: Text('ART Refill'),
-              ),
-            ),
-            TableCell(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      vertical: _tableRowPaddingVertical),
-                  child: _buildARTRefillText()),
-            ),
-          ]),
-          TableRow(children: [
-            TableCell(
-                child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: _tableRowPaddingVertical),
-                    child: Text('Adherence Reminder Message'))),
-            TableCell(
-                child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: _tableRowPaddingVertical),
-                    child: _buildAdherenceReminderMessageText())),
-          ]),
-          TableRow(children: [
-            TableCell(
-                child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: _tableRowPaddingVertical),
-                    child: Text('Adherence Reminder Frequency'))),
-            TableCell(
-                child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: _tableRowPaddingVertical),
-                    child: _buildAdherenceReminderFrequencyText())),
-          ]),
-          TableRow(children: [
-            TableCell(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      vertical: _tableRowPaddingVertical),
-                  child: Text('Adherence Reminder Notification Time')),
-            ),
-            TableCell(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      vertical: _tableRowPaddingVertical),
-                  child: _buildAdherenceReminderTimeText()),
-            ),
-          ]),
-          TableRow(children: [
-            TableCell(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      vertical: _tableRowPaddingVertical),
-                  child: Text('Viral Load Message (suppressed)')),
-            ),
-            TableCell(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      vertical: _tableRowPaddingVertical),
-                  child: _buildVLMessageSuppressedText()),
-            ),
-          ]),
-          TableRow(children: [
-            TableCell(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      vertical: _tableRowPaddingVertical),
-                  child: Text('Viral Load Message (unsuppressed)')),
-            ),
-            TableCell(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      vertical: _tableRowPaddingVertical),
-                  child: _buildVLMessageUnsuppressedText()),
-            ),
-          ]),
-          TableRow(children: [
-            TableCell(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      vertical: _tableRowPaddingVertical),
-                  child: Text('Support')),
-            ),
-            TableCell(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                    vertical: _tableRowPaddingVertical),
-                child: _buildSupportOptions(),
-              ),
-            ),
-          ]),
-        ],
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: 20.0),
-        _buildTitle('Preferences'),
-        Card(
-        margin: EdgeInsets.symmetric(horizontal: 15),
-        child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-            child: content),
-      ),
-    ]);
-
+  Widget _buildRow(String description, String content) {
+    return _buildRowWithWidget(description, Text(content ?? '—'));
   }
 
-  void _pushPreferenceAssessmentScreen(BuildContext context, Patient patient) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          return PreferenceAssessmentScreen(patient);
-        },
+  Widget _buildRowWithWidget(String description, Widget content) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 5.0),
+      child: Row(
+        children: <Widget>[
+          Expanded(flex: _descriptionFlex, child: Text(description)),
+          SizedBox(width: 5.0),
+          Expanded(flex: _contentFlex, child: content),
+        ],
       ),
     );
+  }
+
+  Widget _formatHeaderRowText(String text) {
+    return Text(
+      text.toUpperCase(),
+      style: TextStyle(
+        fontSize: 12.0,
+        color: VL_HISTORY_HEADER_TEXT,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+
+  Widget _buildTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 15.0),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubtitle(String subtitle) {
+    return Row(
+      children: [
+        Text(
+          subtitle,
+          style: TextStyle(
+            color: DATA_SUBTITLE_TEXT,
+            fontStyle: FontStyle.italic,
+            fontSize: 15.0,
+          ),
+        ),
+      ],
+    );
+  }
+
+  ClipRect _getPaddedIcon(String assetLocation, {Color color, double width: 25.0, double height: 25.0}) {
+    return ClipRect(
+        clipBehavior: Clip.antiAlias,
+        child: SizedOverflowBox(
+            size: Size(width, height),
+            child: Image(
+              height: height,
+              color: color,
+              image: AssetImage(
+                  assetLocation),
+            )));
+  }
+
+  Row _buildSupportOption(String title, {bool checkboxState, Function onChanged(bool newState), Widget icon, String doneText}) {
+    return Row(children: [
+      Expanded(
+        child: CheckboxListTile(
+          activeColor: ICON_INACTIVE,
+          secondary: icon,
+          subtitle: checkboxState ? Text(doneText ?? 'done', style: TextStyle(fontStyle: FontStyle.italic)) : null,
+          title: Text(
+            title,
+            style: TextStyle(
+              decoration: checkboxState ? TextDecoration.lineThrough : TextDecoration.none,
+              color: checkboxState ? TEXT_INACTIVE : TEXT_ACTIVE,
+            ),
+          ),
+          dense: true,
+          value: checkboxState,
+          onChanged: onChanged,
+        ),
+      ),
+    ]);
   }
 
   /// Pushes [newScreen] to the top of the navigation stack using a fade in
@@ -655,8 +650,30 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     );
   }
 
-  void _pushEditPatientScreen(Patient patient) {
+  void _editCharacteristicsPressed(Patient patient) {
     _fadeInScreen(EditPatientScreen(patient));
+  }
+
+  Future<void> _fetchFromDatabasePressed(BuildContext context, Patient patient) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Not Implemented'),
+          content: Text('This feature is not yet available.'),
+          actions: [
+            FlatButton(
+              child: Text("Dismiss"),
+              onPressed: () { Navigator.of(context).pop(); },
+            ),
+          ],
+        );
+      },
+    );
+    // TODO: implement call to viral load database API
+    // calling setState to trigger a re-render of the page and display the new
+    // viral load history
+    setState(() {});
   }
 
   void _addManualEntryPressed(BuildContext context, Patient patient) {
@@ -667,12 +684,33 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     });
   }
 
-  void _pushARTRefillScreen(BuildContext context, Patient patient, String nextRefillDate) {
+  void _startAssessmentPressed(BuildContext context, Patient patient) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return PreferenceAssessmentScreen(patient);
+        },
+      ),
+    );
+  }
+
+  void _manageRefillPressed(BuildContext context, Patient patient, String nextRefillDate) {
     _fadeInScreen(ARTRefillScreen(patient, nextRefillDate)).then((_) {
       // calling setState to trigger a re-render of the page and display the new
       // ART Refill Date
       setState(() {});
     });
+  }
+
+  Widget _makeButton(String buttonText, {Null Function() onPressed, bool flat: false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        flat
+            ? PEBRAButtonFlat(buttonText, onPressed: onPressed)
+            : PEBRAButtonRaised(buttonText, onPressed: onPressed),
+      ],
+    );
   }
 
 }

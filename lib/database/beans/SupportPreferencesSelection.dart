@@ -79,6 +79,18 @@ class SupportPreferencesSelection {
 
   bool get areAllDeselected => _selection.isEmpty;
 
+  /// Returns true if no options are selected that require an action from the
+  /// peer educator.
+  ///
+  /// E.g., the option 'Phone Call PE' requires the peer educator to make a call
+  /// and then tick off the option in the patient screen.
+  ///
+  /// These are also the support options which have an icon.
+  bool get areAllWithTodoDeselected => (!NURSE_CLINIC_selected
+      && !SATURDAY_CLINIC_CLUB_selected  && !COMMUNITY_YOUTH_CLUB_selected
+      && !PHONE_CALL_PE_selected && !HOME_VISIT_PE_selected
+      && !SCHOOL_VISIT_PE_selected && !PITSO_VISIT_PE_selected);
+
   set NURSE_CLINIC_selected(bool selected) {
     selected
       ? _selection.add(_SupportPreference.NURSE_CLINIC)

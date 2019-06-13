@@ -24,7 +24,44 @@ class ARTRefillReminderDaysBeforeSelection {
   static String get ONE_DAY_BEFORE => "1 Day Before";
   static String get ZERO_DAYS_BEFORE => "On the day of ART Refill";
 
+  // integer representation of how many days each option stands for
+  static const Map<_DaysBefore, int> _intRepresentation = {
+    _DaysBefore.SEVEN_DAYS_BEFORE: 7,
+    _DaysBefore.THREE_DAYS_BEFORE: 3,
+    _DaysBefore.TWO_DAYS_BEFORE: 2,
+    _DaysBefore.ONE_DAY_BEFORE: 1,
+    _DaysBefore.ZERO_DAYS_BEFORE: 0,
+  };
+
   Set<_DaysBefore> _selection = Set();
+
+  String get description {
+    // ''
+    if (_selection.length == 0) {
+      return '';
+    }
+    // '1 day before' / '0 days before' / '2 days before' / ...
+    if (_selection.length == 1) {
+      if (_selection.first == _DaysBefore.ONE_DAY_BEFORE) {
+        return '1 day before';
+      }
+      return '${_intRepresentation[_selection.first]} days before';
+    }
+    // '7, 3, 2, 1 and 0 days before'
+    final selectionSorted = _selection.toList();
+    selectionSorted.sort((_DaysBefore a, _DaysBefore b) => a.index > b.index ? 1 : -1);
+    String result = '';
+    for (int i = 0; i < selectionSorted.length; i++) {
+      if (i == selectionSorted.length - 1) {
+        // last item
+        result = result.substring(0, result.length - 2); // remove ', '
+        result += ' and ${_intRepresentation[selectionSorted[i]]} days before';
+      } else {
+        result += '${_intRepresentation[selectionSorted[i]]}, ';
+      }
+    }
+    return result;
+  }
 
 
   // Constructors
