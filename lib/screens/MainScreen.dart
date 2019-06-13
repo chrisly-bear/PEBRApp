@@ -534,6 +534,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       if (sps.areAllDeselected) {
         icons.add(_getPaddedIcon('assets/icons/no_support_fett.png', color: iconColor));
         icons.add(spacer);
+      } else if (sps.areAllWithTodoDeselected) {
+        return _formatPatientRowText('—', isActivated: isActivated);
       }
       if (icons.length > 0 && icons.last == spacer) {
         // remove last spacer as there are no more icons that follow it
