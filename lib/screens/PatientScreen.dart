@@ -456,6 +456,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         }
 
         final double _spacingBetweenPreferences = 20.0;
+        final double _spacingBetweenNotificationsInfos = 10.0;
         return Column(
           children: [
             SizedBox(height: 5.0),
@@ -467,7 +468,9 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
             SizedBox(height: _spacingBetweenPreferences),
             _buildSubtitle('Notifications'), Divider(),
             _adherenceReminderInfo(),
+            SizedBox(height: _spacingBetweenNotificationsInfos),
             _refillReminderInfo(),
+            SizedBox(height: _spacingBetweenNotificationsInfos),
             _vlNotificationInfo(),
             SizedBox(height: _spacingBetweenPreferences),
             _buildSubtitle('Support'), Divider(),
