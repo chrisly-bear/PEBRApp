@@ -584,8 +584,8 @@ class _NewPatientFormState extends State<_NewPatientForm> {
         child:
         Text('This patient is not eligible for the study. Only patients born '
             'between $minYearForEligibility and $maxYearForEligibility are '
-            'eligible.\nPlease, save the patient anyway for study evaluation '
-            'reasons. The patient will not appear in the PEBRApp though.',
+            'eligible. Please, save the patient anyway for study evaluation '
+            'reasons. The patient will not appear in the PEBRApp, however.',
           textAlign: TextAlign.center,
         ),
       );
