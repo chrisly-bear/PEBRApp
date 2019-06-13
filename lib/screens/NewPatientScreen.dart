@@ -22,6 +22,7 @@ class NewPatientScreen extends StatelessWidget {
     return PopupScreen(
       title: 'New Patient',
       child: _NewPatientForm(),
+      scrollable: false,
     );
   }
 }
@@ -71,7 +72,11 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   bool _viralLoadBaselineDateValid = true;
 
   List<String> _artNumbersInDB;
-  bool get _isLoading { return _artNumbersInDB == null; }
+  bool _isLoading = true;
+
+  // stepper state
+  bool _patientSaved = false;
+  int currentStep = 0;
 
   @override
   initState() {
@@ -79,42 +84,115 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     DatabaseProvider().retrievePatientsART(retrieveNonEligibles: false, retrieveNonConsents: false).then((artNumbers) {
       setState(() {
         _artNumbersInDB = artNumbers;
+        _isLoading = false;
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Form(
+
+    final Form patientCharacteristicsStep = Form(
       key: _formKey,
       child: Column(
-          children: [
-            _personalInformationCard(),
-            _consentCard(),
-            _viralLoadBaselineCard(),
-            _eligibilityDisclaimer(),
-            SizedBox(height: 16.0),
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              PEBRAButtonRaised(
-                'Save',
-                onPressed: _isLoading ? null : _onSubmitForm,
-              ),
-            ]),
-            SizedBox(height: 16.0),
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              PEBRAButtonRaised(
-                'Open KoBoCollect',
-                onPressed: _openKoBoCollect,
-              ),
-            ]),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-              child: Text('Open the KoBoCollect app to fill in the baseline assessment form.', textAlign: TextAlign.center,),
-            ),
-            SizedBox(height: 16.0),
-          ],
+        children: [
+          _personalInformationCard(),
+          _consentCard(),
+          _viralLoadBaselineCard(),
+          _eligibilityDisclaimer(),
+        ],
       ),
     );
+
+    final Widget baselineAssessmentStep = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Open the KoBoCollect app to fill in the baseline assessment form.'),
+        SizedBox(height: 20.0),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [PEBRAButtonRaised('Open KoBoCollect', onPressed: _openKoBoCollect)],
+        ),
+        SizedBox(height: 20.0),
+      ],
+    );
+
+    final Widget finishStep = Row(
+      children: <Widget>[
+        Text(_patientSaved ? "All done! You can close this screen by tapping 'Continue' below." : 'Please complete the previous steps!'),
+      ],
+    );
+
+    List<Step> steps = [
+      Step(
+        title: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text('Patient Characteristics'),
+            SizedBox(width: 10.0),
+            _isLoading ? SizedBox(height: 10.0, width: 10.0, child: CircularProgressIndicator()) : Container(),
+          ],
+        ),
+        isActive: currentStep == 0,
+        state: _patientSaved ? StepState.disabled : StepState.indexed,
+        content: patientCharacteristicsStep,
+      ),
+      Step(
+        title: const Text('Baseline Assessment'),
+        isActive: currentStep == 1,
+        state: StepState.indexed,
+        content: baselineAssessmentStep,
+      ),
+      Step(
+        title: const Text('Finish'),
+        isActive: currentStep == 2,
+        state: StepState.indexed,
+        content: finishStep,
+      ),
+    ];
+
+    goTo(int step) {
+      setState(() => currentStep = step);
+    }
+
+    next() async {
+      switch (currentStep) {
+        // patient characteristics form
+        case 0:
+          if (await _onSubmitForm()) {
+            setState(() { _patientSaved = true; });
+            goTo(1);
+          }
+          break;
+        // baseline assessment
+        case 1:
+          goTo(2);
+          break;
+        // finish
+        case 2:
+          if (_patientSaved) {
+            _closeScreen();
+          }
+      }
+    }
+
+    cancel() {
+      if (currentStep > 0) {
+        goTo(currentStep - 1);
+      } else if (currentStep == 0) {
+        _closeScreen();
+      }
+    }
+
+    return Stepper(
+      steps: steps,
+//      type: StepperType.horizontal,
+      currentStep: currentStep,
+      onStepTapped: goTo,
+      onStepContinue: (_isLoading || (currentStep == 2 && !_patientSaved)) ? null : next,
+      onStepCancel: (currentStep == 1 && _patientSaved) ? null : cancel,
+    );
+
   }
 
   // ----------
@@ -607,7 +685,12 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     return true;
   }
 
-  _onSubmitForm() async {
+  /// Returns true if the form validation succeeds and the patient was saved
+  /// successfully.
+  Future<bool> _onSubmitForm() async {
+    setState(() {
+      _isLoading = true;
+    });
     if (_formKey.currentState.validate() & _validateViralLoadBaselineDate()) {
 
       _newPatient.enrolmentDate = DateTime.now().toUtc();
@@ -632,12 +715,23 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       }
 
       await PatientBloc.instance.sinkPatientData(_newPatient);
-      Navigator.of(context).popUntil((Route<dynamic> route) {
-        return (route.settings.name == '/patient' || route.settings.name == '/');
-      });
       final String finishNotification = 'New patient created successfully';
       showFlushBar(context, finishNotification);
+      setState(() {
+        _isLoading = false;
+      });
+      return true;
     }
+    setState(() {
+      _isLoading = false;
+    });
+    return false;
+  }
+
+  _closeScreen() {
+    Navigator.of(context).popUntil((Route<dynamic> route) {
+      return (route.settings.name == '/patient' || route.settings.name == '/');
+    });
   }
 
   _openKoBoCollect() async {
