@@ -10,6 +10,7 @@ import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/beans/VLSuppressedMessage.dart';
 import 'package:pebrapp/database/beans/VLUnsuppressedMessage.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
+import 'package:pebrapp/database/beans/YesNoRefused.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/screens/ARTRefillScreen.dart';
@@ -455,6 +456,17 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           );
         }
 
+        Widget _psychosocialSupportInfo() {
+          final YesNoRefused shareSomethingAnswer = _patient.latestPreferenceAssessment?.psychosocialShareSomethingAnswer;
+          final bool shareSomething = shareSomethingAnswer != null && shareSomethingAnswer == YesNoRefused.YES();
+          return Column(
+            children: [
+              shareSomething ? _buildRow('The patient shared:', _patient.latestPreferenceAssessment?.psychosocialShareSomethingContent) : Container(),
+              _buildRow('How the patient was doing:', _patient.latestPreferenceAssessment?.psychosocialHowDoing),
+            ],
+          );
+        }
+
         final double _spacingBetweenPreferences = 20.0;
         final double _spacingBetweenNotificationsInfos = 10.0;
         return Column(
@@ -477,6 +489,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
             _buildSupportOptions(),
             SizedBox(height: _spacingBetweenPreferences),
             _buildSubtitle('Psychosocial Support'), Divider(),
+            _psychosocialSupportInfo(),
             SizedBox(height: _spacingBetweenPreferences),
             _buildSubtitle('Unsuppressed Viral Load'), Divider(),
           ],
