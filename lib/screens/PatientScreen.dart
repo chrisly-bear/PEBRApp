@@ -48,11 +48,11 @@ class _PatientScreenBody extends StatefulWidget {
 class _PatientScreenBodyState extends State<_PatientScreenBody> {
   final int _descriptionFlex = 1;
   final int _contentFlex = 1;
-  final _tableRowPaddingVertical = 5.0;
   final BuildContext _context;
   Patient _patient;
   String _nextAssessmentText = '—';
   String _nextRefillText = '—';
+  double _screenWidth;
 
   bool NURSE_CLINIC_done = false;
   bool SATURDAY_CLINIC_CLUB_done = false;
@@ -68,6 +68,8 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   
   @override
   Widget build(BuildContext context) {
+
+    _screenWidth = MediaQuery.of(context).size.width;
 
     DateTime lastAssessmentDate = _patient.latestPreferenceAssessment?.createdDate;
     if (lastAssessmentDate != null) {
@@ -253,14 +255,25 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
 
   _buildPreferencesCard() {
 
-    _buildSupportOptions() {
+    Widget _buildSupportOptions() {
       final SupportPreferencesSelection sps = _patient.latestPreferenceAssessment.supportPreferences;
-      if (sps.areAllDeselected) {
-        return Text('—');
-      }
       final double iconWidth = 28.0;
       final double iconHeight = 28.0;
-      List<TableRow> supportOptions = List<TableRow>();
+      if (sps.areAllDeselected) {
+        return _buildRowWithWidget('Support',
+          Row(
+            children: [
+            _getPaddedIcon('assets/icons/no_support_fett.png', width: iconWidth, height: iconHeight),
+            SizedBox(width: 5.0),
+            Text(SupportPreferencesSelection.NONE_DESCRIPTION),
+            ],
+          ),
+        );
+      }
+      if (sps.areAllWithTodoDeselected) {
+        return _buildRow('Support', '—');
+      }
+      List<Widget> supportOptions = [];
       if (sps.NURSE_CLINIC_selected) {
         supportOptions.add(_buildSupportOption(SupportPreferencesSelection.NURSE_CLINIC_DESCRIPTION,
           checkboxState: NURSE_CLINIC_done,
@@ -315,15 +328,30 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       supportOptions.add(_buildSupportOption('Completed Item',
           checkboxState: dummy_item_done,
           onChanged: (bool newState) { setState(() { dummy_item_done = newState; }); },
-          icon: _getPaddedIcon('assets/icons/schooltalk_pe_black.png', width: iconWidth, height: iconHeight),
+          icon: Icon(Icons.description, color: dummy_item_done ? ICON_INACTIVE : ICON_ACTIVE),
           doneText: 'done on 04.02.2019'),
       );
 
-      return Table(columnWidths: {
-        0: FixedColumnWidth(250.0),
-        // 0: IntrinsicColumnWidth(),
-        // 1: FixedColumnWidth(250.0),
-      }, children: supportOptions);
+      // small screen option:
+      // shows a 'Support' line first, then the support options in full width
+      print('screen width: $_screenWidth');
+      if (_screenWidth < 400.0) {
+        return Column(
+          children: [
+            _buildRow('Support', ''),
+            ...supportOptions,
+          ],
+        );
+      }
+
+      // wide screen option:
+      // shows 'Support' on the left (as all the other descriptors above), then
+      // the support options on the right (as all the other contents above)
+      return _buildRowWithWidget('Support',
+        Column(children: [...supportOptions],
+        ),
+      );
+
     }
 
     Widget _buildPreferencesCardContent() {
@@ -337,15 +365,15 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           ),
         );
       } else {
-        return Table(
+        return Column(
           children: [
-            _buildTableRow('ART Refill', _patient.latestPreferenceAssessment?.lastRefillOption?.description),
-            _buildTableRow('Adherence Reminder Message', _patient.latestPreferenceAssessment?.adherenceReminderMessage?.description),
-            _buildTableRow('Adherence Reminder Frequency', _patient.latestPreferenceAssessment?.adherenceReminderFrequency?.description),
-            _buildTableRow('Adherence Reminder Notification Time', formatTime(_patient.latestPreferenceAssessment?.adherenceReminderTime)),
-            _buildTableRow('Viral Load Message (suppressed)', _patient.latestPreferenceAssessment?.vlNotificationMessageSuppressed?.description),
-            _buildTableRow('Viral Load Message (unsuppressed)', _patient.latestPreferenceAssessment?.vlNotificationMessageUnsuppressed?.description),
-            _buildTableRowWithWidget('Support', _buildSupportOptions()),
+            _buildRow('ART Refill', _patient.latestPreferenceAssessment?.lastRefillOption?.description),
+            _buildRow('Adherence Reminder Message', _patient.latestPreferenceAssessment?.adherenceReminderMessage?.description),
+            _buildRow('Adherence Reminder Frequency', _patient.latestPreferenceAssessment?.adherenceReminderFrequency?.description),
+            _buildRow('Adherence Reminder Notification Time', formatTime(_patient.latestPreferenceAssessment?.adherenceReminderTime)),
+            _buildRow('Viral Load Message (suppressed)', _patient.latestPreferenceAssessment?.vlNotificationMessageSuppressed?.description),
+            _buildRow('Viral Load Message (unsuppressed)', _patient.latestPreferenceAssessment?.vlNotificationMessageUnsuppressed?.description),
+            _buildSupportOptions(),
           ],
         );
       }
@@ -353,7 +381,10 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
 
     return _buildCard(
       title: 'Preferences',
-      child: _buildPreferencesCardContent(),
+      child: Container(
+        width: double.infinity,
+        child: _buildPreferencesCardContent(),
+      ),
     );
 
   }
@@ -394,28 +425,6 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         ],
       ),
     );
-  }
-
-  TableRow _buildTableRow(String description, String content) {
-    return _buildTableRowWithWidget(description, Text(content ?? '—'));
-  }
-
-  TableRow _buildTableRowWithWidget(String description, Widget content) {
-    return TableRow(children: [
-      TableCell(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-              vertical: _tableRowPaddingVertical),
-          child: Text(description),
-        ),
-      ),
-      TableCell(
-        child: Padding(
-            padding: EdgeInsets.symmetric(
-                vertical: _tableRowPaddingVertical),
-            child: content),
-      ),
-    ]);
   }
 
   Widget _formatHeaderRowText(String text) {
@@ -470,13 +479,13 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
             )));
   }
 
-  TableRow _buildSupportOption(String title, {bool checkboxState, Function onChanged(bool newState), Widget icon, String doneText}) {
-    return TableRow(children: [
-      TableCell(
+  Row _buildSupportOption(String title, {bool checkboxState, Function onChanged(bool newState), Widget icon, String doneText}) {
+    return Row(children: [
+      Expanded(
         child: CheckboxListTile(
           activeColor: ICON_INACTIVE,
           secondary: icon,
-//              subtitle: Text(doneText ?? '', style: TextStyle(fontStyle: FontStyle.italic),),
+          subtitle: checkboxState ? Text(doneText ?? 'done', style: TextStyle(fontStyle: FontStyle.italic)) : null,
           title: Text(
             title,
             style: TextStyle(
@@ -487,16 +496,6 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           dense: true,
           value: checkboxState,
           onChanged: onChanged,
-        ),
-      ),
-      // done text
-      TableCell(
-        verticalAlignment: TableCellVerticalAlignment.middle,
-        child: Text(
-          doneText ?? '',
-          style: TextStyle(
-            color: checkboxState ? TEXT_INACTIVE : TEXT_ACTIVE,
-          ),
         ),
       ),
     ]);
