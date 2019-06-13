@@ -457,13 +457,27 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         }
 
         Widget _psychosocialSupportInfo() {
-          final YesNoRefused shareSomethingAnswer = _patient.latestPreferenceAssessment?.psychosocialShareSomethingAnswer;
-          final bool shareSomething = shareSomethingAnswer != null && shareSomethingAnswer == YesNoRefused.YES();
+          final YesNoRefused answer = _patient.latestPreferenceAssessment?.psychosocialShareSomethingAnswer;
+          final bool shareSomething = answer != null && answer == YesNoRefused.YES();
           return Column(
             children: [
-              _buildRow('Did the patient want to share something:', shareSomethingAnswer.description),
+              _buildRow('Did the patient want to share something?', answer.description),
               shareSomething ? _buildRow('The patient shared:', _patient.latestPreferenceAssessment?.psychosocialShareSomethingContent) : Container(),
-              _buildRow('How was the patient doing:', _patient.latestPreferenceAssessment?.psychosocialHowDoing),
+              _buildRow('How was the patient doing?', _patient.latestPreferenceAssessment?.psychosocialHowDoing),
+            ],
+          );
+        }
+
+        Widget _unsuppressedVlInfo() {
+          final YesNoRefused answer = _patient.latestPreferenceAssessment?.unsuppressedSafeEnvironmentAnswer;
+          if (answer == null) {
+            return Container();
+          }
+          final bool notSafe = answer == YesNoRefused.NO();
+          return Column(
+            children: [
+              _buildRow('Does the patient have a safe environment to take the medication?', answer.description),
+              notSafe ? _buildRow('Why is the environment not safe?', _patient.latestPreferenceAssessment?.unsuppressedWhyNotSafe) : Container(),
             ],
           );
         }
@@ -493,6 +507,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
             _psychosocialSupportInfo(),
             SizedBox(height: _spacingBetweenPreferences),
             _buildSubtitle('Unsuppressed Viral Load'), Divider(),
+            _unsuppressedVlInfo(),
           ],
         );
       }
