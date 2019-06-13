@@ -82,6 +82,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       _nextRefillText = '—';
     }
 
+    final double _spacingBetweenCards = 40.0;
     return Column(
       children: <Widget>[
         _buildPatientCharacteristicsCard(),
@@ -91,6 +92,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
             PEBRAButtonFlat('Edit Characteristics', onPressed: () { _editCharacteristicsPressed(_patient); }),
           ],
         ),
+        SizedBox(height: _spacingBetweenCards),
         _buildViralLoadHistoryCard(),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -108,7 +110,9 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           padding: EdgeInsets.symmetric(horizontal: 20.0),
           child: Text('Use this option to correct a wrong entry from the database.', textAlign: TextAlign.center),
         ),
+        SizedBox(height: _spacingBetweenCards),
         _buildPreferencesCard(),
+        SizedBox(height: _spacingBetweenCards),
         _buildTitle('Next Preference Assessment'),
         Text(_nextAssessmentText, style: TextStyle(fontSize: 16.0)),
         SizedBox(height: 10.0),
@@ -118,6 +122,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
             PEBRAButtonRaised('Start Assessment', onPressed: () { _startAssessmentPressed(_context, _patient); }),
           ],
         ),
+        SizedBox(height: _spacingBetweenCards),
         _buildTitle('Next ART Refill'),
         Text(_nextRefillText, style: TextStyle(fontSize: 16.0)),
         SizedBox(height: 10.0),
@@ -127,58 +132,40 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
             PEBRAButtonRaised('Manage Refill', onPressed: () { _manageRefillPressed(_context, _patient, _nextRefillText); }),
           ],
         ),
-        SizedBox(height: 50),
+        SizedBox(height: _spacingBetweenCards),
       ],
     );
   }
 
   _buildPatientCharacteristicsCard() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildTitle('Patient Characterstics'),
-        Card(
-          margin: EdgeInsets.symmetric(horizontal: 15),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-            child: Column(
-              children: [
-                _buildRow('Enrolment Date', formatDateConsistent(_patient.enrolmentDate)),
-                _buildRow('ART Number', _patient.artNumber),
-                _buildRow('Sticker Number', _patient.stickerNumber),
-                _buildRow('Year of Birth', _patient.yearOfBirth.toString()),
-                _buildRow('Gender', _patient.gender.description),
-                _buildRow('Sexual Orientation', _patient.sexualOrientation.description),
-                _buildRow('Village', _patient.village),
-                _buildRow('Phone Number', _patient.phoneNumber),
-              ],
-            ),
-          ),
-        ),
-      ],
+    return _buildCard(
+      title: 'Patient Characterstics',
+      child: Column(
+        children: [
+          _buildRow('Enrolment Date', formatDateConsistent(_patient.enrolmentDate)),
+          _buildRow('ART Number', _patient.artNumber),
+          _buildRow('Sticker Number', _patient.stickerNumber),
+          _buildRow('Year of Birth', _patient.yearOfBirth.toString()),
+          _buildRow('Gender', _patient.gender.description),
+          _buildRow('Sexual Orientation', _patient.sexualOrientation.description),
+          _buildRow('Village', _patient.village),
+          _buildRow('Phone Number', _patient.phoneNumber),
+        ],
+      ),
     );
   }
 
   _buildViralLoadHistoryCard() {
 
     if (_patient.mostRecentViralLoad == null) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildTitle('Viral Load History'),
-          Card(
-            margin: EdgeInsets.symmetric(horizontal: 15),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-              child: Center(
-                child: Text(
-                  "No viral load data available for this patient. Fetch data from the viral load database or add a new entry manually.",
-                  style: TextStyle(color: NO_DATA_TEXT),
-                ),
-              ),
-            ),
+      return _buildCard(
+        title: 'Viral Load History',
+        child: Center(
+          child: Text(
+            "No viral load data available for this patient. Fetch data from the viral load database or add a new entry manually.",
+            style: TextStyle(color: NO_DATA_TEXT),
           ),
-        ],
+        ),
       );
     }
 
@@ -280,25 +267,17 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       ]);
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildTitle('Viral Load History'),
-        Card(
-          margin: EdgeInsets.symmetric(horizontal: 15),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-            child: Column(
-              children: [
-                _baselineVLRows(),
-                SizedBox(height: 20.0),
-                _followUpVLRows(),
-              ],
-            ),
-          ),
-        ),
-      ],
+    return _buildCard(
+      title: 'Viral Load History',
+      child: Column(
+        children: [
+          _baselineVLRows(),
+          SizedBox(height: 20.0),
+          _followUpVLRows(),
+        ],
+      ),
     );
+
   }
 
   _buildPreferencesCard() {
@@ -376,7 +355,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       }, children: supportOptions);
     }
 
-    Widget content() {
+    Widget _buildPreferencesCardContent() {
       if (_patient.latestPreferenceAssessment == null) {
         return Center(
           child: Text(
@@ -401,19 +380,9 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       }
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: 20.0),
-        _buildTitle('Preferences'),
-        Card(
-          margin: EdgeInsets.symmetric(horizontal: 15),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-            child: content(),
-          ),
-        ),
-      ],
+    return _buildCard(
+      title: 'Preferences',
+      child: _buildPreferencesCardContent(),
     );
 
   }
@@ -422,6 +391,22 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   /*
    * Helper Functions
    */
+
+  Widget _buildCard({@required Widget child, String title}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        (title == null || title == '') ? Container() : _buildTitle(title),
+        Card(
+          margin: EdgeInsets.symmetric(horizontal: 15),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: child,
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _buildRow(String description, String content) {
     return Padding(
@@ -471,7 +456,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
 
   Widget _buildTitle(String title) {
     return Padding(
-      padding: EdgeInsets.all(15),
+      padding: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 15.0),
       child: Text(
         title,
         style: TextStyle(
