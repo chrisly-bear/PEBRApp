@@ -88,7 +88,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            PEBRAButtonFlat('Edit Characteristics', onPressed: () { _pushEditPatientScreen(_patient); }),
+            PEBRAButtonFlat('Edit Characteristics', onPressed: () { _editCharacteristicsPressed(_patient); }),
           ],
         ),
         _buildViralLoadHistoryCard(),
@@ -115,7 +115,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            PEBRAButtonRaised('Start Assessment', onPressed: () { _pushPreferenceAssessmentScreen(_context, _patient); }),
+            PEBRAButtonRaised('Start Assessment', onPressed: () { _startAssessmentPressed(_context, _patient); }),
           ],
         ),
         _buildTitle('Next ART Refill'),
@@ -124,7 +124,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            PEBRAButtonRaised('Manage Refill', onPressed: () { _pushARTRefillScreen(_context, _patient, _nextRefillText); }),
+            PEBRAButtonRaised('Manage Refill', onPressed: () { _manageRefillPressed(_context, _patient, _nextRefillText); }),
           ],
         ),
         SizedBox(height: 50),
@@ -558,36 +558,10 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     );
   }
 
-  void _pushEditPatientScreen(Patient patient) {
+  void _editCharacteristicsPressed(Patient patient) {
     _fadeInScreen(EditPatientScreen(patient));
   }
 
-  void _addManualEntryPressed(BuildContext context, Patient patient) {
-    _fadeInScreen(AddViralLoadScreen(patient)).then((_) {
-      // calling setState to trigger a re-render of the page and display the new
-      // viral load history
-      setState(() {});
-    });
-  }
-
-  void _pushPreferenceAssessmentScreen(BuildContext context, Patient patient) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          return PreferenceAssessmentScreen(patient);
-        },
-      ),
-    );
-  }
-
-  void _pushARTRefillScreen(BuildContext context, Patient patient, String nextRefillDate) {
-    _fadeInScreen(ARTRefillScreen(patient, nextRefillDate)).then((_) {
-      // calling setState to trigger a re-render of the page and display the new
-      // ART Refill Date
-      setState(() {});
-    });
-  }
-  
   Future<void> _fetchFromDatabasePressed(BuildContext context, Patient patient) async {
     showDialog(
       context: context,
@@ -608,6 +582,32 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     // calling setState to trigger a re-render of the page and display the new
     // viral load history
     setState(() {});
+  }
+
+  void _addManualEntryPressed(BuildContext context, Patient patient) {
+    _fadeInScreen(AddViralLoadScreen(patient)).then((_) {
+      // calling setState to trigger a re-render of the page and display the new
+      // viral load history
+      setState(() {});
+    });
+  }
+
+  void _startAssessmentPressed(BuildContext context, Patient patient) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return PreferenceAssessmentScreen(patient);
+        },
+      ),
+    );
+  }
+
+  void _manageRefillPressed(BuildContext context, Patient patient, String nextRefillDate) {
+    _fadeInScreen(ARTRefillScreen(patient, nextRefillDate)).then((_) {
+      // calling setState to trigger a re-render of the page and display the new
+      // ART Refill Date
+      setState(() {});
+    });
   }
 
 }
