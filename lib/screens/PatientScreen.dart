@@ -86,26 +86,11 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     return Column(
       children: <Widget>[
         _buildPatientCharacteristicsCard(),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            PEBRAButtonFlat('Edit Characteristics', onPressed: () { _editCharacteristicsPressed(_patient); }),
-          ],
-        ),
+        _makeButton('Edit Characteristics', onPressed: () { _editCharacteristicsPressed(_patient); }, flat: true),
         SizedBox(height: _spacingBetweenCards),
         _buildViralLoadHistoryCard(),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            PEBRAButtonFlat('fetch from database', onPressed: () { _fetchFromDatabasePressed(_context, _patient); }),
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            PEBRAButtonFlat('add manual entry', onPressed: () { _addManualEntryPressed(_context, _patient); }),
-          ],
-        ),
+        _makeButton('fetch from database', onPressed: () { _fetchFromDatabasePressed(_context, _patient); }, flat: true),
+        _makeButton('add manual entry', onPressed: () { _addManualEntryPressed(_context, _patient); }, flat: true),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.0),
           child: Text('Use this option to correct a wrong entry from the database.', textAlign: TextAlign.center),
@@ -116,22 +101,12 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         _buildTitle('Next Preference Assessment'),
         Text(_nextAssessmentText, style: TextStyle(fontSize: 16.0)),
         SizedBox(height: 10.0),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            PEBRAButtonRaised('Start Assessment', onPressed: () { _startAssessmentPressed(_context, _patient); }),
-          ],
-        ),
+        _makeButton('Start Assessment', onPressed: () { _startAssessmentPressed(_context, _patient); }),
         SizedBox(height: _spacingBetweenCards),
         _buildTitle('Next ART Refill'),
         Text(_nextRefillText, style: TextStyle(fontSize: 16.0)),
         SizedBox(height: 10.0),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            PEBRAButtonRaised('Manage Refill', onPressed: () { _manageRefillPressed(_context, _patient, _nextRefillText); }),
-          ],
-        ),
+        _makeButton('Manage Refill', onPressed: () { _manageRefillPressed(_context, _patient, _nextRefillText); }),
         SizedBox(height: _spacingBetweenCards),
       ],
     );
@@ -596,6 +571,17 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       // ART Refill Date
       setState(() {});
     });
+  }
+
+  Widget _makeButton(String buttonText, {Null Function() onPressed, bool flat: false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        flat
+            ? PEBRAButtonFlat(buttonText, onPressed: onPressed)
+            : PEBRAButtonRaised(buttonText, onPressed: onPressed),
+      ],
+    );
   }
 
 }
