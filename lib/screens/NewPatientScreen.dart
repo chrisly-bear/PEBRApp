@@ -195,6 +195,40 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       onStepTapped: goTo,
       onStepContinue: (_isLoading || (currentStep == 2 && !_patientSaved)) ? null : next,
       onStepCancel: (currentStep == 1 && _patientSaved) ? null : cancel,
+      controlsBuilder: (BuildContext context, {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
+        final Color navigationButtonsColor = Colors.blue;
+        return Padding(
+          padding: const EdgeInsets.only(top: 15.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              Container(
+                decoration: BoxDecoration(
+                  color: onStepCancel == null ? BUTTON_INACTIVE : navigationButtonsColor,
+                  borderRadius: BorderRadius.circular(40.0),
+                ),
+                child: IconButton(
+                  color: Colors.white,
+                  onPressed: onStepCancel,
+                  icon: Icon(currentStep == 0 ? Icons.close : Icons.keyboard_arrow_up),
+                ),
+              ),
+              SizedBox(width: 20.0),
+              Container(
+                decoration: BoxDecoration(
+                  color: onStepContinue == null ? BUTTON_INACTIVE : navigationButtonsColor,
+                  borderRadius: BorderRadius.circular(40.0),
+                ),
+                child: IconButton(
+                  color: Colors.white,
+                  onPressed: onStepContinue,
+                  icon: Icon(currentStep == 2 ? Icons.check : Icons.keyboard_arrow_down),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
 
   }
