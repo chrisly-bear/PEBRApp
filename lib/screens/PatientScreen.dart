@@ -196,13 +196,16 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     }
 
     Widget _buildViralLoadRow(vl) {
+
       if (vl?.isSuppressed == null) { return Column(); }
-      Widget description = Text('${formatDateConsistent(vl.dateOfBloodDraw)}');
+
+      final String description = '${formatDateConsistent(vl.dateOfBloodDraw)}';
       final double vlIconSize = 25.0;
       Widget viralLoadIcon = vl.isSuppressed
           ? _getPaddedIcon('assets/icons/viralload_suppressed.png', width: vlIconSize, height: vlIconSize)
           : _getPaddedIcon('assets/icons/viralload_unsuppressed.png', width: vlIconSize, height: vlIconSize);
       Widget viralLoadBadge = ViralLoadBadge(vl, smallSize: false);
+
       Widget content = Row(
         children: <Widget>[
           Expanded(
@@ -217,15 +220,8 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           Expanded(child: Text(vl.source == ViralLoadSource.MANUAL_INPUT() ? 'manual' : 'database')),
         ],
       );
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: 5.0),
-        child: Row(
-          children: <Widget>[
-            Expanded(flex: _descriptionFlex, child: description),
-            Expanded(flex: _contentFlex, child: content),
-          ],
-        ),
-      );
+
+      return _buildRowWithWidget(description, content);
     }
 
     final vlFollowUps = _patient.viralLoadFollowUps.map((ViralLoad vl) {
@@ -409,13 +405,17 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   }
 
   Widget _buildRow(String description, String content) {
+    return _buildRowWithWidget(description, Text(content ?? '—'));
+  }
+
+  Widget _buildRowWithWidget(String description, Widget content) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 5.0),
       child:
       Row(
         children: <Widget>[
           Expanded(flex: _descriptionFlex, child: Text(description)),
-          Expanded(flex: _contentFlex, child: Text(content ?? '—')),
+          Expanded(flex: _contentFlex, child: content),
         ],
       ),
     );
