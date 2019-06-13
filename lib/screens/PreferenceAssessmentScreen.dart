@@ -61,7 +61,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   final _formKey = GlobalKey<FormState>();
   int _questionsFlex = 1;
   int _answersFlex = 1;
-  double _screenWidth;
+  double _screenWidth = double.infinity;
 
   Patient _patient;
   // if this is true we will store another row in Patient table of the database
