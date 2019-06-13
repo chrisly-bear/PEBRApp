@@ -415,6 +415,46 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           );
         }
 
+        Widget _adherenceReminderInfo() {
+          bool enabled = _patient.latestPreferenceAssessment?.adherenceReminderEnabled;
+          if (enabled == null || !enabled) {
+            return _buildRow('Adherence Reminders', 'disabled');
+          }
+          return Column(
+            children: [
+              _buildRow('Adherence Reminder Frequency', _patient.latestPreferenceAssessment?.adherenceReminderFrequency?.description),
+              _buildRow('Adherence Reminder Notification Time', formatTime(_patient.latestPreferenceAssessment?.adherenceReminderTime)),
+              _buildRow('Adherence Reminder Message', _patient.latestPreferenceAssessment?.adherenceReminderMessage?.description),
+            ],
+          );
+        }
+
+        Widget _refillReminderInfo() {
+          bool enabled = _patient.latestPreferenceAssessment?.artRefillReminderEnabled;
+          if (enabled == null || !enabled) {
+            return _buildRow('ART Refill Reminders', 'disabled');
+          }
+          return Column(
+            children: [
+              _buildRow('ART Refill Reminder Time', _patient.latestPreferenceAssessment?.artRefillReminderDaysBefore?.description),
+              _buildRow('ART Refill Reminder Message', _patient.latestPreferenceAssessment?.artRefillReminderMessage?.description),
+            ],
+          );
+        }
+
+        Widget _vlNotificationInfo() {
+          bool enabled = _patient.latestPreferenceAssessment?.vlNotificationEnabled;
+          if (enabled == null || !enabled) {
+            return _buildRow('Viral Load Notifications', 'disabled');
+          }
+          return Column(
+            children: [
+              _buildRow('Viral Load Message (suppressed)', _patient.latestPreferenceAssessment?.vlNotificationMessageSuppressed?.description),
+              _buildRow('Viral Load Message (unsuppressed)', _patient.latestPreferenceAssessment?.vlNotificationMessageUnsuppressed?.description),
+            ],
+          );
+        }
+
         final double _spacingBetweenPreferences = 20.0;
         return Column(
           children: [
@@ -426,11 +466,9 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
             _buildRow('ART Supply Amount', _patient.latestPreferenceAssessment?.artSupplyAmount?.description),
             SizedBox(height: _spacingBetweenPreferences),
             _buildSubtitle('Notifications'), Divider(),
-            _buildRow('Adherence Reminder Message', _patient.latestPreferenceAssessment?.adherenceReminderMessage?.description),
-            _buildRow('Adherence Reminder Frequency', _patient.latestPreferenceAssessment?.adherenceReminderFrequency?.description),
-            _buildRow('Adherence Reminder Notification Time', formatTime(_patient.latestPreferenceAssessment?.adherenceReminderTime)),
-            _buildRow('Viral Load Message (suppressed)', _patient.latestPreferenceAssessment?.vlNotificationMessageSuppressed?.description),
-            _buildRow('Viral Load Message (unsuppressed)', _patient.latestPreferenceAssessment?.vlNotificationMessageUnsuppressed?.description),
+            _adherenceReminderInfo(),
+            _refillReminderInfo(),
+            _vlNotificationInfo(),
             SizedBox(height: _spacingBetweenPreferences),
             _buildSubtitle('Support'), Divider(),
             _buildSupportOptions(),
