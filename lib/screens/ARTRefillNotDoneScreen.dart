@@ -38,6 +38,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
   final _formKey = GlobalKey<FormState>();
   final int _questionsFlex = 1;
   final int _answersFlex = 1;
+  double _screenWidth = double.infinity;
 
   Patient _patient;
   ARTRefill _artRefill;
@@ -54,6 +55,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
 
   @override
   Widget build(BuildContext context) {
+    _screenWidth = MediaQuery.of(context).size.width;
     const double _spacing = 20.0;
     return Form(
         key: _formKey,
@@ -99,35 +101,26 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
     );
   }
 
-  Row _whyRefillNotDoneQuestion() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child: Text(
-                'Why was this ART Refill not done?')),
-        Expanded(
-            flex: _answersFlex,
-            child: DropdownButtonFormField<ARTRefillNotDoneReason>(
-              value: _artRefill.notDoneReason,
-              onChanged: (ARTRefillNotDoneReason newValue) {
-                setState(() {
-                  _artRefill.notDoneReason = newValue;
-                });
-              },
-              validator: (value) {
-                if (value == null) { return 'Please answer this question'; }
-              },
-              items:
-                  ARTRefillNotDoneReason.allValues.map<DropdownMenuItem<ARTRefillNotDoneReason>>((ARTRefillNotDoneReason value) {
-                return DropdownMenuItem<ARTRefillNotDoneReason>(
-                  value: value,
-                  child: Text(value.description),
-                );
-              }).toList(),
-            ))
-      ],
+  Widget _whyRefillNotDoneQuestion() {
+    return _makeQuestion('Why was this ART Refill not done?',
+      answer: DropdownButtonFormField<ARTRefillNotDoneReason>(
+        value: _artRefill.notDoneReason,
+        onChanged: (ARTRefillNotDoneReason newValue) {
+          setState(() {
+            _artRefill.notDoneReason = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) { return 'Please answer this question'; }
+        },
+        items:
+        ARTRefillNotDoneReason.allValues.map<DropdownMenuItem<ARTRefillNotDoneReason>>((ARTRefillNotDoneReason value) {
+          return DropdownMenuItem<ARTRefillNotDoneReason>(
+            value: value,
+            child: Text(value.description),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -136,7 +129,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
       return Container();
     }
     return _makeQuestion('Date of Death',
-      child: Column(
+      answer: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FlatButton(
@@ -173,7 +166,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
       return Container();
     }
     return _makeQuestion('Cause of Death',
-      child: TextFormField(
+      answer: TextFormField(
         controller: _causeOfDeathCtr,
       ),
     );
@@ -184,7 +177,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
       return Container();
     }
     return _makeQuestion('Where is the patient hospitalized?',
-      child: TextFormField(
+      answer: TextFormField(
         controller: _hospitalizedClinicCtr,
         validator: (value) {
           if (value.isEmpty) {
@@ -199,19 +192,10 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
     if (_artRefill.notDoneReason != ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_LESOTHO() && _artRefill.notDoneReason != ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_SA()) {
       return Container();
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            Text('Clinic Name:')),
-        Expanded(
-          flex: _answersFlex,
-          child: TextFormField(
-            controller: _otherClinicCtr,
-          ),)
-      ],
+    return _makeQuestion('Clinic Name:',
+      answer: TextFormField(
+        controller: _otherClinicCtr,
+      ),
     );
   }
 
@@ -221,7 +205,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
       return Container();
     }
     return _makeQuestion('Date of Transfer',
-      child: Column(
+      answer: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FlatButton(
@@ -257,24 +241,15 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
     if (_artRefill.notDoneReason != ARTRefillNotDoneReason.NOT_TAKING_ART_ANYMORE()) {
       return Container();
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-            flex: _questionsFlex,
-            child:
-            Text('Reason:')),
-        Expanded(
-          flex: _answersFlex,
-          child: TextFormField(
-            controller: _notTakingARTAnymoreCtr,
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please give a reason';
-              }
-            },
-          ),)
-      ],
+    return _makeQuestion('Reason:',
+      answer: TextFormField(
+        controller: _notTakingARTAnymoreCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please give a reason';
+          }
+        },
+      ),
     );
   }
 
@@ -298,7 +273,19 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
     }
   }
 
-  Widget _makeQuestion(String question, {@required Widget child}) {
+  Widget _makeQuestion(String question, {@required Widget answer}) {
+    if (_screenWidth < 400.0) {
+      final double _spacingBetweenQuestions = 8.0;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: _spacingBetweenQuestions),
+          Text(question),
+          answer,
+          SizedBox(height: _spacingBetweenQuestions),
+        ],
+      );
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -308,7 +295,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
         ),
         Expanded(
           flex: _answersFlex,
-          child: child,
+          child: answer,
         ),
       ],
     );
