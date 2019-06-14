@@ -140,7 +140,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
         title: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text('Patient Characteristics'),
+            Text('Patient Characteristics', style: TextStyle(fontWeight: currentStep == 0 ? FontWeight.bold : FontWeight.normal)),
             SizedBox(width: 10.0),
             _isLoading ? SizedBox(height: 10.0, width: 10.0, child: CircularProgressIndicator()) : Container(),
           ],
@@ -150,13 +150,13 @@ class _NewPatientFormState extends State<_NewPatientForm> {
         content: patientCharacteristicsStep,
       ),
       Step(
-        title: const Text('Baseline Assessment'),
+        title: Text('Baseline Assessment', style: TextStyle(fontWeight: currentStep == 1 ? FontWeight.bold : FontWeight.normal)),
         isActive: _kobocollectOpened,
         state: _kobocollectOpened ? StepState.complete : StepState.indexed,
         content: baselineAssessmentStep,
       ),
       Step(
-        title: const Text('Finish'),
+        title: Text('Finish', style: TextStyle(fontWeight: currentStep == 2 ? FontWeight.bold : FontWeight.normal)),
         isActive: _stepperFinished,
         state: _stepperFinished ? StepState.complete : StepState.indexed,
         content: finishStep(),
