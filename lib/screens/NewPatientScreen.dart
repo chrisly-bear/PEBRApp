@@ -207,10 +207,19 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     return _makeQuestion('ART Number',
       child: TextFormField(
         controller: _artNumberCtr,
+        keyboardType: TextInputType.number,
+        inputFormatters: [
+          WhitelistingTextInputFormatter(RegExp('[A-Za-z]|[0-9]|/')),
+          LengthLimitingTextInputFormatter(10),
+        ],
         validator: (value) {
           if (value.isEmpty) {
             return 'Please enter an ART number';
-          } else if (_artNumberExists(value)) {
+          }
+          else if (!RegExp(r'(^[A-Za-z]{1}/\d{2}/\d{5}$)').hasMatch(value)) {
+            return 'Enter a valid ART number';
+          }
+          else if (_artNumberExists(value)) {
             return 'This ART number exists already in the database';
           }
         },
@@ -230,6 +239,9 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           LengthLimitingTextInputFormatter(3),
         ],
         controller: _stickerNumberCtr,
+        onEditingComplete: () {
+          _stickerNumberCtr.text = _formatStickerNumber(_stickerNumberCtr.text);
+        },
         validator: (value) {
           if (value.isEmpty) {
             return 'Please enter the sticker number';
@@ -619,6 +631,14 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       formattedNumber = '+$countryCodeOnlyNumbers-$formattedNumber';
     }
     return formattedNumber;
+  }
+
+  /// Removes all non-number characters and inserts a prefix 'PEBRA_'
+  /// E.g. '123' becomes 'PEBRA_123'.
+  String _formatStickerNumber(String stickerNumber) {
+    String onlyNumbers = stickerNumber.replaceAll(RegExp('[^0-9]'), '');
+
+    return 'PEBRA_' + onlyNumbers;
   }
 
   Widget _eligibilityDisclaimer() {
