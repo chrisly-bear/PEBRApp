@@ -679,13 +679,13 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     }
     return
       Padding(
-        padding: EdgeInsets.all(15.0),
+        padding: EdgeInsets.only(top: 15.0),
         child:
         Text('This patient is not eligible for the study. Only patients born '
             'between $minYearForEligibility and $maxYearForEligibility are '
             'eligible. Please, save the patient anyway for study evaluation '
             'reasons. The patient will not appear in the PEBRApp, however.',
-          textAlign: TextAlign.center,
+          textAlign: TextAlign.left,
         ),
       );
   }
