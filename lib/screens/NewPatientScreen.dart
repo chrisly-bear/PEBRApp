@@ -126,13 +126,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       if (_patientSaved) {
         return Container(
           width: double.infinity,
-          child: Wrap(
-            children: [
-              Text("All done! You can close this screen by tapping "),
-              Icon(Icons.check, size: 20.0),
-              Text(" below."),
-            ],
-          ),
+          child: Text("All done! You can close this screen by tapping ✓ below."),
         );
       }
       return
