@@ -79,6 +79,8 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
   // stepper state
   bool _patientSaved = false;
+  bool _kobocollectOpened = false;
+  bool _stepperFinished = false;
   int currentStep = 0;
 
   @override
@@ -116,14 +118,14 @@ class _NewPatientFormState extends State<_NewPatientForm> {
         SizedBox(height: 20.0),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [PEBRAButtonRaised('Open KoBoCollect', onPressed: _openKoBoCollect)],
+          children: [PEBRAButtonRaised('Open KoBoCollect', onPressed: _onOpenKoboCollectPressed)],
         ),
         SizedBox(height: 20.0),
       ],
     );
 
     Widget finishStep() {
-      if (_patientSaved) {
+      if (_patientSaved && _kobocollectOpened) {
         return Container(
           width: double.infinity,
           child: Text("All done! You can close this screen by tapping ✓ below."),
@@ -143,25 +145,30 @@ class _NewPatientFormState extends State<_NewPatientForm> {
             _isLoading ? SizedBox(height: 10.0, width: 10.0, child: CircularProgressIndicator()) : Container(),
           ],
         ),
-        isActive: currentStep == 0,
-        state: _patientSaved ? StepState.disabled : StepState.indexed,
+        isActive: _patientSaved,
+        state: _patientSaved ? StepState.complete : StepState.indexed,
         content: patientCharacteristicsStep,
       ),
       Step(
         title: const Text('Baseline Assessment'),
-        isActive: currentStep == 1,
-        state: StepState.indexed,
+        isActive: _kobocollectOpened,
+        state: _kobocollectOpened ? StepState.complete : StepState.indexed,
         content: baselineAssessmentStep,
       ),
       Step(
         title: const Text('Finish'),
-        isActive: currentStep == 2,
-        state: StepState.indexed,
+        isActive: _stepperFinished,
+        state: _stepperFinished ? StepState.complete : StepState.indexed,
         content: finishStep(),
       ),
     ];
 
     goTo(int step) {
+      if (step == 0 && _patientSaved) {
+        // do not allow going back to first step if the patient has already
+        // been saved
+        return;
+      }
       setState(() => currentStep = step);
     }
 
@@ -181,6 +188,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
         // finish
         case 2:
           if (_patientSaved) {
+            setState(() { _stepperFinished = true; });
             _closeScreen();
           }
       }
@@ -199,7 +207,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 //      type: StepperType.horizontal,
       currentStep: currentStep,
       onStepTapped: goTo,
-      onStepContinue: (_isLoading || (currentStep == 2 && !_patientSaved)) ? null : next,
+      onStepContinue: (_isLoading || (currentStep == 2 && (!_patientSaved || !_kobocollectOpened))) ? null : next,
       onStepCancel: (currentStep == 1 && _patientSaved) ? null : cancel,
       controlsBuilder: (BuildContext context, {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
         final Color navigationButtonsColor = Colors.blue;
@@ -749,7 +757,8 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     });
   }
 
-  Future<void> _openKoBoCollect() async {
+  Future<void> _onOpenKoboCollectPressed() async {
+    setState(() { _kobocollectOpened = true; });
     const appUrl = 'android-app://org.koboc.collect.android';
     const marketUrl = 'market://details?id=org.koboc.collect.android';
     if (await canLaunch(appUrl)) {
