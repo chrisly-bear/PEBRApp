@@ -140,8 +140,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       children: <Widget>[
         _buildUserDataCard(),
         SizedBox(height: _spacing),
-        PEBRAButtonRaised('Restore', onPressed: _isLoadingSettingsBody ? null : () {_onPressRestoreButton(context);},),
-        SizedBox(height: 10.0),
         PEBRAButtonRaised('Start Backup', onPressed: _isLoadingSettingsBody ? null : () {_onPressBackupButton(context);},),
         SizedBox(height: 10.0),
         Container(
@@ -204,61 +202,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
     setState(() { _isLoadingSettingsBody = false; });
     showFlushBar(context, message, title: title, error: error, onButtonPress: onNotificationButtonPress);
-  }
-
-  _onPressRestoreButton(BuildContext context) async {
-    String resultMessage = 'Restore Successful';
-    String title;
-    bool error = false;
-    VoidCallback onNotificationButtonPress;
-    setState(() { _isLoadingSettingsBody = true; });
-    try {
-      await restoreFromSWITCHtoolbox(_loginData.username, await _loginData.pinCodeHash);
-      setState(() {
-        lastBackup = formatDateAndTime(DateTime.now());
-      });
-    } catch (e, s) {
-      error = true;
-      title = 'Restore Failed';
-      switch (e.runtimeType) {
-        case NoLoginDataException:
-        // this case should never occur because we only show the 'Restore'
-        // button when the user is logged in
-          resultMessage = 'Not logged in. Please log in first.';
-          break;
-        case SocketException:
-          resultMessage = 'Make sure you are connected to the internet.';
-          break;
-        case SWITCHLoginFailedException:
-          resultMessage = 'Login to SWITCH failed. Contact the development team.';
-          break;
-        case DocumentNotFoundException:
-          resultMessage = 'No backup found for user \'${_loginData.username}\'.';
-          break;
-        case InvalidPINException:
-          resultMessage = 'Invalid PIN Code.';
-          break;
-        case NoPasswordFileException:
-          final String newPINHash = await _setNewPIN(_loginData.username, context);
-          if (newPINHash != null) {
-            error = false;
-            title = 'Restore Successful';
-            resultMessage = 'New PIN set.';
-          } else {
-            resultMessage = 'New PIN required.';
-          }
-          break;
-        default:
-          resultMessage = 'An unknown error occured. Contact the development team.';
-          print('${e.runtimeType}: $e');
-          print(s);
-          onNotificationButtonPress = () {
-            showErrorInPopup(e, s, context);
-          };
-      }
-    }
-    setState(() { _isLoadingSettingsBody = false; });
-    showFlushBar(context, resultMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
   }
 
   Future<String> _setNewPIN(String username, BuildContext context) async {
