@@ -72,8 +72,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         actions: [],
         child: Container(
           padding: EdgeInsets.all(20.0),
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(SPINNER_SETTINGS_SCREEN),
+          child: Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(SPINNER_SETTINGS_SCREEN),
+            ),
           ),
         ),
       );
