@@ -187,16 +187,6 @@ DateTime calculateNextAssessment(DateTime lastAssessment, bool suppressed) {
   return newDate;
 }
 
-/// Calculates the due date of the next ART refill based on the date of the last
-/// ART refill (+90 days).
-///
-/// Returns `null` if [lastARTRefill] is `null`.
-DateTime calculateNextARTRefill(DateTime lastARTRefill) {
-  if (lastARTRefill == null) { return null; }
-  // TODO: implement proper calculation of adding three months
-  return lastARTRefill.add(Duration(days: 90));
-}
-
 /// Calculates the due date of the next endpoint survey based on the date of
 /// enrolment and the current date. Endpoint surveys are due 3, 6, and 12 months
 /// after the enrolment date.
