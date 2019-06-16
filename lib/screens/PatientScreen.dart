@@ -19,6 +19,7 @@ import 'package:pebrapp/screens/EditPatientScreen.dart';
 import 'package:pebrapp/screens/PreferenceAssessmentScreen.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PatientScreen extends StatelessWidget {
   final Patient _patient;
@@ -54,6 +55,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   Patient _patient;
   String _nextAssessmentText = '—';
   String _nextRefillText = '—';
+  String _nextEndpointText = '—';
   double _screenWidth;
 
   bool NURSE_CLINIC_done = false;
@@ -84,6 +86,14 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       _nextRefillText = '—';
     }
 
+    DateTime nextEndpointSurveyDate = _patient.enrolmentDate;
+    nextEndpointSurveyDate = calculateNextEndpointSurvey(nextEndpointSurveyDate);
+    if (nextEndpointSurveyDate != null) {
+      _nextEndpointText = formatDate(nextEndpointSurveyDate);
+    } else {
+      _nextEndpointText = '—';
+    }
+
     final double _spacingBetweenCards = 40.0;
     return Column(
       children: <Widget>[
@@ -109,6 +119,11 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         Text(_nextRefillText, style: TextStyle(fontSize: 16.0)),
         SizedBox(height: 10.0),
         _makeButton('Manage Refill', onPressed: () { _manageRefillPressed(_context, _patient, _nextRefillText); }),
+        SizedBox(height: _spacingBetweenCards),
+        _buildTitle('Next Endpoint Survey'),
+        Text(_nextEndpointText, style: TextStyle(fontSize: 16.0)),
+        SizedBox(height: 10.0),
+        _makeButton('Open KoBoCollect', onPressed: _onOpenKoboCollectPressed),
         SizedBox(height: _spacingBetweenCards),
       ],
     );
@@ -702,7 +717,19 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     });
   }
 
-  Widget _makeButton(String buttonText, {Null Function() onPressed, bool flat: false}) {
+  Future<void> _onOpenKoboCollectPressed() async {
+    const appUrl = 'android-app://org.koboc.collect.android';
+    const marketUrl = 'market://details?id=org.koboc.collect.android';
+    if (await canLaunch(appUrl)) {
+      await launch(appUrl);
+    } else if (await canLaunch(marketUrl)) {
+      await launch(marketUrl);
+    } else {
+      showFlushBar(context, "Could not find KoBoCollect app. Make sure KoBoCollect is installed.");
+    }
+  }
+
+  Widget _makeButton(String buttonText, {Function() onPressed, bool flat: false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

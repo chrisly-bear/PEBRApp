@@ -197,6 +197,29 @@ DateTime calculateNextARTRefill(DateTime lastARTRefill) {
   return lastARTRefill.add(Duration(days: 90));
 }
 
+/// Calculates the due date of the next endpoint survey based on the date of
+/// enrolment and the current date. Endpoint surveys are due 3, 6, and 12 months
+/// after the enrolment date.
+///
+/// Returns `null` if [enrolmentDate] is more than 12 months in the past.
+DateTime calculateNextEndpointSurvey(DateTime enrolmentDate) {
+  DateTime threeMonthsAfter = DateTime(enrolmentDate.year, enrolmentDate.month + 3, enrolmentDate.day);
+  DateTime sixMonthsAfter = DateTime(enrolmentDate.year, enrolmentDate.month + 6, enrolmentDate.day);
+  DateTime twelveMonthsAfter = DateTime(enrolmentDate.year, enrolmentDate.month + 12, enrolmentDate.day);
+  DateTime now = DateTime.now();
+  DateTime nextDate;
+  if (now.isBefore(twelveMonthsAfter)) {
+    nextDate = twelveMonthsAfter;
+  }
+  if (now.isBefore(sixMonthsAfter)) {
+    nextDate = sixMonthsAfter;
+  }
+  if (now.isBefore(threeMonthsAfter)) {
+    nextDate = threeMonthsAfter;
+  }
+  return nextDate;
+}
+
 /// Updates the date of the last successful backup to now (local time).
 Future<void> storeLatestBackupInSharedPrefs() async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
