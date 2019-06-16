@@ -113,6 +113,11 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         _buildTitle('Next Preference Assessment'),
         Text(_nextAssessmentText, style: TextStyle(fontSize: 16.0)),
         SizedBox(height: 10.0),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.0),
+          child: Text('Preference assessments are due every month for unsuppressed patients and every 3 months for suppressed patients.', textAlign: TextAlign.center),
+        ),
+        SizedBox(height: 10.0),
         _makeButton('Start Assessment', onPressed: () { _startAssessmentPressed(_context, _patient); }),
         SizedBox(height: _spacingBetweenCards),
         _buildTitle('Next ART Refill'),
@@ -122,6 +127,11 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         SizedBox(height: _spacingBetweenCards),
         _buildTitle('Next Endpoint Survey'),
         Text(_nextEndpointText, style: TextStyle(fontSize: 16.0)),
+        SizedBox(height: 10.0),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.0),
+          child: Text('Endpoint surveys are due 3, 6, and 12 months after patient enrollment.', textAlign: TextAlign.center),
+        ),
         SizedBox(height: 10.0),
         _makeButton('Open KoBoCollect', onPressed: _onOpenKoboCollectPressed),
         SizedBox(height: _spacingBetweenCards),
