@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
@@ -761,15 +762,23 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       // wrap in stack to display action required label
       final int numOfActionsRequired = curPatient.requiredActions.length;
       if (curPatient.isActivated && numOfActionsRequired > 0) {
+
+        final double badgeSize = 30.0;
+        final double paddingRight = 3.0;
+        final double patientCardWidth = _artNumberWidth + _nextRefillWidth + _refillByWidth + _supportWidth + _viralLoadWidth + _nextAssessmentWidth + _rowPaddingHorizontal;
+        final double screenWidth = MediaQuery.of(_context).size.width;
+        final double spaceBetweenPatientCardAndScreenEdge = (screenWidth - patientCardWidth) / 2;
+        final double badgePositionFromLeft = min(spaceBetweenPatientCardAndScreenEdge + patientCardWidth - paddingRight, screenWidth - badgeSize - paddingRight);
+
         patientCard = Stack(
           alignment: Alignment.topRight,
           children: <Widget>[
             patientCard,
-            Padding(
-              padding: EdgeInsets.only(left: 2.0, right:  3.0),
+            Positioned(
+              left: badgePositionFromLeft,
               child: Container(
-                width: 30,
-                height: 30,
+                width: badgeSize,
+                height: badgeSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.black,
