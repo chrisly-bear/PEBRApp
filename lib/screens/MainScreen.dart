@@ -707,7 +707,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       }
 
       // wrap in stack to display action required label
-      if (curPatient.isActivated) {
+      final int numOfActionsRequired = curPatient.requiredActions.length;
+      if (curPatient.isActivated && numOfActionsRequired > 0) {
         patientCard = Stack(
             alignment: Alignment.topRight,
             children: <Widget>[
@@ -728,7 +729,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
                   ),
                   child: Center(
                       child: Text(
-                        '!',
+                        '$numOfActionsRequired',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
