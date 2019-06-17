@@ -150,9 +150,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         _buildARTRefillCard(),
         _buildTitle('Notifications'),
         _buildNotificationsCard(),
-        Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [PEBRAButtonFlat('Export', onPressed: () { _notificationsExportPressed(context, _patient); })]),
         _buildTitle('Support'),
         _buildSupportCard(),
         _buildPsychosocialCard(),
@@ -171,25 +168,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       ],
     )
     );
-  }
-
-  Future<void> _notificationsExportPressed(BuildContext context, Patient patient) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-            title: Text('Not Implemented'),
-            content: Text('This feature is not yet available.'),
-            actions: <Widget>[FlatButton(
-              child: Text("Dismiss"),
-              onPressed: () { Navigator.of(context).pop(); },
-            )]);
-      },
-    );
-    // TODO: implement call to viral load database API
-    // calling setState to trigger a re-render of the page and display the new
-    // viral load history
-    setState(() {});
   }
 
   // TODO: refactor all form-related things such as this or '_makeQuestion()' to utils/FormUtils.dart

@@ -12,6 +12,7 @@ import 'package:pebrapp/database/beans/VLUnsuppressedMessage.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/beans/YesNoRefused.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/screens/ARTRefillScreen.dart';
 import 'package:pebrapp/screens/AddViralLoadScreen.dart';
@@ -709,14 +710,31 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     });
   }
 
-  void _startAssessmentPressed(BuildContext context, Patient patient) {
-    Navigator.of(context).push(
+  Future<void> _startAssessmentPressed(BuildContext context, Patient patient) async {
+    await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
           return PreferenceAssessmentScreen(patient);
         },
       ),
     );
+    _uploadNotificationsPreferences(context, patient.latestPreferenceAssessment);
+  }
+
+  Future<void> _uploadNotificationsPreferences(BuildContext context, final PreferenceAssessment assessment) async {
+    // TODO: implement upload of notifications preferences to viral load database API
+    print('...uploading notifications preferences\n'
+        'Adherence Reminder: ${assessment.adherenceReminderEnabled}\n'
+        'ART Refill Reminder: ${assessment.artRefillReminderEnabled}\n'
+        'Viral Load Notifications: ${assessment.vlNotificationEnabled}');
+    await Future.delayed(Duration(seconds: 3));
+    showFlushBar(context, 'Please upload the notifications preferences manually.', title: 'Notifications Upload Failed', error: true, buttonText: 'Retry\nNow', onButtonPress: () {
+      Navigator.of(context).popUntil((Route<dynamic> route) {
+        return route.settings.name != '/flushbarRoute';
+      });
+      _uploadNotificationsPreferences(context, assessment);
+    });
+    // TODO: show an upload button on the patient screen somewhere so that a manual upload can be started by the user
   }
 
   void _manageRefillPressed(BuildContext context, Patient patient, String nextRefillDate) {
