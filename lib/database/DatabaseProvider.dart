@@ -3,6 +3,7 @@ import 'package:pebrapp/config/SwitchConfig.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
+import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
@@ -19,7 +20,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 32;
+  static const int _DB_VERSION = 33;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -179,6 +180,15 @@ class DatabaseProvider {
           ${UserData.colHealthCenter} INTEGER NOT NULL,
           ${UserData.colIsActive} BIT NOT NULL,
           ${UserData.colDeactivatedDate} TEXT
+        );
+        """);
+    await db.execute("""
+        CREATE TABLE IF NOT EXISTS ${RequiredAction.tableName} (
+          ${RequiredAction.colId} INTEGER PRIMARY KEY,
+          ${RequiredAction.colCreatedDate} TEXT NOT NULL,
+          ${RequiredAction.colPatientART} TEXT NOT NULL,
+          ${RequiredAction.colType} INTEGER NOT NULL,
+          ${RequiredAction.colDescription} TEXT NOT NULL
         );
         """);
     // TODO: set colLatestPreferenceAssessment as foreign key to `PreferenceAssessment` table
@@ -418,6 +428,18 @@ class DatabaseProvider {
       await db.execute("DROP TABLE IF EXISTS ViralLoad;");
       await _onCreate(db, 32);
     }
+    if (oldVersion < 33) {
+      print('Upgrading to database version 33...');
+      await db.execute("""
+        CREATE TABLE IF NOT EXISTS RequiredAction (
+          id INTEGER PRIMARY KEY,
+          created_date_utc TEXT NOT NULL,
+          patient_art TEXT NOT NULL,
+          action_type INTEGER NOT NULL,
+          colDescription TEXT NOT NULL
+        );
+        """);
+    }
   }
 
   FutureOr<void> _onDowngrade(Database db, int oldVersion, int newVersion) async {
@@ -592,6 +614,7 @@ class DatabaseProvider {
         await p.initializeViralLoadFields();
         await p.initializePreferenceAssessmentField();
         await p.initializeARTRefillField();
+        await p.initializeRequiredActionsField();
         list.add(p);
       }
     }
@@ -719,6 +742,21 @@ class DatabaseProvider {
       return ARTRefill.fromMap(res.first);
     }
     return null;
+  }
+
+  Future<List<RequiredAction>> retrieveRequiredActionsForPatient(String patientART) async {
+    final Database db = await _databaseInstance;
+    final List<Map> res = await db.query(
+        RequiredAction.tableName,
+        where: '${RequiredAction.colPatientART} = ?',
+        whereArgs: [patientART],
+        orderBy: '${RequiredAction.colCreatedDate} DESC'
+    );
+    final List<RequiredAction> list = [];
+    for (Map map in res) {
+      list.add(RequiredAction.fromMap(map));
+    }
+    return list;
   }
 
   /// Retrieves all patient rows from the database, including all edits.

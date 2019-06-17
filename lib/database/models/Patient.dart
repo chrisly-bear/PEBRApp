@@ -6,6 +6,7 @@ import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/NoConsentReason.dart';
 import 'package:pebrapp/database/beans/PhoneAvailability.dart';
 import 'package:pebrapp/database/beans/SexualOrientation.dart';
+import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
@@ -60,6 +61,7 @@ class Patient implements IExcelExportable {
   List<ViralLoad> viralLoadFollowUps = [];
   PreferenceAssessment latestPreferenceAssessment;
   ARTRefill latestARTRefill;
+  List<RequiredAction> requiredActions = [];
 
 
   // Constructors
@@ -196,6 +198,12 @@ class Patient implements IExcelExportable {
   Future<void> initializeARTRefillField() async {
     ARTRefill artRefill = await DatabaseProvider().retrieveLatestARTRefillForPatient(artNumber);
     this.latestARTRefill = artRefill;
+  }
+
+  /// Initializes the field [requiredActions] with the latest data from the database.
+  Future<void> initializeRequiredActionsField() async {
+    List<RequiredAction> actions = await DatabaseProvider().retrieveRequiredActionsForPatient(artNumber);
+    this.requiredActions = actions;
   }
 
   /// Returns the viral load with the latest blood draw date.
