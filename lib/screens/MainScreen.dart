@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
@@ -658,69 +657,66 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           vertical: _cardMarginVertical,
           horizontal: _cardMarginHorizontal);
 
-      Widget patientCard = GrowTransition(
-        animation: _cardHeightTween.animate(animationControllers[curPatient.artNumber]),
-        child: Card(
-          color: curPatient.isActivated ? CARD_ACTIVE : CARD_INACTIVE,
-          elevation: 5.0,
-          margin: _curCardMargin,
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: () {
-              _pushPatientScreen(curPatient);
-            },
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  // color bar
-                  Container(width: _colorBarWidth, color: _calculateCardColor(curPatient)),
-                  // patient info
-                  Container(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: _rowPaddingVertical,
-                          horizontal: _rowPaddingHorizontal,
-                      ),
-                      child: Row(
-                        children: <Widget>[
-                          // ART Nr.
-                          Container(
-                            width: _artNumberWidth,
-                            child: _formatPatientRowText(patientART, isActivated: curPatient.isActivated),
-                          ),
-                          // Next Refill
-                          Container(
-                            width: _nextRefillWidth,
-                            child: _formatPatientRowText(nextRefillText, isActivated: curPatient.isActivated, highlight: nextRefillTextHighlighted),
-                          ),
-                          // Refill By
-                          Container(
-                            width: _refillByWidth,
-                            child: _formatPatientRowText(refillByText, isActivated: curPatient.isActivated),
-                          ),
-                          // Support
-                          Container(
-                            width: _supportWidth,
-                            child: _buildSupportIcons(curPatient?.latestPreferenceAssessment?.supportPreferences, isActivated: curPatient.isActivated),
-                          ),
-                          // Viral Load
-                          Container(
-                            width: _viralLoadWidth,
-                            child: Container(alignment: Alignment.centerLeft, child: _getViralLoadIndicator(isActivated: curPatient.isActivated)),
-                          ),
-                          // Next Assessment
-                          Container(
-                            width: _nextAssessmentWidth,
-                            child: _formatPatientRowText(nextAssessmentText, isActivated: curPatient.isActivated, highlight: nextAssessmentTextHighlighted),
-                          ),
-                        ],
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      ),
+      Widget patientCard = Card(
+        color: curPatient.isActivated ? CARD_ACTIVE : CARD_INACTIVE,
+        elevation: 5.0,
+        margin: _curCardMargin,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            _pushPatientScreen(curPatient);
+          },
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                // color bar
+                Container(width: _colorBarWidth, color: _calculateCardColor(curPatient)),
+                // patient info
+                Container(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: _rowPaddingVertical,
+                      horizontal: _rowPaddingHorizontal,
+                    ),
+                    child: Row(
+                      children: <Widget>[
+                        // ART Nr.
+                        Container(
+                          width: _artNumberWidth,
+                          child: _formatPatientRowText(patientART, isActivated: curPatient.isActivated),
+                        ),
+                        // Next Refill
+                        Container(
+                          width: _nextRefillWidth,
+                          child: _formatPatientRowText(nextRefillText, isActivated: curPatient.isActivated, highlight: nextRefillTextHighlighted),
+                        ),
+                        // Refill By
+                        Container(
+                          width: _refillByWidth,
+                          child: _formatPatientRowText(refillByText, isActivated: curPatient.isActivated),
+                        ),
+                        // Support
+                        Container(
+                          width: _supportWidth,
+                          child: _buildSupportIcons(curPatient?.latestPreferenceAssessment?.supportPreferences, isActivated: curPatient.isActivated),
+                        ),
+                        // Viral Load
+                        Container(
+                          width: _viralLoadWidth,
+                          child: Container(alignment: Alignment.centerLeft, child: _getViralLoadIndicator(isActivated: curPatient.isActivated)),
+                        ),
+                        // Next Assessment
+                        Container(
+                          width: _nextAssessmentWidth,
+                          child: _formatPatientRowText(nextAssessmentText, isActivated: curPatient.isActivated, highlight: nextAssessmentTextHighlighted),
+                        ),
+                      ],
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -762,20 +758,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       // wrap in stack to display action required label
       final int numOfActionsRequired = curPatient.requiredActions.length;
       if (curPatient.isActivated && numOfActionsRequired > 0) {
-
         final double badgeSize = 30.0;
-        final double paddingRight = 3.0;
-        final double patientCardWidth = _artNumberWidth + _nextRefillWidth + _refillByWidth + _supportWidth + _viralLoadWidth + _nextAssessmentWidth + _rowPaddingHorizontal;
-        final double screenWidth = MediaQuery.of(_context).size.width;
-        final double spaceBetweenPatientCardAndScreenEdge = (screenWidth - patientCardWidth) / 2;
-        final double badgePositionFromLeft = min(spaceBetweenPatientCardAndScreenEdge + patientCardWidth - paddingRight, screenWidth - badgeSize - paddingRight);
-
         patientCard = Stack(
           alignment: Alignment.topRight,
           children: <Widget>[
             patientCard,
-            Positioned(
-              left: badgePositionFromLeft,
+            Padding(
+              padding: EdgeInsets.only(right: 3.0),
               child: Container(
                 width: badgeSize,
                 height: badgeSize,
@@ -803,6 +792,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           ],
         );
       }
+
+      // animate patient card when loading
+      patientCard = GrowTransition(
+          animation: _cardHeightTween.animate(animationControllers[curPatient.artNumber]),
+          child: patientCard
+      );
 
       _patientCards.add(patientCard);
     }
