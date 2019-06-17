@@ -741,17 +741,17 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
             padding: EdgeInsets.symmetric(horizontal: _cardMarginHorizontal),
             color: MAIN_SCREEN_SLIDE_TO_ACTIVATE,
             child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    curPatient.isActivated ? 'DEACTIVATE' : 'ACTIVATE',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.bold,
-                      color: MAIN_SCREEN_SLIDE_TO_ACTIVATE_TEXT,
-                    ),
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  curPatient.isActivated ? 'DEACTIVATE' : 'ACTIVATE',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                    color: MAIN_SCREEN_SLIDE_TO_ACTIVATE_TEXT,
                   ),
-                ]
+                ),
+              ],
             ),
           ),
           child: patientCard,
