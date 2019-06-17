@@ -544,25 +544,27 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       return Row(children: icons);
     }
 
+    final Widget _headerRow = Container(
+      padding: EdgeInsets.symmetric(horizontal: _cardMarginHorizontal),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: _rowPaddingHorizontal),
+        child: Row(
+          children: <Widget>[
+            SizedBox(width: _colorBarWidth),
+            Expanded(child: _formatHeaderRowText('ART NR.')),
+            Expanded(child: _formatHeaderRowText('NEXT REFILL')),
+            Expanded(child: _formatHeaderRowText('REFILL BY')),
+            Expanded(flex: 2, child: _formatHeaderRowText('SUPPORT')),
+            Expanded(child: _formatHeaderRowText('VIRAL LOAD')),
+            Expanded(child: _formatHeaderRowText('NEXT ASSESSMENT')),
+          ],
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        ),
+      ),
+    );
+
     List<Widget> _patientCards = <Widget>[
-      Container(
-          padding: EdgeInsets.symmetric(
-              vertical: _cardMarginVertical,
-              horizontal: _cardMarginHorizontal),
-          child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: _rowPaddingHorizontal),
-              child: Row(
-                children: <Widget>[
-                  SizedBox(width: _colorBarWidth),
-                  Expanded(child: _formatHeaderRowText('ART NR.')),
-                  Expanded(child: _formatHeaderRowText('NEXT REFILL')),
-                  Expanded(child: _formatHeaderRowText('REFILL BY')),
-                  Expanded(flex: 2, child: _formatHeaderRowText('SUPPORT')),
-                  Expanded(child: _formatHeaderRowText('VIRAL LOAD')),
-                  Expanded(child: _formatHeaderRowText('NEXT ASSESSMENT')),
-                ],
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              ))),
+      _headerRow,
     ];
     final numberOfPatients = _patients.length;
     for (var i = 0; i < numberOfPatients; i++) {
