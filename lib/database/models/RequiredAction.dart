@@ -7,23 +7,20 @@ class RequiredAction {
   static final colCreatedDate = 'created_date_utc';
   static final colPatientART = 'patient_art'; // foreign key to [Patient].art_number
   static final colType = 'action_type';
-  static final colDescription = 'description';
 
   DateTime _createdDate;
   String patientART;
   RequiredActionType type;
-  String description;
 
   // Constructors
   // ------------
 
-  RequiredAction(this.patientART, this.type, this.description);
+  RequiredAction(this.patientART, this.type);
 
   RequiredAction.fromMap(map) {
     this._createdDate = DateTime.parse(map[colCreatedDate]);
     this.patientART = map[colPatientART];
     this.type = RequiredActionType.values[map[colType]];
-    this.description = map[colDescription];
   }
 
 
@@ -35,7 +32,6 @@ class RequiredAction {
     map[colCreatedDate] = _createdDate.toIso8601String();
     map[colPatientART] = patientART;
     map[colType] = type.index;
-    map[colDescription] = description;
     return map;
   }
 

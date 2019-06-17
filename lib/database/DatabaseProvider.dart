@@ -187,8 +187,7 @@ class DatabaseProvider {
           ${RequiredAction.colId} INTEGER PRIMARY KEY,
           ${RequiredAction.colCreatedDate} TEXT NOT NULL,
           ${RequiredAction.colPatientART} TEXT NOT NULL,
-          ${RequiredAction.colType} INTEGER NOT NULL,
-          ${RequiredAction.colDescription} TEXT NOT NULL
+          ${RequiredAction.colType} INTEGER NOT NULL
         );
         """);
     // TODO: set colLatestPreferenceAssessment as foreign key to `PreferenceAssessment` table
@@ -435,8 +434,7 @@ class DatabaseProvider {
           id INTEGER PRIMARY KEY,
           created_date_utc TEXT NOT NULL,
           patient_art TEXT NOT NULL,
-          action_type INTEGER NOT NULL,
-          colDescription TEXT NOT NULL
+          action_type INTEGER NOT NULL
         );
         """);
     }
