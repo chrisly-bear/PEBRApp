@@ -122,6 +122,7 @@ class UserData implements IExcelExportable {
   // ignore: unnecessary_getters_setters
   DateTime get deactivatedDate => _deactivatedDate;
 
+  /// Throws FileSystemException if no password file is present on the device.
   Future<String> get pinCodeHash async {
     final String filepath = join(await DatabaseProvider().databasesDirectoryPath, 'PEBRA-password');
     final File passwordFile = File(filepath);
