@@ -707,36 +707,39 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       }
 
       // wrap in stack to display action required label
-      patientCard = Stack(
-        alignment: Alignment.topRight,
-        children: <Widget>[
-          patientCard,
-          Padding(
-            padding: EdgeInsets.only(left: 2.0, right: 3.0),
-            child: Container(
-              width: 35,
-              height: 35,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.black,
-                boxShadow: [BoxShadow(
-                  color: Colors.black45,
-                  blurRadius: 10.0,
-                )],
-              ),
-              child: Center(
-                child: Text(
-                  '!',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20.0,
+      if (curPatient.isActivated) {
+        patientCard = Stack(
+            alignment: Alignment.topRight,
+            children: <Widget>[
+              patientCard,
+              Padding(
+                padding: EdgeInsets.only(left: 2.0, right: 3.0),
+                child: Container(
+                  width: 35,
+                  height: 35,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black,
+                    boxShadow: [BoxShadow(
+                      color: Colors.black45,
+                      blurRadius: 10.0,
+                    )
+                    ],
                   ),
-                )
+                  child: Center(
+                      child: Text(
+                        '!',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.0,
+                        ),
+                      )
+                  ),
+                ),
               ),
-            ),
-          ),
-        ]);
+            ]);
+      }
 
       _patientCards.add(patientCard);
     }
