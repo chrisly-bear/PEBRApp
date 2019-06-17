@@ -762,35 +762,37 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       final int numOfActionsRequired = curPatient.requiredActions.length;
       if (curPatient.isActivated && numOfActionsRequired > 0) {
         patientCard = Stack(
-            alignment: Alignment.topRight,
-            children: <Widget>[
-              patientCard,
-              Padding(
-                padding: EdgeInsets.only(left: 2.0, right: 3.0),
-                child: Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.black,
-                    boxShadow: [BoxShadow(
+          alignment: Alignment.topRight,
+          children: <Widget>[
+            patientCard,
+            Padding(
+              padding: EdgeInsets.only(left: 2.0, right:  3.0),
+              child: Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black,
+                  boxShadow: [
+                    BoxShadow(
                       color: Colors.black45,
                       blurRadius: 10.0,
-                    )
-                    ],
-                  ),
-                  child: Center(
-                      child: Text(
-                        '$numOfActionsRequired',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16.0,
-                        ),
-                      )
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Text(
+                    '$numOfActionsRequired',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.0,
+                    ),
                   ),
                 ),
               ),
-            ]);
+            ),
+          ],
+        );
       }
 
       _patientCards.add(patientCard);
