@@ -458,6 +458,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     const _rowPaddingHorizontal = 15.0;
     const _colorBarWidth = 15.0;
 
+    const double _artNumberWidth = 110.0;
+    const double _nextRefillWidth = 110.0;
+    const double _refillByWidth = 100.0;
+    const double _supportWidth = 260.0;
+    const double _viralLoadWidth = 55.0;
+    const double _nextAssessmentWidth = 95.0;
+
     Text _formatHeaderRowText(String text) {
       return Text(
         text.toUpperCase(),
@@ -545,19 +552,37 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       return Row(children: icons);
     }
 
-    final Widget _headerRow = Container(
-      padding: EdgeInsets.symmetric(horizontal: _cardMarginHorizontal),
+    final Widget _headerRow = SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: _rowPaddingHorizontal),
+        padding: EdgeInsets.symmetric(horizontal: _cardMarginHorizontal + _rowPaddingHorizontal),
         child: Row(
           children: <Widget>[
             SizedBox(width: _colorBarWidth),
-            Expanded(child: _formatHeaderRowText('ART NR.')),
-            Expanded(child: _formatHeaderRowText('NEXT REFILL')),
-            Expanded(child: _formatHeaderRowText('REFILL BY')),
-            Expanded(flex: 2, child: _formatHeaderRowText('SUPPORT')),
-            Expanded(child: _formatHeaderRowText('VIRAL LOAD')),
-            Expanded(child: _formatHeaderRowText('NEXT ASSESSMENT')),
+            Container(
+              width: _artNumberWidth,
+              child: _formatHeaderRowText('ART NR.'),
+            ),
+            Container(
+              width: _nextRefillWidth,
+              child: _formatHeaderRowText('NEXT REFILL'),
+            ),
+            Container(
+              width: _refillByWidth,
+              child: _formatHeaderRowText('REFILL BY'),
+            ),
+            Container(
+              width: _supportWidth,
+              child: _formatHeaderRowText('SUPPORT'),
+            ),
+            Container(
+              width: _viralLoadWidth,
+              child: _formatHeaderRowText('VIRAL LOAD'),
+            ),
+            Container(
+              width: _nextAssessmentWidth,
+              child: _formatHeaderRowText('NEXT ASSESSMENT'),
+            ),
           ],
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
         ),
@@ -573,7 +598,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       final patientART = curPatient.artNumber;
 
       Widget _getViralLoadIndicator({bool isActivated: true}) {
-        Widget viralLoadIcon = _formatPatientRowText('—', isActivated: isActivated);
+        Widget viralLoadIcon = Padding(padding: EdgeInsets.only(left: 8.0), child: _formatPatientRowText('—', isActivated: isActivated));
         Widget viralLoadBadge = _formatPatientRowText('—', isActivated: isActivated);
         Color iconColor = isActivated ? null : ICON_INACTIVE;
         if (curPatient.mostRecentViralLoad?.isSuppressed != null && curPatient.mostRecentViralLoad.isSuppressed) {
@@ -633,48 +658,72 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           horizontal: _cardMarginHorizontal);
 
       Widget patientCard = GrowTransition(
-          animation: _cardHeightTween.animate(animationControllers[curPatient.artNumber]),
-          child: Card(
-              color: curPatient.isActivated ? CARD_ACTIVE : CARD_INACTIVE,
-              elevation: 5.0,
-              margin: _curCardMargin,
-              clipBehavior: Clip.antiAlias,
-              child: InkWell(
-                  onTap: () {
-                    _pushPatientScreen(curPatient);
-                  },
-                  child: Row(
-                      children: [
-                        // color bar
-                        Container(width: _colorBarWidth, color: _calculateCardColor(curPatient)),
-                        // patient info
-                        Expanded(child: Padding(
-                            padding: EdgeInsets.symmetric(
-                                vertical: _rowPaddingVertical,
-                                horizontal: _rowPaddingHorizontal),
-                            child: Row(
-                              children: <Widget>[
-                                // ART Nr.
-                                Expanded(child: _formatPatientRowText(patientART, isActivated: curPatient.isActivated)),
-                                // Next Refill
-                                Expanded(child: _formatPatientRowText(nextRefillText, isActivated: curPatient.isActivated, highlight: nextRefillTextHighlighted)),
-                                // Refill By
-                                Expanded(child: _formatPatientRowText(refillByText, isActivated: curPatient.isActivated)),
-                                // Support
-                                Expanded(
-                                  flex: 2,
-                                  child: _buildSupportIcons(curPatient?.latestPreferenceAssessment?.supportPreferences, isActivated: curPatient.isActivated),
-                                ),
-                                // Viral Load
-                                Expanded(
-                                  child: Container(alignment: Alignment.centerLeft, child: _getViralLoadIndicator(isActivated: curPatient.isActivated)),
-                                ),
-                                // Next Assessment
-                                Expanded(child: _formatPatientRowText(nextAssessmentText, isActivated: curPatient.isActivated, highlight: nextAssessmentTextHighlighted)),
-                              ],
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            ))),
-                      ]))));
+        animation: _cardHeightTween.animate(animationControllers[curPatient.artNumber]),
+        child: Card(
+          color: curPatient.isActivated ? CARD_ACTIVE : CARD_INACTIVE,
+          elevation: 5.0,
+          margin: _curCardMargin,
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: () {
+              _pushPatientScreen(curPatient);
+            },
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  // color bar
+                  Container(width: _colorBarWidth, color: _calculateCardColor(curPatient)),
+                  // patient info
+                  Container(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                          vertical: _rowPaddingVertical,
+                          horizontal: _rowPaddingHorizontal,
+                      ),
+                      child: Row(
+                        children: <Widget>[
+                          // ART Nr.
+                          Container(
+                            width: _artNumberWidth,
+                            child: _formatPatientRowText(patientART, isActivated: curPatient.isActivated),
+                          ),
+                          // Next Refill
+                          Container(
+                            width: _nextRefillWidth,
+                            child: _formatPatientRowText(nextRefillText, isActivated: curPatient.isActivated, highlight: nextRefillTextHighlighted),
+                          ),
+                          // Refill By
+                          Container(
+                            width: _refillByWidth,
+                            child: _formatPatientRowText(refillByText, isActivated: curPatient.isActivated),
+                          ),
+                          // Support
+                          Container(
+                            width: _supportWidth,
+                            child: _buildSupportIcons(curPatient?.latestPreferenceAssessment?.supportPreferences, isActivated: curPatient.isActivated),
+                          ),
+                          // Viral Load
+                          Container(
+                            width: _viralLoadWidth,
+                            child: Container(alignment: Alignment.centerLeft, child: _getViralLoadIndicator(isActivated: curPatient.isActivated)),
+                          ),
+                          // Next Assessment
+                          Container(
+                            width: _nextAssessmentWidth,
+                            child: _formatPatientRowText(nextAssessmentText, isActivated: curPatient.isActivated, highlight: nextAssessmentTextHighlighted),
+                          ),
+                        ],
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
 
       // wrap in Dismissible, so that patient can be re-activated using a right-swipe
       if (!curPatient.isActivated) {
