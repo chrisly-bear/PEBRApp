@@ -768,7 +768,6 @@ class DatabaseProvider {
     if (res.isNotEmpty) {
       for (Map<String, dynamic> map in res) {
         Patient p = Patient.fromMap(map);
-        await p.initializePreferenceAssessmentField();
         list.add(p);
       }
     }
