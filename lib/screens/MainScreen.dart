@@ -716,8 +716,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
               Padding(
                 padding: EdgeInsets.only(left: 2.0, right: 3.0),
                 child: Container(
-                  width: 35,
-                  height: 35,
+                  width: 30,
+                  height: 30,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.black,
@@ -732,8 +732,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
                         '$numOfActionsRequired',
                         style: TextStyle(
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20.0,
+                          fontSize: 16.0,
                         ),
                       )
                   ),
