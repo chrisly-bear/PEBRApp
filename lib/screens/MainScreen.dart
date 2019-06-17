@@ -40,7 +40,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   bool _backupRunning = false;
 
   static const int _ANIMATION_TIME = 800; // in milliseconds
-  final Animatable<double> _cardHeightTween = Tween<double>(begin: 0, end: 100).chain(
+  static const double _cardHeight = 100.0;
+  final Animatable<double> _cardHeightTween = Tween<double>(begin: 0, end: _cardHeight).chain(
       CurveTween(curve: Curves.ease)
   );
   Map<String, AnimationController> animationControllers = {};
@@ -451,7 +452,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   }
 
   List<Widget> _buildPatientCards() {
-    const _cardMarginVertical = 5.0;
+    const _cardMarginVertical = 8.0;
     const _cardMarginHorizontal = 10.0;
     const _rowPaddingVertical = 20.0;
     const _rowPaddingHorizontal = 15.0;
