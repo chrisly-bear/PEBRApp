@@ -4,15 +4,12 @@ import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
-import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
-import 'package:pebrapp/database/beans/AdherenceReminderMessage.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
-import 'package:pebrapp/database/beans/VLSuppressedMessage.dart';
-import 'package:pebrapp/database/beans/VLUnsuppressedMessage.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/beans/YesNoRefused.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/screens/ARTRefillScreen.dart';
 import 'package:pebrapp/screens/AddViralLoadScreen.dart';
@@ -98,6 +95,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     final double _spacingBetweenCards = 40.0;
     return Column(
       children: <Widget>[
+        _buildRequiredActions(),
         _buildPatientCharacteristicsCard(),
         _makeButton('Edit Characteristics', onPressed: () { _editCharacteristicsPressed(_patient); }, flat: true),
         SizedBox(height: _spacingBetweenCards),
@@ -136,6 +134,41 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         SizedBox(height: 10.0),
         _makeButton('Open KoBoCollect', onPressed: _onOpenKoboCollectPressed),
         SizedBox(height: _spacingBetweenCards),
+      ],
+    );
+  }
+
+  Widget _buildRequiredActions() {
+    final actions = _patient.requiredActions.map((RequiredAction action) {
+      String actionText;
+      if (action.type == RequiredActionType.ASSESSMENT_REQUIRED) {
+        actionText = "Preference Assessment required. Start a Preference Assessment by tapping 'Start Assessment' below.";
+      }
+      if (action.type == RequiredActionType.REFILL_REQUIRED) {
+        actionText = "ART Refill required. Start an ART Refill by tapping 'Manage Refill' below.";
+      }
+      // TODO: handle all cases of RequiredActionType
+      return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+          color: Colors.black,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
+            child: Center(
+              child: Text(
+                actionText,
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+      );
+    }).toList();
+
+    return Column(
+      children: <Widget>[
+        ...actions,
+        SizedBox(height: actions.length > 0 ? 20.0 : 0.0),
       ],
     );
   }
