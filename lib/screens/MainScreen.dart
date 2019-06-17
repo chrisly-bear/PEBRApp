@@ -3,21 +3,26 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
+import 'package:pebrapp/components/animations/GrowTransition.dart';
 import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
-import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/database/beans/ARTRefillOption.dart';
+import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
+import 'package:pebrapp/database/beans/ViralLoadSource.dart';
+import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
-import 'package:pebrapp/screens/DebugScreen.dart';
+import 'package:pebrapp/screens/NewPatientScreen.dart';
 import 'dart:ui';
 
 import 'package:pebrapp/screens/SettingsScreen.dart';
-import 'package:pebrapp/screens/NewOrEditPatientScreen.dart';
+import 'package:pebrapp/screens/IconExplanationsScreen.dart';
 import 'package:pebrapp/screens/PatientScreen.dart';
-import 'package:pebrapp/components/PageHeader.dart';
+import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
+import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 class MainScreen extends StatefulWidget {
@@ -25,13 +30,20 @@ class MainScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
-  final _appBarHeight = 115.0;
+class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, TickerProviderStateMixin {
   // TODO: remove _context field and pass context via args if necessary
   BuildContext _context;
   bool _isLoading = true;
   List<Patient> _patients = [];
   Stream<AppState> _appStateStream;
+  bool _loginLockCheckRunning = false;
+  bool _backupRunning = false;
+
+  static const int _ANIMATION_TIME = 800; // in milliseconds
+  final Animatable<double> _cardHeightTween = Tween<double>(begin: 0, end: 100).chain(
+      CurveTween(curve: Curves.ease)
+  );
+  Map<String, AnimationController> animationControllers = {};
 
   @override
   void initState() {
@@ -79,9 +91,35 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           if (indexOfExisting > -1) {
             // replace if patient exists (patient was edited)
             this._patients[indexOfExisting] = newPatient;
+            // make sure the animation has run
+            animationControllers[newPatient.artNumber].forward();
           } else {
             // add if not exists (new patient was added)
-            this._patients.add(newPatient);
+            if (newPatient.isEligible && newPatient.consentGiven) {
+              this._patients.add(newPatient);
+              // add animation controller for this patient card
+              final controller = AnimationController(duration: const Duration(milliseconds: _ANIMATION_TIME), vsync: this);
+              animationControllers[newPatient.artNumber] = controller;
+              // start animation
+              controller.forward();
+            }
+          }
+        });
+      }
+      if (streamEvent is AppStateViralLoadData) {
+        setState(() {
+          final newViralLoad = streamEvent.viralLoad;
+          Patient changedPatient = this._patients.singleWhere((p) => p.artNumber == newViralLoad.patientART, orElse: () { return null; });
+          if (changedPatient != null) {
+            if (newViralLoad.isBaseline) {
+              if (newViralLoad.source == ViralLoadSource.DATABASE()) {
+                changedPatient.viralLoadBaselineDatabase = newViralLoad;
+              } else {
+                changedPatient.viralLoadBaselineManual = newViralLoad;
+              }
+            } else {
+              changedPatient.viralLoadFollowUps.add(newViralLoad);
+            }
           }
         });
       }
@@ -158,44 +196,120 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _onAppResume();
+    switch (state) {
+      case AppLifecycleState.resumed:
+        print('>>>>> $state');
+        _onAppResume();
+        break;
+      case AppLifecycleState.paused:
+        print('>>>>> $state');
+        if (!_loginLockCheckRunning) {
+          // if the app is already locked do not update the last active date!
+          // otherwise, we can work around the lock by force closing the app and
+          // restarting it within the time limit
+          storeAppLastActiveInSharedPrefs();
+        }
+        break;
+      default:
+        print('>>>>> UNHANDLED: $state');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    print('~~~ MainScreenState.build ~~~');
     _context = context;
     return Scaffold(
-        backgroundColor: Color.fromARGB(255, 224, 224, 224),
+        backgroundColor: BACKGROUND_COLOR,
         floatingActionButton: FloatingActionButton(
           key: Key('addPatient'), // key can be used to find the button in integration testing
           onPressed: _pushNewPatientScreen,
           child: Icon(Icons.add),
+          backgroundColor: FLOATING_ACTION_BUTTON,
         ),
-        body: Stack(
-          children: <Widget>[
-            _bodyToDisplayBasedOnState(),
-            Container(
-              height: _appBarHeight,
-              child: ClipRect(
-                child: BackdropFilter(
-                  filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                  child: _customHeightAppBar(),
-                ),
-              ),
+        body: TransparentHeaderPage(
+          title: 'Patients',
+          subtitle: 'Overview',
+          child: Center(child: _bodyToDisplayBasedOnState()),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.info),
+              onPressed: _pushIconExplanationsScreen,
+            ),
+            IconButton(
+                icon: Icon(Icons.refresh),
+                onPressed: () {
+                    // reset animation
+                    animationControllers.values.forEach((AnimationController c) => c.reset());
+                    // reload patients from SQLite database
+                    PatientBloc.instance.sinkAllPatientsFromDatabase();
+                  },
+            ),
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: _pushSettingsScreen,
             ),
           ],
-        ));
+        ),
+    );
   }
 
-  // Gets called when the application comes to the foreground.
+  /// Runs checks whether user is logged in / whether the app should be locked,
+  /// and whether a backup should be run simultaneously.
+  ///
+  /// Gets called when the application comes to the foreground or is run for the
+  /// first time.
   Future<void> _onAppResume() async {
+    _checkLoggedInAndLockStatus();
+    _runBackupIfDue();
+  }
+
+  /// Checks whether the user is logged in (if not shows the login screen) and
+  /// whether the app should be locked (if so it shows the PIN code screen).
+  Future<void> _checkLoggedInAndLockStatus() async {
+    // if _checkLoggedInAndLockStatus has already been called we do nothing
+    if (_loginLockCheckRunning) {
+      return;
+    }
+    // enable concurrency lock
+    _loginLockCheckRunning = true;
 
     // make user log in if he/she isn't already
-    LoginData loginData = await loginDataFromSharedPrefs;
+    UserData loginData = await DatabaseProvider().retrieveLatestUserData();
     if (loginData == null) {
-      _pushSettingsScreen();
+      await _pushSettingsScreen();
+      _loginLockCheckRunning = false;
+      return;
+    }
+
+    // lock the app if it has been inactive for a certain time
+    DateTime lastActive = await appLastActive;
+    if (lastActive == null) {
+      await lockApp(_context);
+    } else {
+      DateTime now = DateTime.now();
+      Duration difference = now.difference(lastActive);
+      print('Seconds since app last active: ${difference.inSeconds}');
+      if (difference.inSeconds >= SECONDS_UNTIL_APP_LOCK) {
+        await lockApp(_context);
+      }
+    }
+    _loginLockCheckRunning = false;
+  }
+
+  /// Checks if a backup is due and if so, starts a backup.
+  Future<void> _runBackupIfDue() async {
+
+    // if backup is running, do not start another backup
+    if (_backupRunning) {
+      return;
+    }
+    _backupRunning = true;
+
+    // if user is not logged in, do not run a backup
+    UserData loginData = await DatabaseProvider().retrieveLatestUserData();
+    if (loginData == null) {
+      _backupRunning = false;
       return;
     }
 
@@ -207,6 +321,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       print('days since last backup: $daysSinceLastBackup');
       if (daysSinceLastBackup < AUTO_BACKUP_EVERY_X_DAYS && daysSinceLastBackup >= 0) {
         print("backup not due yet (only due after $AUTO_BACKUP_EVERY_X_DAYS days)");
+        _backupRunning = false;
         return; // don't run a backup, we have already backed up today
       }
     }
@@ -214,9 +329,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     String resultMessage = 'Backup Successful';
     String title;
     bool error = false;
+    VoidCallback onNotificationButtonPress;
     try {
       await DatabaseProvider().createAdditionalBackupOnSWITCH(loginData);
-    } catch (e) {
+    } catch (e, s) {
       error = true;
       title = 'Backup Failed';
       switch (e.runtimeType) {
@@ -229,21 +345,26 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           resultMessage = 'Login to SWITCH failed. Contact the development team.';
           break;
         case DocumentNotFoundException:
-          resultMessage = 'No existing backup found for user \'${loginData.firstName} ${loginData.lastName} (${loginData.healthCenter})\'';
+          resultMessage = 'No existing backup found for user \'${loginData.username}\'';
           break;
         case SocketException:
           resultMessage = 'Make sure you are connected to the internet.';
           break;
         default:
-          resultMessage = '$e';
+          resultMessage = 'An unknown error occured. Contact the development team.';
+          print('${e.runtimeType}: $e');
+          print(s);
+          onNotificationButtonPress = () {
+            showErrorInPopup(e, s, _context);
+          };
       }
       // show additional warning if backup wasn't successful for a long time
       if (daysSinceLastBackup >= SHOW_WARNING_AFTER_X_DAYS) {
         showFlushBar(_context, "Last backup was $daysSinceLastBackup days ago.\nPlease perform a manual backup from the settings screen.", title: "Warning", error: true);
       }
     }
-    showFlushBar(_context, resultMessage, title: title, error: error);
-
+    showFlushBar(_context, resultMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
+    _backupRunning = false;
   }
 
   Widget _bodyToDisplayBasedOnState() {
@@ -256,53 +377,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     }
   }
 
-  _customHeightAppBar() {
-    return AppBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      // This is a hack so we can increase the height of the AppBar
-//      bottom: PreferredSize(
-//        child: Container(),
-//        preferredSize: Size.fromHeight(35),
-//      ),
-      flexibleSpace: PageHeader(title: 'Patients', subtitle: 'Overview'),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.bug_report),
-          onPressed: _pushDebugScreen,
-        ),
-        IconButton(
-          icon: Icon(Icons.refresh),
-          onPressed: PatientBloc.instance.sinkAllPatientsFromDatabase
-        ),
-        IconButton(
-          icon: Icon(Icons.settings),
-          onPressed: _pushSettingsScreen,
-        ),
-      ],
-    );
-  }
-
-  void _pushDebugScreen() {
-    Navigator.of(_context).push(
-      PageRouteBuilder<void>(
-        opaque: false,
-        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
-          return FadeTransition(
-            opacity: anim1,
-            child: widget,
-          );
-        },
-        pageBuilder: (BuildContext context, _, __) {
-          return DebugScreen();
-        },
-      ),
-    );
-  }
-
-  void _pushSettingsScreen() {
-    Navigator.of(_context).push(
-      new PageRouteBuilder<void>(
+  /// Pushes [newScreen] to the top of the navigation stack using a fade in
+  /// transition.
+  Future<T> _fadeInScreen<T extends Object>(Widget newScreen, {String routeName}) {
+    return Navigator.of(_context).push(
+      PageRouteBuilder<T>(
+        settings: RouteSettings(name: routeName),
         opaque: false,
         transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
           return FadeTransition(
@@ -311,24 +391,26 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           );
         },
         pageBuilder: (BuildContext context, _, __) {
-          return SettingsScreen();
+          return newScreen;
         },
       ),
     );
   }
 
-  void _pushNewPatientScreen() {
-    Navigator.of(_context).push(
-      new MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          return NewOrEditPatientScreen();
-        },
-      ),
-    );
+  Future<void> _pushSettingsScreen() async {
+    await _fadeInScreen(SettingsScreen(), routeName: '/settings');
   }
 
-  void _pushPatientScreen(Patient patient) {
-    Navigator.of(_context).push(
+  Future<void> _pushIconExplanationsScreen() async {
+    await _fadeInScreen(IconExplanationsScreen(), routeName: '/icon-explanations');
+  }
+
+  Future<void> _pushNewPatientScreen() async {
+    await _fadeInScreen(NewPatientScreen(), routeName: '/new-patient');
+  }
+
+  Future<void> _pushPatientScreen(Patient patient) async {
+    await Navigator.of(_context).push(
       new MaterialPageRoute<void>(
         settings: RouteSettings(name: '/patient'),
         builder: (BuildContext context) {
@@ -338,49 +420,63 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     );
   }
 
-  _bodyLoading() {
-    return Center(
+  Widget _bodyLoading() {
+    final double size = 80.0;
+    return Container(
+      padding: EdgeInsets.all(20.0),
+      height: size,
+      width: size,
       child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.white)
+          valueColor: AlwaysStoppedAnimation<Color>(SPINNER_MAIN_SCREEN)
       ),
     );
   }
 
-  _bodyNoData() {
-    return Center(child: Text("No patients recorded yet. Add new patient by clicking the + icon."));
+  Widget _bodyNoData() {
+    return Padding(
+      padding: EdgeInsets.all(25.0),
+      child: Center(
+        child: Text(
+          "No patients recorded yet.\nAdd new patient by pressing the + icon.",
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
   }
 
-  _bodyPatientTable() {
-    return ListView(
+  Column _bodyPatientTable() {
+    return Column(
       children: _buildPatientCards(),
     );
   }
 
-  _buildPatientCards() {
+  List<Widget> _buildPatientCards() {
     const _cardMarginVertical = 5.0;
     const _cardMarginHorizontal = 10.0;
     const _rowPaddingVertical = 20.0;
     const _rowPaddingHorizontal = 15.0;
-    const _cardHeight = 100.0;
     const _colorBarWidth = 15.0;
 
-    _formatHeaderRowText(String text) {
+    Text _formatHeaderRowText(String text) {
       return Text(
         text.toUpperCase(),
         style: TextStyle(
-          color: Colors.grey[600],
+          color: MAIN_SCREEN_HEADER_TEXT,
           fontWeight: FontWeight.bold,
         ),
       );
     }
 
-    _formatPatientRowText(String text, {bool isActivated: true}) {
+    Text _formatPatientRowText(String text, {bool isActivated: true, bool highlight: false}) {
       return Text(
         text,
         style: TextStyle(
           fontSize: 18,
-          color: isActivated ? Colors.black : Colors.grey,
+          color: isActivated ? TEXT_ACTIVE : TEXT_INACTIVE,
+          fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
         ),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       );
     }
 
@@ -399,55 +495,56 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
     Widget _buildSupportIcons(SupportPreferencesSelection sps, {bool isActivated: true}) {
       List<Widget> icons = List<Widget>();
-      Color iconColor = isActivated ? Colors.black : Colors.grey;
+      Color iconColor = isActivated ? ICON_ACTIVE : ICON_INACTIVE;
       final Container spacer = Container(width: 3);
       if (sps == null) {
         return _formatPatientRowText('—', isActivated: isActivated);
       }
-      if (sps.homeVisitPESelected) {
-//        icons.add(Icon(Icons.home));
-        icons.add(_getPaddedIcon('assets/icons/homevisit_pe_black.png', color: iconColor));
+      if (sps.NURSE_CLINIC_selected) {
+        icons.add(_getPaddedIcon('assets/icons/nurse_clinic.png', color: iconColor));
         icons.add(spacer);
       }
-      if (sps.nurseAtClinicSelected) {
-        icons.add(_getPaddedIcon('assets/icons/nurse_clinic_fett.png', color: iconColor));
+      if (sps.SATURDAY_CLINIC_CLUB_selected) {
+        icons.add(_getPaddedIcon('assets/icons/saturday_clinic_club.png', color: iconColor));
         icons.add(spacer);
       }
-      if (sps.saturdayClinicClubSelected) {
-        icons.add(_getPaddedIcon('assets/icons/saturday_clinic_club_black.png', color: iconColor));
+      if (sps.COMMUNITY_YOUTH_CLUB_selected) {
+        icons.add(_getPaddedIcon('assets/icons/youth_club.png', color: iconColor));
         icons.add(spacer);
       }
-      if (sps.schoolTalkPESelected) {
-//        icons.add(Icon(Icons.school));
-        icons.add(_getPaddedIcon('assets/icons/schooltalk_pe_black.png', color: iconColor));
-        icons.add(spacer);
-      }
-      if (sps.communityYouthClubSelected) {
-        icons.add(_getPaddedIcon('assets/icons/youth_club_black.png', color: iconColor));
-        icons.add(spacer);
-      }
-      if (sps.phoneCallPESelected) {
+      if (sps.PHONE_CALL_PE_selected) {
 //        icons.add(Icon(Icons.phone));
-        icons.add(_getPaddedIcon('assets/icons/phonecall_pe_black.png', color: iconColor));
+        icons.add(_getPaddedIcon('assets/icons/phonecall_pe.png', color: iconColor));
+        icons.add(spacer);
+      }
+      if (sps.HOME_VISIT_PE_selected) {
+//        icons.add(Icon(Icons.home));
+        icons.add(_getPaddedIcon('assets/icons/homevisit_pe.png', color: iconColor));
+        icons.add(spacer);
+      }
+      if (sps.SCHOOL_VISIT_PE_selected) {
+//        icons.add(Icon(Icons.school));
+        icons.add(_getPaddedIcon('assets/icons/schooltalk_pe.png', color: iconColor));
+        icons.add(spacer);
+      }
+      if (sps.PITSO_VISIT_PE_selected) {
+        icons.add(_getPaddedIcon('assets/icons/pitso.png', color: iconColor));
         icons.add(spacer);
       }
       if (sps.areAllDeselected) {
-        icons.add(_getPaddedIcon('assets/icons/no_support_fett.png', color: iconColor));
+        icons.add(_getPaddedIcon('assets/icons/no_support.png', color: iconColor));
         icons.add(spacer);
+      } else if (sps.areAllWithTodoDeselected) {
+        return _formatPatientRowText('—', isActivated: isActivated);
       }
-      if (icons.last == spacer) {
+      if (icons.length > 0 && icons.last == spacer) {
         // remove last spacer as there are no more icons that follow it
         icons.removeLast();
       }
       return Row(children: icons);
     }
 
-    var _patientCards = <Widget>[
-      // container acting as margin for the app bar
-      Container(
-        height: _appBarHeight - 10,
-        color: Colors.transparent,
-      ),
+    List<Widget> _patientCards = <Widget>[
       Container(
           padding: EdgeInsets.symmetric(
               vertical: _cardMarginVertical,
@@ -474,15 +571,17 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
       Widget _getViralLoadIndicator({bool isActivated: true}) {
         Widget viralLoadIcon = _formatPatientRowText('—', isActivated: isActivated);
-        ViralLoadBadge viralLoadBadge = ViralLoadBadge(ViralLoad.NA, smallSize: true);
-        Color iconColor = isActivated ? Colors.black : Colors.grey;
-        if (curPatient.vlSuppressed != null && curPatient.vlSuppressed) {
+        Widget viralLoadBadge = _formatPatientRowText('—', isActivated: isActivated);
+        Color iconColor = isActivated ? null : ICON_INACTIVE;
+        if (curPatient.mostRecentViralLoad?.isSuppressed != null && curPatient.mostRecentViralLoad.isSuppressed) {
           viralLoadIcon = _getPaddedIcon('assets/icons/viralload_suppressed.png', color: iconColor);
-          viralLoadBadge = ViralLoadBadge(ViralLoad.SUPPRESSED, smallSize: true); // TODO: show greyed out version if isActivated is false
-        } else
-        if (curPatient.vlSuppressed != null && !curPatient.vlSuppressed) {
+          viralLoadBadge = ViralLoadBadge(curPatient.mostRecentViralLoad, smallSize: true); // TODO: show greyed out version if isActivated is false
+        } else if (curPatient.mostRecentViralLoad?.isSuppressed != null && !curPatient.mostRecentViralLoad.isSuppressed) {
           viralLoadIcon = _getPaddedIcon('assets/icons/viralload_unsuppressed.png', color: iconColor);
-          viralLoadBadge = ViralLoadBadge(ViralLoad.UNSUPPRESSED, smallSize: true); // TODO: show greyed out version if isActivated is false
+          viralLoadBadge = ViralLoadBadge(curPatient.mostRecentViralLoad, smallSize: true); // TODO: show greyed out version if isActivated is false
+        } else if (curPatient.mostRecentViralLoad != null && curPatient.mostRecentViralLoad.isLowerThanDetectable) {
+          viralLoadIcon = ViralLoadBadge(curPatient.mostRecentViralLoad, smallSize: true); // TODO: show greyed out version if isActivated is false
+          viralLoadBadge = ViralLoadBadge(curPatient.mostRecentViralLoad, smallSize: true); // TODO: show greyed out version if isActivated is false
         }
         return viralLoadIcon;
 //        return viralLoadBadge;
@@ -495,151 +594,151 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       }
 
       String refillByText = '—';
-      ARTRefillOption aro = curPatient.latestPreferenceAssessment?.artRefillOption1;
+      ARTRefillOption aro = curPatient.latestPreferenceAssessment?.lastRefillOption;
       if (aro != null) {
-        refillByText = artRefillOptionToString(aro);
+        refillByText = aro.descriptionShort;
       }
 
       String nextAssessmentText = '—';
       DateTime lastAssessmentDate = curPatient.latestPreferenceAssessment?.createdDate;
       if (lastAssessmentDate != null) {
-        DateTime nextAssessmentDate = calculateNextAssessment(lastAssessmentDate);
+        DateTime nextAssessmentDate = calculateNextAssessment(lastAssessmentDate, isSuppressed(curPatient));
         nextAssessmentText = formatDate(nextAssessmentDate);
+      }
+
+      bool nextRefillTextHighlighted = false;
+      bool nextAssessmentTextHighlighted = false;
+      if (nextARTRefillDate == null && lastAssessmentDate != null) {
+        nextAssessmentTextHighlighted = true;
+      } else if (nextARTRefillDate != null && lastAssessmentDate == null) {
+        nextRefillTextHighlighted = true;
+      } else if (nextARTRefillDate != null && lastAssessmentDate != null) {
+        DateTime nextAssessmentDate = calculateNextAssessment(lastAssessmentDate, isSuppressed(curPatient));
+        if (nextAssessmentDate.isBefore(nextARTRefillDate)) {
+          nextAssessmentTextHighlighted = true;
+        } else if (nextARTRefillDate.isBefore(nextAssessmentDate)) {
+          nextRefillTextHighlighted = true;
+        } else {
+          // both on the same day
+          nextAssessmentTextHighlighted = true;
+          nextRefillTextHighlighted = true;
+        }
       }
 
       final _curCardMargin = EdgeInsets.symmetric(
           vertical: _cardMarginVertical,
           horizontal: _cardMarginHorizontal);
 
-      // TODO: for final release, the patients should not be deletable. Either
-      // remove the Dismissible widget (return Card directly) or map the
-      // Dismissible's onDismissed callback to another function (e.g.
-      // deactivating a patient)
-      _patientCards.add(Dismissible(
+      Widget patientCard = GrowTransition(
+          animation: _cardHeightTween.animate(animationControllers[curPatient.artNumber]),
+          child: Card(
+              color: curPatient.isActivated ? CARD_ACTIVE : CARD_INACTIVE,
+              elevation: 5.0,
+              margin: _curCardMargin,
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                  onTap: () {
+                    _pushPatientScreen(curPatient);
+                  },
+                  child: Row(
+                      children: [
+                        // color bar
+                        Container(width: _colorBarWidth, color: _calculateCardColor(curPatient)),
+                        // patient info
+                        Expanded(child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: _rowPaddingVertical,
+                                horizontal: _rowPaddingHorizontal),
+                            child: Row(
+                              children: <Widget>[
+                                // ART Nr.
+                                Expanded(child: _formatPatientRowText(patientART, isActivated: curPatient.isActivated)),
+                                // Next Refill
+                                Expanded(child: _formatPatientRowText(nextRefillText, isActivated: curPatient.isActivated, highlight: nextRefillTextHighlighted)),
+                                // Refill By
+                                Expanded(child: _formatPatientRowText(refillByText, isActivated: curPatient.isActivated)),
+                                // Support
+                                Expanded(
+                                  flex: 2,
+                                  child: _buildSupportIcons(curPatient?.latestPreferenceAssessment?.supportPreferences, isActivated: curPatient.isActivated),
+                                ),
+                                // Viral Load
+                                Expanded(
+                                  child: Container(alignment: Alignment.centerLeft, child: _getViralLoadIndicator(isActivated: curPatient.isActivated)),
+                                ),
+                                // Next Assessment
+                                Expanded(child: _formatPatientRowText(nextAssessmentText, isActivated: curPatient.isActivated, highlight: nextAssessmentTextHighlighted)),
+                              ],
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            ))),
+                      ]))));
+
+      // wrap in Dismissible, so that patient can be re-activated using a right-swipe
+      if (!curPatient.isActivated) {
+        patientCard = Dismissible(
+          direction: DismissDirection.startToEnd,
           key: Key(curPatient.artNumber),
           confirmDismiss: (DismissDirection direction) {
-            if (direction == DismissDirection.startToEnd) {
-              // deactivate gesture, do not dismiss but deactivate patient
-              curPatient.isActivated = !curPatient.isActivated;
-              PatientBloc.instance.sinkPatientData(curPatient);
-              return Future<bool>.value(false);
-            }
-            return Future<bool>.value(true);
-          },
-          onDismissed: (direction) {
-            if (direction == DismissDirection.endToStart) {
-              print('removing patient with ART number ${curPatient.artNumber}');
-              DatabaseProvider().deletePatient(curPatient).then((int rowsAffected) {
-                showFlushBar(context, 'Removed patient ${curPatient.artNumber} ($rowsAffected rows deleted in DB)');
-                _patients.removeWhere((p) => p.artNumber == curPatient.artNumber);
-              });
-            }
+            curPatient.isActivated = !curPatient.isActivated;
+            PatientBloc.instance.sinkPatientData(curPatient);
+            // do not remove patient card from list
+            return Future<bool>.value(false);
           },
           background: Container(
             margin: _curCardMargin,
             padding: EdgeInsets.symmetric(horizontal: _cardMarginHorizontal),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [Colors.black, Colors.red],
-              ),
-            ),
+            color: MAIN_SCREEN_SLIDE_TO_ACTIVATE,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-              Text(
-                curPatient.isActivated ? 'DEACTIVATE' : 'ACTIVATE',
-                style: TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              Text(
-                "DELETE",
-                style: TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              ]
+                  Text(
+                    curPatient.isActivated ? 'DEACTIVATE' : 'ACTIVATE',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                      color: MAIN_SCREEN_SLIDE_TO_ACTIVATE_TEXT,
+                    ),
+                  ),
+                ]
             ),
           ),
-          child: Stack(
-              alignment: Alignment.topRight,
-              children: <Widget>[
-            SizedBox(
-            height: _cardHeight,
-            child: Card(
-            color: curPatient.isActivated ? Colors.white : Colors.grey[300],
-        elevation: 5.0,
-        margin: _curCardMargin,
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-            onTap: () {
-              _pushPatientScreen(curPatient);
-            },
-            child: Row(
-              children: [
-              // color bar
-              Container(width: _colorBarWidth, color: _calculateCardColor(curPatient)),
-              // patient info
-              Expanded(child: Padding(
-                padding: EdgeInsets.symmetric(
-                    vertical: _rowPaddingVertical,
-                    horizontal: _rowPaddingHorizontal),
-                child: Row(
-                  children: <Widget>[
-                    // ART Nr.
-                    Expanded(child: _formatPatientRowText(patientART, isActivated: curPatient.isActivated)),
-                    // Next Refill
-                    Expanded(child: _formatPatientRowText(nextRefillText, isActivated: curPatient.isActivated)),
-                    // Refill By
-                    Expanded(child: _formatPatientRowText(refillByText, isActivated: curPatient.isActivated)),
-                    // Support
-                    Expanded(
-                      flex: 2,
-                        child: _buildSupportIcons(curPatient?.latestPreferenceAssessment?.supportPreferences, isActivated: curPatient.isActivated),
-                    ),
-                    // Viral Load
-                    Expanded(
-                        child: _getViralLoadIndicator(isActivated: curPatient.isActivated),
-                    ),
-                    // Next Assessment
-                    Expanded(child: _formatPatientRowText(nextAssessmentText, isActivated: curPatient.isActivated)),
-                  ],
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                ))),
-                ])))),
-            Padding(
-              padding: EdgeInsets.only(left: 2.0, right: 3.0),
-              child: Container(
-                width: 35,
-                height: 35,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black,
-                  boxShadow: [BoxShadow(
-                    color: Colors.black45,
-                    blurRadius: 10.0,
-                  )],
-                ),
-                child: Center(
-                  child: Text(
-                    '!',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20.0,
-                    ),
-                  )
-                ),
+          child: patientCard,
+        );
+      }
+
+      // wrap in stack to display action required label
+      patientCard = Stack(
+        alignment: Alignment.topRight,
+        children: <Widget>[
+          patientCard,
+          Padding(
+            padding: EdgeInsets.only(left: 2.0, right: 3.0),
+            child: Container(
+              width: 35,
+              height: 35,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.black,
+                boxShadow: [BoxShadow(
+                  color: Colors.black45,
+                  blurRadius: 10.0,
+                )],
+              ),
+              child: Center(
+                child: Text(
+                  '!',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20.0,
+                  ),
+                )
               ),
             ),
-          ]),
-      ));
+          ),
+        ]);
+
+      _patientCards.add(patientCard);
     }
     return _patientCards;
   }
@@ -662,13 +761,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
     final int daysUntilNextAction = differenceInDays(DateTime.now(), dateOfNextAction);
     if (daysUntilNextAction <= 0) {
-      return Colors.red;
+      return URGENCY_HIGH;
     }
     if (daysUntilNextAction <= 2) {
-      return Colors.orange;
+      return URGENCY_MEDIUM;
     }
     if (daysUntilNextAction <= 7) {
-      return Colors.yellow;
+      return URGENCY_LOW;
     }
     return Colors.transparent;
   }
@@ -679,7 +778,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   /// `latestPreferenceAssessment` are null.
   DateTime _getDateOfNextAction(Patient patient) {
     DateTime nextARTRefillDate = patient.latestARTRefill?.nextRefillDate;
-    DateTime nextPreferenceAssessmentDate = calculateNextAssessment(patient.latestPreferenceAssessment?.createdDate);
+    DateTime nextPreferenceAssessmentDate = calculateNextAssessment(patient.latestPreferenceAssessment?.createdDate, isSuppressed(patient));
     return _getLesserDate(nextARTRefillDate, nextPreferenceAssessmentDate);
   }
 

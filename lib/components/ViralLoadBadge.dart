@@ -1,49 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:pebrapp/database/models/ViralLoad.dart';
+import 'package:pebrapp/utils/AppColors.dart';
 
 class ViralLoadBadge extends StatelessWidget {
   final ViralLoad viralLoad;
   final bool smallSize;
 
-  const ViralLoadBadge(this.viralLoad, {this.smallSize}) : super();
+  const ViralLoadBadge(this.viralLoad, {this.smallSize = false}) : super();
 
   @override
   Widget build(BuildContext context) {
     String displayText;
     Color displayColor;
-    switch (viralLoad) {
-      case ViralLoad.SUPPRESSED:
-        displayText = smallSize ? "S" : "SUPPRESSED";
-        displayColor = Color.fromARGB(255, 36, 179, 124);
-        break;
-      case ViralLoad.UNSUPPRESSED:
-        displayText = smallSize ? "U" : "UNSUPPRESSED";
-        displayColor = Color.fromARGB(255, 255, 51, 102);
-        break;
-      case ViralLoad.NA:
-        displayText = "N/A";
-        displayColor = Colors.grey;
-        break;
-      default:
-        displayText = "N/A";
-        displayColor = Colors.grey;
-        break;
+    if (viralLoad.isLowerThanDetectable) {
+      displayText = "LTDL";
+      displayColor = VL_BADGE_LTDL;
+    } else if (viralLoad.isSuppressed) {
+      displayText = smallSize ? "S" : "SUPPRESSED";
+      displayColor = VL_BADGE_SUPPRESSED;
+    } else {
+      displayText = smallSize ? "U" : "UNSUPPRESSED";
+      displayColor = VL_BADGE_UNSUPPRESSED;
     }
     return Card(
       color: displayColor,
       child: Padding(
         padding: EdgeInsets.all(3.0),
-        child: ConstrainedBox(
+        child: Container(
           constraints: BoxConstraints(
-            minWidth: 25,
-            maxWidth: 25,
+            minWidth: 40,
+            maxWidth: smallSize ? 40 : double.infinity,
+            minHeight: 25,
+            maxHeight: 25,
           ),
-          child: Text(
-            displayText.toUpperCase(),
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white,
-//              fontSize: 16.0,
-              fontWeight: FontWeight.w900,
+          child: Center(
+            child: Text(
+              displayText.toUpperCase(),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: VL_BADGE_TEXT,
+  //              fontSize: 16.0,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
         ),
@@ -51,5 +51,3 @@ class ViralLoadBadge extends StatelessWidget {
     );
   }
 }
-
-enum ViralLoad { SUPPRESSED, UNSUPPRESSED, NA }
