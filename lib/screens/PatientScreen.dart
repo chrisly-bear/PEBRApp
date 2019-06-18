@@ -141,27 +141,73 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   Widget _buildRequiredActions() {
     final actions = _patient.requiredActions.map((RequiredAction action) {
       String actionText;
-      if (action.type == RequiredActionType.ASSESSMENT_REQUIRED) {
-        actionText = "Preference Assessment required. Start a Preference Assessment by tapping 'Start Assessment' below.";
-      }
-      if (action.type == RequiredActionType.REFILL_REQUIRED) {
-        actionText = "ART Refill required. Start an ART Refill by tapping 'Manage Refill' below.";
-      }
-      // TODO: handle all cases of RequiredActionType
-      return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
-          color: Colors.black,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
-            child: Center(
-              child: Text(
-                actionText,
-                style: TextStyle(
-                  color: Colors.white,
-                ),
+      Widget actionButton;
+      switch (action.type) {
+        case RequiredActionType.ASSESSMENT_REQUIRED:
+          actionText = "Preference assessment required. Start a preference assessment by tapping 'Start Assessment' below.";
+          break;
+        case RequiredActionType.REFILL_REQUIRED:
+          actionText = "ART refill required. Start an ART refill by tapping 'Manage Refill' below.";
+          break;
+        case RequiredActionType.ENDPOINT_SURVEY_REQUIRED:
+          actionText = "Endpoint survey required. Start an endpoint survey by tapping 'Open KoBoCollect' below.";
+          break;
+        case RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED:
+          actionText = "The automatic synchronization of the notifications preferences with the database failed. Please synchronize manually.";
+          actionButton = FlatButton(
+            onPressed: () {
+              // TODO: implement re-upload of notifications preferences -> get rid of RequiredAction when upload successful
+            },
+            splashColor: NOTIFICATION_INFO_SPLASH,
+            child: Text(
+              "SYNCHRONIZE",
+              style: TextStyle(
+                color: NOTIFICATION_INFO_TEXT,
+                fontWeight: FontWeight.bold,
               ),
             ),
+          );
+          break;
+        case RequiredActionType.ART_REFILL_DATE_UPLOAD_REQUIRED:
+          actionText = "The automatic synchronization of the ART refill date with the database failed. Please synchronize manually.";
+          actionButton = FlatButton(
+            onPressed: () {
+              // TODO: implement re-upload of ART refill date -> get rid of RequiredAction when upload successful
+            },
+            splashColor: NOTIFICATION_INFO_SPLASH,
+            child: Text(
+              "SYNCHRONIZE",
+              style: TextStyle(
+                color: NOTIFICATION_INFO_TEXT,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          );
+          break;
+      }
+      return Card(
+        margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+        color: NOTIFICATION_NORMAL,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+          child: Column(
+            children: [
+              SizedBox(height: 20.0),
+              Container(
+                width: double.infinity,
+                child: Text(
+                  actionText,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: NOTIFICATION_MESSAGE_TEXT,
+                  ),
+                ),
+              ),
+              actionButton ?? SizedBox(height: 15.0),
+              SizedBox(height: 5.0),
+            ],
           ),
+        ),
       );
     }).toList();
 

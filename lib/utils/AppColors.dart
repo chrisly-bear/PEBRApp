@@ -61,6 +61,7 @@ const Color NOTIFICATION_ERROR = Colors.redAccent;
 const Color NOTIFICATION_MESSAGE_TEXT = Colors.white;
 const Color NOTIFICATION_INFO_ICON = Colors.white;
 const Color NOTIFICATION_INFO_TEXT = Colors.white;
+const Color NOTIFICATION_INFO_SPLASH = Colors.grey;
 const Color NOTIFICATION_SHADOW = Colors.black;
 
 // popup screen background shadow
