@@ -139,7 +139,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   }
 
   Widget _buildRequiredActions() {
-    final actions = _patient.requiredActions.map((RequiredAction action) {
+    final actions = _patient.requiredActions.asMap().map((int i, RequiredAction action) {
       String actionText;
       Widget actionButton;
       switch (action.type) {
@@ -198,31 +198,36 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           );
           break;
       }
-      return Card(
-        margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
-        color: NOTIFICATION_NORMAL,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0),
-          child: Column(
-            children: [
-              SizedBox(height: 20.0),
-              Container(
-                width: double.infinity,
-                child: Text(
-                  actionText,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: NOTIFICATION_MESSAGE_TEXT,
+
+      return MapEntry(i, Hero(
+        tag: "RequiredAction_${_patient.artNumber}_$i",
+        child: Card(
+          margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+          color: NOTIFICATION_NORMAL,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: Column(
+              children: [
+                SizedBox(height: 20.0),
+                Container(
+                  width: double.infinity,
+                  child: Text(
+                    actionText,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: NOTIFICATION_MESSAGE_TEXT,
+                    ),
                   ),
                 ),
-              ),
-              actionButton ?? SizedBox(height: 15.0),
-              SizedBox(height: 5.0),
-            ],
+                actionButton ?? SizedBox(height: 15.0),
+                SizedBox(height: 5.0),
+              ],
+            ),
           ),
         ),
+      ),
       );
-    }).toList();
+    }).values.toList();
 
     return Column(
       children: <Widget>[

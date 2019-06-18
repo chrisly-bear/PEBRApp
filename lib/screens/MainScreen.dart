@@ -758,37 +758,48 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       // wrap in stack to display action required label
       final int numOfActionsRequired = curPatient.requiredActions.length;
       if (curPatient.isActivated && numOfActionsRequired > 0) {
+
         final double badgeSize = 30.0;
-        patientCard = Stack(
-          alignment: Alignment.topRight,
-          children: <Widget>[
-            patientCard,
-            Padding(
-              padding: EdgeInsets.only(right: 3.0),
-              child: Container(
-                width: badgeSize,
-                height: badgeSize,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black45,
-                      blurRadius: 10.0,
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Text(
-                    '$numOfActionsRequired',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16.0,
+        final List<Widget> badges = [];
+        for (int i = 0; i < numOfActionsRequired; i++) {
+          badges.add(
+            Hero(
+              tag: "RequiredAction_${curPatient.artNumber}_$i",
+              child: Padding(
+                padding: EdgeInsets.only(right: 3.0),
+                child: Container(
+                  width: badgeSize,
+                  height: badgeSize,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black,
+                    boxShadow: [
+                      BoxShadow(
+                        color: i == 0 ? Colors.black45 : Colors.transparent,
+                        blurRadius: 10.0,
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${i+1}',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
+          );
+        }
+
+        patientCard = Stack(
+          alignment: Alignment.topRight,
+          children: <Widget>[
+            patientCard,
+            ...badges,
           ],
         );
       }
