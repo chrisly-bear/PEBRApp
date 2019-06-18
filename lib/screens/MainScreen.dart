@@ -786,6 +786,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 16.0,
+                        fontWeight: FontWeight.normal,
+                        fontFamily: 'Roboto',
+                        decoration: TextDecoration.none,
                       ),
                     ),
                   ),

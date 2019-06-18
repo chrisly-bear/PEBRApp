@@ -199,25 +199,60 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           break;
       }
 
-      return MapEntry(i, Hero(
-        tag: "RequiredAction_${_patient.artNumber}_$i",
-        child: Card(
+      final double badgeSize = 30.0;
+      return MapEntry(
+        i,
+        Card(
           margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
-          color: NOTIFICATION_NORMAL,
-          child: Padding(
+          elevation: 5.0,
+          clipBehavior: Clip.antiAlias,
+          child: Container(
+            color: NOTIFICATION_NORMAL,
             padding: const EdgeInsets.symmetric(horizontal: 15.0),
             child: Column(
               children: [
                 SizedBox(height: 20.0),
                 Container(
                   width: double.infinity,
-                  child: Text(
-                    actionText,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: NOTIFICATION_MESSAGE_TEXT,
-                    ),
-                  ),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Hero(
+                          tag: "RequiredAction_${_patient.artNumber}_$i",
+                          child: Container(
+                            width: badgeSize,
+                            height: badgeSize,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.black,
+                            ),
+                            child: Center(
+                              child: Text(
+                                '${i+1}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.normal,
+                                  fontFamily: 'Roboto',
+                                  decoration: TextDecoration.none,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 10.0),
+                        Expanded(
+                          child: Text(
+                            actionText,
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                              color: NOTIFICATION_MESSAGE_TEXT,
+                              height: 1.2,
+                            ),
+                          ),
+                        ),
+                      ]),
                 ),
                 actionButton ?? SizedBox(height: 15.0),
                 SizedBox(height: 5.0),
@@ -225,7 +260,6 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
             ),
           ),
         ),
-      ),
       );
     }).values.toList();
 
