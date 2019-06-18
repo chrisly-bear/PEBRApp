@@ -151,6 +151,19 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           break;
         case RequiredActionType.ENDPOINT_SURVEY_REQUIRED:
           actionText = "Endpoint survey required. Start an endpoint survey by tapping 'Open KoBoCollect' below.";
+          actionButton = FlatButton(
+            onPressed: () {
+              // TODO: store in database that the endpoint survey has been done and hide this RequiredAction
+            },
+            splashColor: NOTIFICATION_INFO_SPLASH,
+            child: Text(
+              "ENDPOINT SURVEY COMPLETED",
+              style: TextStyle(
+                color: NOTIFICATION_INFO_TEXT,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          );
           break;
         case RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED:
           actionText = "The automatic synchronization of the notifications preferences with the database failed. Please synchronize manually.";
