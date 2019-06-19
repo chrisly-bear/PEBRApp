@@ -1137,6 +1137,14 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           flex: _answersFlex,
           child: TextFormField(
             controller: _pePhoneNumberCtr,
+            onEditingComplete: () {
+              _pePhoneNumberCtr.text = _formatPhoneNumber(_pePhoneNumberCtr.text);
+            },
+            keyboardType: TextInputType.phone,
+            inputFormatters: [
+              WhitelistingTextInputFormatter(RegExp('[0-9\\s\-]')),
+              LengthLimitingTextInputFormatter(10),
+            ],
             validator: (value) {
               if (value.isEmpty) {
                 return 'Please enter a phone number';
