@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
@@ -442,10 +443,23 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       }
       return _makeQuestion("VHW's cellphone number",
         answer: TextFormField(
+          decoration: InputDecoration(
+            prefixText: '+266',
+          ),
           controller: _vhwPhoneNumberCtr,
+          onEditingComplete: () {
+            _vhwPhoneNumberCtr.text = _formatPhoneNumber(_vhwPhoneNumberCtr.text);
+          },
+          keyboardType: TextInputType.phone,
+          inputFormatters: [
+            WhitelistingTextInputFormatter(RegExp('[0-9\\s\-]')),
+            LengthLimitingTextInputFormatter(10),
+          ],
           validator: (value) {
             if (value.isEmpty) {
               return 'Please enter the phone number';
+            } else if (value.replaceAll(RegExp('[\\s\-]'), '').length != 8) {
+              return 'Exactly 8 digits required';
             }
           },
         ),
@@ -2189,6 +2203,53 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       _adherenceReminderTimeValid = true;
     });
     return true;
+  }
+
+  // ----------
+  // OTHER
+  // ----------
+
+  /// Removes all non-alphanumeric characters and inserts forward slashes to
+  /// make the number more readable. E.g. A0C01234 becomes A/0C/01234.
+  ///
+  /// Does not trim the number and only inserts two forward slashes. So if you pass it a
+  /// long number string, the number will stay long. E.g. A1234567890 becomes
+  /// A/12/1234567890.
+  String _formatArtNumber(String artNumber) {
+    String onlyAlphaNumeric = artNumber.replaceAll(RegExp('[^A-Za-z0-9]'), '');
+    String formattedNumber;
+    if (onlyAlphaNumeric.length >= 1) {
+      formattedNumber = onlyAlphaNumeric.substring(0, 1) + '/' + onlyAlphaNumeric.substring(1, onlyAlphaNumeric.length);
+    }
+    if (onlyAlphaNumeric.length >= 2) {
+      formattedNumber = onlyAlphaNumeric.substring(0, 1) + '/' + onlyAlphaNumeric.substring(1, 3) + '/' + onlyAlphaNumeric.substring(3, onlyAlphaNumeric.length);
+    }
+    return formattedNumber.toUpperCase();
+  }
+
+  /// Removes all non-number characters and inserts dashes to make number more
+  /// readable. E.g. 12345678 becomes 12-345-678.
+  ///
+  /// Does not trim the number and only inserts two dashes. So if you pass it a
+  /// long number string, the number will stay long. E.g. 1234567890123 becomes
+  /// 12-345-67890123.
+  ///
+  /// If a [countryCode] is passed it will be prefixed with a dash. E.g.
+  /// countryCode='266' returns +266-12-345-678.
+  String _formatPhoneNumber(String phoneNumber, {String countryCode}) {
+    String onlyNumbers = phoneNumber.replaceAll(RegExp('[^0-9]'), '');
+    String formattedNumber;
+    if (onlyNumbers.length >= 2) {
+      formattedNumber = onlyNumbers.substring(0, 2) + '-' + onlyNumbers.substring(2, onlyNumbers.length);
+    }
+    if (onlyNumbers.length >= 5) {
+      formattedNumber = onlyNumbers.substring(0, 2) + '-' + onlyNumbers.substring(2, 5) + '-' + onlyNumbers.substring(5, onlyNumbers.length);
+    }
+    if (countryCode != null && countryCode.isNotEmpty) {
+      String countryCodeOnlyNumbers = countryCode.replaceAll(RegExp('[^0-9]'), '');
+      formattedNumber = '+$countryCodeOnlyNumbers-$formattedNumber';
+    }
+    return formattedNumber;
   }
 
   _onSubmitForm() async {
