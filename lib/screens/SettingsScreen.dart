@@ -94,7 +94,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return PopupScreen(
       title: 'Settings',
       child: _settingsBody,
-      actions: [IconButton(icon: Icon(Icons.close), onPressed: () {Navigator.of(context).popUntil(ModalRoute.withName('/'));})],
+      actions: [IconButton(icon: Icon(Icons.close), onPressed: () { Navigator.of(context).popUntil(ModalRoute.withName('/')); })],
     );
 
   }
@@ -152,9 +152,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ]),
         ),
         SizedBox(height: _spacing),
-        PEBRAButtonRaised('Logout', onPressed: () {_onPressLogout(context);},),
+        PEBRAButtonRaised('Logout', onPressed: _onPressLogout),
         SizedBox(height: 10.0),
-        PEBRAButtonRaised('Transfer Device', onPressed: () {_onPressTransferTablet(context);},),
+        PEBRAButtonRaised('Transfer Device', onPressed: _onPressTransferTablet),
         SizedBox(height: 5.0),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 25.0),
@@ -201,7 +201,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
     }
     setState(() { _isLoadingSettingsBody = false; });
-    showFlushBar(context, message, title: title, error: error, onButtonPress: onNotificationButtonPress);
+    showFlushbar(message, title: title, error: error, onButtonPress: onNotificationButtonPress);
   }
 
   Future<String> _setNewPIN(String username, BuildContext context) async {
@@ -222,7 +222,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  _onPressLogout(BuildContext context) async {
+  _onPressLogout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove(LAST_SUCCESSFUL_BACKUP_KEY);
     await DatabaseProvider().resetDatabase();
@@ -230,10 +230,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       this._loginData = null;
     });
-    showFlushBar(context, 'Logged Out');
+    showFlushbar('Logged Out');
   }
 
-  _onPressTransferTablet(BuildContext context) async {
+  _onPressTransferTablet() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove(LAST_SUCCESSFUL_BACKUP_KEY);
     await DatabaseProvider().deactivateCurrentUser();
@@ -242,7 +242,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       this._loginData = null;
       this._createAccountMode = true;
     });
-    showFlushBar(context, 'Logged out. Create a new account now.');
+    showFlushbar('Logged out. Create a new account now.');
   }
 
 
@@ -530,7 +530,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         }
       }
       setState(() { _isLoadingLoginBody = false; });
-      showFlushBar(context, notificationMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
+      showFlushbar(notificationMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
     }
   }
 
@@ -580,7 +580,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
       setState(() { _isLoadingLoginBody = false; });
       if (!error) { Navigator.of(context).popUntil(ModalRoute.withName('/')); }
-      showFlushBar(context, notificationMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
+      showFlushbar(notificationMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
       // TODO: refresh settings screen to show the logged in state -> use the BloC
     }
   }

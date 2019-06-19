@@ -361,10 +361,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       }
       // show additional warning if backup wasn't successful for a long time
       if (daysSinceLastBackup >= SHOW_WARNING_AFTER_X_DAYS) {
-        showFlushBar(_context, "Last backup was $daysSinceLastBackup days ago.\nPlease perform a manual backup from the settings screen.", title: "Warning", error: true);
+        showFlushbar("Last backup was $daysSinceLastBackup days ago.\nPlease perform a manual backup from the settings screen.", title: "Warning", error: true);
       }
     }
-    showFlushBar(_context, resultMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
+    showFlushbar(resultMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
     _backupRunning = false;
   }
 

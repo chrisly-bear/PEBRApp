@@ -739,7 +739,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
       await PatientBloc.instance.sinkPatientData(_newPatient);
       final String finishNotification = 'New patient created successfully';
-      showFlushBar(context, finishNotification);
+      showFlushbar(finishNotification);
       setState(() {
         _isLoading = false;
       });
@@ -766,7 +766,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     } else if (await canLaunch(marketUrl)) {
       await launch(marketUrl);
     } else {
-      showFlushBar(context, "Could not find KoBoCollect app. Make sure KoBoCollect is installed.");
+      showFlushbar("Could not find KoBoCollect app. Make sure KoBoCollect is installed.");
     }
   }
 

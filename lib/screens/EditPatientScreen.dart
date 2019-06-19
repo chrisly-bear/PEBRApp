@@ -225,7 +225,7 @@ class _EditPatientFormState extends State<_EditPatientForm> {
         return (route.settings.name == '/patient' || route.settings.name == '/');
       });
       final String finishNotification = 'Changes saved';
-      showFlushBar(context, finishNotification);
+      showFlushbar(finishNotification);
     }
   }
 

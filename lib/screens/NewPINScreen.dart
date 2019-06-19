@@ -128,12 +128,12 @@ class _NewPINScreenState extends State<NewPINScreen> {
       } catch (e, s) {
         switch (e.runtimeType) {
           case SocketException:
-            showFlushBar(
-                context, 'Make sure you are connected to the internet.',
+            showFlushbar(
+                'Make sure you are connected to the internet.',
                 title: 'PIN Update Failed', error: true);
             break;
           case SWITCHLoginFailedException:
-            showFlushBar(context,
+            showFlushbar(
                 'Login to SWITCH failed. Contact the development team.',
                 title: 'PIN Update Failed', error: true);
             break;
@@ -143,7 +143,7 @@ class _NewPINScreenState extends State<NewPINScreen> {
             VoidCallback onNotificationButtonPress = () {
               showErrorInPopup(e, s, context);
             };
-            showFlushBar(context,
+            showFlushbar(
                 'An unknown error occured. Contact the development team.',
                 title: 'PIN Update Failed',
                 error: true,

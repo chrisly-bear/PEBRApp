@@ -2235,9 +2235,9 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         DatabaseProvider().insertUserData(_user);
       }
       Navigator.of(context).pop(); // close Preference Assessment screen
-      showFlushBar(context, 'Preference Assessment saved');
+      showFlushbar('Preference Assessment saved');
     } else {
-      showFlushBar(context, "Errors exist in the assessment form. Please check the form.");
+      showFlushbar("Errors exist in the assessment form. Please check the form.");
     }
   }
 }

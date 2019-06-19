@@ -849,21 +849,18 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         },
       ),
     );
-    _uploadNotificationsPreferences(context, patient.latestPreferenceAssessment);
+    _uploadNotificationsPreferences(patient.latestPreferenceAssessment);
   }
 
-  Future<void> _uploadNotificationsPreferences(BuildContext context, final PreferenceAssessment assessment) async {
+  Future<void> _uploadNotificationsPreferences(final PreferenceAssessment assessment) async {
     // TODO: implement upload of notifications preferences to viral load database API
     print('...uploading notifications preferences\n'
         'Adherence Reminder: ${assessment.adherenceReminderEnabled}\n'
         'ART Refill Reminder: ${assessment.artRefillReminderEnabled}\n'
         'Viral Load Notifications: ${assessment.vlNotificationEnabled}');
     await Future.delayed(Duration(seconds: 3));
-    showFlushBar(context, 'Please upload the notifications preferences manually.', title: 'Notifications Upload Failed', error: true, buttonText: 'Retry\nNow', onButtonPress: () {
-      Navigator.of(context).popUntil((Route<dynamic> route) {
-        return route.settings.name != '/flushbarRoute';
-      });
-      _uploadNotificationsPreferences(context, assessment);
+    showFlushbar('Please upload the notifications preferences manually.', title: 'Notifications Upload Failed', error: true, buttonText: 'Retry\nNow', onButtonPress: () {
+      _uploadNotificationsPreferences(assessment);
     });
     // TODO: show an upload button on the patient screen somewhere so that a manual upload can be started by the user
   }
@@ -884,7 +881,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     } else if (await canLaunch(marketUrl)) {
       await launch(marketUrl);
     } else {
-      showFlushBar(context, "Could not find KoBoCollect app. Make sure KoBoCollect is installed.");
+      showFlushbar("Could not find KoBoCollect app. Make sure KoBoCollect is installed.");
     }
   }
 

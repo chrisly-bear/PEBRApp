@@ -6,21 +6,41 @@ import 'package:pebrapp/screens/IconExplanationsScreen.dart';
 
 void main() => runApp(PEBRApp());
 
-class PEBRApp extends StatelessWidget {
+class PEBRApp extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => PEBRAppState();
+}
+
+class PEBRAppState extends State<PEBRApp> {
+
+  static BuildContext _rootContext;
+
+  static BuildContext get rootContext => _rootContext;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        initialRoute: '/',
-        routes: {
-          // these can be used for calls such as
-          // Navigator.pushNamed(context, '/settings')
-          '/': (context) => MainScreen(),
-          '/settings': (context) => SettingsScreen(),
-          '/icons': (context) => IconExplanationsScreen(),
-          '/lock': (context) => LockScreen(),
-        },
-        title: 'PEBRApp',
-        theme: ThemeData.light(),
+      home: Navigator( // 'sub-root' navigator, second in the hierarchy. We use the root navigator for flushbar notifications.
+        onGenerateRoute: (_) => MaterialPageRoute(
+          builder: (BuildContext context) {
+            _rootContext = context;
+            return MainScreen();
+          },
+          settings: RouteSettings(
+            name: '/',
+            isInitialRoute: true,
+          ),
+        ),
+      ),
+      routes: {
+        // these can be used for calls such as
+        // Navigator.pushNamed(context, '/settings')
+        '/settings': (context) => SettingsScreen(),
+        '/icons': (context) => IconExplanationsScreen(),
+        '/lock': (context) => LockScreen(),
+      },
+      title: 'PEBRApp',
+      theme: ThemeData.light(),
     );
   }
 }
