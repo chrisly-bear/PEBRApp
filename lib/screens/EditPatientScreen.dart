@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
@@ -197,10 +198,23 @@ class _EditPatientFormState extends State<_EditPatientForm> {
     }
     return _makeQuestion('Phone Number',
         child: TextFormField(
+          decoration: InputDecoration(
+            prefixText: '+266',
+          ),
           controller: _phoneNumberCtr,
+          onEditingComplete: () {
+            _phoneNumberCtr.text = _formatPhoneNumber(_phoneNumberCtr.text);
+          },
+          keyboardType: TextInputType.phone,
+          inputFormatters: [
+            WhitelistingTextInputFormatter(RegExp('[0-9\\s\-]')),
+            LengthLimitingTextInputFormatter(10),
+          ],
           validator: (value) {
             if (value.isEmpty) {
               return 'Please enter a phone number';
+            } else if (value.replaceAll(RegExp('[\\s\-]'), '').length != 8) {
+              return 'Exactly 8 digits required';
             }
           },
         ),
@@ -210,6 +224,31 @@ class _EditPatientFormState extends State<_EditPatientForm> {
   // ----------
   // OTHER
   // ----------
+
+  /// Removes all non-number characters and inserts dashes to make number more
+  /// readable. E.g. 12345678 becomes 12-345-678.
+  ///
+  /// Does not trim the number and only inserts two dashes. So if you pass it a
+  /// long number string, the number will stay long. E.g. 1234567890123 becomes
+  /// 12-345-67890123.
+  ///
+  /// If a [countryCode] is passed it will be prefixed with a dash. E.g.
+  /// countryCode='266' returns +266-12-345-678.
+  String _formatPhoneNumber(String phoneNumber, {String countryCode}) {
+    String onlyNumbers = phoneNumber.replaceAll(RegExp('[^0-9]'), '');
+    String formattedNumber;
+    if (onlyNumbers.length >= 2) {
+      formattedNumber = onlyNumbers.substring(0, 2) + '-' + onlyNumbers.substring(2, onlyNumbers.length);
+    }
+    if (onlyNumbers.length >= 5) {
+      formattedNumber = onlyNumbers.substring(0, 2) + '-' + onlyNumbers.substring(2, 5) + '-' + onlyNumbers.substring(5, onlyNumbers.length);
+    }
+    if (countryCode != null && countryCode.isNotEmpty) {
+      String countryCodeOnlyNumbers = countryCode.replaceAll(RegExp('[^0-9]'), '');
+      formattedNumber = '+$countryCodeOnlyNumbers-$formattedNumber';
+    }
+    return formattedNumber;
+  }
 
   _onSubmitForm() async {
     Patient newPatient;
