@@ -523,10 +523,23 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       }
       return _makeQuestion("What is your Treatment Buddy's cellphone number?",
         answer: TextFormField(
+          decoration: InputDecoration(
+            prefixText: '+266',
+          ),
           controller: _treatmentBuddyPhoneNumberCtr,
+          onEditingComplete: () {
+            _treatmentBuddyPhoneNumberCtr.text = _formatPhoneNumber(_treatmentBuddyPhoneNumberCtr.text);
+          },
+          keyboardType: TextInputType.phone,
+          inputFormatters: [
+            WhitelistingTextInputFormatter(RegExp('[0-9\\s\-]')),
+            LengthLimitingTextInputFormatter(10),
+          ],
           validator: (value) {
             if (value.isEmpty) {
               return 'Please enter the phone number';
+            } else if (value.replaceAll(RegExp('[\\s\-]'), '').length != 8) {
+              return 'Exactly 8 digits required';
             }
           },
         ),
