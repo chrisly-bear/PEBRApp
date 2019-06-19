@@ -210,7 +210,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
         onEditingComplete: () {
           _artNumberCtr.text = _formatArtNumber(_artNumberCtr.text);
         },
-        keyboardType: TextInputType.number,
         inputFormatters: [
           WhitelistingTextInputFormatter(RegExp('[A-Za-z]|[0-9]|/')),
           LengthLimitingTextInputFormatter(10),
