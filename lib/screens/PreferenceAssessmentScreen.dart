@@ -475,9 +475,22 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       return _makeQuestion("What is your Treatment Buddy's ART number?",
         answer: TextFormField(
           controller: _treatmentBuddyARTNumberCtr,
+          onEditingComplete: () {
+            _treatmentBuddyARTNumberCtr.text = _formatArtNumber(_treatmentBuddyARTNumberCtr.text);
+          },
+          inputFormatters: [
+            WhitelistingTextInputFormatter(RegExp('[A-Za-z]|[0-9]|/')),
+            LengthLimitingTextInputFormatter(10),
+          ],
           validator: (value) {
             if (value.isEmpty) {
               return "Please enter the Treatment Buddy's ART Number";
+            }
+            else if (value.replaceAll(RegExp('[\\s\/]'), '').length != 8) {
+              return 'Exactly 8 alphanumeric characters required';
+            }
+            else if (!RegExp(r'(^[A-Za-z]{1}/[A-Za-z0-9]{2}/\d{5}$)|(^[A-Za-z]{1}[A-Za-z0-9]{2}\d{5}$)').hasMatch(value)) {
+              return 'Enter a valid ART number';
             }
           },
         ),
