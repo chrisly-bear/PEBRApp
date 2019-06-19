@@ -38,7 +38,7 @@ class ARTRefillScreen extends StatelessWidget {
   }
 
   void _onPressChangeDate(BuildContext context) async {
-    DateTime newDate = await _showDatePicker(context);
+    DateTime newDate = await _showDatePickerWithTitle(context, 'Select the Next ART Refill Date');
     if (newDate != null) {
       final ARTRefill artRefill = ARTRefill(this._patient.artNumber, RefillType.CHANGE_DATE(), nextRefillDate: newDate);
       await PatientBloc.instance.sinkARTRefillData(artRefill);
