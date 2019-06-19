@@ -702,7 +702,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       _newPatient.artNumber = _formatArtNumber(_artNumberCtr.text);
       _newPatient.stickerNumber = _formatStickerNumber(_stickerNumberCtr.text);
       _newPatient.village = _villageCtr.text;
-      _newPatient.phoneNumber = _formatPhoneNumber(_phoneNumberCtr.text);
+      _newPatient.phoneNumber = _formatPhoneNumber(_phoneNumberCtr.text, countryCode: '266');
       _newPatient.noConsentReasonOther = _noConsentReasonOtherCtr.text;
       _newPatient.village = _villageCtr.text;
       _newPatient.village = _villageCtr.text;
