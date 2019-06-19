@@ -674,10 +674,23 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         Expanded(
           flex: _answersFlex,
           child: TextFormField(
+            decoration: InputDecoration(
+              prefixText: '+266',
+            ),
             controller: _patientPhoneNumberCtr,
+            onEditingComplete: () {
+              _patientPhoneNumberCtr.text = _formatPhoneNumber(_patientPhoneNumberCtr.text);
+            },
+            keyboardType: TextInputType.phone,
+            inputFormatters: [
+              WhitelistingTextInputFormatter(RegExp('[0-9\\s\-]')),
+              LengthLimitingTextInputFormatter(10),
+            ],
             validator: (value) {
               if (value.isEmpty) {
                 return 'Please enter a phone number';
+              } else if (value.replaceAll(RegExp('[\\s\-]'), '').length != 8) {
+                return 'Exactly 8 digits required';
               }
             },
           ),)
