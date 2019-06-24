@@ -20,37 +20,17 @@ import 'package:pebrapp/utils/Utils.dart';
 import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class PatientScreen extends StatelessWidget {
+class PatientScreen extends StatefulWidget {
   final Patient _patient;
-
   PatientScreen(this._patient);
-
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: BACKGROUND_COLOR,
-        body: TransparentHeaderPage(
-          title: 'Patient',
-          subtitle: _patient.artNumber,
-          actions: <Widget>[IconButton(onPressed: () { Navigator.of(context).pop(); }, icon: Icon(Icons.close),)],
-          child: _PatientScreenBody(context, _patient)));
-  }
+  createState() => _PatientScreenState(_patient);
 }
 
-class _PatientScreenBody extends StatefulWidget {
-  final BuildContext _context;
-  final Patient _patient;
-
-  _PatientScreenBody(this._context, this._patient);
-
-  @override
-  createState() => _PatientScreenBodyState(_context, _patient);
-}
-
-class _PatientScreenBodyState extends State<_PatientScreenBody> {
+class _PatientScreenState extends State<PatientScreen> {
   final int _descriptionFlex = 1;
   final int _contentFlex = 1;
-  final BuildContext _context;
+  BuildContext _context;
   Patient _patient;
   String _nextAssessmentText = '—';
   String _nextRefillText = '—';
@@ -65,11 +45,12 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   bool SCHOOL_VISIT_PE_done = false;
   bool PITSO_VISIT_PE_done = false;
 
-  _PatientScreenBodyState(this._context, this._patient);
-  
+  _PatientScreenState(this._patient);
+
   @override
   Widget build(BuildContext context) {
-
+    print('*** PatientScreen.build ***');
+    _context = context;
     _screenWidth = MediaQuery.of(context).size.width;
 
     DateTime lastAssessmentDate = _patient.latestPreferenceAssessment?.createdDate;
@@ -94,7 +75,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     }
 
     final double _spacingBetweenCards = 40.0;
-    return Column(
+    final Widget content = Column(
       children: <Widget>[
         _buildRequiredActions(),
         _buildPatientCharacteristicsCard(),
@@ -137,6 +118,17 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         SizedBox(height: _spacingBetweenCards),
       ],
     );
+
+    return Scaffold(
+      backgroundColor: BACKGROUND_COLOR,
+      body: TransparentHeaderPage(
+        title: 'Patient',
+        subtitle: _patient.artNumber,
+        actions: <Widget>[IconButton(onPressed: () { Navigator.of(context).pop(); }, icon: Icon(Icons.close),)],
+        child: content,
+      ),
+    );
+
   }
 
   Widget _buildRequiredActions() {
