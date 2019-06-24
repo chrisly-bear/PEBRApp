@@ -15,6 +15,7 @@ import 'package:pebrapp/screens/ARTRefillScreen.dart';
 import 'package:pebrapp/screens/AddViralLoadScreen.dart';
 import 'package:pebrapp/screens/EditPatientScreen.dart';
 import 'package:pebrapp/screens/PreferenceAssessmentScreen.dart';
+import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:pebrapp/utils/VisibleImpactUtils.dart';
@@ -45,7 +46,29 @@ class _PatientScreenState extends State<PatientScreen> {
   bool SCHOOL_VISIT_PE_done = false;
   bool PITSO_VISIT_PE_done = false;
 
+  Stream<AppState> _appStateStream;
+
   _PatientScreenState(this._patient);
+
+  @override
+  void initState() {
+    super.initState();
+    _appStateStream = PatientBloc.instance.appState;
+    _appStateStream.listen( (streamEvent) {
+      print('*** PatientScreen received data: ${streamEvent.runtimeType} ***');
+      if (streamEvent is AppStateRequiredActionData && streamEvent.action.patientART == _patient.artNumber) {
+        print('*** PatientScreen received AppStateRequiredActionData: ${streamEvent.action.patientART} ***');
+        setState(() {
+          // TODO: animate insertion and removal of required action label for visual fidelity
+          if (streamEvent.isDone) {
+            _patient.requiredActions.removeWhere((RequiredAction a) => a.type == streamEvent.action.type);
+          } else {
+            _patient.requiredActions.add(streamEvent.action);
+          }
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

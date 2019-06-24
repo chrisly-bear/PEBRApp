@@ -21,6 +21,7 @@ import 'package:pebrapp/database/beans/VLUnsuppressedMessage.dart';
 import 'package:pebrapp/database/beans/YesNoRefused.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
@@ -2235,6 +2236,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         _user.phoneNumber = newPEPhoneNumber;
         DatabaseProvider().insertUserData(_user);
       }
+      // send an event indicating that the preference assessment was done
+      PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.ASSESSMENT_REQUIRED), true);
       uploadNotificationsPreferences(_patient, _pa);
       Navigator.of(context).pop(); // close Preference Assessment screen
       showFlushbar('Preference Assessment saved');

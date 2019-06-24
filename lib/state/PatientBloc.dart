@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/database/models/RequiredAction.dart';
 
 class PatientBloc {
   static PatientBloc _instance;
@@ -52,6 +53,15 @@ class PatientBloc {
     _appStateStreamController.sink.add(AppStatePatientData(patient));
   }
 
+  /// Trigger an [AppStateRequiredActionData] stream event.
+  ///
+  /// @param action: the action type and which patient it affects
+  /// @param isDone: if the action is done (true) or still has to be done (false)
+  Future<void> sinkRequiredActionData(RequiredAction action, bool isDone) async {
+    print('Putting required action done down the sink: ${action.patientART}, ${action.type}, $isDone');
+    _appStateStreamController.sink.add(AppStateRequiredActionData(action, isDone));
+  }
+
   void dispose() {
     _appStateStreamController.close();
   }
@@ -66,4 +76,10 @@ class AppStateNoData extends AppState {}
 class AppStatePatientData extends AppState {
   final Patient patient;
   AppStatePatientData(this.patient);
+}
+
+class AppStateRequiredActionData extends AppState {
+  final bool isDone;
+  final RequiredAction action;
+  AppStateRequiredActionData(this.action, this.isDone);
 }

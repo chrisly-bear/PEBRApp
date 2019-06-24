@@ -3,6 +3,7 @@ import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
+import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 Future<void> uploadNextARTRefillDate(Patient patient, DateTime nextARTRefillDate) async {
@@ -11,12 +12,8 @@ Future<void> uploadNextARTRefillDate(Patient patient, DateTime nextARTRefillDate
   final bool success = false;
   if (success) {
     await _handleSuccess(patient, RequiredActionType.ART_REFILL_DATE_UPLOAD_REQUIRED);
-    // TODO: send a 'patient updated' event through the Bloc to inform the screens that they should update their view / remove the action required
-    // ...
   } else {
     await _handleFailure(patient, RequiredActionType.ART_REFILL_DATE_UPLOAD_REQUIRED);
-    // TODO: send a 'patient updated' event through the Bloc to inform the screens that they should update their view / insert the action required
-    // ...
     showFlushbar('Please upload the next ART refill date manually.',
       title: 'Upload of ART Refill Date Failed',
       error: true,
@@ -38,12 +35,8 @@ Future<void> uploadNotificationsPreferences(Patient patient, PreferenceAssessmen
   final bool success = false;
   if (success) {
     await _handleSuccess(patient, RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED);
-    // TODO: send a 'patient updated' event through the Bloc to inform the screens that they should update their view / remove the action required
-    // ...
   } else {
     await _handleFailure(patient, RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED);
-    // TODO: send a 'patient updated' event through the Bloc to inform the screens that they should update their view / insert the action required
-    // ...
     showFlushbar('Please upload the notifications preferences manually.',
       title: 'Upload of Notifications Preferences Failed',
       error: true,
@@ -59,10 +52,12 @@ Future<void> _handleSuccess(Patient patient, RequiredActionType actionType) asyn
   print('$actionType uploaded to visible impact database successfully.');
   patient.requiredActions.removeWhere((RequiredAction action) => action.type == actionType);
   await DatabaseProvider().removeRequiredAction(patient.artNumber, actionType);
+  PatientBloc.instance.sinkRequiredActionData(RequiredAction(patient.artNumber, actionType), true);
 }
 
 Future<void> _handleFailure(Patient patient, RequiredActionType actionType) async {
   final newAction = RequiredAction(patient.artNumber, actionType);
   patient.requiredActions.add(newAction);
   await DatabaseProvider().insertRequiredAction(newAction);
+  PatientBloc.instance.sinkRequiredActionData(RequiredAction(patient.artNumber, actionType), false);
 }

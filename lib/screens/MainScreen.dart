@@ -9,6 +9,7 @@ import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
+import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
@@ -107,6 +108,20 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
             }
           }
         });
+      }
+      if (streamEvent is AppStateRequiredActionData) {
+        print('*** MainScreen received AppStateRequiredActionData: ${streamEvent.action.patientART} ***');
+        Patient affectedPatient = _patients.singleWhere((Patient p) => p.artNumber == streamEvent.action.patientART, orElse: () => null);
+        if (affectedPatient != null) {
+          setState(() {
+            // TODO: animate insertion and removal of required action label for visual fidelity
+            if (streamEvent.isDone) {
+              affectedPatient.requiredActions.removeWhere((RequiredAction a) => a.type == streamEvent.action.type);
+            } else {
+              affectedPatient.requiredActions.add(streamEvent.action);
+            }
+          });
+        }
       }
     });
 
