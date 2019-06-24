@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
+import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/PhoneAvailability.dart';
 import 'package:pebrapp/database/beans/SexualOrientation.dart';
@@ -220,7 +221,7 @@ class _EditPatientFormState extends State<_EditPatientForm> {
         _existingPatient.phoneNumber = null;
       }
       _existingPatient.village = _villageCtr.text;
-      await PatientBloc.instance.sinkPatientData(_existingPatient);
+      await DatabaseProvider().insertPatient(_existingPatient);
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return (route.settings.name == '/patient' || route.settings.name == '/');
       });

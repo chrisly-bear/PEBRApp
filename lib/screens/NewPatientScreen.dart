@@ -733,11 +733,12 @@ class _NewPatientFormState extends State<_NewPatientForm> {
         _viralLoadBaseline.viralLoad = _viralLoadBaseline.isLowerThanDetectable ? null : int.parse(_viralLoadBaselineResultCtr.text);
         _viralLoadBaseline.labNumber = _viralLoadBaselineLabNumberCtr.text;
         _viralLoadBaseline.checkLogicAndResetUnusedFields();
-        await PatientBloc.instance.sinkViralLoadData(_viralLoadBaseline);
+        await DatabaseProvider().insertViralLoad(_viralLoadBaseline);
         _newPatient.viralLoadBaselineManual = _viralLoadBaseline;
       }
 
-      await PatientBloc.instance.sinkPatientData(_newPatient);
+      await DatabaseProvider().insertPatient(_newPatient);
+      await PatientBloc.instance.sinkNewPatientData(_newPatient);
       final String finishNotification = 'New patient created successfully';
       showFlushbar(finishNotification);
       setState(() {
@@ -753,7 +754,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
   void _closeScreen() {
     Navigator.of(context).popUntil((Route<dynamic> route) {
-      return (route.settings.name == '/patient' || route.settings.name == '/');
+      return (route.settings.name == '/');
     });
   }
 

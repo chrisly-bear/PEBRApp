@@ -2224,10 +2224,11 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       }
 
       print('NEW PREFERENCE ASSESSMENT (_id will be given by SQLite database):\n$_pa');
-      await PatientBloc.instance.sinkPreferenceAssessmentData(_pa);
+      await DatabaseProvider().insertPreferenceAssessment(_pa);
+      _patient.latestPreferenceAssessment = _pa;
       if (_patientUpdated) {
         print('PATIENT UPDATED, INSERTING NEW PATIENT ROW FOR ${_patient.artNumber}');
-        await PatientBloc.instance.sinkPatientData(_patient);
+        await DatabaseProvider().insertPatient(_patient);
       }
       final String newPEPhoneNumber = _pePhoneNumberCtr.text;
       if (newPEPhoneNumber != _user.phoneNumber) {

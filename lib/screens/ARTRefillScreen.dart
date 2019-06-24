@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
+import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
@@ -42,7 +43,8 @@ class ARTRefillScreen extends StatelessWidget {
     DateTime newDate = await _showDatePickerWithTitle(context, 'Select the Next ART Refill Date');
     if (newDate != null) {
       final ARTRefill artRefill = ARTRefill(this._patient.artNumber, RefillType.CHANGE_DATE(), nextRefillDate: newDate);
-      await PatientBloc.instance.sinkARTRefillData(artRefill);
+      await DatabaseProvider().insertARTRefill(artRefill);
+      _patient.latestARTRefill = artRefill;
       uploadNextARTRefillDate(_patient, newDate);
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return route.settings.name == '/patient';
@@ -54,7 +56,8 @@ class ARTRefillScreen extends StatelessWidget {
     DateTime newDate = await _showDatePickerWithTitle(context, 'Select the Next ART Refill Date');
     if (newDate != null) {
       final ARTRefill artRefill = ARTRefill(this._patient.artNumber, RefillType.DONE(), nextRefillDate: newDate);
-      await PatientBloc.instance.sinkARTRefillData(artRefill);
+      await DatabaseProvider().insertARTRefill(artRefill);
+      _patient.latestARTRefill = artRefill;
       uploadNextARTRefillDate(_patient, newDate);
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return route.settings.name == '/patient';

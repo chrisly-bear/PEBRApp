@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
+import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
@@ -48,14 +49,15 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
   final int _answersFlex = 1;
   double _screenWidth = double.infinity;
 
+  final Patient _patient;
   ViralLoad _viralLoad;
   bool _viralLoadBaselineDateValid = true;
   TextEditingController _viralLoadResultCtr = TextEditingController();
   TextEditingController _viralLoadLabNumberCtr = TextEditingController();
 
   // constructor
-  _AddViralLoadFormState(Patient patient) {
-    _viralLoad = ViralLoad(patientART: patient.artNumber, source: ViralLoadSource.MANUAL_INPUT(), isBaseline: false);
+  _AddViralLoadFormState(this._patient) {
+    _viralLoad = ViralLoad(patientART: _patient.artNumber, source: ViralLoadSource.MANUAL_INPUT(), isBaseline: false);
   }
 
   @override
@@ -259,7 +261,8 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
       _viralLoad.viralLoad = _viralLoad.isLowerThanDetectable ? null : int.parse(_viralLoadResultCtr.text);
       _viralLoad.labNumber = _viralLoadLabNumberCtr.text;
       _viralLoad.checkLogicAndResetUnusedFields();
-      await PatientBloc.instance.sinkViralLoadData(_viralLoad);
+      await DatabaseProvider().insertViralLoad(_viralLoad);
+      _patient.viralLoadFollowUps.add(_viralLoad);
       
       // we will also have to sink a PatientData event in case the patient's isActivated state changes
       Navigator.of(context).popUntil((Route<dynamic> route) {

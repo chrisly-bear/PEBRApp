@@ -8,7 +8,6 @@ import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
-import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
@@ -107,41 +106,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           }
         });
       }
-      if (streamEvent is AppStateViralLoadData) {
-        setState(() {
-          final newViralLoad = streamEvent.viralLoad;
-          Patient changedPatient = this._patients.singleWhere((p) => p.artNumber == newViralLoad.patientART, orElse: () { return null; });
-          if (changedPatient != null) {
-            if (newViralLoad.isBaseline) {
-              if (newViralLoad.source == ViralLoadSource.DATABASE()) {
-                changedPatient.viralLoadBaselineDatabase = newViralLoad;
-              } else {
-                changedPatient.viralLoadBaselineManual = newViralLoad;
-              }
-            } else {
-              changedPatient.viralLoadFollowUps.add(newViralLoad);
-            }
-          }
-        });
-      }
-      if (streamEvent is AppStatePreferenceAssessmentData) {
-        setState(() {
-          final newPreferenceAssessment = streamEvent.preferenceAssessment;
-          Patient changedPatient = this._patients.singleWhere((p) => p.artNumber == newPreferenceAssessment.patientART);
-          changedPatient.latestPreferenceAssessment = newPreferenceAssessment;
-        });
-      }
-      if (streamEvent is AppStateARTRefillData) {
-        setState(() {
-          final newARTRefill = streamEvent.artRefill;
-          Patient changedPatient = this._patients.singleWhere((p) => p.artNumber == newARTRefill.patientART);
-          changedPatient.latestARTRefill = newARTRefill;
-        });
-      }
-
-      setState(() {
-        _sortPatients(_patients);
-      });
     });
 
     PatientBloc.instance.sinkAllPatientsFromDatabase();
@@ -184,7 +148,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   /// have been initialized before calling this method.
   int _initialActionsRequiredFor(Patient patient) {
     int actionsRequired = 0;
-    if (patient.latestARTRefill == null) { actionsRequired++; }
+    if (patient.latestARTRefill?.nextRefillDate == null) { actionsRequired++; }
     if (patient.latestPreferenceAssessment == null) { actionsRequired++; }
     return actionsRequired;
   }
@@ -592,6 +556,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     List<Widget> _patientCards = <Widget>[
       _headerRow,
     ];
+    _sortPatients(_patients);
     final numberOfPatients = _patients.length;
     for (var i = 0; i < numberOfPatients; i++) {
       final Patient curPatient = _patients[i];
@@ -729,7 +694,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           key: Key(curPatient.artNumber),
           confirmDismiss: (DismissDirection direction) {
             curPatient.isActivated = !curPatient.isActivated;
-            PatientBloc.instance.sinkPatientData(curPatient);
+            DatabaseProvider().insertPatient(curPatient);
+            setState(() {}); // re-render the patient card (un-grey it and sort it at the right position in the table)
             // do not remove patient card from list
             return Future<bool>.value(false);
           },

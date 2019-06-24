@@ -826,7 +826,11 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   }
 
   void _editCharacteristicsPressed(Patient patient) {
-    _fadeInScreen(EditPatientScreen(patient));
+    _fadeInScreen(EditPatientScreen(patient)).then((_) {
+      // calling setState to trigger a re-render of the page and display the new
+      // patient characteristics
+      setState(() {});
+    });
   }
 
   Future<void> _fetchFromDatabasePressed(BuildContext context, Patient patient) async {
