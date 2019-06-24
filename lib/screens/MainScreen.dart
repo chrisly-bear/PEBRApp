@@ -389,7 +389,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   }
 
   Future<void> _pushPatientScreen(Patient patient) async {
-    await Navigator.of(_context).push(
+    await Navigator.of(_context, rootNavigator: true).push(
       new MaterialPageRoute<void>(
         settings: RouteSettings(name: '/patient'),
         builder: (BuildContext context) {
