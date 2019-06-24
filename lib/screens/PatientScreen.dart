@@ -7,6 +7,7 @@ import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
+import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/beans/YesNoRefused.dart';
@@ -50,6 +51,9 @@ class _PatientScreenState extends State<PatientScreen> {
 
   StreamSubscription<AppState> _appStateStream;
 
+  final double _spacingBetweenCards = 40.0;
+
+  // constructor
   _PatientScreenState(this._patient);
 
   @override
@@ -104,10 +108,10 @@ class _PatientScreenState extends State<PatientScreen> {
       _nextEndpointText = '—';
     }
 
-    final double _spacingBetweenCards = 40.0;
     final Widget content = Column(
       children: <Widget>[
         _buildRequiredActions(),
+        _buildNextActions(),
         _buildPatientCharacteristicsCard(),
         _makeButton('Edit Characteristics', onPressed: () { _editCharacteristicsPressed(_patient); }, flat: true),
         SizedBox(height: _spacingBetweenCards),
@@ -120,31 +124,6 @@ class _PatientScreenState extends State<PatientScreen> {
         ),
         SizedBox(height: _spacingBetweenCards),
         _buildPreferencesCard(),
-        SizedBox(height: _spacingBetweenCards),
-        _buildTitle('Next Preference Assessment'),
-        Text(_nextAssessmentText, style: TextStyle(fontSize: 16.0)),
-        SizedBox(height: 10.0),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.0),
-          child: Text('Preference assessments are due every month for unsuppressed patients and every 3 months for suppressed patients.', textAlign: TextAlign.center),
-        ),
-        SizedBox(height: 10.0),
-        _makeButton('Start Assessment', onPressed: () { _startAssessmentPressed(_context, _patient); }),
-        SizedBox(height: _spacingBetweenCards),
-        _buildTitle('Next ART Refill'),
-        Text(_nextRefillText, style: TextStyle(fontSize: 16.0)),
-        SizedBox(height: 10.0),
-        _makeButton('Manage Refill', onPressed: () { _manageRefillPressed(_context, _patient, _nextRefillText); }),
-        SizedBox(height: _spacingBetweenCards),
-        _buildTitle('Next Endpoint Survey'),
-        Text(_nextEndpointText, style: TextStyle(fontSize: 16.0)),
-        SizedBox(height: 10.0),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.0),
-          child: Text('Endpoint surveys are due 3, 6, and 12 months after patient enrollment.', textAlign: TextAlign.center),
-        ),
-        SizedBox(height: 10.0),
-        _makeButton('Open KoBoCollect', onPressed: _onOpenKoboCollectPressed),
         SizedBox(height: _spacingBetweenCards),
       ],
     );
@@ -307,6 +286,74 @@ class _PatientScreenState extends State<PatientScreen> {
       children: <Widget>[
         ...actions,
         SizedBox(height: actions.length > 0 ? 20.0 : 0.0),
+      ],
+    );
+  }
+
+  Widget _buildNextActions() {
+
+    Widget _buildNextActionRow({String title, String dueDate, String explanation, Widget button}) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              title,
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      SizedBox(height: 10.0),
+                      Text(dueDate, style: TextStyle(fontSize: 16.0)),
+                      SizedBox(height: 10.0),
+                      Text(explanation),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 10.0),
+                button,
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
+    String pronoun = 'his/her';
+    if (_patient.gender == Gender.FEMALE()) {
+      pronoun = 'her';
+    } else if (_patient.gender == Gender.MALE()) {
+      pronoun = 'his';
+    }
+    return Column(
+      children: <Widget>[
+        _buildNextActionRow(
+          title: 'Next Preference Assessment',
+          dueDate: _nextAssessmentText,
+          explanation: 'Preference assessments are due every month for unsuppressed patients and every 3 months for suppressed patients.',
+          button: _makeButton('Start Assessment', onPressed: () { _startAssessmentPressed(_context, _patient); }),
+        ),
+        SizedBox(height: _spacingBetweenCards),
+        _buildNextActionRow(
+          title: 'Next ART Refill',
+          dueDate: _nextRefillText,
+          explanation: 'The ART refill date is selected when the patient collects $pronoun ARTs or has them delivered.',
+          button: _makeButton('Manage Refill', onPressed: () { _manageRefillPressed(_context, _patient, _nextRefillText); }),
+        ),
+        SizedBox(height: _spacingBetweenCards),
+        _buildNextActionRow(
+          title: 'Next Endpoint Survey',
+          dueDate: _nextEndpointText,
+          explanation: 'Endpoint surveys are due 3, 6, and 12 months after patient enrollment.',
+          button: _makeButton('Open KoBoCollect', onPressed: _onOpenKoboCollectPressed),
+        ),
+        SizedBox(height: _spacingBetweenCards),
       ],
     );
   }
