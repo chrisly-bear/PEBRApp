@@ -695,7 +695,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           confirmDismiss: (DismissDirection direction) {
             curPatient.isActivated = !curPatient.isActivated;
             DatabaseProvider().insertPatient(curPatient);
+            final AnimationController controller = animationControllers[curPatient.artNumber];
+            controller.reset(); // fold patient card
             setState(() {}); // re-render the patient card (un-grey it and sort it at the right position in the table)
+            controller.forward(); // unfold patient card
             // do not remove patient card from list
             return Future<bool>.value(false);
           },
