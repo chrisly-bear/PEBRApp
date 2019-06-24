@@ -37,7 +37,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   BuildContext _context;
   bool _isLoading = true;
   List<Patient> _patients = [];
-  Stream<AppState> _appStateStream;
+  StreamSubscription<AppState> _appStateStream;
   bool _loginLockCheckRunning = false;
   bool _backupRunning = false;
 
@@ -55,7 +55,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     // listen to changes in the app lifecycle
     WidgetsBinding.instance.addObserver(this);
     _onAppResume();
-    _appStateStream = PatientBloc.instance.appState;
 
     /*
      * Normally, one uses StreamBuilder with the BLoC pattern. But StreamBuilder
@@ -72,7 +71,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
      * Navigator build calls issue:
      * https://github.com/flutter/flutter/issues/11655#issuecomment-348287396
      */
-    _appStateStream.listen( (streamEvent) {
+    _appStateStream = PatientBloc.instance.appState.listen( (streamEvent) {
       print('*** MainScreen received data: ${streamEvent.runtimeType} ***');
       if (streamEvent is AppStateLoading) {
         setState(() {
@@ -173,6 +172,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _appStateStream.cancel();
     super.dispose();
   }
 

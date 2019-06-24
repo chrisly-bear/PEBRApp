@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
@@ -46,15 +48,14 @@ class _PatientScreenState extends State<PatientScreen> {
   bool SCHOOL_VISIT_PE_done = false;
   bool PITSO_VISIT_PE_done = false;
 
-  Stream<AppState> _appStateStream;
+  StreamSubscription<AppState> _appStateStream;
 
   _PatientScreenState(this._patient);
 
   @override
   void initState() {
     super.initState();
-    _appStateStream = PatientBloc.instance.appState;
-    _appStateStream.listen( (streamEvent) {
+    _appStateStream = PatientBloc.instance.appState.listen( (streamEvent) {
       print('*** PatientScreen received data: ${streamEvent.runtimeType} ***');
       if (streamEvent is AppStateRequiredActionData && streamEvent.action.patientART == _patient.artNumber) {
         print('*** PatientScreen received AppStateRequiredActionData: ${streamEvent.action.patientART} ***');
@@ -68,6 +69,12 @@ class _PatientScreenState extends State<PatientScreen> {
         });
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _appStateStream.cancel();
+    super.dispose();
   }
 
   @override
