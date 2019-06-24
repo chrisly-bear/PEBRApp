@@ -182,12 +182,16 @@ class DatabaseProvider {
           ${UserData.colDeactivatedDate} TEXT
         );
         """);
+    // RequiredAction table:
+    // Each [RequiredAction.type] can only occur once per patient. The unique
+    // constraint enforces that and allows us to insert actions redundantly.
     await db.execute("""
         CREATE TABLE IF NOT EXISTS ${RequiredAction.tableName} (
           ${RequiredAction.colId} INTEGER PRIMARY KEY,
           ${RequiredAction.colCreatedDate} TEXT NOT NULL,
           ${RequiredAction.colPatientART} TEXT NOT NULL,
-          ${RequiredAction.colType} INTEGER NOT NULL
+          ${RequiredAction.colType} INTEGER NOT NULL,
+          UNIQUE(${RequiredAction.colPatientART}, ${RequiredAction.colType}) ON CONFLICT IGNORE
         );
         """);
     // TODO: set colLatestPreferenceAssessment as foreign key to `PreferenceAssessment` table
@@ -434,7 +438,8 @@ class DatabaseProvider {
           id INTEGER PRIMARY KEY,
           created_date_utc TEXT NOT NULL,
           patient_art TEXT NOT NULL,
-          action_type INTEGER NOT NULL
+          action_type INTEGER NOT NULL,
+          UNIQUE(patient_art, action_type) ON CONFLICT IGNORE
         );
         """);
     }
@@ -633,6 +638,22 @@ class DatabaseProvider {
     return res;
   }
 
+  Future<void> insertRequiredAction(RequiredAction action) async {
+    final Database db = await _databaseInstance;
+    action.createdDate = DateTime.now().toUtc();
+    final res = await db.insert(RequiredAction.tableName, action.toMap());
+    return res;
+  }
+
+  Future<void> removeRequiredAction(String patientART, RequiredActionType type) async {
+    final Database db = await _databaseInstance;
+    final int rowsDeleted = await db.delete(
+      RequiredAction.tableName,
+      where: "${RequiredAction.colPatientART} = ? AND ${RequiredAction.colType} = ?",
+      whereArgs: [patientART, type.index],
+    );
+  }
+
   /// Sets the 'is_active' column to false (0) for the latest active user.
   Future<void> deactivateCurrentUser() async {
     final Database db = await _databaseInstance;
@@ -742,7 +763,7 @@ class DatabaseProvider {
     return null;
   }
 
-  Future<List<RequiredAction>> retrieveRequiredActionsForPatient(String patientART) async {
+  Future<Set<RequiredAction>> retrieveRequiredActionsForPatient(String patientART) async {
     final Database db = await _databaseInstance;
     final List<Map> res = await db.query(
         RequiredAction.tableName,
@@ -750,11 +771,11 @@ class DatabaseProvider {
         whereArgs: [patientART],
         orderBy: '${RequiredAction.colCreatedDate} DESC'
     );
-    final List<RequiredAction> list = [];
+    final Set<RequiredAction> set = {};
     for (Map map in res) {
-      list.add(RequiredAction.fromMap(map));
+      set.add(RequiredAction.fromMap(map));
     }
-    return list;
+    return set;
   }
 
   /// Retrieves all patient rows from the database, including all edits.

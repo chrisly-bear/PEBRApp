@@ -27,6 +27,14 @@ class RequiredAction {
   // Other
   // -----
 
+  // override the equality operator
+  @override
+  bool operator ==(o) => o is RequiredAction && o.patientART == this.patientART && o.type == this.type;
+
+  // override hashcode
+  @override
+  int get hashCode => patientART.hashCode^type.hashCode;
+
   toMap() {
     var map = Map<String, dynamic>();
     map[colCreatedDate] = _createdDate.toIso8601String();
@@ -50,7 +58,9 @@ class RequiredAction {
 enum RequiredActionType {
   REFILL_REQUIRED,
   ASSESSMENT_REQUIRED,
-  ENDPOINT_SURVEY_REQUIRED,
+  ENDPOINT_3M_SURVEY_REQUIRED,
+  ENDPOINT_6M_SURVEY_REQUIRED,
+  ENDPOINT_12M_SURVEY_REQUIRED,
   NOTIFICATIONS_UPLOAD_REQUIRED,
   ART_REFILL_DATE_UPLOAD_REQUIRED
 }

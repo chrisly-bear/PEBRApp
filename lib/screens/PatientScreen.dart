@@ -3,6 +3,7 @@ import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
+import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
@@ -139,7 +140,26 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   }
 
   Widget _buildRequiredActions() {
-    final actions = _patient.requiredActions.asMap().map((int i, RequiredAction action) {
+
+    FlatButton _endpointSurveyDoneButton(RequiredAction action) {
+      return FlatButton(
+        onPressed: () async {
+          _patient.requiredActions.removeWhere((RequiredAction a) => a.type == action.type);
+          await DatabaseProvider().removeRequiredAction(_patient.artNumber, action.type);
+          // TODO: hide the action card, ideally with an animation for visual fidelity
+        },
+        splashColor: NOTIFICATION_INFO_SPLASH,
+        child: Text(
+          "ENDPOINT SURVEY COMPLETED",
+          style: TextStyle(
+            color: NOTIFICATION_INFO_TEXT,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+    }
+
+    final actions = _patient.requiredActions.toList().asMap().map((int i, RequiredAction action) {
       String actionText;
       Widget actionButton;
       switch (action.type) {
@@ -149,27 +169,32 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         case RequiredActionType.REFILL_REQUIRED:
           actionText = "ART refill required. Start an ART refill by tapping 'Manage Refill' below.";
           break;
-        case RequiredActionType.ENDPOINT_SURVEY_REQUIRED:
-          actionText = "Endpoint survey required. Start an endpoint survey by tapping 'Open KoBoCollect' below.";
-          actionButton = FlatButton(
-            onPressed: () {
-              // TODO: store in database that the endpoint survey has been done and hide this RequiredAction
-            },
-            splashColor: NOTIFICATION_INFO_SPLASH,
-            child: Text(
-              "ENDPOINT SURVEY COMPLETED",
-              style: TextStyle(
-                color: NOTIFICATION_INFO_TEXT,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          );
+        case RequiredActionType.ENDPOINT_3M_SURVEY_REQUIRED:
+          actionText = "3 month endpoint survey required. Start an endpoint survey by tapping 'Open KoBoCollect' below.";
+          actionButton = _endpointSurveyDoneButton(action);
+          break;
+        case RequiredActionType.ENDPOINT_6M_SURVEY_REQUIRED:
+          actionText = "6 month endpoint survey required. Start an endpoint survey by tapping 'Open KoBoCollect' below.";
+          actionButton = _endpointSurveyDoneButton(action);
+          break;
+        case RequiredActionType.ENDPOINT_12M_SURVEY_REQUIRED:
+          actionText = "12 month endpoint survey required. Start an endpoint survey by tapping 'Open KoBoCollect' below.";
+          actionButton = _endpointSurveyDoneButton(action);
           break;
         case RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED:
           actionText = "The automatic synchronization of the notifications preferences with the database failed. Please synchronize manually.";
           actionButton = FlatButton(
-            onPressed: () {
+            onPressed: () async {
+
               // TODO: implement re-upload of notifications preferences -> get rid of RequiredAction when upload successful
+              await Future.delayed(Duration(seconds: 2));
+              final bool success = true;
+              if (success) {
+                _patient.requiredActions.removeWhere((RequiredAction a) => a.type == action.type);
+                await DatabaseProvider().removeRequiredAction(_patient.artNumber, action.type);
+                // TODO: hide the action card, ideally with an animation for visual fidelity
+              }
+
             },
             splashColor: NOTIFICATION_INFO_SPLASH,
             child: Text(
@@ -184,8 +209,17 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         case RequiredActionType.ART_REFILL_DATE_UPLOAD_REQUIRED:
           actionText = "The automatic synchronization of the ART refill date with the database failed. Please synchronize manually.";
           actionButton = FlatButton(
-            onPressed: () {
+            onPressed: () async {
+
               // TODO: implement re-upload of ART refill date -> get rid of RequiredAction when upload successful
+              await Future.delayed(Duration(seconds: 2));
+              final bool success = true;
+              if (success) {
+                _patient.requiredActions.removeWhere((RequiredAction a) => a.type == action.type);
+                await DatabaseProvider().removeRequiredAction(_patient.artNumber, action.type);
+                // TODO: hide the action card, ideally with an animation for visual fidelity
+              }
+
             },
             splashColor: NOTIFICATION_INFO_SPLASH,
             child: Text(
@@ -865,12 +899,11 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     // TODO: show an upload button on the patient screen somewhere so that a manual upload can be started by the user
   }
 
-  void _manageRefillPressed(BuildContext context, Patient patient, String nextRefillDate) {
-    _fadeInScreen(ARTRefillScreen(patient, nextRefillDate)).then((_) {
-      // calling setState to trigger a re-render of the page and display the new
-      // ART Refill Date
-      setState(() {});
-    });
+  Future<void> _manageRefillPressed(BuildContext context, Patient patient, String nextRefillDate) async {
+    await _fadeInScreen(ARTRefillScreen(patient, nextRefillDate));
+    // calling setState to trigger a re-render of the page and display the new
+    // ART Refill Date
+    setState(() {});
   }
 
   Future<void> _onOpenKoboCollectPressed() async {

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
+import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/screens/ARTRefillNotDoneScreen.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
@@ -43,7 +45,7 @@ class ARTRefillScreen extends StatelessWidget {
     if (newDate != null) {
       final ARTRefill artRefill = ARTRefill(this._patient.artNumber, RefillType.CHANGE_DATE(), nextRefillDate: newDate);
       await PatientBloc.instance.sinkARTRefillData(artRefill);
-      _uploadARTRefillDate(newDate);
+      _uploadARTRefillDate(_patient, newDate);
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return route.settings.name == '/patient';
       });
@@ -55,19 +57,38 @@ class ARTRefillScreen extends StatelessWidget {
     if (newDate != null) {
       final ARTRefill artRefill = ARTRefill(this._patient.artNumber, RefillType.DONE(), nextRefillDate: newDate);
       await PatientBloc.instance.sinkARTRefillData(artRefill);
-      _uploadARTRefillDate(newDate);
+      _uploadARTRefillDate(_patient, newDate);
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return route.settings.name == '/patient';
       });
     }
   }
 
-  Future<void> _uploadARTRefillDate(DateTime date) async {
+  Future<void> _uploadARTRefillDate(Patient patient, DateTime date) async {
     // TODO: upload the new date to the viral load database and if it didn't work show a message that the upload has to be retried manually
     await Future.delayed(Duration(seconds: 3));
-    showFlushbar('Please upload the notifications preferences manually.', title: 'Upload of ART Refill Date Failed', error: true, buttonText: 'Retry\nNow', onButtonPress: () {
-      _uploadARTRefillDate(date);
-    });
+    final bool success = false;
+    if (success) {
+      print('ART Refill Date uploaded to database successfully.');
+      patient.requiredActions.removeWhere((RequiredAction action) => action.type == RequiredActionType.ART_REFILL_DATE_UPLOAD_REQUIRED);
+      await DatabaseProvider().removeRequiredAction(patient.artNumber, RequiredActionType.ART_REFILL_DATE_UPLOAD_REQUIRED);
+      // TODO: send a 'patient updated' event through the Bloc to inform the screens that they should update their view / remove the action required
+      // ...
+    } else {
+      final artRefillUploadAction = RequiredAction(patient.artNumber, RequiredActionType.ART_REFILL_DATE_UPLOAD_REQUIRED);
+      patient.requiredActions.add(artRefillUploadAction);
+      await DatabaseProvider().insertRequiredAction(artRefillUploadAction);
+      // TODO: send a 'patient updated' event through the Bloc to inform the screens that they should update their view / insert the action required
+      // ...
+      showFlushbar('Please upload the notifications preferences manually.',
+        title: 'Upload of ART Refill Date Failed',
+        error: true,
+        buttonText: 'Retry\nNow',
+        onButtonPress: () {
+          _uploadARTRefillDate(patient, date);
+        },
+      );
+    }
   }
 
   Future<DateTime> _showDatePicker(BuildContext context) async {

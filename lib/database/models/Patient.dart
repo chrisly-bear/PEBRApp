@@ -61,7 +61,7 @@ class Patient implements IExcelExportable {
   List<ViralLoad> viralLoadFollowUps = [];
   PreferenceAssessment latestPreferenceAssessment;
   ARTRefill latestARTRefill;
-  List<RequiredAction> requiredActions = [];
+  Set<RequiredAction> requiredActions = {};
 
 
   // Constructors
@@ -208,7 +208,7 @@ class Patient implements IExcelExportable {
   /// initialized (null).
   Future<void> initializeRequiredActionsField() async {
     // get required actions stored in database
-    List<RequiredAction> actions = await DatabaseProvider().retrieveRequiredActionsForPatient(artNumber);
+    Set<RequiredAction> actions = await DatabaseProvider().retrieveRequiredActionsForPatient(artNumber);
     // calculate other required actions
     final DateTime now = DateTime.now();
     if (latestARTRefill?.nextRefillDate == null || now.isAfter(latestARTRefill.nextRefillDate)) {
