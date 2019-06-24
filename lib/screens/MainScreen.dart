@@ -130,43 +130,37 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   /// Sorts patients in the following way:
   ///
   /// - activated patients before deactivated patients
+  /// - patients with more required actions before patients with less required
+  ///   actions
   /// - patients with missing ART refill or preference assessment before
   ///   patients with ART refill or preference assessment
   /// - patients with next action (ART refill / preference assessment) closer in
   ///   the future before patients with next action farther in the future
+  /// - patients with earlier created date before patients with later created
+  ///   date
   void _sortPatients(List<Patient> patients) {
     patients.sort((Patient a, Patient b) {
       if (a.isActivated && !b.isActivated) { return -1; }
       if (!a.isActivated && b.isActivated) { return 1; } // do we need this rule or is it implied by the previous rule?
-      final int actionsRequiredForA = _initialActionsRequiredFor(a);
-      final int actionsRequiredForB = _initialActionsRequiredFor(b);
+      final int actionsRequiredForA = a.requiredActions.length;
+      final int actionsRequiredForB = b.requiredActions.length;
       if (actionsRequiredForA > actionsRequiredForB) { return -1; }
       if (actionsRequiredForA < actionsRequiredForB) { return 1; } // do we need this rule or is it implied by the previous rule?
       if (actionsRequiredForA == actionsRequiredForB) {
         final DateTime dateOfNextActionA = _getDateOfNextAction(a);
         final DateTime dateOfNextActionB = _getDateOfNextAction(b);
-        if (dateOfNextActionA == null && dateOfNextActionB == null) {
-          // both have no ART refill or preference assessment, let's sort by created date
-          return a.createdDate.isBefore(b.createdDate) ? 1 : -1;
+        if (dateOfNextActionA == null && dateOfNextActionB != null) {
+          return -1;
         }
-        // sort the patient with the sooner next action date before the other
-        return dateOfNextActionA.isBefore(dateOfNextActionB) ? -1 : 1;
+        if (dateOfNextActionA != null && dateOfNextActionB == null) {
+          return 1;
+        }
+        if (dateOfNextActionA != null && dateOfNextActionB != null && !dateOfNextActionA.isAtSameMomentAs(dateOfNextActionB)) {
+          return dateOfNextActionA.isBefore(dateOfNextActionB) ? -1 : 1;
+        }
       }
-      return 0;
+      return a.createdDate.isBefore(b.createdDate) ? 1 : -1;
     });
-  }
-
-  /// Returns 0 if an ART refill and a preference assessment has been done.
-  /// Returns 1 if either ART refill or preference assessment has not been done yet.
-  /// Returns 2 if both ART refill and preference assessment have not been done yet.
-  ///
-  /// Assumes that the fields `latestARTRefill` and `latestPreferenceAssessment`
-  /// have been initialized before calling this method.
-  int _initialActionsRequiredFor(Patient patient) {
-    int actionsRequired = 0;
-    if (patient.latestARTRefill?.nextRefillDate == null) { actionsRequired++; }
-    if (patient.latestPreferenceAssessment == null) { actionsRequired++; }
-    return actionsRequired;
   }
 
   @override
