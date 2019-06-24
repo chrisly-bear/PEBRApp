@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';

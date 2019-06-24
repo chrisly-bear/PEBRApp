@@ -9,7 +9,6 @@ import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/beans/YesNoRefused.dart';
 import 'package:pebrapp/database/models/Patient.dart';
-import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/screens/ARTRefillScreen.dart';

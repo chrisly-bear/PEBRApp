@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
-import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
-import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/screens/ARTRefillNotDoneScreen.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
-import 'package:pebrapp/utils/Utils.dart';
 import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
 class ARTRefillScreen extends StatelessWidget {
