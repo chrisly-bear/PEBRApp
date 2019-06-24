@@ -49,7 +49,7 @@ class _PatientScreenState extends State<PatientScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print('*** PatientScreen.build ***');
+    print('*** PatientScreenState.build ***');
     _context = context;
     _screenWidth = MediaQuery.of(context).size.width;
 
