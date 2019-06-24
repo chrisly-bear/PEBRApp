@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/components/animations/GrowTransition.dart';
@@ -12,6 +13,7 @@ import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
+import 'package:pebrapp/screens/DebugScreen.dart';
 import 'package:pebrapp/screens/NewPatientScreen.dart';
 import 'dart:ui';
 
@@ -197,6 +199,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           subtitle: 'Overview',
           child: Center(child: _bodyToDisplayBasedOnState()),
           actions: <Widget>[
+            kReleaseMode ? SizedBox() : IconButton(icon: Icon(Icons.bug_report), onPressed: () {
+              _fadeInScreen(DebugScreen());
+            }),
             IconButton(
               icon: Icon(Icons.info),
               onPressed: _pushIconExplanationsScreen,
