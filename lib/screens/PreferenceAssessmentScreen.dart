@@ -26,6 +26,7 @@ import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
+import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
 class PreferenceAssessmentScreen extends StatelessWidget {
   final Patient _patient;
@@ -2234,6 +2235,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         _user.phoneNumber = newPEPhoneNumber;
         DatabaseProvider().insertUserData(_user);
       }
+      uploadNotificationsPreferences(_patient, _pa);
       Navigator.of(context).pop(); // close Preference Assessment screen
       showFlushbar('Preference Assessment saved');
     } else {

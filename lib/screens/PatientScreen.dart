@@ -18,6 +18,7 @@ import 'package:pebrapp/screens/EditPatientScreen.dart';
 import 'package:pebrapp/screens/PreferenceAssessmentScreen.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
+import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PatientScreen extends StatelessWidget {
@@ -185,16 +186,8 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           actionText = "The automatic synchronization of the notifications preferences with the database failed. Please synchronize manually.";
           actionButton = FlatButton(
             onPressed: () async {
-
-              // TODO: implement re-upload of notifications preferences -> get rid of RequiredAction when upload successful
-              await Future.delayed(Duration(seconds: 2));
-              final bool success = true;
-              if (success) {
-                _patient.requiredActions.removeWhere((RequiredAction a) => a.type == action.type);
-                await DatabaseProvider().removeRequiredAction(_patient.artNumber, action.type);
-                // TODO: hide the action card, ideally with an animation for visual fidelity
-              }
-
+              await uploadNotificationsPreferences(_patient, _patient.latestPreferenceAssessment);
+              // TODO: hide the action card if the upload was successful, ideally with an animation for visual fidelity
             },
             splashColor: NOTIFICATION_INFO_SPLASH,
             child: Text(
@@ -210,16 +203,8 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
           actionText = "The automatic synchronization of the ART refill date with the database failed. Please synchronize manually.";
           actionButton = FlatButton(
             onPressed: () async {
-
-              // TODO: implement re-upload of ART refill date -> get rid of RequiredAction when upload successful
-              await Future.delayed(Duration(seconds: 2));
-              final bool success = true;
-              if (success) {
-                _patient.requiredActions.removeWhere((RequiredAction a) => a.type == action.type);
-                await DatabaseProvider().removeRequiredAction(_patient.artNumber, action.type);
-                // TODO: hide the action card, ideally with an animation for visual fidelity
-              }
-
+              await uploadNextARTRefillDate(_patient, _patient.latestARTRefill.nextRefillDate);
+              // TODO: hide the action card if the upload was successful, ideally with an animation for visual fidelity
             },
             splashColor: NOTIFICATION_INFO_SPLASH,
             child: Text(
@@ -883,20 +868,6 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         },
       ),
     );
-    _uploadNotificationsPreferences(patient.latestPreferenceAssessment);
-  }
-
-  Future<void> _uploadNotificationsPreferences(final PreferenceAssessment assessment) async {
-    // TODO: implement upload of notifications preferences to viral load database API
-    print('...uploading notifications preferences\n'
-        'Adherence Reminder: ${assessment.adherenceReminderEnabled}\n'
-        'ART Refill Reminder: ${assessment.artRefillReminderEnabled}\n'
-        'Viral Load Notifications: ${assessment.vlNotificationEnabled}');
-    await Future.delayed(Duration(seconds: 3));
-    showFlushbar('Please upload the notifications preferences manually.', title: 'Notifications Upload Failed', error: true, buttonText: 'Retry\nNow', onButtonPress: () {
-      _uploadNotificationsPreferences(assessment);
-    });
-    // TODO: show an upload button on the patient screen somewhere so that a manual upload can be started by the user
   }
 
   Future<void> _manageRefillPressed(BuildContext context, Patient patient, String nextRefillDate) async {
