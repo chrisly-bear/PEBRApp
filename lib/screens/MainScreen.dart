@@ -692,20 +692,93 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
         ),
       );
 
-      // wrap in Dismissible, so that patient can be re-activated using a right-swipe
-      if (!curPatient.isActivated) {
+      // in debug mode:
+      // make patient activate/deactivate on right swipe,
+      // delete patient on left swipe
+      if (!kReleaseMode) {
+        patientCard = Dismissible(
+          direction: DismissDirection.horizontal,
+          key: Key(curPatient.artNumber),
+          confirmDismiss: (DismissDirection direction) async {
+            final AnimationController controller = animationControllers[curPatient.artNumber];
+            final originalAnimationDuration = controller.duration;
+            final Duration _quickAnimationDuration = Duration(milliseconds: (_ANIMATION_TIME / 2).round());
+            controller.duration = _quickAnimationDuration;
+            if (direction == DismissDirection.startToEnd) {
+              // *****************************
+              // activate / deactivate patient
+              // *****************************
+              curPatient.isActivated = !curPatient.isActivated;
+              DatabaseProvider().insertPatient(curPatient);
+              await controller.animateBack(0.0, duration: _quickAnimationDuration, curve: Curves.ease); // fold patient card up
+              setState(() {}); // re-render the patient card (grey it out / un-grey it and sort it at the right position in the table)
+              // TODO: the next line will throw an error because setState rebuilt the screen in the previous line, which means the controller got disposed (everything still works as expected though)
+              await controller.forward(); // unfold patient card
+              controller.duration = originalAnimationDuration; // reset animation duration
+              return Future<bool>.value(false);
+            } else if (direction == DismissDirection.endToStart) {
+              // **************
+              // delete patient
+              // **************
+              DatabaseProvider().deletePatient(curPatient);
+              _patients.removeWhere((Patient p) => p.artNumber == curPatient.artNumber);
+              await controller.animateBack(0.0, duration: _quickAnimationDuration, curve: Curves.ease); // fold patient card up
+              controller.duration = originalAnimationDuration; // reset animation duration
+              return Future<bool>.value(true);
+            }
+          },
+          background: Container(
+            margin: _curCardMargin,
+            padding: EdgeInsets.symmetric(horizontal: _cardMarginHorizontal),
+            decoration: BoxDecoration(gradient: LinearGradient(colors: [MAIN_SCREEN_SLIDE_TO_ACTIVATE, MAIN_SCREEN_SLIDE_TO_DELETE])),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  curPatient.isActivated ? 'DEACTIVATE' : 'ACTIVATE',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                    color: MAIN_SCREEN_SLIDE_TO_ACTIVATE_TEXT,
+                  ),
+                ),
+                Text(
+                  'DELETE',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                    color: MAIN_SCREEN_SLIDE_TO_ACTIVATE_TEXT,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          child: patientCard,
+        );
+      }
+      // in release mode:
+      // wrap in Dismissible, so that patient can be
+      // re-activated using a right-swipe (only if patient is deactivated)
+      else if (!curPatient.isActivated) {
         patientCard = Dismissible(
           direction: DismissDirection.startToEnd,
           key: Key(curPatient.artNumber),
-          confirmDismiss: (DismissDirection direction) {
+          confirmDismiss: (DismissDirection direction) async {
+            // ****************
+            // activate patient
+            // ****************
+            final AnimationController controller = animationControllers[curPatient.artNumber];
+            final originalAnimationDuration = controller.duration;
+            final Duration _quickAnimationDuration = Duration(milliseconds: (_ANIMATION_TIME / 2).round());
+            controller.duration = _quickAnimationDuration;
             curPatient.isActivated = !curPatient.isActivated;
             DatabaseProvider().insertPatient(curPatient);
-            final AnimationController controller = animationControllers[curPatient.artNumber];
-            controller.reset(); // fold patient card
+            await controller.animateBack(0.0, duration: _quickAnimationDuration, curve: Curves.ease); // fold patient card up
             setState(() {}); // re-render the patient card (un-grey it and sort it at the right position in the table)
-            controller.forward(); // unfold patient card
-            // do not remove patient card from list
-            return Future<bool>.value(false);
+            // TODO: the next line will throw an error because setState rebuilt the screen in the previous line, which means the controller got disposed (everything still works as expected though)
+            await controller.forward(); // unfold patient card
+            controller.duration = originalAnimationDuration; // reset animation duration
+            return Future<bool>.value(false); // do not remove patient card from list
           },
           background: Container(
             margin: _curCardMargin,

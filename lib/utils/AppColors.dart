@@ -44,6 +44,7 @@ final Color CARD_INACTIVE = Colors.grey[300];
 const Color MAIN_SCREEN_SLIDE_TO_ACTIVATE_TEXT = Colors.white;
 const Color MAIN_SCREEN_SLIDE_TO_DELETE_TEXT = Colors.white;
 const Color MAIN_SCREEN_SLIDE_TO_ACTIVATE = Colors.black;
+const Color MAIN_SCREEN_SLIDE_TO_DELETE = Colors.red;
 
 // patient card highlighting
 const Color URGENCY_HIGH = Colors.red;
