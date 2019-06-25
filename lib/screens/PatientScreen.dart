@@ -64,7 +64,7 @@ class _PatientScreenState extends State<PatientScreen> {
       if (streamEvent is AppStateRequiredActionData && streamEvent.action.patientART == _patient.artNumber) {
         print('*** PatientScreen received AppStateRequiredActionData: ${streamEvent.action.patientART} ***');
         setState(() {
-          // TODO: animate insertion and removal of required action label for visual fidelity
+          // TODO: animate insertion and removal of required action card for visual fidelity
           if (streamEvent.isDone) {
             _patient.requiredActions.removeWhere((RequiredAction a) => a.type == streamEvent.action.type);
           } else {
@@ -146,7 +146,7 @@ class _PatientScreenState extends State<PatientScreen> {
         onPressed: () async {
           _patient.requiredActions.removeWhere((RequiredAction a) => a.type == action.type);
           await DatabaseProvider().removeRequiredAction(_patient.artNumber, action.type);
-          // TODO: hide the action card, ideally with an animation for visual fidelity
+          PatientBloc.instance.sinkRequiredActionData(action, true);
         },
         splashColor: NOTIFICATION_INFO_SPLASH,
         child: Text(
@@ -186,7 +186,6 @@ class _PatientScreenState extends State<PatientScreen> {
           actionButton = FlatButton(
             onPressed: () async {
               await uploadNotificationsPreferences(_patient, _patient.latestPreferenceAssessment);
-              // TODO: hide the action card if the upload was successful, ideally with an animation for visual fidelity
             },
             splashColor: NOTIFICATION_INFO_SPLASH,
             child: Text(
@@ -203,7 +202,6 @@ class _PatientScreenState extends State<PatientScreen> {
           actionButton = FlatButton(
             onPressed: () async {
               await uploadNextARTRefillDate(_patient, _patient.latestARTRefill.nextRefillDate);
-              // TODO: hide the action card if the upload was successful, ideally with an animation for visual fidelity
             },
             splashColor: NOTIFICATION_INFO_SPLASH,
             child: Text(
