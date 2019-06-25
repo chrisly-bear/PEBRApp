@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
+import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/screens/ARTRefillNotDoneScreen.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
+import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
 class ARTRefillScreen extends StatelessWidget {
   final Patient _patient;
@@ -38,11 +41,19 @@ class ARTRefillScreen extends StatelessWidget {
   }
 
   void _onPressChangeDate(BuildContext context) async {
-    DateTime newDate = await _showDatePicker(context);
+    DateTime newDate = await _showDatePickerWithTitle(context, 'Select the Next ART Refill Date');
     if (newDate != null) {
       final ARTRefill artRefill = ARTRefill(this._patient.artNumber, RefillType.CHANGE_DATE(), nextRefillDate: newDate);
-      await PatientBloc.instance.sinkARTRefillData(artRefill);
-      // TODO: upload the new date to the viral load database and if it didn't work show a message that the upload has to be retried manually
+      await DatabaseProvider().insertARTRefill(artRefill);
+      _patient.latestARTRefill = artRefill;
+      if (newDate.isAfter(DateTime.now())) {
+        // send an event indicating that the art refill was done
+        PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.REFILL_REQUIRED), true);
+      } else {
+        // send an event indicating that the art refill is overdue and has to be done
+        PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.REFILL_REQUIRED), false);
+      }
+      uploadNextARTRefillDate(_patient, newDate);
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return route.settings.name == '/patient';
       });
@@ -53,8 +64,16 @@ class ARTRefillScreen extends StatelessWidget {
     DateTime newDate = await _showDatePickerWithTitle(context, 'Select the Next ART Refill Date');
     if (newDate != null) {
       final ARTRefill artRefill = ARTRefill(this._patient.artNumber, RefillType.DONE(), nextRefillDate: newDate);
-      await PatientBloc.instance.sinkARTRefillData(artRefill);
-      // TODO: upload the new date to the viral load database and if it didn't work show a message that the upload has to be retried manually
+      await DatabaseProvider().insertARTRefill(artRefill);
+      _patient.latestARTRefill = artRefill;
+      if (newDate.isAfter(DateTime.now())) {
+        // send an event indicating that the art refill was done
+        PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.REFILL_REQUIRED), true);
+      } else {
+        // send an event indicating that the art refill is overdue and has to be done
+        PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.REFILL_REQUIRED), false);
+      }
+      uploadNextARTRefillDate(_patient, newDate);
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return route.settings.name == '/patient';
       });

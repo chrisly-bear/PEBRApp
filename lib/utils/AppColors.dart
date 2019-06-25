@@ -44,6 +44,7 @@ final Color CARD_INACTIVE = Colors.grey[300];
 const Color MAIN_SCREEN_SLIDE_TO_ACTIVATE_TEXT = Colors.white;
 const Color MAIN_SCREEN_SLIDE_TO_DELETE_TEXT = Colors.white;
 const Color MAIN_SCREEN_SLIDE_TO_ACTIVATE = Colors.black;
+const Color MAIN_SCREEN_SLIDE_TO_DELETE = Colors.red;
 
 // patient card highlighting
 const Color URGENCY_HIGH = Colors.red;
@@ -61,6 +62,7 @@ const Color NOTIFICATION_ERROR = Colors.redAccent;
 const Color NOTIFICATION_MESSAGE_TEXT = Colors.white;
 const Color NOTIFICATION_INFO_ICON = Colors.white;
 const Color NOTIFICATION_INFO_TEXT = Colors.white;
+const Color NOTIFICATION_INFO_SPLASH = Colors.grey;
 const Color NOTIFICATION_SHADOW = Colors.black;
 
 // popup screen background shadow

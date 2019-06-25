@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
@@ -22,10 +21,12 @@ import 'package:pebrapp/database/beans/VLUnsuppressedMessage.dart';
 import 'package:pebrapp/database/beans/YesNoRefused.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
+import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
 class PreferenceAssessmentScreen extends StatelessWidget {
   final Patient _patient;
@@ -2224,20 +2225,24 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       }
 
       print('NEW PREFERENCE ASSESSMENT (_id will be given by SQLite database):\n$_pa');
-      await PatientBloc.instance.sinkPreferenceAssessmentData(_pa);
+      await DatabaseProvider().insertPreferenceAssessment(_pa);
+      _patient.latestPreferenceAssessment = _pa;
       if (_patientUpdated) {
         print('PATIENT UPDATED, INSERTING NEW PATIENT ROW FOR ${_patient.artNumber}');
-        await PatientBloc.instance.sinkPatientData(_patient);
+        await DatabaseProvider().insertPatient(_patient);
       }
       final String newPEPhoneNumber = _pePhoneNumberCtr.text;
       if (newPEPhoneNumber != _user.phoneNumber) {
         _user.phoneNumber = newPEPhoneNumber;
         DatabaseProvider().insertUserData(_user);
       }
+      // send an event indicating that the preference assessment was done
+      PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.ASSESSMENT_REQUIRED), true);
+      uploadNotificationsPreferences(_patient, _pa);
       Navigator.of(context).pop(); // close Preference Assessment screen
-      showFlushBar(context, 'Preference Assessment saved');
+      showFlushbar('Preference Assessment saved');
     } else {
-      showFlushBar(context, "Errors exist in the assessment form. Please check the form.");
+      showFlushbar("Errors exist in the assessment form. Please check the form.");
     }
   }
 }

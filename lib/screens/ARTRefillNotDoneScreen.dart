@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
+import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillNotDoneReason.dart';
 import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
@@ -260,16 +261,18 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
       _artRefill.otherClinic = _otherClinicCtr.text;
       _artRefill.notTakingARTReason = _notTakingARTAnymoreCtr.text;
       print('NEW ART REFILL (_id will be given by SQLite database):\n$_artRefill');
-      await PatientBloc.instance.sinkARTRefillData(_artRefill);
+      await DatabaseProvider().insertARTRefill(_artRefill);
+      _patient.latestARTRefill = _artRefill;
       if (_patient.isActivated) {
-        print('patient will change from being activated to being deactivated, sinking patient data...');
         _patient.isActivated = false;
-        PatientBloc.instance.sinkPatientData(_patient);
+        // the isActivated field changed on the patient object, we have to store
+        // this change in the Patient table of the SQLite database
+        await DatabaseProvider().insertPatient(_patient);
       }
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return route.settings.name == '/patient';
       });
-      showFlushBar(context, 'ART Refill saved');
+      showFlushbar('ART Refill saved');
     }
   }
 

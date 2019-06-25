@@ -147,7 +147,7 @@ class _LockScreenBodyState extends State<LockScreenBody> {
         // pop the lock screen itself
         Navigator.of(context).pop();
       } else {
-        showFlushBar(context, 'Incorrect PIN Code', title: 'Error', error: true);
+        showFlushbar('Incorrect PIN Code', title: 'Error', error: true);
       }
     }
     setState(() {

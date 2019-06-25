@@ -1,58 +1,40 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
+import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
-import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
-import 'package:pebrapp/database/beans/AdherenceReminderMessage.dart';
+import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
-import 'package:pebrapp/database/beans/VLSuppressedMessage.dart';
-import 'package:pebrapp/database/beans/VLUnsuppressedMessage.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/beans/YesNoRefused.dart';
 import 'package:pebrapp/database/models/Patient.dart';
-import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/screens/ARTRefillScreen.dart';
 import 'package:pebrapp/screens/AddViralLoadScreen.dart';
 import 'package:pebrapp/screens/EditPatientScreen.dart';
 import 'package:pebrapp/screens/PreferenceAssessmentScreen.dart';
+import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
+import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class PatientScreen extends StatelessWidget {
+class PatientScreen extends StatefulWidget {
   final Patient _patient;
-
   PatientScreen(this._patient);
-
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: BACKGROUND_COLOR,
-        body: TransparentHeaderPage(
-          title: 'Patient',
-          subtitle: _patient.artNumber,
-          actions: <Widget>[IconButton(onPressed: () { Navigator.of(context).pop(); }, icon: Icon(Icons.close),)],
-          child: _PatientScreenBody(context, _patient)));
-  }
+  createState() => _PatientScreenState(_patient);
 }
 
-class _PatientScreenBody extends StatefulWidget {
-  final BuildContext _context;
-  final Patient _patient;
-
-  _PatientScreenBody(this._context, this._patient);
-
-  @override
-  createState() => _PatientScreenBodyState(_context, _patient);
-}
-
-class _PatientScreenBodyState extends State<_PatientScreenBody> {
+class _PatientScreenState extends State<PatientScreen> {
   final int _descriptionFlex = 1;
   final int _contentFlex = 1;
-  final BuildContext _context;
+  BuildContext _context;
   Patient _patient;
   String _nextAssessmentText = '—';
   String _nextRefillText = '—';
@@ -67,11 +49,42 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   bool SCHOOL_VISIT_PE_done = false;
   bool PITSO_VISIT_PE_done = false;
 
-  _PatientScreenBodyState(this._context, this._patient);
-  
+  StreamSubscription<AppState> _appStateStream;
+
+  final double _spacingBetweenCards = 40.0;
+
+  // constructor
+  _PatientScreenState(this._patient);
+
+  @override
+  void initState() {
+    super.initState();
+    _appStateStream = PatientBloc.instance.appState.listen( (streamEvent) {
+      print('*** PatientScreen received data: ${streamEvent.runtimeType} ***');
+      if (streamEvent is AppStateRequiredActionData && streamEvent.action.patientART == _patient.artNumber) {
+        print('*** PatientScreen received AppStateRequiredActionData: ${streamEvent.action.patientART} ***');
+        setState(() {
+          // TODO: animate insertion and removal of required action label for visual fidelity
+          if (streamEvent.isDone) {
+            _patient.requiredActions.removeWhere((RequiredAction a) => a.type == streamEvent.action.type);
+          } else {
+            _patient.requiredActions.add(streamEvent.action);
+          }
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _appStateStream.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-
+    print('*** PatientScreenState.build ***');
+    _context = context;
     _screenWidth = MediaQuery.of(context).size.width;
 
     DateTime lastAssessmentDate = _patient.latestPreferenceAssessment?.createdDate;
@@ -95,9 +108,10 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
       _nextEndpointText = '—';
     }
 
-    final double _spacingBetweenCards = 40.0;
-    return Column(
+    final Widget content = Column(
       children: <Widget>[
+        _buildRequiredActions(),
+        _buildNextActions(),
         _buildPatientCharacteristicsCard(),
         _makeButton('Edit Characteristics', onPressed: () { _editCharacteristicsPressed(_patient); }, flat: true),
         SizedBox(height: _spacingBetweenCards),
@@ -111,30 +125,234 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         SizedBox(height: _spacingBetweenCards),
         _buildPreferencesCard(),
         SizedBox(height: _spacingBetweenCards),
-        _buildTitle('Next Preference Assessment'),
-        Text(_nextAssessmentText, style: TextStyle(fontSize: 16.0)),
-        SizedBox(height: 10.0),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.0),
-          child: Text('Preference assessments are due every month for unsuppressed patients and every 3 months for suppressed patients.', textAlign: TextAlign.center),
+      ],
+    );
+
+    return Scaffold(
+      backgroundColor: BACKGROUND_COLOR,
+      body: TransparentHeaderPage(
+        title: 'Patient',
+        subtitle: _patient.artNumber,
+        actions: <Widget>[IconButton(onPressed: () { Navigator.of(context).pop(); }, icon: Icon(Icons.close),)],
+        child: content,
+      ),
+    );
+
+  }
+
+  Widget _buildRequiredActions() {
+
+    FlatButton _endpointSurveyDoneButton(RequiredAction action) {
+      return FlatButton(
+        onPressed: () async {
+          _patient.requiredActions.removeWhere((RequiredAction a) => a.type == action.type);
+          await DatabaseProvider().removeRequiredAction(_patient.artNumber, action.type);
+          // TODO: hide the action card, ideally with an animation for visual fidelity
+        },
+        splashColor: NOTIFICATION_INFO_SPLASH,
+        child: Text(
+          "ENDPOINT SURVEY COMPLETED",
+          style: TextStyle(
+            color: NOTIFICATION_INFO_TEXT,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        SizedBox(height: 10.0),
-        _makeButton('Start Assessment', onPressed: () { _startAssessmentPressed(_context, _patient); }),
-        SizedBox(height: _spacingBetweenCards),
-        _buildTitle('Next ART Refill'),
-        Text(_nextRefillText, style: TextStyle(fontSize: 16.0)),
-        SizedBox(height: 10.0),
-        _makeButton('Manage Refill', onPressed: () { _manageRefillPressed(_context, _patient, _nextRefillText); }),
-        SizedBox(height: _spacingBetweenCards),
-        _buildTitle('Next Endpoint Survey'),
-        Text(_nextEndpointText, style: TextStyle(fontSize: 16.0)),
-        SizedBox(height: 10.0),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.0),
-          child: Text('Endpoint surveys are due 3, 6, and 12 months after patient enrollment.', textAlign: TextAlign.center),
+      );
+    }
+
+    final actions = _patient.requiredActions.toList().asMap().map((int i, RequiredAction action) {
+      String actionText;
+      Widget actionButton;
+      switch (action.type) {
+        case RequiredActionType.ASSESSMENT_REQUIRED:
+          actionText = "Preference assessment required. Start a preference assessment by tapping 'Start Assessment' below.";
+          break;
+        case RequiredActionType.REFILL_REQUIRED:
+          actionText = "ART refill required. Start an ART refill by tapping 'Manage Refill' below.";
+          break;
+        case RequiredActionType.ENDPOINT_3M_SURVEY_REQUIRED:
+          actionText = "3 month endpoint survey required. Start an endpoint survey by tapping 'Open KoBoCollect' below.";
+          actionButton = _endpointSurveyDoneButton(action);
+          break;
+        case RequiredActionType.ENDPOINT_6M_SURVEY_REQUIRED:
+          actionText = "6 month endpoint survey required. Start an endpoint survey by tapping 'Open KoBoCollect' below.";
+          actionButton = _endpointSurveyDoneButton(action);
+          break;
+        case RequiredActionType.ENDPOINT_12M_SURVEY_REQUIRED:
+          actionText = "12 month endpoint survey required. Start an endpoint survey by tapping 'Open KoBoCollect' below.";
+          actionButton = _endpointSurveyDoneButton(action);
+          break;
+        case RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED:
+          actionText = "The automatic synchronization of the notifications preferences with the database failed. Please synchronize manually.";
+          actionButton = FlatButton(
+            onPressed: () async {
+              await uploadNotificationsPreferences(_patient, _patient.latestPreferenceAssessment);
+              // TODO: hide the action card if the upload was successful, ideally with an animation for visual fidelity
+            },
+            splashColor: NOTIFICATION_INFO_SPLASH,
+            child: Text(
+              "SYNCHRONIZE",
+              style: TextStyle(
+                color: NOTIFICATION_INFO_TEXT,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          );
+          break;
+        case RequiredActionType.ART_REFILL_DATE_UPLOAD_REQUIRED:
+          actionText = "The automatic synchronization of the ART refill date with the database failed. Please synchronize manually.";
+          actionButton = FlatButton(
+            onPressed: () async {
+              await uploadNextARTRefillDate(_patient, _patient.latestARTRefill.nextRefillDate);
+              // TODO: hide the action card if the upload was successful, ideally with an animation for visual fidelity
+            },
+            splashColor: NOTIFICATION_INFO_SPLASH,
+            child: Text(
+              "SYNCHRONIZE",
+              style: TextStyle(
+                color: NOTIFICATION_INFO_TEXT,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          );
+          break;
+      }
+
+      final double badgeSize = 30.0;
+      return MapEntry(
+        i,
+        Card(
+          margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+          elevation: 5.0,
+          clipBehavior: Clip.antiAlias,
+          child: Container(
+            color: NOTIFICATION_NORMAL,
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: Column(
+              children: [
+                SizedBox(height: 20.0),
+                Container(
+                  width: double.infinity,
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Hero(
+                          tag: "RequiredAction_${_patient.artNumber}_$i",
+                          child: Container(
+                            width: badgeSize,
+                            height: badgeSize,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.black,
+                            ),
+                            child: Center(
+                              child: Text(
+                                '${i+1}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.normal,
+                                  fontFamily: 'Roboto',
+                                  decoration: TextDecoration.none,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 10.0),
+                        Expanded(
+                          child: Text(
+                            actionText,
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                              color: NOTIFICATION_MESSAGE_TEXT,
+                              height: 1.2,
+                            ),
+                          ),
+                        ),
+                      ]),
+                ),
+                actionButton ?? SizedBox(height: 15.0),
+                SizedBox(height: 5.0),
+              ],
+            ),
+          ),
         ),
-        SizedBox(height: 10.0),
-        _makeButton('Open KoBoCollect', onPressed: _onOpenKoboCollectPressed),
+      );
+    }).values.toList();
+
+    return Column(
+      children: <Widget>[
+        ...actions,
+        SizedBox(height: actions.length > 0 ? 20.0 : 0.0),
+      ],
+    );
+  }
+
+  Widget _buildNextActions() {
+
+    Widget _buildNextActionRow({String title, String dueDate, String explanation, Widget button}) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              title,
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      SizedBox(height: 10.0),
+                      Text(dueDate, style: TextStyle(fontSize: 16.0)),
+                      SizedBox(height: 10.0),
+                      Text(explanation),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 10.0),
+                button,
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
+    String pronoun = 'his/her';
+    if (_patient.gender == Gender.FEMALE()) {
+      pronoun = 'her';
+    } else if (_patient.gender == Gender.MALE()) {
+      pronoun = 'his';
+    }
+    return Column(
+      children: <Widget>[
+        _buildNextActionRow(
+          title: 'Next Preference Assessment',
+          dueDate: _nextAssessmentText,
+          explanation: 'Preference assessments are due every month for unsuppressed patients and every 3 months for suppressed patients.',
+          button: _makeButton('Start Assessment', onPressed: () { _startAssessmentPressed(_context, _patient); }),
+        ),
+        SizedBox(height: _spacingBetweenCards),
+        _buildNextActionRow(
+          title: 'Next ART Refill',
+          dueDate: _nextRefillText,
+          explanation: 'The ART refill date is selected when the patient collects $pronoun ARTs or has them delivered.',
+          button: _makeButton('Manage Refill', onPressed: () { _manageRefillPressed(_context, _patient, _nextRefillText); }),
+        ),
+        SizedBox(height: _spacingBetweenCards),
+        _buildNextActionRow(
+          title: 'Next Endpoint Survey',
+          dueDate: _nextEndpointText,
+          explanation: 'Endpoint surveys are due 3, 6, and 12 months after patient enrollment.',
+          button: _makeButton('Open KoBoCollect', onPressed: _onOpenKoboCollectPressed),
+        ),
         SizedBox(height: _spacingBetweenCards),
       ],
     );
@@ -677,7 +895,11 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
   }
 
   void _editCharacteristicsPressed(Patient patient) {
-    _fadeInScreen(EditPatientScreen(patient));
+    _fadeInScreen(EditPatientScreen(patient)).then((_) {
+      // calling setState to trigger a re-render of the page and display the new
+      // patient characteristics
+      setState(() {});
+    });
   }
 
   Future<void> _fetchFromDatabasePressed(BuildContext context, Patient patient) async {
@@ -718,31 +940,13 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
         },
       ),
     );
-    _uploadNotificationsPreferences(context, patient.latestPreferenceAssessment);
   }
 
-  Future<void> _uploadNotificationsPreferences(BuildContext context, final PreferenceAssessment assessment) async {
-    // TODO: implement upload of notifications preferences to viral load database API
-    print('...uploading notifications preferences\n'
-        'Adherence Reminder: ${assessment.adherenceReminderEnabled}\n'
-        'ART Refill Reminder: ${assessment.artRefillReminderEnabled}\n'
-        'Viral Load Notifications: ${assessment.vlNotificationEnabled}');
-    await Future.delayed(Duration(seconds: 3));
-    showFlushBar(context, 'Please upload the notifications preferences manually.', title: 'Notifications Upload Failed', error: true, buttonText: 'Retry\nNow', onButtonPress: () {
-      Navigator.of(context).popUntil((Route<dynamic> route) {
-        return route.settings.name != '/flushbarRoute';
-      });
-      _uploadNotificationsPreferences(context, assessment);
-    });
-    // TODO: show an upload button on the patient screen somewhere so that a manual upload can be started by the user
-  }
-
-  void _manageRefillPressed(BuildContext context, Patient patient, String nextRefillDate) {
-    _fadeInScreen(ARTRefillScreen(patient, nextRefillDate)).then((_) {
-      // calling setState to trigger a re-render of the page and display the new
-      // ART Refill Date
-      setState(() {});
-    });
+  Future<void> _manageRefillPressed(BuildContext context, Patient patient, String nextRefillDate) async {
+    await _fadeInScreen(ARTRefillScreen(patient, nextRefillDate));
+    // calling setState to trigger a re-render of the page and display the new
+    // ART Refill Date
+    setState(() {});
   }
 
   Future<void> _onOpenKoboCollectPressed() async {
@@ -753,7 +957,7 @@ class _PatientScreenBodyState extends State<_PatientScreenBody> {
     } else if (await canLaunch(marketUrl)) {
       await launch(marketUrl);
     } else {
-      showFlushBar(context, "Could not find KoBoCollect app. Make sure KoBoCollect is installed.");
+      showFlushbar("Could not find KoBoCollect app. Make sure KoBoCollect is installed.");
     }
   }
 

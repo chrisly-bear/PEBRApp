@@ -7,11 +7,13 @@ import 'package:flushbar/flushbar.dart';
 import 'package:pebrapp/config/SharedPreferencesConfig.dart';
 import 'package:intl/intl.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/main.dart';
 import 'package:pebrapp/screens/LockScreen.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:password/password.dart';
+import 'package:flushbar/flushbar_route.dart' as route;
 
 
 /// Displays a notification over the given [context].
@@ -25,7 +27,9 @@ import 'package:password/password.dart';
 /// @param [onButtonPress]: Required if a button should be displayed. This function will be executed when the button is pressed.
 ///
 /// @param [buttonText]: Optional button text to be displayed on the button. If this is null or the empty string an info icon will be displayed instead.
-void showFlushBar(BuildContext context, String message, {String title, bool error=false, VoidCallback onButtonPress, String buttonText}) {
+Future<void> showFlushbar(String message, {String title, bool error=false, VoidCallback onButtonPress, String buttonText}) {
+
+  final context = PEBRAppState.rootContext;
 
   FlatButton button;
   if (onButtonPress != null) {
@@ -43,7 +47,7 @@ void showFlushBar(BuildContext context, String message, {String title, bool erro
   final double screenWidth = MediaQuery.of(context).size.width;
   final double padding = max(MIN_PADDING_HORIZONTAL, (screenWidth - MAX_WIDTH)/2);
 
-  Flushbar(
+  final Flushbar _flushbar = Flushbar(
     flushbarPosition: FlushbarPosition.TOP,
     titleText: title == null ? null : Text(title,
       textAlign: TextAlign.center,
@@ -66,7 +70,14 @@ void showFlushBar(BuildContext context, String message, {String title, bool erro
     backgroundColor: error ? NOTIFICATION_ERROR : NOTIFICATION_NORMAL,
     aroundPadding: EdgeInsets.symmetric(horizontal: padding),
     duration: error ? null : Duration(seconds: 5),
-  ).show(context);
+  );
+
+  final _route = route.showFlushbar(
+    context: context,
+    flushbar: _flushbar,
+  );
+
+  return Navigator.of(context, rootNavigator: true).push(_route);
 }
 
 /// Takes a date and returns a date at the beginning (midnight) of the same day.

@@ -3,6 +3,7 @@ import 'package:pebrapp/config/SwitchConfig.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
+import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
@@ -19,7 +20,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 32;
+  static const int _DB_VERSION = 33;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -179,6 +180,18 @@ class DatabaseProvider {
           ${UserData.colHealthCenter} INTEGER NOT NULL,
           ${UserData.colIsActive} BIT NOT NULL,
           ${UserData.colDeactivatedDate} TEXT
+        );
+        """);
+    // RequiredAction table:
+    // Each [RequiredAction.type] can only occur once per patient. The unique
+    // constraint enforces that and allows us to insert actions redundantly.
+    await db.execute("""
+        CREATE TABLE IF NOT EXISTS ${RequiredAction.tableName} (
+          ${RequiredAction.colId} INTEGER PRIMARY KEY,
+          ${RequiredAction.colCreatedDate} TEXT NOT NULL,
+          ${RequiredAction.colPatientART} TEXT NOT NULL,
+          ${RequiredAction.colType} INTEGER NOT NULL,
+          UNIQUE(${RequiredAction.colPatientART}, ${RequiredAction.colType}) ON CONFLICT IGNORE
         );
         """);
     // TODO: set colLatestPreferenceAssessment as foreign key to `PreferenceAssessment` table
@@ -418,6 +431,18 @@ class DatabaseProvider {
       await db.execute("DROP TABLE IF EXISTS ViralLoad;");
       await _onCreate(db, 32);
     }
+    if (oldVersion < 33) {
+      print('Upgrading to database version 33...');
+      await db.execute("""
+        CREATE TABLE IF NOT EXISTS RequiredAction (
+          id INTEGER PRIMARY KEY,
+          created_date_utc TEXT NOT NULL,
+          patient_art TEXT NOT NULL,
+          action_type INTEGER NOT NULL,
+          UNIQUE(patient_art, action_type) ON CONFLICT IGNORE
+        );
+        """);
+    }
   }
 
   FutureOr<void> _onDowngrade(Database db, int oldVersion, int newVersion) async {
@@ -592,6 +617,7 @@ class DatabaseProvider {
         await p.initializeViralLoadFields();
         await p.initializePreferenceAssessmentField();
         await p.initializeARTRefillField();
+        await p.initializeRequiredActionsField();
         list.add(p);
       }
     }
@@ -610,6 +636,22 @@ class DatabaseProvider {
     userData.createdDate = DateTime.now().toUtc();
     final res = await db.insert(UserData.tableName, userData.toMap());
     return res;
+  }
+
+  Future<void> insertRequiredAction(RequiredAction action) async {
+    final Database db = await _databaseInstance;
+    action.createdDate = DateTime.now().toUtc();
+    final res = await db.insert(RequiredAction.tableName, action.toMap());
+    return res;
+  }
+
+  Future<void> removeRequiredAction(String patientART, RequiredActionType type) async {
+    final Database db = await _databaseInstance;
+    final int rowsDeleted = await db.delete(
+      RequiredAction.tableName,
+      where: "${RequiredAction.colPatientART} = ? AND ${RequiredAction.colType} = ?",
+      whereArgs: [patientART, type.index],
+    );
   }
 
   /// Sets the 'is_active' column to false (0) for the latest active user.
@@ -721,6 +763,21 @@ class DatabaseProvider {
     return null;
   }
 
+  Future<Set<RequiredAction>> retrieveRequiredActionsForPatient(String patientART) async {
+    final Database db = await _databaseInstance;
+    final List<Map> res = await db.query(
+        RequiredAction.tableName,
+        where: '${RequiredAction.colPatientART} = ?',
+        whereArgs: [patientART],
+        orderBy: '${RequiredAction.colCreatedDate} DESC'
+    );
+    final Set<RequiredAction> set = {};
+    for (Map map in res) {
+      set.add(RequiredAction.fromMap(map));
+    }
+    return set;
+  }
+
   /// Retrieves all patient rows from the database, including all edits.
   Future<List<Patient>> retrieveAllPatients() async {
     final Database db = await _databaseInstance;
@@ -730,7 +787,6 @@ class DatabaseProvider {
     if (res.isNotEmpty) {
       for (Map<String, dynamic> map in res) {
         Patient p = Patient.fromMap(map);
-        await p.initializePreferenceAssessmentField();
         list.add(p);
       }
     }

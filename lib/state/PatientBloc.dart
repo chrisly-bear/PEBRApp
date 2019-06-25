@@ -2,10 +2,8 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:pebrapp/database/DatabaseProvider.dart';
-import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
-import 'package:pebrapp/database/models/PreferenceAssessment.dart';
-import 'package:pebrapp/database/models/ViralLoad.dart';
+import 'package:pebrapp/database/models/RequiredAction.dart';
 
 class PatientBloc {
   static PatientBloc _instance;
@@ -49,32 +47,19 @@ class PatientBloc {
     }
   }
 
-  /// Store a new row in the Patient table and trigger an [AppStatePatientData] stream event.
-  Future<void> sinkPatientData(Patient patient) async {
-    await DatabaseProvider().insertPatient(patient);
+  /// Trigger an [AppStatePatientData] stream event.
+  Future<void> sinkNewPatientData(Patient patient) async {
     print('Putting patient ${patient.artNumber} down the sink');
     _appStateStreamController.sink.add(AppStatePatientData(patient));
   }
 
-  /// Store a new row in the ViralLoad table and trigger an [AppStateViralLoadData] stream event.
-  Future<void> sinkViralLoadData(ViralLoad viralLoad) async {
-    await DatabaseProvider().insertViralLoad(viralLoad);
-    print('Putting viral load for patient ${viralLoad.patientART} down the sink');
-    _appStateStreamController.sink.add(AppStateViralLoadData(viralLoad));
-  }
-
-  /// Store a new row in the PreferenceAssessment table and trigger an [AppStatePreferenceAssessmentData] stream event.
-  Future<void> sinkPreferenceAssessmentData(PreferenceAssessment newPreferenceAssessment) async {
-    await DatabaseProvider().insertPreferenceAssessment(newPreferenceAssessment);
-    print('Putting preference assessment for patient ${newPreferenceAssessment.patientART} down the sink');
-    _appStateStreamController.sink.add(AppStatePreferenceAssessmentData(newPreferenceAssessment));
-  }
-
-  /// Store a new row in the ARTRefill table and trigger an [AppStateARTRefillData] stream event.
-  Future<void> sinkARTRefillData(ARTRefill newARTRefill) async {
-    await DatabaseProvider().insertARTRefill(newARTRefill);
-    print('Putting ART Refill for patient ${newARTRefill.patientART} down the sink');
-    _appStateStreamController.sink.add(AppStateARTRefillData(newARTRefill));
+  /// Trigger an [AppStateRequiredActionData] stream event.
+  ///
+  /// @param action: the action type and which patient it affects
+  /// @param isDone: if the action is done (true) or still has to be done (false)
+  Future<void> sinkRequiredActionData(RequiredAction action, bool isDone) async {
+    print('Putting required action done down the sink: ${action.patientART}, ${action.type}, $isDone');
+    _appStateStreamController.sink.add(AppStateRequiredActionData(action, isDone));
   }
 
   void dispose() {
@@ -82,7 +67,7 @@ class PatientBloc {
   }
 }
 
-class AppState {}
+abstract class AppState {}
 
 class AppStateLoading extends AppState {}
 
@@ -93,17 +78,8 @@ class AppStatePatientData extends AppState {
   AppStatePatientData(this.patient);
 }
 
-class AppStateViralLoadData extends AppState {
-  final ViralLoad viralLoad;
-  AppStateViralLoadData(this.viralLoad);
-}
-
-class AppStatePreferenceAssessmentData extends AppState {
-  final PreferenceAssessment preferenceAssessment;
-  AppStatePreferenceAssessmentData(this.preferenceAssessment);
-}
-
-class AppStateARTRefillData extends AppState {
-  final ARTRefill artRefill;
-  AppStateARTRefillData(this.artRefill);
+class AppStateRequiredActionData extends AppState {
+  final bool isDone;
+  final RequiredAction action;
+  AppStateRequiredActionData(this.action, this.isDone);
 }

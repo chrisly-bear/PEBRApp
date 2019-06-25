@@ -6,6 +6,7 @@ import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/NoConsentReason.dart';
 import 'package:pebrapp/database/beans/PhoneAvailability.dart';
 import 'package:pebrapp/database/beans/SexualOrientation.dart';
+import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
@@ -60,6 +61,7 @@ class Patient implements IExcelExportable {
   List<ViralLoad> viralLoadFollowUps = [];
   PreferenceAssessment latestPreferenceAssessment;
   ARTRefill latestARTRefill;
+  Set<RequiredAction> requiredActions = {};
 
 
   // Constructors
@@ -196,6 +198,32 @@ class Patient implements IExcelExportable {
   Future<void> initializeARTRefillField() async {
     ARTRefill artRefill = await DatabaseProvider().retrieveLatestARTRefillForPatient(artNumber);
     this.latestARTRefill = artRefill;
+  }
+
+  /// Initializes the field [requiredActions] with the latest data from the database.
+  ///
+  /// Before calling this, [initializeARTRefillField],
+  /// [initializePreferenceAssessmentField], [initializeViralLoadFields] should
+  /// be called, otherwise actions are required because the fields are not
+  /// initialized (null).
+  Future<void> initializeRequiredActionsField() async {
+    // get required actions stored in database
+    Set<RequiredAction> actions = await DatabaseProvider().retrieveRequiredActionsForPatient(artNumber);
+    // calculate other required actions
+    final DateTime now = DateTime.now();
+    if (latestARTRefill?.nextRefillDate == null || now.isAfter(latestARTRefill.nextRefillDate)) {
+      RequiredAction artRefillRequired = RequiredAction(artNumber, RequiredActionType.REFILL_REQUIRED);
+      actions.add(artRefillRequired);
+    }
+    if (latestPreferenceAssessment == null || now.isAfter(calculateNextAssessment(latestPreferenceAssessment.createdDate, isSuppressed(this)))) {
+      RequiredAction assessmentRequired = RequiredAction(artNumber, RequiredActionType.ASSESSMENT_REQUIRED);
+      actions.add(assessmentRequired);
+    }
+    // TODO: Check if a new endpoint survey is due and add to actions if it is.
+    //  We have to keep track of when the user finished an endpoint survey so we
+    //  don't display two messages after 6 months even though the user already
+    //  finished the 3-month survey.
+    this.requiredActions = actions;
   }
 
   /// Returns the viral load with the latest blood draw date.

@@ -733,13 +733,15 @@ class _NewPatientFormState extends State<_NewPatientForm> {
         _viralLoadBaseline.viralLoad = _viralLoadBaseline.isLowerThanDetectable ? null : int.parse(_viralLoadBaselineResultCtr.text);
         _viralLoadBaseline.labNumber = _viralLoadBaselineLabNumberCtr.text;
         _viralLoadBaseline.checkLogicAndResetUnusedFields();
-        await PatientBloc.instance.sinkViralLoadData(_viralLoadBaseline);
+        await DatabaseProvider().insertViralLoad(_viralLoadBaseline);
         _newPatient.viralLoadBaselineManual = _viralLoadBaseline;
       }
 
-      await PatientBloc.instance.sinkPatientData(_newPatient);
+      await _newPatient.initializeRequiredActionsField();
+      await DatabaseProvider().insertPatient(_newPatient);
+      await PatientBloc.instance.sinkNewPatientData(_newPatient);
       final String finishNotification = 'New patient created successfully';
-      showFlushBar(context, finishNotification);
+      showFlushbar(finishNotification);
       setState(() {
         _isLoading = false;
       });
@@ -753,7 +755,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
   void _closeScreen() {
     Navigator.of(context).popUntil((Route<dynamic> route) {
-      return (route.settings.name == '/patient' || route.settings.name == '/');
+      return (route.settings.name == '/');
     });
   }
 
@@ -766,7 +768,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     } else if (await canLaunch(marketUrl)) {
       await launch(marketUrl);
     } else {
-      showFlushBar(context, "Could not find KoBoCollect app. Make sure KoBoCollect is installed.");
+      showFlushbar("Could not find KoBoCollect app. Make sure KoBoCollect is installed.");
     }
   }
 
