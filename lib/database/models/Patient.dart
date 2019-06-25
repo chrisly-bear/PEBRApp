@@ -293,4 +293,19 @@ class Patient implements IExcelExportable {
   // ignore: unnecessary_getters_setters
   DateTime get createdDate => _createdDate;
 
+  /// Filters out endpoint survey actions that are not due yet.
+  Set<RequiredAction> get visibleRequiredActions {
+    Set<RequiredAction> visibleRequiredActions = {};
+    visibleRequiredActions.addAll(requiredActions);
+    visibleRequiredActions.removeWhere((RequiredAction a) {
+      final bool isEndpointSurveyAndDue = isEndpointSurveyDue(this.enrolmentDate, a.type);
+      if (isEndpointSurveyAndDue != null && !isEndpointSurveyAndDue) {
+        // endpoint survey not due yet, remove from visible required actions
+        return true;
+      }
+      return false;
+    });
+    return visibleRequiredActions;
+  }
+
 }

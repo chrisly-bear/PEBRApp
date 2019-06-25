@@ -7,6 +7,7 @@ import 'package:flushbar/flushbar.dart';
 import 'package:pebrapp/config/SharedPreferencesConfig.dart';
 import 'package:intl/intl.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/main.dart';
 import 'package:pebrapp/screens/LockScreen.dart';
 import 'package:pebrapp/utils/AppColors.dart';
@@ -199,26 +200,55 @@ DateTime calculateNextAssessment(DateTime lastAssessment, bool suppressed) {
 }
 
 /// Calculates the due date of the next endpoint survey based on the date of
-/// enrolment and the current date. Endpoint surveys are due 3, 6, and 12 months
-/// after the enrolment date.
+/// enrollment and the open endpoint survey actions in [requiredActions].
+/// Endpoint surveys are due 3, 6, and 12 months after the enrollment date.
 ///
-/// Returns `null` if [enrolmentDate] is more than 12 months in the past.
-DateTime calculateNextEndpointSurvey(DateTime enrolmentDate) {
-  DateTime threeMonthsAfter = DateTime(enrolmentDate.year, enrolmentDate.month + 3, enrolmentDate.day);
-  DateTime sixMonthsAfter = DateTime(enrolmentDate.year, enrolmentDate.month + 6, enrolmentDate.day);
-  DateTime twelveMonthsAfter = DateTime(enrolmentDate.year, enrolmentDate.month + 12, enrolmentDate.day);
-  DateTime now = DateTime.now();
+/// Returns `null` if there are no ENDPOINT_xM_SURVEY_REQUIRED actions in
+/// [requiredActions].
+DateTime calculateNextEndpointSurvey(DateTime enrollmentDate, Set<RequiredAction> requiredActions) {
+  final bool _completed12M = !requiredActions.any((RequiredAction a) => a.type == RequiredActionType.ENDPOINT_12M_SURVEY_REQUIRED);
+  final bool _completed6M = !requiredActions.any((RequiredAction a) => a.type == RequiredActionType.ENDPOINT_6M_SURVEY_REQUIRED);
+  final bool _completed3M = !requiredActions.any((RequiredAction a) => a.type == RequiredActionType.ENDPOINT_3M_SURVEY_REQUIRED);
   DateTime nextDate;
-  if (now.isBefore(twelveMonthsAfter)) {
+  if (!_completed12M) {
+    DateTime twelveMonthsAfter = _addMonths(enrollmentDate, 12);
     nextDate = twelveMonthsAfter;
   }
-  if (now.isBefore(sixMonthsAfter)) {
+  if (!_completed6M) {
+    DateTime sixMonthsAfter = _addMonths(enrollmentDate, 6);
     nextDate = sixMonthsAfter;
   }
-  if (now.isBefore(threeMonthsAfter)) {
+  if (!_completed3M) {
+    DateTime threeMonthsAfter = _addMonths(enrollmentDate, 3);
     nextDate = threeMonthsAfter;
   }
   return nextDate;
+}
+
+/// Calculates if a given [endpointSurveyType] is due based on the date of
+/// enrollment and the current date.
+///
+/// @param [endpointSurveyType] 3, 6, or 12 month survey type. If any other
+/// type is passed (e.g. REFILL_REQUIRED) it will return null.
+bool isEndpointSurveyDue(DateTime enrollmentDate, RequiredActionType endpointSurveyType) {
+  final DateTime now = DateTime.now();
+  switch (endpointSurveyType) {
+    case RequiredActionType.ENDPOINT_12M_SURVEY_REQUIRED:
+      final DateTime twelveMonthsAfter = _addMonths(enrollmentDate, 12);
+      return now.isAfter(twelveMonthsAfter);
+    case RequiredActionType.ENDPOINT_6M_SURVEY_REQUIRED:
+      final DateTime sixMonthsAfter = _addMonths(enrollmentDate, 6);
+      return now.isAfter(sixMonthsAfter);
+    case RequiredActionType.ENDPOINT_3M_SURVEY_REQUIRED:
+      final DateTime threeMonthsAfter = _addMonths(enrollmentDate, 3);
+      return now.isAfter(threeMonthsAfter);
+    default:
+      return null;
+  }
+}
+
+DateTime _addMonths(DateTime date, int monthsToAdd) {
+  return DateTime(date.year, date.month + monthsToAdd, date.day);
 }
 
 /// Updates the date of the last successful backup to now (local time).

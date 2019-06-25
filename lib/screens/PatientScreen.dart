@@ -100,7 +100,7 @@ class _PatientScreenState extends State<PatientScreen> {
       _nextRefillText = '—';
     }
 
-    DateTime nextEndpointSurveyDate = calculateNextEndpointSurvey(_patient.enrolmentDate);
+    DateTime nextEndpointSurveyDate = calculateNextEndpointSurvey(_patient.enrolmentDate, _patient.requiredActions);
     if (nextEndpointSurveyDate != null) {
       _nextEndpointText = formatDate(nextEndpointSurveyDate);
     } else {
@@ -159,7 +159,7 @@ class _PatientScreenState extends State<PatientScreen> {
       );
     }
 
-    final actions = _patient.requiredActions.toList().asMap().map((int i, RequiredAction action) {
+    final actions = _patient.visibleRequiredActions.toList().asMap().map((int i, RequiredAction action) {
       String actionText;
       Widget actionButton;
       switch (action.type) {
