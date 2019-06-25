@@ -2237,7 +2237,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         DatabaseProvider().insertUserData(_user);
       }
       // send an event indicating that the preference assessment was done
-      PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.ASSESSMENT_REQUIRED), true);
+      PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.ASSESSMENT_REQUIRED, null), true);
       uploadNotificationsPreferences(_patient, _pa);
       Navigator.of(context).pop(); // close Preference Assessment screen
       showFlushbar('Preference Assessment saved');

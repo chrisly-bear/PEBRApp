@@ -211,15 +211,15 @@ DateTime calculateNextEndpointSurvey(DateTime enrollmentDate, Set<RequiredAction
   final bool _completed3M = !requiredActions.any((RequiredAction a) => a.type == RequiredActionType.ENDPOINT_3M_SURVEY_REQUIRED);
   DateTime nextDate;
   if (!_completed12M) {
-    DateTime twelveMonthsAfter = _addMonths(enrollmentDate, 12);
+    DateTime twelveMonthsAfter = addMonths(enrollmentDate, 12);
     nextDate = twelveMonthsAfter;
   }
   if (!_completed6M) {
-    DateTime sixMonthsAfter = _addMonths(enrollmentDate, 6);
+    DateTime sixMonthsAfter = addMonths(enrollmentDate, 6);
     nextDate = sixMonthsAfter;
   }
   if (!_completed3M) {
-    DateTime threeMonthsAfter = _addMonths(enrollmentDate, 3);
+    DateTime threeMonthsAfter = addMonths(enrollmentDate, 3);
     nextDate = threeMonthsAfter;
   }
   return nextDate;
@@ -234,20 +234,23 @@ bool isEndpointSurveyDue(DateTime enrollmentDate, RequiredActionType endpointSur
   final DateTime now = DateTime.now();
   switch (endpointSurveyType) {
     case RequiredActionType.ENDPOINT_12M_SURVEY_REQUIRED:
-      final DateTime twelveMonthsAfter = _addMonths(enrollmentDate, 12);
+      final DateTime twelveMonthsAfter = addMonths(enrollmentDate, 12);
       return now.isAfter(twelveMonthsAfter);
     case RequiredActionType.ENDPOINT_6M_SURVEY_REQUIRED:
-      final DateTime sixMonthsAfter = _addMonths(enrollmentDate, 6);
+      final DateTime sixMonthsAfter = addMonths(enrollmentDate, 6);
       return now.isAfter(sixMonthsAfter);
     case RequiredActionType.ENDPOINT_3M_SURVEY_REQUIRED:
-      final DateTime threeMonthsAfter = _addMonths(enrollmentDate, 3);
+      final DateTime threeMonthsAfter = addMonths(enrollmentDate, 3);
       return now.isAfter(threeMonthsAfter);
     default:
       return null;
   }
 }
 
-DateTime _addMonths(DateTime date, int monthsToAdd) {
+/// Adds [monthsToAdd] to [date].
+///
+/// Hour, minute, second, millisecond, microsecond will all be 0.
+DateTime addMonths(DateTime date, int monthsToAdd) {
   return DateTime(date.year, date.month + monthsToAdd, date.day);
 }
 

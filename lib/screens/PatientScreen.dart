@@ -159,7 +159,9 @@ class _PatientScreenState extends State<PatientScreen> {
       );
     }
 
-    final actions = _patient.visibleRequiredActions.toList().asMap().map((int i, RequiredAction action) {
+    final List<RequiredAction> visibleRequiredActionsSorted =_patient.visibleRequiredActions.toList();
+    visibleRequiredActionsSorted.sort((RequiredAction a, RequiredAction b) => a.dueDate.isBefore(b.dueDate) ? -1 : 1);
+    final actions = visibleRequiredActionsSorted.asMap().map((int i, RequiredAction action) {
       String actionText;
       Widget actionButton;
       switch (action.type) {

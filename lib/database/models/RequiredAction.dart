@@ -7,20 +7,23 @@ class RequiredAction {
   static final colCreatedDate = 'created_date_utc';
   static final colPatientART = 'patient_art'; // foreign key to [Patient].art_number
   static final colType = 'action_type';
+  static final colDueDate = 'due_date';
 
   DateTime _createdDate;
   String patientART;
   RequiredActionType type;
+  DateTime dueDate;
 
   // Constructors
   // ------------
 
-  RequiredAction(this.patientART, this.type);
+  RequiredAction(this.patientART, this.type, this.dueDate);
 
   RequiredAction.fromMap(map) {
     this._createdDate = DateTime.parse(map[colCreatedDate]);
     this.patientART = map[colPatientART];
     this.type = RequiredActionType.values[map[colType]];
+    this.dueDate = DateTime.parse(map[colDueDate]);
   }
 
 
@@ -28,6 +31,11 @@ class RequiredAction {
   // -----
 
   // override the equality operator
+  // we deliberately define RequiredActions to be equal if they belong to the
+  // same patient and are of the same type, we ignore different dueDates
+  // because we don't want to allow for duplicates of the same type (e.g. if
+  // there are several entries of NOTIFICATIONS_UPLOAD_REQUIRED we only want to
+  // require an upload from the user once and not display several such actions)
   @override
   bool operator ==(o) => o is RequiredAction && o.patientART == this.patientART && o.type == this.type;
 
@@ -40,6 +48,7 @@ class RequiredAction {
     map[colCreatedDate] = _createdDate.toIso8601String();
     map[colPatientART] = patientART;
     map[colType] = type.index;
+    map[colDueDate] = dueDate.toIso8601String();
     return map;
   }
 

@@ -20,7 +20,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 33;
+  static const int _DB_VERSION = 34;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -191,6 +191,7 @@ class DatabaseProvider {
           ${RequiredAction.colCreatedDate} TEXT NOT NULL,
           ${RequiredAction.colPatientART} TEXT NOT NULL,
           ${RequiredAction.colType} INTEGER NOT NULL,
+          ${RequiredAction.colDueDate} TEXT NOT NULL,
           UNIQUE(${RequiredAction.colPatientART}, ${RequiredAction.colType}) ON CONFLICT IGNORE
         );
         """);
@@ -442,6 +443,10 @@ class DatabaseProvider {
           UNIQUE(patient_art, action_type) ON CONFLICT IGNORE
         );
         """);
+    }
+    if (oldVersion < 34) {
+      print('Upgrading to database version 34...');
+      await db.execute("ALTER TABLE RequiredAction ADD due_date TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z';");
     }
   }
 
@@ -769,7 +774,6 @@ class DatabaseProvider {
         RequiredAction.tableName,
         where: '${RequiredAction.colPatientART} = ?',
         whereArgs: [patientART],
-        orderBy: '${RequiredAction.colCreatedDate} DESC'
     );
     final Set<RequiredAction> set = {};
     for (Map map in res) {
