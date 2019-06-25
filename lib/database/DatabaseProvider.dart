@@ -869,7 +869,8 @@ class DatabaseProvider {
     final int rowsDeletedViralLoadTable = await db.delete(ViralLoad.tableName, where: '${ViralLoad.colPatientART} = ?', whereArgs: [artNumber]);
     final int rowsDeletedPreferenceAssessmentTable = await db.delete(PreferenceAssessment.tableName, where: '${PreferenceAssessment.colPatientART} = ?', whereArgs: [artNumber]);
     final int rowsDeletedARTRefillTable = await db.delete(ARTRefill.tableName, where: '${ARTRefill.colPatientART} = ?', whereArgs: [artNumber]);
-    return rowsDeletedPatientTable + rowsDeletedViralLoadTable + rowsDeletedPreferenceAssessmentTable + rowsDeletedARTRefillTable;
+    final int rowsDeletedRequiredActionTable = await db.delete(RequiredAction.tableName, where: '${RequiredAction.colPatientART} = ?', whereArgs: [artNumber]);
+    return rowsDeletedPatientTable + rowsDeletedViralLoadTable + rowsDeletedPreferenceAssessmentTable + rowsDeletedARTRefillTable + rowsDeletedRequiredActionTable;
   }
 
 }
