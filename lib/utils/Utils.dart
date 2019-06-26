@@ -332,7 +332,7 @@ bool isSuppressed(Patient patient) {
 
 /// Shows the lock screen, where the user has to enter their PIN code to unlock.
 Future<T> lockApp<T extends Object>(BuildContext context) {
-  return Navigator.of(context).push(
+  return Navigator.of(context, rootNavigator: true).push(
     PageRouteBuilder<T>(
       opaque: false,
       settings: RouteSettings(name: '/lock'),
