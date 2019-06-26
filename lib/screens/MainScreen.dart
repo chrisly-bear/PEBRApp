@@ -54,7 +54,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     print('~~~ MainScreenState.initState ~~~');
     // listen to changes in the app lifecycle
     WidgetsBinding.instance.addObserver(this);
-    _onAppResume();
+    _onAppStart();
 
     /*
      * Normally, one uses StreamBuilder with the BLoC pattern. But StreamBuilder
@@ -236,11 +236,27 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   /// Runs checks whether user is logged in / whether the app should be locked,
   /// and whether a backup should be run simultaneously.
   ///
-  /// Gets called when the application comes to the foreground or is run for the
-  /// first time.
+  /// Gets called when the application is started cold, i.e., when the app was
+  /// not open in the background already.
+  Future<void> _onAppStart() async {
+    _checkLoggedInAndLockStatus();
+    _runBackupIfDue();
+  }
+
+  /// Runs checks whether user is logged in / whether the app should be locked,
+  /// and whether a backup should be run simultaneously. It also rebuilds the
+  /// screen to update any changes to required actions, i.e., to check if any
+  /// ART refills, preference assessments, or endpoint surveys have become due.
+  ///
+  /// Gets called when the application was already open in the background and
+  /// comes to the foreground again.
   Future<void> _onAppResume() async {
     _checkLoggedInAndLockStatus();
     _runBackupIfDue();
+    // Check if an ART refill, preference assessment, or endpoint survey has
+    // become due. It is enough to trigger the MainScreen to rebuild, we do this
+    // by calling setState.
+    setState(() {});
   }
 
   /// Checks whether the user is logged in (if not shows the login screen) and
