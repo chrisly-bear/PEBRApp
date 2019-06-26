@@ -253,10 +253,18 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   Future<void> _onAppResume() async {
     _checkLoggedInAndLockStatus();
     _runBackupIfDue();
-    // Check if an ART refill, preference assessment, or endpoint survey has
-    // become due. It is enough to trigger the MainScreen to rebuild, we do this
-    // by calling setState.
-    setState(() {});
+    _recalculateRequiredActionsForAllPatients();
+  }
+
+  /// Checks if an ART refill, preference assessment, or endpoint survey has
+  /// become due by re-calculating the required actions field for each patient.
+  /// It calls setState after each patient to trigger a rebuild of the
+  /// MainScreen and display the new data.
+  Future<void> _recalculateRequiredActionsForAllPatients() async {
+    for (Patient p in _patients) {
+      await p.initializeRequiredActionsField();
+      setState(() {});
+    }
   }
 
   /// Checks whether the user is logged in (if not shows the login screen) and
