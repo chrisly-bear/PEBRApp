@@ -258,12 +258,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
 
   /// Checks if an ART refill, preference assessment, or endpoint survey has
   /// become due by re-calculating the required actions field for each patient.
-  /// It calls setState after each patient to trigger a rebuild of the
-  /// MainScreen and display the new data.
+  /// It send an [PatientBloc.AppStatePatientData] event for each patient to
+  /// inform all listeners of the new data.
   Future<void> _recalculateRequiredActionsForAllPatients() async {
     for (Patient p in _patients) {
       await p.initializeRequiredActionsField();
-      setState(() {});
+      PatientBloc.instance.sinkNewPatientData(p);
     }
   }
 

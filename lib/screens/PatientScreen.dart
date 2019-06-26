@@ -61,6 +61,11 @@ class _PatientScreenState extends State<PatientScreen> {
     super.initState();
     _appStateStream = PatientBloc.instance.appState.listen( (streamEvent) {
       print('*** PatientScreen received data: ${streamEvent.runtimeType} ***');
+      if (streamEvent is AppStatePatientData && streamEvent.patient.artNumber == _patient.artNumber) {
+        // TODO: animate changes to the new patient data (e.g. insertions and removals of required action card) with an animation for visual fidelity
+        print('*** PatientScreen received AppStatePatientData ***');
+        setState(() {});
+      }
       if (streamEvent is AppStateRequiredActionData && streamEvent.action.patientART == _patient.artNumber) {
         print('*** PatientScreen received AppStateRequiredActionData: ${streamEvent.action.patientART} ***');
         setState(() {
