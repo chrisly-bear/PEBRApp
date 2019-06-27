@@ -908,7 +908,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       return Colors.transparent;
     }
 
-    if (patient.requiredActions.length > 0) {
+    if (patient.visibleRequiredActions.length > 0) {
       return URGENCY_HIGH;
     }
 
