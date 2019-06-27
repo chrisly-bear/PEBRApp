@@ -450,8 +450,14 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   }
 
   Widget _bodyPatientTable() {
+    final double _paddingHorizontal = 10.0;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
+      padding: EdgeInsets.only(
+        left: _paddingHorizontal,
+        right: _paddingHorizontal,
+        bottom: 10.0,
+      ),
       child: Column(
         children: _buildPatientCards(),
       ),
@@ -460,7 +466,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
 
   List<Widget> _buildPatientCards() {
     const _cardMarginVertical = 8.0;
-    const _cardMarginHorizontal = 10.0;
+    const _cardMarginHorizontal = 0.0;
     const _rowPaddingVertical = 20.0;
     const _rowPaddingHorizontal = 15.0;
     const _colorBarWidth = 15.0;
@@ -793,31 +799,22 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           badges.add(
             Hero(
               tag: "RequiredAction_${curPatient.artNumber}_$i",
-              child: Padding(
-                padding: EdgeInsets.only(right: 3.0),
-                child: Container(
-                  width: badgeSize,
-                  height: badgeSize,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.black,
-                    boxShadow: [
-                      BoxShadow(
-                        color: i == 0 ? Colors.black45 : Colors.transparent,
-                        blurRadius: 10.0,
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${i+1}',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.normal,
-                        fontFamily: 'Roboto',
-                        decoration: TextDecoration.none,
-                      ),
+              child: Container(
+                width: badgeSize,
+                height: badgeSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black,
+                ),
+                child: Center(
+                  child: Text(
+                    '${i+1}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.normal,
+                      fontFamily: 'Roboto',
+                      decoration: TextDecoration.none,
                     ),
                   ),
                 ),
@@ -827,7 +824,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
         }
 
         patientCard = Stack(
-          alignment: Alignment.topRight,
+          alignment: AlignmentDirectional(1.025, -1.0),
           children: <Widget>[
             patientCard,
             ...badges,
