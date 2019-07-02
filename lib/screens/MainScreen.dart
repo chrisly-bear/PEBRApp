@@ -76,7 +76,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
      * https://github.com/flutter/flutter/issues/11655#issuecomment-348287396
      */
     _appStateStream = PatientBloc.instance.appState.listen( (streamEvent) {
-      print('*** MainScreen received data: ${streamEvent.runtimeType} ***');
       if (streamEvent is AppStateLoading) {
         setState(() {
           this._isLoading = true;
