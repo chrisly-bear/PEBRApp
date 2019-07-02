@@ -48,9 +48,9 @@ class PatientBloc {
   }
 
   /// Trigger an [AppStatePatientData] stream event.
-  Future<void> sinkNewPatientData(Patient patient) async {
+  Future<void> sinkNewPatientData(Patient patient, {Set<RequiredAction> oldRequiredActions}) async {
     print('Putting patient ${patient.artNumber} down the sink');
-    _appStateStreamController.sink.add(AppStatePatientData(patient));
+    _appStateStreamController.sink.add(AppStatePatientData(patient, oldRequiredActions: oldRequiredActions));
   }
 
   /// Trigger an [AppStateRequiredActionData] stream event.
@@ -75,7 +75,8 @@ class AppStateNoData extends AppState {}
 
 class AppStatePatientData extends AppState {
   final Patient patient;
-  AppStatePatientData(this.patient);
+  final Set<RequiredAction> oldRequiredActions;
+  AppStatePatientData(this.patient, {this.oldRequiredActions});
 }
 
 class AppStateRequiredActionData extends AppState {

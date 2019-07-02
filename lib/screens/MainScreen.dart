@@ -266,13 +266,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   /// inform all listeners of the new data.
   Future<void> _recalculateRequiredActionsForAllPatients() async {
     for (Patient p in _patients) {
-      final int previousActions = p.visibleRequiredActions.length;
+      final Set<RequiredAction> previousActions = p.visibleRequiredActionsAtInitialization;
       await p.initializeRequiredActionsField();
-      final int newActions = p.visibleRequiredActions.length;
-      final bool shouldAnimate = previousActions != newActions;
-      shouldAnimateRequiredActionBadge[p.artNumber] = shouldAnimate;
+      final Set<RequiredAction> newActions = p.visibleRequiredActions;
+      final bool shouldAnimate = previousActions.length != newActions.length;
       if (shouldAnimate) {
-        PatientBloc.instance.sinkNewPatientData(p);
+        shouldAnimateRequiredActionBadge[p.artNumber] = shouldAnimate;
+        PatientBloc.instance.sinkNewPatientData(p, oldRequiredActions: previousActions);
       }
     }
   }

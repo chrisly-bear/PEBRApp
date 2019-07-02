@@ -62,6 +62,7 @@ class Patient implements IExcelExportable {
   PreferenceAssessment latestPreferenceAssessment;
   ARTRefill latestARTRefill;
   Set<RequiredAction> requiredActions = {};
+  Set<RequiredAction> visibleRequiredActionsAtInitialization = {};
 
 
   // Constructors
@@ -223,6 +224,7 @@ class Patient implements IExcelExportable {
       actions.add(assessmentRequired);
     }
     this.requiredActions = actions;
+    this.visibleRequiredActionsAtInitialization = visibleRequiredActions;
   }
 
   /// Returns the viral load with the latest blood draw date.
