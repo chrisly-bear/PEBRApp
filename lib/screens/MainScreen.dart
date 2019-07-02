@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/components/RequiredActionBadge.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/components/animations/GrowTransition.dart';
 import 'package:pebrapp/config/PEBRAConfig.dart';
@@ -49,6 +50,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       CurveTween(curve: Curves.ease)
   );
   Map<String, AnimationController> animationControllers = {};
+  Map<String, bool> shouldAnimateRequiredActionBadge = {};
 
   @override
   void initState() {
@@ -264,8 +266,14 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   /// inform all listeners of the new data.
   Future<void> _recalculateRequiredActionsForAllPatients() async {
     for (Patient p in _patients) {
+      final int previousActions = p.visibleRequiredActions.length;
       await p.initializeRequiredActionsField();
-      PatientBloc.instance.sinkNewPatientData(p);
+      final int newActions = p.visibleRequiredActions.length;
+      final bool shouldAnimate = previousActions != newActions;
+      shouldAnimateRequiredActionBadge[p.artNumber] = shouldAnimate;
+      if (shouldAnimate) {
+        PatientBloc.instance.sinkNewPatientData(p);
+      }
     }
   }
 
@@ -792,36 +800,20 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       // wrap in stack to display action required label
       final int numOfActionsRequired = curPatient.visibleRequiredActions.length;
       if (curPatient.isActivated && numOfActionsRequired > 0) {
-
-        final double badgeSize = 30.0;
         final List<Widget> badges = [];
         for (int i = 0; i < numOfActionsRequired; i++) {
+          final bool shouldAnimateBadge = shouldAnimateRequiredActionBadge[curPatient.artNumber] ?? false;
           badges.add(
             Hero(
               tag: "RequiredAction_${curPatient.artNumber}_$i",
-              child: Container(
-                width: badgeSize,
-                height: badgeSize,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black,
-                ),
-                child: Center(
-                  child: Text(
-                    '${i+1}',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.normal,
-                      fontFamily: 'Roboto',
-                      decoration: TextDecoration.none,
-                    ),
-                  ),
-                ),
+              child: RequiredActionBadge(
+                '${i+1}',
+                animate: shouldAnimateBadge,
               ),
             ),
           );
         }
+        shouldAnimateRequiredActionBadge[curPatient.artNumber] = false;
 
         patientCard = Stack(
           alignment: AlignmentDirectional(1.025, -1.0),
