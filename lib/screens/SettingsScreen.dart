@@ -12,6 +12,7 @@ import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
+import 'package:pebrapp/utils/InputFormatters.dart';
 import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -329,31 +330,6 @@ class _LoginBodyState extends State<LoginBody> {
     );
   }
 
-  /// Removes all non-number characters and inserts dashes to make number more
-  /// readable. E.g. 12345678 becomes 12-345-678.
-  ///
-  /// Does not trim the number and only inserts two dashes. So if you pass it a
-  /// long number string, the number will stay long. E.g. 1234567890123 becomes
-  /// 12-345-67890123.
-  /// 
-  /// If a [countryCode] is passed it will be prefixed with a dash. E.g.
-  /// countryCode='266' returns +266-12-345-678.
-  String _formatPhoneNumber(String phoneNumber, {String countryCode}) {
-    String onlyNumbers = phoneNumber.replaceAll(RegExp('[^0-9]'), '');
-    String formattedNumber;
-    if (onlyNumbers.length >= 2) {
-      formattedNumber = onlyNumbers.substring(0, 2) + '-' + onlyNumbers.substring(2, onlyNumbers.length);
-    }
-    if (onlyNumbers.length >= 5) {
-      formattedNumber = onlyNumbers.substring(0, 2) + '-' + onlyNumbers.substring(2, 5) + '-' + onlyNumbers.substring(5, onlyNumbers.length);
-    }
-    if (countryCode != null && countryCode.isNotEmpty) {
-      String countryCodeOnlyNumbers = countryCode.replaceAll(RegExp('[^0-9]'), '');
-      formattedNumber = '+$countryCodeOnlyNumbers-$formattedNumber';
-    }
-    return formattedNumber;
-  }
-
   _formBlock() {
     Widget createAccountFields() {
       if (!_createAccountMode) {
@@ -409,26 +385,18 @@ class _LoginBodyState extends State<LoginBody> {
         TextFormField(
           decoration: InputDecoration(
             labelText: 'Phone Number',
-            prefixText: '+266',
+            prefixText: '+266-',
           ),
           textAlign: TextAlign.left,
           controller: _phoneNumberCtr,
           textInputAction: TextInputAction.done,
-          onEditingComplete: () {
-            _phoneNumberCtr.text = _formatPhoneNumber(_phoneNumberCtr.text);
-          },
           keyboardType: TextInputType.phone,
           inputFormatters: [
-            WhitelistingTextInputFormatter(RegExp('[0-9\\s\-]')),
             LengthLimitingTextInputFormatter(10),
+            WhitelistingTextInputFormatter.digitsOnly,
+            LesothoPhoneNumberTextInputFormatter(),
           ],
-          validator: (value) {
-            if (value.isEmpty) {
-              return 'Please enter your phone number';
-            } else if (value.replaceAll(RegExp('[\\s\-]'), '').length != 8) {
-              return 'Exactly 8 digits required';
-            }
-          },
+          validator: validatePhoneNumber,
         ),
       ]);
     }
@@ -568,7 +536,7 @@ class _LoginBodyState extends State<LoginBody> {
       _userData.username = _usernameCtr.text;
       _userData.firstName = _firstNameCtr.text;
       _userData.lastName = _lastNameCtr.text;
-      _userData.phoneNumber = _formatPhoneNumber(_phoneNumberCtr.text, countryCode: '266');
+      _userData.phoneNumber = '+266-${_phoneNumberCtr.text}';
       _userData.isActive = true;
       try {
         final bool userExists = await existsBackupForUser(_userData.username);
