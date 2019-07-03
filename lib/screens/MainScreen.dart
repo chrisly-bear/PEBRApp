@@ -117,11 +117,14 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
         Patient affectedPatient = _patients.singleWhere((Patient p) => p.artNumber == streamEvent.action.patientART, orElse: () => null);
         if (affectedPatient != null && !_patientScreenPushed) {
           setState(() {
-            // TODO: animate insertion and removal of required action label for visual fidelity
             if (streamEvent.isDone) {
+              shouldAnimateRequiredActionBadge[affectedPatient.artNumber] = true;
               affectedPatient.requiredActions.removeWhere((RequiredAction a) => a.type == streamEvent.action.type);
             } else {
-              affectedPatient.requiredActions.add(streamEvent.action);
+              if (affectedPatient.requiredActions.firstWhere((RequiredAction a) => a.type == streamEvent.action.type, orElse: () => null) == null) {
+                shouldAnimateRequiredActionBadge[affectedPatient.artNumber] = true;
+                affectedPatient.requiredActions.add(streamEvent.action);
+              }
             }
           });
         }
