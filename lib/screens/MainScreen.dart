@@ -3,6 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:pebrapp/components/PEBRAButtonFlat.dart';
+import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/components/RequiredActionBadge.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/components/animations/GrowTransition.dart';
 import 'package:pebrapp/config/PEBRAConfig.dart';
@@ -36,6 +39,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   // TODO: remove _context field and pass context via args if necessary
   BuildContext _context;
   bool _isLoading = true;
+  bool _patientScreenPushed = false;
   List<Patient> _patients = [];
   StreamSubscription<AppState> _appStateStream;
   bool _loginLockCheckRunning = false;
@@ -47,6 +51,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       CurveTween(curve: Curves.ease)
   );
   Map<String, AnimationController> animationControllers = {};
+  Map<String, bool> shouldAnimateRequiredActionBadge = {};
 
   @override
   void initState() {
@@ -54,7 +59,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     print('~~~ MainScreenState.initState ~~~');
     // listen to changes in the app lifecycle
     WidgetsBinding.instance.addObserver(this);
-    _onAppResume();
+    _onAppStart();
 
     /*
      * Normally, one uses StreamBuilder with the BLoC pattern. But StreamBuilder
@@ -72,7 +77,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
      * https://github.com/flutter/flutter/issues/11655#issuecomment-348287396
      */
     _appStateStream = PatientBloc.instance.appState.listen( (streamEvent) {
-      print('*** MainScreen received data: ${streamEvent.runtimeType} ***');
       if (streamEvent is AppStateLoading) {
         setState(() {
           this._isLoading = true;
@@ -111,13 +115,16 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       if (streamEvent is AppStateRequiredActionData) {
         print('*** MainScreen received AppStateRequiredActionData: ${streamEvent.action.patientART} ***');
         Patient affectedPatient = _patients.singleWhere((Patient p) => p.artNumber == streamEvent.action.patientART, orElse: () => null);
-        if (affectedPatient != null) {
+        if (affectedPatient != null && !_patientScreenPushed) {
           setState(() {
-            // TODO: animate insertion and removal of required action label for visual fidelity
             if (streamEvent.isDone) {
+              shouldAnimateRequiredActionBadge[affectedPatient.artNumber] = true;
               affectedPatient.requiredActions.removeWhere((RequiredAction a) => a.type == streamEvent.action.type);
             } else {
-              affectedPatient.requiredActions.add(streamEvent.action);
+              if (affectedPatient.requiredActions.firstWhere((RequiredAction a) => a.type == streamEvent.action.type, orElse: () => null) == null) {
+                shouldAnimateRequiredActionBadge[affectedPatient.artNumber] = true;
+                affectedPatient.requiredActions.add(streamEvent.action);
+              }
             }
           });
         }
@@ -236,11 +243,41 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   /// Runs checks whether user is logged in / whether the app should be locked,
   /// and whether a backup should be run simultaneously.
   ///
-  /// Gets called when the application comes to the foreground or is run for the
-  /// first time.
+  /// Gets called when the application is started cold, i.e., when the app was
+  /// not open in the background already.
+  Future<void> _onAppStart() async {
+    _checkLoggedInAndLockStatus();
+    _runBackupIfDue();
+  }
+
+  /// Runs checks whether user is logged in / whether the app should be locked,
+  /// and whether a backup should be run simultaneously. It also rebuilds the
+  /// screen to update any changes to required actions, i.e., to check if any
+  /// ART refills, preference assessments, or endpoint surveys have become due.
+  ///
+  /// Gets called when the application was already open in the background and
+  /// comes to the foreground again.
   Future<void> _onAppResume() async {
     _checkLoggedInAndLockStatus();
     _runBackupIfDue();
+    _recalculateRequiredActionsForAllPatients();
+  }
+
+  /// Checks if an ART refill, preference assessment, or endpoint survey has
+  /// become due by re-calculating the required actions field for each patient.
+  /// It send an [PatientBloc.AppStatePatientData] event for each patient to
+  /// inform all listeners of the new data.
+  Future<void> _recalculateRequiredActionsForAllPatients() async {
+    for (Patient p in _patients) {
+      final Set<RequiredAction> previousActions = p.visibleRequiredActionsAtInitialization;
+      await p.initializeRequiredActionsField();
+      final Set<RequiredAction> newActions = p.visibleRequiredActions;
+      final bool shouldAnimate = previousActions.length != newActions.length;
+      if (shouldAnimate) {
+        shouldAnimateRequiredActionBadge[p.artNumber] = shouldAnimate;
+        PatientBloc.instance.sinkNewPatientData(p, oldRequiredActions: previousActions);
+      }
+    }
   }
 
   /// Checks whether the user is logged in (if not shows the login screen) and
@@ -389,6 +426,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   }
 
   Future<void> _pushPatientScreen(Patient patient) async {
+    _patientScreenPushed = true;
     await Navigator.of(_context, rootNavigator: true).push(
       new MaterialPageRoute<void>(
         settings: RouteSettings(name: '/patient'),
@@ -397,6 +435,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
         },
       ),
     );
+    _patientScreenPushed = false;
   }
 
   Widget _bodyLoading() {
@@ -423,15 +462,24 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     );
   }
 
-  Column _bodyPatientTable() {
-    return Column(
-      children: _buildPatientCards(),
+  Widget _bodyPatientTable() {
+    final double _paddingHorizontal = 10.0;
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: EdgeInsets.only(
+        left: _paddingHorizontal,
+        right: _paddingHorizontal,
+        bottom: 10.0,
+      ),
+      child: Column(
+        children: _buildPatientCards(),
+      ),
     );
   }
 
   List<Widget> _buildPatientCards() {
     const _cardMarginVertical = 8.0;
-    const _cardMarginHorizontal = 10.0;
+    const _cardMarginHorizontal = 0.0;
     const _rowPaddingVertical = 20.0;
     const _rowPaddingHorizontal = 15.0;
     const _colorBarWidth = 15.0;
@@ -530,40 +578,37 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       return Row(children: icons);
     }
 
-    final Widget _headerRow = SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: _cardMarginHorizontal + _rowPaddingHorizontal),
-        child: Row(
-          children: <Widget>[
-            SizedBox(width: _colorBarWidth),
-            Container(
-              width: _artNumberWidth,
-              child: _formatHeaderRowText('ART NR.'),
-            ),
-            Container(
-              width: _nextRefillWidth,
-              child: _formatHeaderRowText('NEXT REFILL'),
-            ),
-            Container(
-              width: _refillByWidth,
-              child: _formatHeaderRowText('REFILL BY'),
-            ),
-            Container(
-              width: _supportWidth,
-              child: _formatHeaderRowText('SUPPORT'),
-            ),
-            Container(
-              width: _viralLoadWidth,
-              child: _formatHeaderRowText('VIRAL LOAD'),
-            ),
-            Container(
-              width: _nextAssessmentWidth,
-              child: _formatHeaderRowText('NEXT ASSESSMENT'),
-            ),
-          ],
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        ),
+    final Widget _headerRow = Padding(
+      padding: EdgeInsets.symmetric(horizontal: _cardMarginHorizontal + _rowPaddingHorizontal),
+      child: Row(
+        children: <Widget>[
+          SizedBox(width: _colorBarWidth),
+          Container(
+            width: _artNumberWidth,
+            child: _formatHeaderRowText('ART NR.'),
+          ),
+          Container(
+            width: _nextRefillWidth,
+            child: _formatHeaderRowText('NEXT REFILL'),
+          ),
+          Container(
+            width: _refillByWidth,
+            child: _formatHeaderRowText('REFILL BY'),
+          ),
+          Container(
+            width: _supportWidth,
+            child: _formatHeaderRowText('SUPPORT'),
+          ),
+          Container(
+            width: _viralLoadWidth,
+            child: _formatHeaderRowText('VIRAL LOAD'),
+          ),
+          Container(
+            width: _nextAssessmentWidth,
+            child: _formatHeaderRowText('NEXT ASSESSMENT'),
+          ),
+        ],
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
       ),
     );
 
@@ -636,6 +681,64 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           vertical: _cardMarginVertical,
           horizontal: _cardMarginHorizontal);
 
+      void _showAlertDialogToActivatePatient() {
+        final AnimationController controller = animationControllers[curPatient.artNumber];
+        final originalAnimationDuration = controller.duration;
+        final Duration _quickAnimationDuration = Duration(milliseconds: (_ANIMATION_TIME / 2).round());
+        controller.duration = _quickAnimationDuration;
+        showDialog(
+          context: _context,
+          builder: (BuildContext context) => AlertDialog(
+            title: Text(curPatient.artNumber),
+            backgroundColor: BACKGROUND_COLOR,
+            content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 180.0,
+                    child: PEBRAButtonRaised(
+                      curPatient.isActivated ? 'Deactivate Patient' : 'Activate Patient',
+                      onPressed: () async {
+                        Navigator.of(context).pop();
+                        // *****************************
+                        // activate / deactivate patient
+                        // *****************************
+                        curPatient.isActivated = !curPatient.isActivated;
+                        DatabaseProvider().insertPatient(curPatient);
+                        await controller.animateBack(0.0, duration: _quickAnimationDuration, curve: Curves.ease); // fold patient card up
+                        setState(() {}); // re-render the patient card (grey it out / un-grey it and sort it at the right position in the table)
+                        await controller.forward(); // unfold patient card
+                        controller.duration = originalAnimationDuration; // reset animation duration
+                      },
+                    ),
+                  ),
+                  SizedBox(height: kReleaseMode ? 0.0 : 10.0),
+                  kReleaseMode ? SizedBox() : SizedBox(
+                    width: 180.0,
+                    child: PEBRAButtonRaised(
+                      'Delete Patient',
+                      onPressed: () async {
+                        // **************
+                        // delete patient
+                        // **************
+                        Navigator.of(context).pop();
+                        DatabaseProvider().deletePatient(curPatient);
+                        _patients.removeWhere((Patient p) => p.artNumber == curPatient.artNumber);
+                        await controller.animateBack(0.0, duration: _quickAnimationDuration, curve: Curves.ease); // fold patient card up
+                        controller.duration = originalAnimationDuration; // reset animation duration
+                      },
+                    ),
+                  ),
+                  SizedBox(height: 15.0),
+                  PEBRAButtonFlat(
+                    'Close',
+                    onPressed: () { Navigator.of(context).pop(); },
+                  ),
+                ]),
+          ),
+        );
+      }
+
       Widget patientCard = Card(
         color: curPatient.isActivated ? CARD_ACTIVE : CARD_INACTIVE,
         elevation: 5.0,
@@ -645,217 +748,80 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           onTap: () {
             _pushPatientScreen(curPatient);
           },
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                // color bar
-                Container(width: _colorBarWidth, color: _calculateCardColor(curPatient)),
-                // patient info
-                Container(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      vertical: _rowPaddingVertical,
-                      horizontal: _rowPaddingHorizontal,
-                    ),
-                    child: Row(
-                      children: <Widget>[
-                        // ART Nr.
-                        Container(
-                          width: _artNumberWidth,
-                          child: _formatPatientRowText(patientART, isActivated: curPatient.isActivated),
-                        ),
-                        // Next Refill
-                        Container(
-                          width: _nextRefillWidth,
-                          child: _formatPatientRowText(nextRefillText, isActivated: curPatient.isActivated, highlight: nextRefillTextHighlighted),
-                        ),
-                        // Refill By
-                        Container(
-                          width: _refillByWidth,
-                          child: _formatPatientRowText(refillByText, isActivated: curPatient.isActivated),
-                        ),
-                        // Support
-                        Container(
-                          width: _supportWidth,
-                          child: _buildSupportIcons(curPatient?.latestPreferenceAssessment?.supportPreferences, isActivated: curPatient.isActivated),
-                        ),
-                        // Viral Load
-                        Container(
-                          width: _viralLoadWidth,
-                          child: Container(alignment: Alignment.centerLeft, child: _getViralLoadIndicator(isActivated: curPatient.isActivated)),
-                        ),
-                        // Next Assessment
-                        Container(
-                          width: _nextAssessmentWidth,
-                          child: _formatPatientRowText(nextAssessmentText, isActivated: curPatient.isActivated, highlight: nextAssessmentTextHighlighted),
-                        ),
-                      ],
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    ),
+          onLongPress: (kReleaseMode && curPatient.isActivated) ? null : _showAlertDialogToActivatePatient,
+          child: Row(
+            children: [
+              // color bar
+              Container(width: _colorBarWidth, color: _calculateCardColor(curPatient)),
+              // patient info
+              Container(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: _rowPaddingVertical,
+                    horizontal: _rowPaddingHorizontal,
+                  ),
+                  child: Row(
+                    children: <Widget>[
+                      // ART Nr.
+                      Container(
+                        width: _artNumberWidth,
+                        child: _formatPatientRowText(patientART, isActivated: curPatient.isActivated),
+                      ),
+                      // Next Refill
+                      Container(
+                        width: _nextRefillWidth,
+                        child: _formatPatientRowText(nextRefillText, isActivated: curPatient.isActivated, highlight: nextRefillTextHighlighted),
+                      ),
+                      // Refill By
+                      Container(
+                        width: _refillByWidth,
+                        child: _formatPatientRowText(refillByText, isActivated: curPatient.isActivated),
+                      ),
+                      // Support
+                      Container(
+                        width: _supportWidth,
+                        child: _buildSupportIcons(curPatient?.latestPreferenceAssessment?.supportPreferences, isActivated: curPatient.isActivated),
+                      ),
+                      // Viral Load
+                      Container(
+                        width: _viralLoadWidth,
+                        child: Container(alignment: Alignment.centerLeft, child: _getViralLoadIndicator(isActivated: curPatient.isActivated)),
+                      ),
+                      // Next Assessment
+                      Container(
+                        width: _nextAssessmentWidth,
+                        child: _formatPatientRowText(nextAssessmentText, isActivated: curPatient.isActivated, highlight: nextAssessmentTextHighlighted),
+                      ),
+                    ],
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       );
 
-      // in debug mode:
-      // make patient activate/deactivate on right swipe,
-      // delete patient on left swipe
-      if (!kReleaseMode) {
-        patientCard = Dismissible(
-          direction: DismissDirection.horizontal,
-          key: Key(curPatient.artNumber),
-          confirmDismiss: (DismissDirection direction) async {
-            final AnimationController controller = animationControllers[curPatient.artNumber];
-            final originalAnimationDuration = controller.duration;
-            final Duration _quickAnimationDuration = Duration(milliseconds: (_ANIMATION_TIME / 2).round());
-            controller.duration = _quickAnimationDuration;
-            if (direction == DismissDirection.startToEnd) {
-              // *****************************
-              // activate / deactivate patient
-              // *****************************
-              curPatient.isActivated = !curPatient.isActivated;
-              DatabaseProvider().insertPatient(curPatient);
-              await controller.animateBack(0.0, duration: _quickAnimationDuration, curve: Curves.ease); // fold patient card up
-              setState(() {}); // re-render the patient card (grey it out / un-grey it and sort it at the right position in the table)
-              // TODO: the next line will throw an error because setState rebuilt the screen in the previous line, which means the controller got disposed (everything still works as expected though)
-              await controller.forward(); // unfold patient card
-              controller.duration = originalAnimationDuration; // reset animation duration
-              return Future<bool>.value(false);
-            } else if (direction == DismissDirection.endToStart) {
-              // **************
-              // delete patient
-              // **************
-              DatabaseProvider().deletePatient(curPatient);
-              _patients.removeWhere((Patient p) => p.artNumber == curPatient.artNumber);
-              await controller.animateBack(0.0, duration: _quickAnimationDuration, curve: Curves.ease); // fold patient card up
-              controller.duration = originalAnimationDuration; // reset animation duration
-              return Future<bool>.value(true);
-            }
-          },
-          background: Container(
-            margin: _curCardMargin,
-            padding: EdgeInsets.symmetric(horizontal: _cardMarginHorizontal),
-            decoration: BoxDecoration(gradient: LinearGradient(colors: [MAIN_SCREEN_SLIDE_TO_ACTIVATE, MAIN_SCREEN_SLIDE_TO_DELETE])),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  curPatient.isActivated ? 'DEACTIVATE' : 'ACTIVATE',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
-                    color: MAIN_SCREEN_SLIDE_TO_ACTIVATE_TEXT,
-                  ),
-                ),
-                Text(
-                  'DELETE',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
-                    color: MAIN_SCREEN_SLIDE_TO_ACTIVATE_TEXT,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          child: patientCard,
-        );
-      }
-      // in release mode:
-      // wrap in Dismissible, so that patient can be
-      // re-activated using a right-swipe (only if patient is deactivated)
-      else if (!curPatient.isActivated) {
-        patientCard = Dismissible(
-          direction: DismissDirection.startToEnd,
-          key: Key(curPatient.artNumber),
-          confirmDismiss: (DismissDirection direction) async {
-            // ****************
-            // activate patient
-            // ****************
-            final AnimationController controller = animationControllers[curPatient.artNumber];
-            final originalAnimationDuration = controller.duration;
-            final Duration _quickAnimationDuration = Duration(milliseconds: (_ANIMATION_TIME / 2).round());
-            controller.duration = _quickAnimationDuration;
-            curPatient.isActivated = !curPatient.isActivated;
-            DatabaseProvider().insertPatient(curPatient);
-            await controller.animateBack(0.0, duration: _quickAnimationDuration, curve: Curves.ease); // fold patient card up
-            setState(() {}); // re-render the patient card (un-grey it and sort it at the right position in the table)
-            // TODO: the next line will throw an error because setState rebuilt the screen in the previous line, which means the controller got disposed (everything still works as expected though)
-            await controller.forward(); // unfold patient card
-            controller.duration = originalAnimationDuration; // reset animation duration
-            return Future<bool>.value(false); // do not remove patient card from list
-          },
-          background: Container(
-            margin: _curCardMargin,
-            padding: EdgeInsets.symmetric(horizontal: _cardMarginHorizontal),
-            color: MAIN_SCREEN_SLIDE_TO_ACTIVATE,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text(
-                  curPatient.isActivated ? 'DEACTIVATE' : 'ACTIVATE',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
-                    color: MAIN_SCREEN_SLIDE_TO_ACTIVATE_TEXT,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          child: patientCard,
-        );
-      }
-
       // wrap in stack to display action required label
-      final int numOfActionsRequired = curPatient.requiredActions.length;
+      final int numOfActionsRequired = curPatient.visibleRequiredActions.length;
       if (curPatient.isActivated && numOfActionsRequired > 0) {
-
-        final double badgeSize = 30.0;
         final List<Widget> badges = [];
         for (int i = 0; i < numOfActionsRequired; i++) {
+          final bool shouldAnimateBadge = shouldAnimateRequiredActionBadge[curPatient.artNumber] ?? false;
           badges.add(
             Hero(
               tag: "RequiredAction_${curPatient.artNumber}_$i",
-              child: Padding(
-                padding: EdgeInsets.only(right: 3.0),
-                child: Container(
-                  width: badgeSize,
-                  height: badgeSize,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.black,
-                    boxShadow: [
-                      BoxShadow(
-                        color: i == 0 ? Colors.black45 : Colors.transparent,
-                        blurRadius: 10.0,
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${i+1}',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.normal,
-                        fontFamily: 'Roboto',
-                        decoration: TextDecoration.none,
-                      ),
-                    ),
-                  ),
-                ),
+              child: RequiredActionBadge(
+                '${i+1}',
+                animate: shouldAnimateBadge,
               ),
             ),
           );
         }
+        shouldAnimateRequiredActionBadge[curPatient.artNumber] = false;
 
         patientCard = Stack(
-          alignment: Alignment.topRight,
+          alignment: AlignmentDirectional(1.025, -1.0),
           children: <Widget>[
             patientCard,
             ...badges,
@@ -884,7 +850,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       return Colors.transparent;
     }
 
-    if (patient.requiredActions.length > 0) {
+    if (patient.visibleRequiredActions.length > 0) {
       return URGENCY_HIGH;
     }
 

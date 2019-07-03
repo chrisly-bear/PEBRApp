@@ -62,6 +62,7 @@ class Patient implements IExcelExportable {
   PreferenceAssessment latestPreferenceAssessment;
   ARTRefill latestARTRefill;
   Set<RequiredAction> requiredActions = {};
+  Set<RequiredAction> visibleRequiredActionsAtInitialization = {};
 
 
   // Constructors
@@ -208,22 +209,22 @@ class Patient implements IExcelExportable {
   /// initialized (null).
   Future<void> initializeRequiredActionsField() async {
     // get required actions stored in database
-    Set<RequiredAction> actions = await DatabaseProvider().retrieveRequiredActionsForPatient(artNumber);
-    // calculate other required actions
+    final Set<RequiredAction> actions = await DatabaseProvider().retrieveRequiredActionsForPatient(artNumber);
     final DateTime now = DateTime.now();
-    if (latestARTRefill?.nextRefillDate == null || now.isAfter(latestARTRefill.nextRefillDate)) {
-      RequiredAction artRefillRequired = RequiredAction(artNumber, RequiredActionType.REFILL_REQUIRED);
+    // calculate if ART refill is required
+    final DateTime dueDateART = latestARTRefill?.nextRefillDate;
+    if (dueDateART == null || now.isAfter(dueDateART)) {
+      RequiredAction artRefillRequired = RequiredAction(artNumber, RequiredActionType.REFILL_REQUIRED, dueDateART ?? enrolmentDate);
       actions.add(artRefillRequired);
     }
-    if (latestPreferenceAssessment == null || now.isAfter(calculateNextAssessment(latestPreferenceAssessment.createdDate, isSuppressed(this)))) {
-      RequiredAction assessmentRequired = RequiredAction(artNumber, RequiredActionType.ASSESSMENT_REQUIRED);
+    // calculate if preference assessment is required
+    final DateTime dueDatePA = calculateNextAssessment(latestPreferenceAssessment?.createdDate, isSuppressed(this));
+    if (dueDatePA == null || now.isAfter(dueDatePA)) {
+      RequiredAction assessmentRequired = RequiredAction(artNumber, RequiredActionType.ASSESSMENT_REQUIRED, dueDatePA ?? enrolmentDate);
       actions.add(assessmentRequired);
     }
-    // TODO: Check if a new endpoint survey is due and add to actions if it is.
-    //  We have to keep track of when the user finished an endpoint survey so we
-    //  don't display two messages after 6 months even though the user already
-    //  finished the 3-month survey.
     this.requiredActions = actions;
+    this.visibleRequiredActionsAtInitialization = visibleRequiredActions;
   }
 
   /// Returns the viral load with the latest blood draw date.
@@ -292,5 +293,20 @@ class Patient implements IExcelExportable {
 
   // ignore: unnecessary_getters_setters
   DateTime get createdDate => _createdDate;
+
+  /// Filters out endpoint survey actions that are not due yet.
+  Set<RequiredAction> get visibleRequiredActions {
+    Set<RequiredAction> visibleRequiredActions = {};
+    visibleRequiredActions.addAll(requiredActions);
+    visibleRequiredActions.removeWhere((RequiredAction a) {
+      final bool isEndpointSurveyAndDue = isEndpointSurveyDue(this.enrolmentDate, a.type);
+      if (isEndpointSurveyAndDue != null && !isEndpointSurveyAndDue) {
+        // endpoint survey not due yet, remove from visible required actions
+        return true;
+      }
+      return false;
+    });
+    return visibleRequiredActions;
+  }
 
 }

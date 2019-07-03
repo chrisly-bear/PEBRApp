@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/components/RequiredActionContainer.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
-import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
@@ -21,7 +21,6 @@ import 'package:pebrapp/screens/PreferenceAssessmentScreen.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
-import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PatientScreen extends StatefulWidget {
@@ -52,6 +51,7 @@ class _PatientScreenState extends State<PatientScreen> {
   StreamSubscription<AppState> _appStateStream;
 
   final double _spacingBetweenCards = 40.0;
+  final Map<RequiredActionType, AnimateDirection> shouldAnimateRequiredActionContainer = {};
 
   // constructor
   _PatientScreenState(this._patient);
@@ -60,17 +60,34 @@ class _PatientScreenState extends State<PatientScreen> {
   void initState() {
     super.initState();
     _appStateStream = PatientBloc.instance.appState.listen( (streamEvent) {
-      print('*** PatientScreen received data: ${streamEvent.runtimeType} ***');
+      if (streamEvent is AppStatePatientData && streamEvent.patient.artNumber == _patient.artNumber) {
+        // TODO: animate changes to the new patient data (e.g. insertions and removals of required action card) with an animation for visual fidelity
+        print('*** PatientScreen received AppStatePatientData: ${streamEvent.patient.artNumber} ***');
+        final Set<RequiredAction> newVisibleRequiredActions = streamEvent.patient.visibleRequiredActions;
+        for (RequiredAction a in newVisibleRequiredActions) {
+          if (streamEvent.oldRequiredActions != null && !streamEvent.oldRequiredActions.contains(a)) {
+            shouldAnimateRequiredActionContainer[a.type] = AnimateDirection.FORWARD;
+          }
+        }
+        setState(() {});
+      }
       if (streamEvent is AppStateRequiredActionData && streamEvent.action.patientART == _patient.artNumber) {
         print('*** PatientScreen received AppStateRequiredActionData: ${streamEvent.action.patientART} ***');
-        setState(() {
-          // TODO: animate insertion and removal of required action label for visual fidelity
+          // TODO: animate insertion and removal of required action card for visual fidelity
           if (streamEvent.isDone) {
-            _patient.requiredActions.removeWhere((RequiredAction a) => a.type == streamEvent.action.type);
+            if (_patient.requiredActions.firstWhere((RequiredAction a) => a.type == streamEvent.action.type, orElse: () => null) != null) {
+              setState(() {
+                shouldAnimateRequiredActionContainer[streamEvent.action.type] = AnimateDirection.BACKWARD;
+              });
+            }
           } else {
-            _patient.requiredActions.add(streamEvent.action);
+            if (_patient.requiredActions.firstWhere((RequiredAction a) => a.type == streamEvent.action.type, orElse: () => null) == null) {
+              setState(() {
+                shouldAnimateRequiredActionContainer[streamEvent.action.type] = AnimateDirection.FORWARD;
+                _patient.requiredActions.add(streamEvent.action);
+              });
+            }
           }
-        });
       }
     });
   }
@@ -100,8 +117,7 @@ class _PatientScreenState extends State<PatientScreen> {
       _nextRefillText = '—';
     }
 
-    DateTime nextEndpointSurveyDate = _patient.enrolmentDate;
-    nextEndpointSurveyDate = calculateNextEndpointSurvey(nextEndpointSurveyDate);
+    DateTime nextEndpointSurveyDate = calculateNextEndpointSurvey(_patient.enrolmentDate, _patient.requiredActions);
     if (nextEndpointSurveyDate != null) {
       _nextEndpointText = formatDate(nextEndpointSurveyDate);
     } else {
@@ -142,144 +158,24 @@ class _PatientScreenState extends State<PatientScreen> {
 
   Widget _buildRequiredActions() {
 
-    FlatButton _endpointSurveyDoneButton(RequiredAction action) {
-      return FlatButton(
-        onPressed: () async {
-          _patient.requiredActions.removeWhere((RequiredAction a) => a.type == action.type);
-          await DatabaseProvider().removeRequiredAction(_patient.artNumber, action.type);
-          // TODO: hide the action card, ideally with an animation for visual fidelity
-        },
-        splashColor: NOTIFICATION_INFO_SPLASH,
-        child: Text(
-          "ENDPOINT SURVEY COMPLETED",
-          style: TextStyle(
-            color: NOTIFICATION_INFO_TEXT,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      );
-    }
-
-    final actions = _patient.requiredActions.toList().asMap().map((int i, RequiredAction action) {
-      String actionText;
-      Widget actionButton;
-      switch (action.type) {
-        case RequiredActionType.ASSESSMENT_REQUIRED:
-          actionText = "Preference assessment required. Start a preference assessment by tapping 'Start Assessment' below.";
-          break;
-        case RequiredActionType.REFILL_REQUIRED:
-          actionText = "ART refill required. Start an ART refill by tapping 'Manage Refill' below.";
-          break;
-        case RequiredActionType.ENDPOINT_3M_SURVEY_REQUIRED:
-          actionText = "3 month endpoint survey required. Start an endpoint survey by tapping 'Open KoBoCollect' below.";
-          actionButton = _endpointSurveyDoneButton(action);
-          break;
-        case RequiredActionType.ENDPOINT_6M_SURVEY_REQUIRED:
-          actionText = "6 month endpoint survey required. Start an endpoint survey by tapping 'Open KoBoCollect' below.";
-          actionButton = _endpointSurveyDoneButton(action);
-          break;
-        case RequiredActionType.ENDPOINT_12M_SURVEY_REQUIRED:
-          actionText = "12 month endpoint survey required. Start an endpoint survey by tapping 'Open KoBoCollect' below.";
-          actionButton = _endpointSurveyDoneButton(action);
-          break;
-        case RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED:
-          actionText = "The automatic synchronization of the notifications preferences with the database failed. Please synchronize manually.";
-          actionButton = FlatButton(
-            onPressed: () async {
-              await uploadNotificationsPreferences(_patient, _patient.latestPreferenceAssessment);
-              // TODO: hide the action card if the upload was successful, ideally with an animation for visual fidelity
-            },
-            splashColor: NOTIFICATION_INFO_SPLASH,
-            child: Text(
-              "SYNCHRONIZE",
-              style: TextStyle(
-                color: NOTIFICATION_INFO_TEXT,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          );
-          break;
-        case RequiredActionType.ART_REFILL_DATE_UPLOAD_REQUIRED:
-          actionText = "The automatic synchronization of the ART refill date with the database failed. Please synchronize manually.";
-          actionButton = FlatButton(
-            onPressed: () async {
-              await uploadNextARTRefillDate(_patient, _patient.latestARTRefill.nextRefillDate);
-              // TODO: hide the action card if the upload was successful, ideally with an animation for visual fidelity
-            },
-            splashColor: NOTIFICATION_INFO_SPLASH,
-            child: Text(
-              "SYNCHRONIZE",
-              style: TextStyle(
-                color: NOTIFICATION_INFO_TEXT,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          );
-          break;
-      }
-
-      final double badgeSize = 30.0;
-      return MapEntry(
+    final List<RequiredAction> visibleRequiredActionsSorted =_patient.visibleRequiredActions.toList();
+    visibleRequiredActionsSorted.sort((RequiredAction a, RequiredAction b) => a.dueDate.isBefore(b.dueDate) ? -1 : 1);
+    final actions = visibleRequiredActionsSorted.asMap().map((int i, RequiredAction action) {
+      final mapEntry = MapEntry(
         i,
-        Card(
-          margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
-          elevation: 5.0,
-          clipBehavior: Clip.antiAlias,
-          child: Container(
-            color: NOTIFICATION_NORMAL,
-            padding: const EdgeInsets.symmetric(horizontal: 15.0),
-            child: Column(
-              children: [
-                SizedBox(height: 20.0),
-                Container(
-                  width: double.infinity,
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Hero(
-                          tag: "RequiredAction_${_patient.artNumber}_$i",
-                          child: Container(
-                            width: badgeSize,
-                            height: badgeSize,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.black,
-                            ),
-                            child: Center(
-                              child: Text(
-                                '${i+1}',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.normal,
-                                  fontFamily: 'Roboto',
-                                  decoration: TextDecoration.none,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 10.0),
-                        Expanded(
-                          child: Text(
-                            actionText,
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                              color: NOTIFICATION_MESSAGE_TEXT,
-                              height: 1.2,
-                            ),
-                          ),
-                        ),
-                      ]),
-                ),
-                actionButton ?? SizedBox(height: 15.0),
-                SizedBox(height: 5.0),
-              ],
-            ),
-          ),
+        RequiredActionContainer(
+          action,
+          i,
+          _patient,
+          animateDirection: shouldAnimateRequiredActionContainer[action.type],
+          onAnimated: () {
+            setState(() {});
+          },
         ),
       );
+      shouldAnimateRequiredActionContainer[action.type] = null;
+      _patient.initializeRequiredActionsField();
+      return mapEntry;
     }).values.toList();
 
     return Column(

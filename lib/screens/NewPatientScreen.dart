@@ -8,6 +8,7 @@ import 'package:pebrapp/database/beans/PhoneAvailability.dart';
 import 'package:pebrapp/database/beans/SexualOrientation.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
@@ -716,7 +717,9 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     });
     if (_formKey.currentState.validate() & _validateViralLoadBaselineDate()) {
 
-      _newPatient.enrolmentDate = DateTime.now().toUtc();
+      final DateTime now = DateTime.now();
+
+      _newPatient.enrolmentDate = now;
       _newPatient.isEligible = _eligible;
       _newPatient.artNumber = _artNumberCtr.text;
       _newPatient.stickerNumber = _stickerNumberCtr.text;
@@ -727,6 +730,12 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       _newPatient.village = _villageCtr.text;
       _newPatient.village = _villageCtr.text;
       _newPatient.checkLogicAndResetUnusedFields();
+
+      if (_newPatient.isEligible && _newPatient.consentGiven) {
+        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.ENDPOINT_3M_SURVEY_REQUIRED, addMonths(now, 3)));
+        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.ENDPOINT_6M_SURVEY_REQUIRED, addMonths(now, 6)));
+        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.ENDPOINT_12M_SURVEY_REQUIRED, addMonths(now, 12)));
+      }
 
       if (_newPatient.isEligible && _newPatient.consentGiven && _newPatient.isVLBaselineAvailable != null && _newPatient.isVLBaselineAvailable) {
         _viralLoadBaseline.patientART = _artNumberCtr.text;

@@ -41,19 +41,20 @@ class ARTRefillScreen extends StatelessWidget {
   }
 
   void _onPressChangeDate(BuildContext context) async {
-    DateTime newDate = await _showDatePickerWithTitle(context, 'Select the Next ART Refill Date');
-    if (newDate != null) {
-      final ARTRefill artRefill = ARTRefill(this._patient.artNumber, RefillType.CHANGE_DATE(), nextRefillDate: newDate);
+    DateTime nextRefillDate = await _showDatePickerWithTitle(context, 'Select the Next ART Refill Date');
+    if (nextRefillDate != null) {
+      final ARTRefill artRefill = ARTRefill(this._patient.artNumber, RefillType.CHANGE_DATE(), nextRefillDate: nextRefillDate);
       await DatabaseProvider().insertARTRefill(artRefill);
       _patient.latestARTRefill = artRefill;
-      if (newDate.isAfter(DateTime.now())) {
+      final DateTime now = DateTime.now();
+      if (nextRefillDate.isAfter(now)) {
         // send an event indicating that the art refill was done
-        PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.REFILL_REQUIRED), true);
+        PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.REFILL_REQUIRED, null), true);
       } else {
         // send an event indicating that the art refill is overdue and has to be done
-        PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.REFILL_REQUIRED), false);
+        PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.REFILL_REQUIRED, nextRefillDate), false);
       }
-      uploadNextARTRefillDate(_patient, newDate);
+      uploadNextARTRefillDate(_patient, nextRefillDate);
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return route.settings.name == '/patient';
       });
@@ -61,19 +62,20 @@ class ARTRefillScreen extends StatelessWidget {
   }
 
   void _onPressRefillDone(BuildContext context) async {
-    DateTime newDate = await _showDatePickerWithTitle(context, 'Select the Next ART Refill Date');
-    if (newDate != null) {
-      final ARTRefill artRefill = ARTRefill(this._patient.artNumber, RefillType.DONE(), nextRefillDate: newDate);
+    DateTime nextRefillDate = await _showDatePickerWithTitle(context, 'Select the Next ART Refill Date');
+    if (nextRefillDate != null) {
+      final ARTRefill artRefill = ARTRefill(this._patient.artNumber, RefillType.DONE(), nextRefillDate: nextRefillDate);
       await DatabaseProvider().insertARTRefill(artRefill);
       _patient.latestARTRefill = artRefill;
-      if (newDate.isAfter(DateTime.now())) {
+      final DateTime now = DateTime.now();
+      if (nextRefillDate.isAfter(now)) {
         // send an event indicating that the art refill was done
-        PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.REFILL_REQUIRED), true);
+        PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.REFILL_REQUIRED, null), true);
       } else {
         // send an event indicating that the art refill is overdue and has to be done
-        PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.REFILL_REQUIRED), false);
+        PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.REFILL_REQUIRED, nextRefillDate), false);
       }
-      uploadNextARTRefillDate(_patient, newDate);
+      uploadNextARTRefillDate(_patient, nextRefillDate);
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return route.settings.name == '/patient';
       });
