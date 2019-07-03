@@ -12,6 +12,7 @@ import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
+import 'package:pebrapp/utils/InputFormatters.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pebrapp/database/beans/NoConsentReason.dart';
@@ -310,13 +311,17 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     return _makeQuestion('ART Number',
       answer: TextFormField(
         controller: _artNumberCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please enter an ART number';
-          } else if (_artNumberExists(value)) {
-            return 'This ART number exists already in the database';
+        inputFormatters: [
+          WhitelistingTextInputFormatter(RegExp('[A-Za-z0-9]')),
+          LengthLimitingTextInputFormatter(8),
+          ARTNumberTextInputFormatter(),
+        ],
+        validator: (String value) {
+          if (_artNumberExists(value)) {
+            return 'Patient with this ART number already exists';
           }
-        },
+          return validateARTNumber(value);
+          },
       ),
     );
   }
@@ -324,10 +329,20 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   Widget _stickerNumberQuestion() {
     return _makeQuestion('Sticker Number',
       answer: TextFormField(
+        decoration: InputDecoration(
+          prefixText: 'P',
+        ),
+        keyboardType: TextInputType.number,
+        inputFormatters: [
+          WhitelistingTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(3),
+        ],
         controller: _stickerNumberCtr,
         validator: (value) {
           if (value.isEmpty) {
             return 'Please enter the sticker number';
+          } else if (value.length != 3) {
+            return 'Exactly 3 digits required';
           }
         },
       ),
@@ -462,12 +477,17 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     }
     return _makeQuestion('Phone Number',
         answer: TextFormField(
+          decoration: InputDecoration(
+            prefixText: '+266-',
+          ),
           controller: _phoneNumberCtr,
-          validator: (value) {
-            if (value.isEmpty) {
-              return 'Please enter a phone number';
-            }
-          },
+          keyboardType: TextInputType.phone,
+          inputFormatters: [
+            WhitelistingTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(8),
+            LesothoPhoneNumberTextInputFormatter(),
+          ],
+          validator: validatePhoneNumber,
         ),
     );
   }
@@ -722,9 +742,9 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       _newPatient.enrolmentDate = now;
       _newPatient.isEligible = _eligible;
       _newPatient.artNumber = _artNumberCtr.text;
-      _newPatient.stickerNumber = _stickerNumberCtr.text;
+      _newPatient.stickerNumber = 'P${_stickerNumberCtr.text}';
       _newPatient.village = _villageCtr.text;
-      _newPatient.phoneNumber = _phoneNumberCtr.text;
+      _newPatient.phoneNumber = '+266-${_phoneNumberCtr.text}';
       _newPatient.noConsentReasonOther = _noConsentReasonOtherCtr.text;
       _newPatient.village = _villageCtr.text;
       _newPatient.village = _villageCtr.text;

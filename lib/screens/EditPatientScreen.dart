@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
@@ -6,7 +7,7 @@ import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/PhoneAvailability.dart';
 import 'package:pebrapp/database/beans/SexualOrientation.dart';
 import 'package:pebrapp/database/models/Patient.dart';
-import 'package:pebrapp/state/PatientBloc.dart';
+import 'package:pebrapp/utils/InputFormatters.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 // TODO: implement this screen. Think about what fields have to be changeable for a patient.
@@ -54,7 +55,10 @@ class _EditPatientFormState extends State<_EditPatientForm> {
 
   _EditPatientFormState(this._existingPatient) {
     _villageCtr.text = _existingPatient?.village;
-    _phoneNumberCtr.text = _existingPatient?.phoneNumber;
+    final String _existingPhoneNumber = _existingPatient?.phoneNumber;
+    if (_existingPhoneNumber != null) {
+      _phoneNumberCtr.text = _existingPhoneNumber.substring(5);
+    }
   }
 
   bool _isLoading = false;
@@ -197,12 +201,17 @@ class _EditPatientFormState extends State<_EditPatientForm> {
     }
     return _makeQuestion('Phone Number',
         answer: TextFormField(
+          decoration: InputDecoration(
+            prefixText: '+266-',
+          ),
           controller: _phoneNumberCtr,
-          validator: (value) {
-            if (value.isEmpty) {
-              return 'Please enter a phone number';
-            }
-          },
+          keyboardType: TextInputType.phone,
+          inputFormatters: [
+            WhitelistingTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(8),
+            LesothoPhoneNumberTextInputFormatter(),
+          ],
+          validator: validatePhoneNumber,
         ),
     );
   }
@@ -216,7 +225,7 @@ class _EditPatientFormState extends State<_EditPatientForm> {
     if (_formKey.currentState.validate()) {
       // TODO: check that all fields are updated
       if (_existingPatient.phoneAvailability != null && _existingPatient.phoneAvailability == PhoneAvailability.YES()) {
-        _existingPatient.phoneNumber = _phoneNumberCtr.text;
+        _existingPatient.phoneNumber = '+266-${_phoneNumberCtr.text}';
       } else {
         _existingPatient.phoneNumber = null;
       }
