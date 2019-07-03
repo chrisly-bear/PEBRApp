@@ -169,11 +169,12 @@ class _PatientScreenState extends State<PatientScreen> {
           _patient,
           animateDirection: shouldAnimateRequiredActionContainer[action.type],
           onAnimated: () {
-            _patient.initializeRequiredActionsField();
+            setState(() {});
           },
         ),
       );
       shouldAnimateRequiredActionContainer[action.type] = null;
+      _patient.initializeRequiredActionsField();
       return mapEntry;
     }).values.toList();
 

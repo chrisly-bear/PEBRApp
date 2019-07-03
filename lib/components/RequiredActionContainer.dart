@@ -59,13 +59,18 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
       _controller.value = _controller.upperBound;
     } else if (widget.animateDirection == AnimateDirection.FORWARD) {
       _controller.reset();
-      _controller.forward();
+      _controller.forward().then((_) {
+        if (widget.onAnimated != null) {
+          widget.onAnimated();
+        }
+      });
     } else if (widget.animateDirection == AnimateDirection.BACKWARD) {
       _controller.value = _controller.upperBound;
-      _controller.animateBack(0.0, duration: Duration(milliseconds: 1000), curve: Curves.ease);
-    }
-    if (widget.onAnimated != null) {
-      widget.onAnimated();
+      _controller.animateBack(0.0, duration: Duration(milliseconds: 1000), curve: Curves.ease).then((_) {
+        if (widget.onAnimated != null) {
+          widget.onAnimated();
+        }
+      });
     }
   }
 
