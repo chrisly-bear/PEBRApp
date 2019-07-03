@@ -24,6 +24,7 @@ import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
+import 'package:pebrapp/utils/InputFormatters.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 class PreferenceAssessmentScreen extends StatelessWidget {
@@ -94,13 +95,19 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   // constructor
   _PreferenceAssessmentFormState(Patient patient) {
     _patient = patient;
-    _patientPhoneNumberCtr.text = _patient.phoneNumber ?? '';
+    final String _existingPatientPhoneNumber = _patient.phoneNumber;
+    if (_existingPatientPhoneNumber != null) {
+      _patientPhoneNumberCtr.text = _existingPatientPhoneNumber.substring(5);
+    }
     _phoneAvailabilityBeforeAssessment = _patient.phoneAvailability;
     _patientPhoneNumberBeforeAssessment = _patient.phoneNumber;
     _pa.patientART = patient.artNumber;
     DatabaseProvider().retrieveLatestUserData().then((UserData user) {
       _user = user;
-      _pePhoneNumberCtr.text = _user.phoneNumber;
+      final String _existingPEPhoneNumber = _user.phoneNumber;
+      if (_existingPEPhoneNumber != null) {
+        _pePhoneNumberCtr.text = _existingPEPhoneNumber.substring(5);
+      }
     });
   }
 
@@ -444,24 +451,16 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       return _makeQuestion("VHW's cellphone number",
         answer: TextFormField(
           decoration: InputDecoration(
-            prefixText: '+266',
+            prefixText: '+266-',
           ),
           controller: _vhwPhoneNumberCtr,
-          onEditingComplete: () {
-            _vhwPhoneNumberCtr.text = _formatPhoneNumber(_vhwPhoneNumberCtr.text);
-          },
           keyboardType: TextInputType.phone,
           inputFormatters: [
-            WhitelistingTextInputFormatter(RegExp('[0-9\\s\-]')),
-            LengthLimitingTextInputFormatter(10),
+            WhitelistingTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(8),
+            LesothoPhoneNumberTextInputFormatter(),
           ],
-          validator: (value) {
-            if (value.isEmpty) {
-              return 'Please enter the phone number';
-            } else if (value.replaceAll(RegExp('[\\s\-]'), '').length != 8) {
-              return 'Exactly 8 digits required';
-            }
-          },
+          validator: validatePhoneNumber,
         ),
       );
     }
@@ -524,24 +523,16 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       return _makeQuestion("What is your Treatment Buddy's cellphone number?",
         answer: TextFormField(
           decoration: InputDecoration(
-            prefixText: '+266',
+            prefixText: '+266-',
           ),
           controller: _treatmentBuddyPhoneNumberCtr,
-          onEditingComplete: () {
-            _treatmentBuddyPhoneNumberCtr.text = _formatPhoneNumber(_treatmentBuddyPhoneNumberCtr.text);
-          },
           keyboardType: TextInputType.phone,
           inputFormatters: [
-            WhitelistingTextInputFormatter(RegExp('[0-9\\s\-]')),
-            LengthLimitingTextInputFormatter(10),
+            WhitelistingTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(8),
+            LesothoPhoneNumberTextInputFormatter(),
           ],
-          validator: (value) {
-            if (value.isEmpty) {
-              return 'Please enter the phone number';
-            } else if (value.replaceAll(RegExp('[\\s\-]'), '').length != 8) {
-              return 'Exactly 8 digits required';
-            }
-          },
+          validator: validatePhoneNumber,
         ),
       );
     }
@@ -675,24 +666,16 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           flex: _answersFlex,
           child: TextFormField(
             decoration: InputDecoration(
-              prefixText: '+266',
+              prefixText: '+266-',
             ),
             controller: _patientPhoneNumberCtr,
-            onEditingComplete: () {
-              _patientPhoneNumberCtr.text = _formatPhoneNumber(_patientPhoneNumberCtr.text);
-            },
             keyboardType: TextInputType.phone,
             inputFormatters: [
-              WhitelistingTextInputFormatter(RegExp('[0-9\\s\-]')),
-              LengthLimitingTextInputFormatter(10),
+              WhitelistingTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(8),
+              LesothoPhoneNumberTextInputFormatter(),
             ],
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter a phone number';
-              } else if (value.replaceAll(RegExp('[\\s\-]'), '').length != 8) {
-                return 'Exactly 8 digits required';
-              }
-            },
+            validator: validatePhoneNumber,
           ),)
       ],
     );
@@ -1136,21 +1119,19 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         Expanded(
           flex: _answersFlex,
           child: TextFormField(
+            decoration: InputDecoration(
+              prefixText: '+266-',
+            ),
             controller: _pePhoneNumberCtr,
-            onEditingComplete: () {
-              _pePhoneNumberCtr.text = _formatPhoneNumber(_pePhoneNumberCtr.text);
-            },
             keyboardType: TextInputType.phone,
             inputFormatters: [
-              WhitelistingTextInputFormatter(RegExp('[0-9\\s\-]')),
-              LengthLimitingTextInputFormatter(10),
+              WhitelistingTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(8),
+              LesothoPhoneNumberTextInputFormatter(),
             ],
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter a phone number';
-              }
-            },
-          ),)
+            validator: validatePhoneNumber,
+          ),
+        ),
       ],
     );
   }
@@ -2274,31 +2255,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     return formattedNumber.toUpperCase();
   }
 
-  /// Removes all non-number characters and inserts dashes to make number more
-  /// readable. E.g. 12345678 becomes 12-345-678.
-  ///
-  /// Does not trim the number and only inserts two dashes. So if you pass it a
-  /// long number string, the number will stay long. E.g. 1234567890123 becomes
-  /// 12-345-67890123.
-  ///
-  /// If a [countryCode] is passed it will be prefixed with a dash. E.g.
-  /// countryCode='266' returns +266-12-345-678.
-  String _formatPhoneNumber(String phoneNumber, {String countryCode}) {
-    String onlyNumbers = phoneNumber.replaceAll(RegExp('[^0-9]'), '');
-    String formattedNumber;
-    if (onlyNumbers.length >= 2) {
-      formattedNumber = onlyNumbers.substring(0, 2) + '-' + onlyNumbers.substring(2, onlyNumbers.length);
-    }
-    if (onlyNumbers.length >= 5) {
-      formattedNumber = onlyNumbers.substring(0, 2) + '-' + onlyNumbers.substring(2, 5) + '-' + onlyNumbers.substring(5, onlyNumbers.length);
-    }
-    if (countryCode != null && countryCode.isNotEmpty) {
-      String countryCodeOnlyNumbers = countryCode.replaceAll(RegExp('[^0-9]'), '');
-      formattedNumber = '+$countryCodeOnlyNumbers-$formattedNumber';
-    }
-    return formattedNumber;
-  }
-
   _onSubmitForm() async {
     if (_formKey.currentState.validate() & _validateAdherenceReminderTime()) {
       _pa.artRefillOption1 = _artRefillOptionSelections[0];
@@ -2316,17 +2272,17 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           && _artRefillOptionAvailable[_artRefillOptionSelections.indexOf(ARTRefillOption.VHW())]) {
         _pa.artRefillVHWName = _vhwNameCtr.text;
         _pa.artRefillVHWVillage = _vhwVillageCtr.text;
-        _pa.artRefillVHWPhoneNumber = _vhwPhoneNumberCtr.text;
+        _pa.artRefillVHWPhoneNumber = '+266-${_vhwPhoneNumberCtr.text}';
       }
       if (_artRefillOptionSelections.contains(ARTRefillOption.TREATMENT_BUDDY())
           && _artRefillOptionAvailable[_artRefillOptionSelections.indexOf(ARTRefillOption.TREATMENT_BUDDY())]) {
         _pa.artRefillTreatmentBuddyART = _treatmentBuddyARTNumberCtr.text;
         _pa.artRefillTreatmentBuddyVillage = _treatmentBuddyVillageCtr.text;
-        _pa.artRefillTreatmentBuddyPhoneNumber = _treatmentBuddyPhoneNumberCtr.text;
+        _pa.artRefillTreatmentBuddyPhoneNumber = '+266-${_treatmentBuddyPhoneNumberCtr.text}';
       }
       if (_patient.phoneAvailability == PhoneAvailability.YES()) {
-        if (_patientPhoneNumberBeforeAssessment != _patientPhoneNumberCtr.text) {
-          _patient.phoneNumber = _patientPhoneNumberCtr.text;
+        if (_patientPhoneNumberBeforeAssessment != '+266-${_patientPhoneNumberCtr.text}') {
+          _patient.phoneNumber = '+266-${_patientPhoneNumberCtr.text}';
           _patientUpdated = true;
         }
         if (!_pa.adherenceReminderEnabled) {
@@ -2444,7 +2400,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         print('PATIENT UPDATED, INSERTING NEW PATIENT ROW FOR ${_patient.artNumber}');
         await PatientBloc.instance.sinkPatientData(_patient);
       }
-      final String newPEPhoneNumber = _pePhoneNumberCtr.text;
+      final String newPEPhoneNumber = '+266-${_pePhoneNumberCtr.text}';
       if (newPEPhoneNumber != _user.phoneNumber) {
         _user.phoneNumber = newPEPhoneNumber;
         DatabaseProvider().insertUserData(_user);

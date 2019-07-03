@@ -54,10 +54,9 @@ class _EditPatientFormState extends State<_EditPatientForm> {
 
   _EditPatientFormState(this._existingPatient) {
     _villageCtr.text = _existingPatient?.village;
-    String _existingPhoneNumber = _existingPatient?.phoneNumber;
+    final String _existingPhoneNumber = _existingPatient?.phoneNumber;
     if (_existingPhoneNumber != null) {
-      _existingPhoneNumber = _existingPhoneNumber.substring(5);
-      _phoneNumberCtr.text = _existingPhoneNumber;
+      _phoneNumberCtr.text = _existingPhoneNumber.substring(5);
     }
   }
 
