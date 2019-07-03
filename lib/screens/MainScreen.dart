@@ -39,6 +39,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   // TODO: remove _context field and pass context via args if necessary
   BuildContext _context;
   bool _isLoading = true;
+  bool _patientScreenPushed = false;
   List<Patient> _patients = [];
   StreamSubscription<AppState> _appStateStream;
   bool _loginLockCheckRunning = false;
@@ -114,11 +115,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       if (streamEvent is AppStateRequiredActionData) {
         print('*** MainScreen received AppStateRequiredActionData: ${streamEvent.action.patientART} ***');
         Patient affectedPatient = _patients.singleWhere((Patient p) => p.artNumber == streamEvent.action.patientART, orElse: () => null);
-        if (affectedPatient != null) {
+        if (affectedPatient != null && !_patientScreenPushed) {
           setState(() {
             // TODO: animate insertion and removal of required action label for visual fidelity
             if (streamEvent.isDone) {
+              affectedPatient.requiredActions.removeWhere((RequiredAction a) => a.type == streamEvent.action.type);
             } else {
+              affectedPatient.requiredActions.add(streamEvent.action);
             }
           });
         }
@@ -420,6 +423,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   }
 
   Future<void> _pushPatientScreen(Patient patient) async {
+    _patientScreenPushed = true;
     await Navigator.of(_context, rootNavigator: true).push(
       new MaterialPageRoute<void>(
         settings: RouteSettings(name: '/patient'),
@@ -428,6 +432,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
         },
       ),
     );
+    _patientScreenPushed = false;
   }
 
   Widget _bodyLoading() {
