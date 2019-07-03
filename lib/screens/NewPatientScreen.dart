@@ -593,14 +593,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   // OTHER
   // ----------
 
-  /// Removes all non-number characters and inserts a prefix 'P'
-  /// E.g. '123' becomes 'P123'.
-  String _formatStickerNumber(String stickerNumber) {
-    String onlyNumbers = stickerNumber.replaceAll(RegExp('[^0-9]'), '');
-
-    return 'P' + onlyNumbers;
-  }
-
   Widget _eligibilityDisclaimer() {
     if (_newPatient.yearOfBirth == null || _eligible) {
       return Container();
@@ -640,7 +632,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       _newPatient.enrolmentDate = DateTime.now().toUtc();
       _newPatient.isEligible = _eligible;
       _newPatient.artNumber = _artNumberCtr.text;
-      _newPatient.stickerNumber = _formatStickerNumber(_stickerNumberCtr.text);
+      _newPatient.stickerNumber = 'P${_stickerNumberCtr.text}';
       _newPatient.village = _villageCtr.text;
       _newPatient.phoneNumber = '+266-${_phoneNumberCtr.text}';
       _newPatient.noConsentReasonOther = _noConsentReasonOtherCtr.text;
