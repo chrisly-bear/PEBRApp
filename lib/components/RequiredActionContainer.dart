@@ -6,14 +6,16 @@ import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
+enum AnimateDirection { FORWARD, BACKWARD }
+
 class RequiredActionContainer extends StatefulWidget {
 
   final RequiredAction action;
   final int actionNumber;
   final Patient patient;
-  final bool animate;
+  final AnimateDirection animateDirection;
 
-  RequiredActionContainer(this.action, this.actionNumber, this.patient, {this.animate: false});
+  RequiredActionContainer(this.action, this.actionNumber, this.patient, {this.animateDirection});
 
   @override
   State<StatefulWidget> createState() => _RequiredActionContainerState();
@@ -51,12 +53,15 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
   }
 
   void _animateIfDemanded() {
-    if (widget.animate) {
+    if (widget.animateDirection == null) {
+      // do not animate and initialize animation to its end state
+      _controller.value = _controller.upperBound;
+    } else if (widget.animateDirection == AnimateDirection.FORWARD) {
       _controller.reset();
       _controller.forward();
-    } else {
-      // initialize animation to its end state
+    } else if (widget.animateDirection == AnimateDirection.BACKWARD) {
       _controller.value = _controller.upperBound;
+      _controller.animateBack(0.0, duration: Duration(milliseconds: 1000), curve: Curves.ease);
     }
   }
 

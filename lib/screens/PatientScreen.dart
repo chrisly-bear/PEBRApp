@@ -51,7 +51,7 @@ class _PatientScreenState extends State<PatientScreen> {
   StreamSubscription<AppState> _appStateStream;
 
   final double _spacingBetweenCards = 40.0;
-  final Map<RequiredActionType, bool> shouldAnimateRequiredActionContainer = {};
+  final Map<RequiredActionType, AnimateDirection> shouldAnimateRequiredActionContainer = {};
 
   // constructor
   _PatientScreenState(this._patient);
@@ -66,7 +66,9 @@ class _PatientScreenState extends State<PatientScreen> {
         print('*** PatientScreen received AppStatePatientData: ${streamEvent.patient.artNumber} ***');
         final Set<RequiredAction> newVisibleRequiredActions = streamEvent.patient.visibleRequiredActions;
         for (RequiredAction a in newVisibleRequiredActions) {
-          shouldAnimateRequiredActionContainer[a.type] = streamEvent.oldRequiredActions != null && !streamEvent.oldRequiredActions.contains(a);
+          if (streamEvent.oldRequiredActions != null && !streamEvent.oldRequiredActions.contains(a)) {
+            shouldAnimateRequiredActionContainer[a.type] = AnimateDirection.FORWARD;
+          }
         }
         setState(() {});
       }
@@ -76,8 +78,10 @@ class _PatientScreenState extends State<PatientScreen> {
           // TODO: animate insertion and removal of required action card for visual fidelity
           if (streamEvent.isDone) {
             _patient.requiredActions.removeWhere((RequiredAction a) => a.type == streamEvent.action.type);
+            shouldAnimateRequiredActionContainer[streamEvent.action.type] = AnimateDirection.BACKWARD;
           } else {
             _patient.requiredActions.add(streamEvent.action);
+            shouldAnimateRequiredActionContainer[streamEvent.action.type] = AnimateDirection.FORWARD;
           }
         });
       }
@@ -159,10 +163,10 @@ class _PatientScreenState extends State<PatientScreen> {
           action,
           i,
           _patient,
-          animate: shouldAnimateRequiredActionContainer[action.type] ?? false,
+          animateDirection: shouldAnimateRequiredActionContainer[action.type],
         ),
       );
-      shouldAnimateRequiredActionContainer[action.type] = false;
+      shouldAnimateRequiredActionContainer[action.type] = null;
       return mapEntry;
     }).values.toList();
 
