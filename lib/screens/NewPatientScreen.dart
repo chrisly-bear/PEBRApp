@@ -208,27 +208,17 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     return _makeQuestion('ART Number',
       child: TextFormField(
         controller: _artNumberCtr,
-        onEditingComplete: () {
-          _artNumberCtr.text = _formatArtNumber(_artNumberCtr.text);
-        },
         inputFormatters: [
-          WhitelistingTextInputFormatter(RegExp('[A-Za-z]|[0-9]|/')),
-          LengthLimitingTextInputFormatter(10),
+          WhitelistingTextInputFormatter(RegExp('[A-Za-z0-9]')),
+          LengthLimitingTextInputFormatter(8),
+          ARTNumberTextInputFormatter(),
         ],
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please enter an ART number';
+        validator: (String value) {
+          if (_artNumberExists(value)) {
+            return 'Patient with this ART number already exists';
           }
-          else if (value.replaceAll(RegExp('[\\s\/]'), '').length != 8) {
-            return 'Exactly 8 alphanumeric characters required';
-          }
-          else if (!RegExp(r'(^[A-Za-z]{1}/[A-Za-z0-9]{2}/\d{5}$)|(^[A-Za-z]{1}[A-Za-z0-9]{2}\d{5}$)').hasMatch(value)) {
-            return 'Enter a valid ART number';
-          }
-          else if (_artNumberExists(value)) {
-            return 'This ART number exists already in the database';
-          }
-        },
+          return validateARTNumber(value);
+          },
       ),
     );
   }
@@ -611,24 +601,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     return 'P' + onlyNumbers;
   }
 
-  /// Removes all non-alphanumeric characters and inserts forward slashes to
-  /// make the number more readable. E.g. A0C01234 becomes A/0C/01234.
-  ///
-  /// Does not trim the number and only inserts two forward slashes. So if you pass it a
-  /// long number string, the number will stay long. E.g. A1234567890 becomes
-  /// A/12/1234567890.
-  String _formatArtNumber(String artNumber) {
-    String onlyAlphaNumeric = artNumber.replaceAll(RegExp('[^A-Za-z0-9]'), '');
-    String formattedNumber;
-    if (onlyAlphaNumeric.length >= 1) {
-      formattedNumber = onlyAlphaNumeric.substring(0, 1) + '/' + onlyAlphaNumeric.substring(1, onlyAlphaNumeric.length);
-    }
-    if (onlyAlphaNumeric.length >= 2) {
-      formattedNumber = onlyAlphaNumeric.substring(0, 1) + '/' + onlyAlphaNumeric.substring(1, 3) + '/' + onlyAlphaNumeric.substring(3, onlyAlphaNumeric.length);
-    }
-    return formattedNumber.toUpperCase();
-  }
-
   Widget _eligibilityDisclaimer() {
     if (_newPatient.yearOfBirth == null || _eligible) {
       return Container();
@@ -667,7 +639,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
       _newPatient.enrolmentDate = DateTime.now().toUtc();
       _newPatient.isEligible = _eligible;
-      _newPatient.artNumber = _formatArtNumber(_artNumberCtr.text);
+      _newPatient.artNumber = _artNumberCtr.text;
       _newPatient.stickerNumber = _formatStickerNumber(_stickerNumberCtr.text);
       _newPatient.village = _villageCtr.text;
       _newPatient.phoneNumber = '+266-${_phoneNumberCtr.text}';

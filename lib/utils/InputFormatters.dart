@@ -42,3 +42,46 @@ String validatePhoneNumber(String value) {
     return 'Enter a valid Lesotho phone number';
   return null;
 }
+
+
+class ARTNumberTextInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
+    final int newTextLength = newValue.text.length;
+    int selectionIndex = newValue.selection.end;
+    int usedSubstringIndex = 0;
+    final StringBuffer newText = StringBuffer();
+    if (newTextLength >= 2) {
+      newText.write(newValue.text.substring(0, usedSubstringIndex = 1) + '/');
+      if (newValue.selection.end >= 1)
+        selectionIndex++;
+    }
+    if (newTextLength >= 4) {
+      newText.write(newValue.text.substring(1, usedSubstringIndex = 3) + '/');
+      if (newValue.selection.end >= 3)
+        selectionIndex++;
+    }
+    if (newTextLength >= 9) {
+      newText.write(newValue.text.substring(3, usedSubstringIndex = 8) + ' ');
+      if (newValue.selection.end >= 8)
+        selectionIndex++;
+    }
+    // Dump the rest.
+    if (newTextLength >= usedSubstringIndex)
+      newText.write(newValue.text.substring(usedSubstringIndex));
+    return TextEditingValue(
+      text: newText.toString().toUpperCase(),
+      selection: TextSelection.collapsed(offset: selectionIndex),
+    );
+  }
+}
+
+String validateARTNumber(String value) {
+  final RegExp phoneExp = RegExp(r'^[A-Z]/[A-Z0-9]{2}/\d{5}$');
+  if (!phoneExp.hasMatch(value))
+    return 'Enter a valid ART number';
+  return null;
+}
