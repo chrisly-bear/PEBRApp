@@ -50,14 +50,12 @@ Future<void> uploadNotificationsPreferences(Patient patient, PreferenceAssessmen
 
 Future<void> _handleSuccess(Patient patient, RequiredActionType actionType) async {
   print('$actionType uploaded to visible impact database successfully.');
-  patient.requiredActions.removeWhere((RequiredAction action) => action.type == actionType);
   await DatabaseProvider().removeRequiredAction(patient.artNumber, actionType);
   PatientBloc.instance.sinkRequiredActionData(RequiredAction(patient.artNumber, actionType, null), true);
 }
 
 Future<void> _handleFailure(Patient patient, RequiredActionType actionType) async {
   final newAction = RequiredAction(patient.artNumber, actionType, DateTime.now());
-  patient.requiredActions.add(newAction);
   await DatabaseProvider().insertRequiredAction(newAction);
   PatientBloc.instance.sinkRequiredActionData(newAction, false);
 }

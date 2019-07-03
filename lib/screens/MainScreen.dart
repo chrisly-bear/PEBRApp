@@ -118,9 +118,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           setState(() {
             // TODO: animate insertion and removal of required action label for visual fidelity
             if (streamEvent.isDone) {
-              affectedPatient.requiredActions.removeWhere((RequiredAction a) => a.type == streamEvent.action.type);
             } else {
-              affectedPatient.requiredActions.add(streamEvent.action);
             }
           });
         }

@@ -76,11 +76,12 @@ class _PatientScreenState extends State<PatientScreen> {
         setState(() {
           // TODO: animate insertion and removal of required action card for visual fidelity
           if (streamEvent.isDone) {
-            _patient.requiredActions.removeWhere((RequiredAction a) => a.type == streamEvent.action.type);
             shouldAnimateRequiredActionContainer[streamEvent.action.type] = AnimateDirection.BACKWARD;
           } else {
-            _patient.requiredActions.add(streamEvent.action);
-            shouldAnimateRequiredActionContainer[streamEvent.action.type] = AnimateDirection.FORWARD;
+            if (_patient.requiredActions.firstWhere((RequiredAction a) => a.type == streamEvent.action.type, orElse: () => null) == null) {
+              shouldAnimateRequiredActionContainer[streamEvent.action.type] = AnimateDirection.FORWARD;
+              _patient.requiredActions.add(streamEvent.action);
+            }
           }
         });
       }
@@ -163,6 +164,9 @@ class _PatientScreenState extends State<PatientScreen> {
           i,
           _patient,
           animateDirection: shouldAnimateRequiredActionContainer[action.type],
+          onAnimated: () {
+            _patient.initializeRequiredActionsField();
+          },
         ),
       );
       shouldAnimateRequiredActionContainer[action.type] = null;

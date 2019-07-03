@@ -14,8 +14,9 @@ class RequiredActionContainer extends StatefulWidget {
   final int actionNumber;
   final Patient patient;
   final AnimateDirection animateDirection;
+  final VoidCallback onAnimated;
 
-  RequiredActionContainer(this.action, this.actionNumber, this.patient, {this.animateDirection});
+  RequiredActionContainer(this.action, this.actionNumber, this.patient, {this.animateDirection, this.onAnimated});
 
   @override
   State<StatefulWidget> createState() => _RequiredActionContainerState();
@@ -63,6 +64,9 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
       _controller.value = _controller.upperBound;
       _controller.animateBack(0.0, duration: Duration(milliseconds: 1000), curve: Curves.ease);
     }
+    if (widget.onAnimated != null) {
+      widget.onAnimated();
+    }
   }
 
   dispose() {
@@ -73,7 +77,6 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
   FlatButton _endpointSurveyDoneButton(RequiredAction action) {
     return FlatButton(
       onPressed: () async {
-        widget.patient.requiredActions.removeWhere((RequiredAction a) => a.type == action.type);
         await DatabaseProvider().removeRequiredAction(widget.patient.artNumber, action.type);
         PatientBloc.instance.sinkRequiredActionData(action, true);
       },
