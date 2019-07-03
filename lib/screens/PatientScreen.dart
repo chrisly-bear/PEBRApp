@@ -73,17 +73,21 @@ class _PatientScreenState extends State<PatientScreen> {
       }
       if (streamEvent is AppStateRequiredActionData && streamEvent.action.patientART == _patient.artNumber) {
         print('*** PatientScreen received AppStateRequiredActionData: ${streamEvent.action.patientART} ***');
-        setState(() {
           // TODO: animate insertion and removal of required action card for visual fidelity
           if (streamEvent.isDone) {
-            shouldAnimateRequiredActionContainer[streamEvent.action.type] = AnimateDirection.BACKWARD;
+            if (_patient.requiredActions.firstWhere((RequiredAction a) => a.type == streamEvent.action.type, orElse: () => null) != null) {
+              setState(() {
+                shouldAnimateRequiredActionContainer[streamEvent.action.type] = AnimateDirection.BACKWARD;
+              });
+            }
           } else {
             if (_patient.requiredActions.firstWhere((RequiredAction a) => a.type == streamEvent.action.type, orElse: () => null) == null) {
-              shouldAnimateRequiredActionContainer[streamEvent.action.type] = AnimateDirection.FORWARD;
-              _patient.requiredActions.add(streamEvent.action);
+              setState(() {
+                shouldAnimateRequiredActionContainer[streamEvent.action.type] = AnimateDirection.FORWARD;
+                _patient.requiredActions.add(streamEvent.action);
+              });
             }
           }
-        });
       }
     });
   }
