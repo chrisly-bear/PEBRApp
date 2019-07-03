@@ -392,8 +392,8 @@ class _LoginBodyState extends State<LoginBody> {
           textInputAction: TextInputAction.done,
           keyboardType: TextInputType.phone,
           inputFormatters: [
-            LengthLimitingTextInputFormatter(10),
             WhitelistingTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(8),
             LesothoPhoneNumberTextInputFormatter(),
           ],
           validator: validatePhoneNumber,

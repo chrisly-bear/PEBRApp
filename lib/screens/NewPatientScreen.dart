@@ -10,6 +10,7 @@ import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
+import 'package:pebrapp/utils/InputFormatters.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pebrapp/database/beans/NoConsentReason.dart';
@@ -384,24 +385,16 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     return _makeQuestion('Phone Number',
         child: TextFormField(
           decoration: InputDecoration(
-            prefixText: '+266',
+            prefixText: '+266-',
           ),
           controller: _phoneNumberCtr,
-          onEditingComplete: () {
-            _phoneNumberCtr.text = _formatPhoneNumber(_phoneNumberCtr.text);
-          },
           keyboardType: TextInputType.phone,
           inputFormatters: [
-            WhitelistingTextInputFormatter(RegExp('[0-9\\s\-]')),
-            LengthLimitingTextInputFormatter(10),
+            WhitelistingTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(8),
+            LesothoPhoneNumberTextInputFormatter(),
           ],
-          validator: (value) {
-            if (value.isEmpty) {
-              return 'Please enter a phone number';
-            } else if (value.replaceAll(RegExp('[\\s\-]'), '').length != 8) {
-              return 'Exactly 8 digits required';
-            }
-          },
+          validator: validatePhoneNumber,
         ),
     );
   }
@@ -610,31 +603,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   // OTHER
   // ----------
 
-  /// Removes all non-number characters and inserts dashes to make number more
-  /// readable. E.g. 12345678 becomes 12-345-678.
-  ///
-  /// Does not trim the number and only inserts two dashes. So if you pass it a
-  /// long number string, the number will stay long. E.g. 1234567890123 becomes
-  /// 12-345-67890123.
-  ///
-  /// If a [countryCode] is passed it will be prefixed with a dash. E.g.
-  /// countryCode='266' returns +266-12-345-678.
-  String _formatPhoneNumber(String phoneNumber, {String countryCode}) {
-    String onlyNumbers = phoneNumber.replaceAll(RegExp('[^0-9]'), '');
-    String formattedNumber;
-    if (onlyNumbers.length >= 2) {
-      formattedNumber = onlyNumbers.substring(0, 2) + '-' + onlyNumbers.substring(2, onlyNumbers.length);
-    }
-    if (onlyNumbers.length >= 5) {
-      formattedNumber = onlyNumbers.substring(0, 2) + '-' + onlyNumbers.substring(2, 5) + '-' + onlyNumbers.substring(5, onlyNumbers.length);
-    }
-    if (countryCode != null && countryCode.isNotEmpty) {
-      String countryCodeOnlyNumbers = countryCode.replaceAll(RegExp('[^0-9]'), '');
-      formattedNumber = '+$countryCodeOnlyNumbers-$formattedNumber';
-    }
-    return formattedNumber;
-  }
-
   /// Removes all non-number characters and inserts a prefix 'P'
   /// E.g. '123' becomes 'P123'.
   String _formatStickerNumber(String stickerNumber) {
@@ -702,7 +670,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       _newPatient.artNumber = _formatArtNumber(_artNumberCtr.text);
       _newPatient.stickerNumber = _formatStickerNumber(_stickerNumberCtr.text);
       _newPatient.village = _villageCtr.text;
-      _newPatient.phoneNumber = _formatPhoneNumber(_phoneNumberCtr.text, countryCode: '+266');
+      _newPatient.phoneNumber = '+266-${_phoneNumberCtr.text}';
       _newPatient.noConsentReasonOther = _noConsentReasonOtherCtr.text;
       _newPatient.village = _villageCtr.text;
       _newPatient.village = _villageCtr.text;
