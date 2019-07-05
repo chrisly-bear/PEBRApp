@@ -462,7 +462,7 @@ class DatabaseProvider {
       print('Upgrading to database version 38...');
       print('UPGRADE NOT IMPLEMENTED, USER DATA WILL BE RESET! YOU WILL HAVE TO'
           'CREATE A NEW ACCOUNT OR YOU WILL GET STUCK IN A LOGIN LOOP.');
-      await db.execute("DROP TABLE IF EXISTS UserData;");
+      await db.execute("DROP TABLE IF EXISTS UserData;"); // Removing the UserData table will result in a login loop -> user has to create a new account
       await _onCreate(db, 38);
       showFlushbar('Please create a new account to continue using the app.', title: 'App Upgraded', error: true);
     }
@@ -475,8 +475,10 @@ class DatabaseProvider {
     await db.execute("DROP TABLE IF EXISTS PreferenceAssessment;");
     await db.execute("DROP TABLE IF EXISTS ARTRefill;");
     await db.execute("DROP TABLE IF EXISTS ViralLoad;");
-    await db.execute("DROP TABLE IF EXISTS UserData;");
+    await db.execute("DROP TABLE IF EXISTS RequiredAction;");
+    await db.execute("DROP TABLE IF EXISTS UserData;"); // Removing the UserData table will result in a login loop -> user has to create a new account
     await _onCreate(db, newVersion);
+    showFlushbar('Please create a new account to continue using the app.', title: 'App Downgraded', error: true);
   }
 
 
