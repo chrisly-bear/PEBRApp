@@ -149,8 +149,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     patients.sort((Patient a, Patient b) {
       if (a.isActivated && !b.isActivated) { return -1; }
       if (!a.isActivated && b.isActivated) { return 1; } // do we need this rule or is it implied by the previous rule?
-      final int actionsRequiredForA = a.requiredActions.length;
-      final int actionsRequiredForB = b.requiredActions.length;
+      final int actionsRequiredForA = a.visibleRequiredActions.length;
+      final int actionsRequiredForB = b.visibleRequiredActions.length;
       if (actionsRequiredForA > actionsRequiredForB) { return -1; }
       if (actionsRequiredForA < actionsRequiredForB) { return 1; } // do we need this rule or is it implied by the previous rule?
       if (actionsRequiredForA == actionsRequiredForB) {
