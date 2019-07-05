@@ -21,10 +21,10 @@ class Patient implements IExcelExportable {
   static final colCreatedDate = 'created_date_utc';
   static final colEnrolmentDate = 'enrolment_date_utc';
   static final colARTNumber = 'art_number';
-  static final colStickerNumber = 'sticker_number';
   static final colYearOfBirth = 'year_of_birth';
   static final colIsEligible = 'is_eligible';
   // nullables:
+  static final colStickerNumber = 'sticker_number';
   static final colIsVLBaselineAvailable = 'is_vl_baseline_available';
   static final colGender = 'gender'; // nullable
   static final colSexualOrientation = 'sexual_orientation'; // nullable
@@ -39,9 +39,9 @@ class Patient implements IExcelExportable {
   DateTime _createdDate;
   DateTime enrolmentDate;
   String artNumber;
-  String stickerNumber;
   int yearOfBirth;
   bool isEligible;
+  String stickerNumber;
   bool isVLBaselineAvailable;
   Gender gender;
   SexualOrientation sexualOrientation;
@@ -78,10 +78,10 @@ class Patient implements IExcelExportable {
     this.createdDate = DateTime.parse(map[colCreatedDate]);
     this.enrolmentDate = DateTime.parse(map[colEnrolmentDate]);
     this.artNumber = map[colARTNumber];
-    this.stickerNumber = map[colStickerNumber];
     this.yearOfBirth = int.parse(map[colYearOfBirth]);
     this.isEligible = map[colIsEligible] == 1;
     // nullables:
+    this.stickerNumber = map[colStickerNumber];
     if (map[colIsVLBaselineAvailable] != null) {
       this.isVLBaselineAvailable = map[colIsVLBaselineAvailable] == 1;
     }

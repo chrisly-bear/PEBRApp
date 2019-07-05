@@ -20,7 +20,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 34;
+  static const int _DB_VERSION = 35;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -65,9 +65,9 @@ class DatabaseProvider {
           ${Patient.colCreatedDate} TEXT NOT NULL,
           ${Patient.colEnrolmentDate} TEXT NOT NULL,
           ${Patient.colARTNumber} TEXT NOT NULL,
-          ${Patient.colStickerNumber} TEXT NOT NULL,
           ${Patient.colYearOfBirth} TEXT NOT NULL,
           ${Patient.colIsEligible} BIT NOT NULL,
+          ${Patient.colStickerNumber} TEXT,
           ${Patient.colIsVLBaselineAvailable} BIT,
           ${Patient.colGender} INTEGER,
           ${Patient.colSexualOrientation} INTEGER,
@@ -447,6 +447,16 @@ class DatabaseProvider {
     if (oldVersion < 34) {
       print('Upgrading to database version 34...');
       await db.execute("ALTER TABLE RequiredAction ADD due_date TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z';");
+    }
+    if (oldVersion < 35) {
+      print('Upgrading to database version 35...');
+      print('UPGRADE NOT IMPLEMENTED, PATIENT RELATED DATA WILL BE RESET!');
+      await db.execute("DROP TABLE IF EXISTS Patient;");
+      await db.execute("DROP TABLE IF EXISTS PreferenceAssessment;");
+      await db.execute("DROP TABLE IF EXISTS ARTRefill;");
+      await db.execute("DROP TABLE IF EXISTS ViralLoad;");
+      await db.execute("DROP TABLE IF EXISTS RequiredAction;");
+      await _onCreate(db, 35);
     }
   }
 
