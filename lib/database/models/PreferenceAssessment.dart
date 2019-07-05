@@ -23,7 +23,7 @@ class PreferenceAssessment implements IExcelExportable {
   // column names
   static final colId = 'id'; // primary key
   static final colPatientART = 'patient_art'; // foreign key to [Patient].art_number
-  static final colCreatedDate = 'created_date_utc';
+  static final colCreatedDate = 'created_date';
   static final colARTRefillOption1 = 'art_refill_option_1';
   static final colARTRefillOption2 = 'art_refill_option_2'; // nullable
   static final colARTRefillOption3 = 'art_refill_option_3'; // nullable

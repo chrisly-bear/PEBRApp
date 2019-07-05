@@ -18,8 +18,8 @@ class Patient implements IExcelExportable {
 
   // column names
   static final colId = 'id'; // primary key
-  static final colCreatedDate = 'created_date_utc';
-  static final colEnrollmentDate = 'enrollment_date_utc';
+  static final colCreatedDate = 'created_date';
+  static final colEnrollmentDate = 'enrollment_date';
   static final colARTNumber = 'art_number';
   static final colYearOfBirth = 'year_of_birth';
   static final colIsEligible = 'is_eligible';

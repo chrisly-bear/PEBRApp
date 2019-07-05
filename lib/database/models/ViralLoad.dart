@@ -9,11 +9,11 @@ class ViralLoad implements IExcelExportable {
 
   // column names
   static final colId = 'id'; // primary key
-  static final colCreatedDate = 'created_date_utc';
+  static final colCreatedDate = 'created_date';
   static final colPatientART = 'patient_art'; // foreign key to [Patient].art_number
   static final colViralLoadSource = 'source';
   static final colViralLoadIsBaseline = 'is_baseline';
-  static final colDateOfBloodDraw = 'date_blood_draw_utc';
+  static final colDateOfBloodDraw = 'date_blood_draw';
   static final colLabNumber = 'lab_number';
   static final colIsLowerThanDetectable = 'is_lower_than_detectable';
   static final colViralLoad = 'viral_load'; // nullable
