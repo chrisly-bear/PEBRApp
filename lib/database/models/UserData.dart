@@ -12,14 +12,14 @@ class UserData implements IExcelExportable {
 
   // column names
   static final colId = 'id'; // primary key
-  static final colCreatedDate = 'created_date_utc';
+  static final colCreatedDate = 'created_date';
   static final colFirstName = 'first_name'; // foreign key to [Patient].art_number
   static final colLastName = 'last_name';
   static final colUsername = 'username';
   static final colPhoneNumber = 'phone_number';
   static final colHealthCenter = 'health_center';
   static final colIsActive = 'is_active';
-  static final colDeactivatedDate = 'deactivated_date_utc'; // nullable
+  static final colDeactivatedDate = 'deactivated_date'; // nullable
 
   DateTime _createdDate;
   String firstName;
