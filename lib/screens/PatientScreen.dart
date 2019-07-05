@@ -515,69 +515,69 @@ class _PatientScreenState extends State<PatientScreen> {
       } else {
 
         Widget _vhwInfo() {
-          ARTRefillOption lastOption = _patient.latestPreferenceAssessment?.lastRefillOption;
+          ARTRefillOption lastOption = _patient.latestPreferenceAssessment.lastRefillOption;
           if (lastOption == null || lastOption != ARTRefillOption.VHW()) {
             return Container();
           }
           return Column(
               children: [
-                _buildRow('VHW Name', _patient.latestPreferenceAssessment?.artRefillVHWName),
-                _buildRow("VHW's Village", _patient.latestPreferenceAssessment?.artRefillVHWVillage),
-                _buildRow("VHW's Phone Number", _patient.latestPreferenceAssessment?.artRefillVHWPhoneNumber),
+                _buildRow('VHW Name', _patient.latestPreferenceAssessment.artRefillVHWName),
+                _buildRow("VHW's Village", _patient.latestPreferenceAssessment.artRefillVHWVillage),
+                _buildRow("VHW's Phone Number", _patient.latestPreferenceAssessment.artRefillVHWPhoneNumber),
               ],
           );
         }
 
         Widget _treatmentBuddyInfo() {
-          ARTRefillOption lastOption = _patient.latestPreferenceAssessment?.lastRefillOption;
+          ARTRefillOption lastOption = _patient.latestPreferenceAssessment.lastRefillOption;
           if (lastOption == null || lastOption != ARTRefillOption.TREATMENT_BUDDY()) {
             return Container();
           }
           return Column(
             children: [
-              _buildRow("Treatment Buddy's ART Nr.", _patient.latestPreferenceAssessment?.artRefillTreatmentBuddyART),
-              _buildRow("Treatment Buddy's Village", _patient.latestPreferenceAssessment?.artRefillTreatmentBuddyVillage),
-              _buildRow("Treatment Buddy's Phone Number", _patient.latestPreferenceAssessment?.artRefillTreatmentBuddyPhoneNumber),
+              _buildRow("Treatment Buddy's ART Nr.", _patient.latestPreferenceAssessment.artRefillTreatmentBuddyART),
+              _buildRow("Treatment Buddy's Village", _patient.latestPreferenceAssessment.artRefillTreatmentBuddyVillage),
+              _buildRow("Treatment Buddy's Phone Number", _patient.latestPreferenceAssessment.artRefillTreatmentBuddyPhoneNumber),
             ],
           );
         }
 
         Widget _adherenceReminderInfo() {
-          bool enabled = _patient.latestPreferenceAssessment?.adherenceReminderEnabled;
+          bool enabled = _patient.latestPreferenceAssessment.adherenceReminderEnabled;
           if (enabled == null || !enabled) {
             return _buildRow('Adherence Reminders', 'not wished');
           }
           return Column(
             children: [
-              _buildRow('Adherence Reminder Frequency', _patient.latestPreferenceAssessment?.adherenceReminderFrequency?.description),
-              _buildRow('Adherence Reminder Notification Time', formatTime(_patient.latestPreferenceAssessment?.adherenceReminderTime)),
-              _buildRow('Adherence Reminder Message', _patient.latestPreferenceAssessment?.adherenceReminderMessage?.description),
+              _buildRow('Adherence Reminder Frequency', _patient.latestPreferenceAssessment.adherenceReminderFrequency?.description),
+              _buildRow('Adherence Reminder Notification Time', formatTime(_patient.latestPreferenceAssessment.adherenceReminderTime)),
+              _buildRow('Adherence Reminder Message', _patient.latestPreferenceAssessment.adherenceReminderMessage?.description),
             ],
           );
         }
 
         Widget _refillReminderInfo() {
-          bool enabled = _patient.latestPreferenceAssessment?.artRefillReminderEnabled;
+          bool enabled = _patient.latestPreferenceAssessment.artRefillReminderEnabled;
           if (enabled == null || !enabled) {
             return _buildRow('ART Refill Reminders', 'not wished');
           }
           return Column(
             children: [
-              _buildRow('ART Refill Reminder Time', _patient.latestPreferenceAssessment?.artRefillReminderDaysBefore?.description),
-              _buildRow('ART Refill Reminder Message', _patient.latestPreferenceAssessment?.artRefillReminderMessage?.description),
+              _buildRow('ART Refill Reminder Time', _patient.latestPreferenceAssessment.artRefillReminderDaysBefore?.description),
+              _buildRow('ART Refill Reminder Message', _patient.latestPreferenceAssessment.artRefillReminderMessage?.description),
             ],
           );
         }
 
         Widget _vlNotificationInfo() {
-          bool enabled = _patient.latestPreferenceAssessment?.vlNotificationEnabled;
+          bool enabled = _patient.latestPreferenceAssessment.vlNotificationEnabled;
           if (enabled == null || !enabled) {
             return _buildRow('Viral Load Notifications', 'not wished');
           }
           return Column(
             children: [
-              _buildRow('Viral Load Message (suppressed)', _patient.latestPreferenceAssessment?.vlNotificationMessageSuppressed?.description),
-              _buildRow('Viral Load Message (unsuppressed)', _patient.latestPreferenceAssessment?.vlNotificationMessageUnsuppressed?.description),
+              _buildRow('Viral Load Message (suppressed)', _patient.latestPreferenceAssessment.vlNotificationMessageSuppressed?.description),
+              _buildRow('Viral Load Message (unsuppressed)', _patient.latestPreferenceAssessment.vlNotificationMessageUnsuppressed?.description),
             ],
           );
         }
@@ -607,19 +607,19 @@ class _PatientScreenState extends State<PatientScreen> {
         }
 
         Widget _psychosocialSupportInfo() {
-          final YesNoRefused answer = _patient.latestPreferenceAssessment?.psychosocialShareSomethingAnswer;
+          final YesNoRefused answer = _patient.latestPreferenceAssessment.psychosocialShareSomethingAnswer;
           final bool shareSomething = answer != null && answer == YesNoRefused.YES();
           return Column(
             children: [
               _buildRow('Did the patient want to share something?', answer.description),
-              shareSomething ? _buildRow('The patient shared:', _patient.latestPreferenceAssessment?.psychosocialShareSomethingContent) : Container(),
-              _buildRow('How was the patient doing?', _patient.latestPreferenceAssessment?.psychosocialHowDoing),
+              shareSomething ? _buildRow('The patient shared:', _patient.latestPreferenceAssessment.psychosocialShareSomethingContent) : Container(),
+              _buildRow('How was the patient doing?', _patient.latestPreferenceAssessment.psychosocialHowDoing),
             ],
           );
         }
 
         Widget _unsuppressedVlInfo() {
-          final YesNoRefused answer = _patient.latestPreferenceAssessment?.unsuppressedSafeEnvironmentAnswer;
+          final YesNoRefused answer = _patient.latestPreferenceAssessment.unsuppressedSafeEnvironmentAnswer;
           if (answer == null) {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -634,7 +634,7 @@ class _PatientScreenState extends State<PatientScreen> {
           return Column(
             children: [
               _buildRow('Does the patient have a safe environment to take the medication?', answer.description),
-              notSafe ? _buildRow('Why is the environment not safe?', _patient.latestPreferenceAssessment?.unsuppressedWhyNotSafe) : Container(),
+              notSafe ? _buildRow('Why is the environment not safe?', _patient.latestPreferenceAssessment.unsuppressedWhyNotSafe) : Container(),
             ],
           );
         }
@@ -643,10 +643,10 @@ class _PatientScreenState extends State<PatientScreen> {
           children: [
             SizedBox(height: 5.0),
             _buildSubtitle('ART Refill'), Divider(),
-            _buildRow('ART Refill', _patient.latestPreferenceAssessment?.lastRefillOption?.description),
+            _buildRow('ART Refill', _patient.latestPreferenceAssessment.lastRefillOption?.description),
             _vhwInfo(),
             _treatmentBuddyInfo(),
-            _buildRow('ART Supply Amount', _patient.latestPreferenceAssessment?.artSupplyAmount?.description),
+            _buildRow('ART Supply Amount', _patient.latestPreferenceAssessment.artSupplyAmount?.description),
             SizedBox(height: _spacingBetweenPreferences),
             _buildSubtitle('Notifications'), Divider(),
             _notificationsInfo(),
