@@ -2125,6 +2125,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       _pa.artRefillOption3 = _artRefillOptionSelections[2];
       _pa.artRefillOption4 = _artRefillOptionSelections[3];
       _pa.artRefillOption5 = _artRefillOptionSelections[4];
+      _pa.patientPhoneAvailable = _patient.phoneAvailability == PhoneAvailability.YES();
 
       if (_artRefillOptionSelections.contains(ARTRefillOption.PE_HOME_DELIVERY())
           && !_artRefillOptionAvailable[_artRefillOptionSelections.indexOf(ARTRefillOption.PE_HOME_DELIVERY())]

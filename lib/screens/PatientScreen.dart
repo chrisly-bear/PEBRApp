@@ -545,7 +545,7 @@ class _PatientScreenState extends State<PatientScreen> {
         Widget _adherenceReminderInfo() {
           bool enabled = _patient.latestPreferenceAssessment?.adherenceReminderEnabled;
           if (enabled == null || !enabled) {
-            return _buildRow('Adherence Reminders', 'disabled');
+            return _buildRow('Adherence Reminders', 'not wished');
           }
           return Column(
             children: [
@@ -559,7 +559,7 @@ class _PatientScreenState extends State<PatientScreen> {
         Widget _refillReminderInfo() {
           bool enabled = _patient.latestPreferenceAssessment?.artRefillReminderEnabled;
           if (enabled == null || !enabled) {
-            return _buildRow('ART Refill Reminders', 'disabled');
+            return _buildRow('ART Refill Reminders', 'not wished');
           }
           return Column(
             children: [
@@ -572,12 +572,36 @@ class _PatientScreenState extends State<PatientScreen> {
         Widget _vlNotificationInfo() {
           bool enabled = _patient.latestPreferenceAssessment?.vlNotificationEnabled;
           if (enabled == null || !enabled) {
-            return _buildRow('Viral Load Notifications', 'disabled');
+            return _buildRow('Viral Load Notifications', 'not wished');
           }
           return Column(
             children: [
               _buildRow('Viral Load Message (suppressed)', _patient.latestPreferenceAssessment?.vlNotificationMessageSuppressed?.description),
               _buildRow('Viral Load Message (unsuppressed)', _patient.latestPreferenceAssessment?.vlNotificationMessageUnsuppressed?.description),
+            ],
+          );
+        }
+
+        final double _spacingBetweenPreferences = 20.0;
+        final double _spacingBetweenNotificationsInfos = 10.0;
+        Widget _notificationsInfo() {
+          if (!_patient.latestPreferenceAssessment.patientPhoneAvailable) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5.0),
+              child: Text(
+                'The patient did not have a phone with a Lesotho phone number at the time of the preference assessment. Thus, no notifications are sent to the patient.',
+                style: TextStyle(color: TEXT_INACTIVE),
+                textAlign: TextAlign.center,
+              ),
+            );
+          }
+          return Column(
+            children: <Widget>[
+              _adherenceReminderInfo(),
+              SizedBox(height: _spacingBetweenNotificationsInfos),
+              _refillReminderInfo(),
+              SizedBox(height: _spacingBetweenNotificationsInfos),
+              _vlNotificationInfo(),
             ],
           );
         }
@@ -597,10 +621,13 @@ class _PatientScreenState extends State<PatientScreen> {
         Widget _unsuppressedVlInfo() {
           final YesNoRefused answer = _patient.latestPreferenceAssessment?.unsuppressedSafeEnvironmentAnswer;
           if (answer == null) {
-            return Text(
-              'The patient was suppressed at the time of the preference assessment. Thus, this section was not covered during the assessment.',
-              style: TextStyle(color: TEXT_INACTIVE),
-              textAlign: TextAlign.center,
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5.0),
+              child: Text(
+                'The patient was suppressed at the time of the preference assessment. Thus, this section was not covered during the assessment.',
+                style: TextStyle(color: TEXT_INACTIVE),
+                textAlign: TextAlign.center,
+              ),
             );
           }
           final bool notSafe = answer == YesNoRefused.NO();
@@ -612,8 +639,6 @@ class _PatientScreenState extends State<PatientScreen> {
           );
         }
 
-        final double _spacingBetweenPreferences = 20.0;
-        final double _spacingBetweenNotificationsInfos = 10.0;
         return Column(
           children: [
             SizedBox(height: 5.0),
@@ -624,11 +649,7 @@ class _PatientScreenState extends State<PatientScreen> {
             _buildRow('ART Supply Amount', _patient.latestPreferenceAssessment?.artSupplyAmount?.description),
             SizedBox(height: _spacingBetweenPreferences),
             _buildSubtitle('Notifications'), Divider(),
-            _adherenceReminderInfo(),
-            SizedBox(height: _spacingBetweenNotificationsInfos),
-            _refillReminderInfo(),
-            SizedBox(height: _spacingBetweenNotificationsInfos),
-            _vlNotificationInfo(),
+            _notificationsInfo(),
             SizedBox(height: _spacingBetweenPreferences),
             _buildSubtitle('Support'), Divider(),
             _buildSupportOptions(),
