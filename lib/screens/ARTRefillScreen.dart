@@ -46,6 +46,7 @@ class ARTRefillScreen extends StatelessWidget {
       final ARTRefill artRefill = ARTRefill(this._patient.artNumber, RefillType.CHANGE_DATE(), nextRefillDate: nextRefillDate);
       await DatabaseProvider().insertARTRefill(artRefill);
       _patient.latestARTRefill = artRefill;
+      _patient.latestDoneARTRefill = artRefill;
       final DateTime now = DateTime.now();
       if (nextRefillDate.isAfter(now)) {
         // send an event indicating that the art refill was done
@@ -67,6 +68,7 @@ class ARTRefillScreen extends StatelessWidget {
       final ARTRefill artRefill = ARTRefill(this._patient.artNumber, RefillType.DONE(), nextRefillDate: nextRefillDate);
       await DatabaseProvider().insertARTRefill(artRefill);
       _patient.latestARTRefill = artRefill;
+      _patient.latestDoneARTRefill = artRefill;
       final DateTime now = DateTime.now();
       if (nextRefillDate.isAfter(now)) {
         // send an event indicating that the art refill was done

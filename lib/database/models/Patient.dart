@@ -60,7 +60,8 @@ class Patient implements IExcelExportable {
   ViralLoad viralLoadBaselineDatabase;
   List<ViralLoad> viralLoadFollowUps = [];
   PreferenceAssessment latestPreferenceAssessment;
-  ARTRefill latestARTRefill;
+  ARTRefill latestARTRefill; // stores the latest ART refill (done or not done)
+  ARTRefill latestDoneARTRefill; // stores the latest ART refill that was done
   Set<RequiredAction> requiredActions = {};
   Set<RequiredAction> visibleRequiredActionsAtInitialization = {};
 
@@ -195,10 +196,13 @@ class Patient implements IExcelExportable {
     this.latestPreferenceAssessment = pa;
   }
 
-  /// Initializes the field [latestARTRefill] with the latest data from the database.
+  /// Initializes the fields [latestARTRefill] and [latestDoneARTRefill] with
+  /// the latest data from the database.
   Future<void> initializeARTRefillField() async {
     ARTRefill artRefill = await DatabaseProvider().retrieveLatestARTRefillForPatient(artNumber);
     this.latestARTRefill = artRefill;
+    ARTRefill doneARTRefill = await DatabaseProvider().retrieveLatestDoneARTRefillForPatient(artNumber);
+    this.latestDoneARTRefill = doneARTRefill;
   }
 
   /// Initializes the field [requiredActions] with the latest data from the database.
@@ -212,15 +216,15 @@ class Patient implements IExcelExportable {
     final Set<RequiredAction> actions = await DatabaseProvider().retrieveRequiredActionsForPatient(artNumber);
     final DateTime now = DateTime.now();
     // calculate if ART refill is required
-    final DateTime dueDateART = latestARTRefill?.nextRefillDate;
-    if (dueDateART == null || now.isAfter(dueDateART)) {
-      RequiredAction artRefillRequired = RequiredAction(artNumber, RequiredActionType.REFILL_REQUIRED, dueDateART ?? enrollmentDate);
+    final DateTime dueDateART = latestDoneARTRefill?.nextRefillDate ?? enrollmentDate;
+    if (now.isAfter(dueDateART)) {
+      RequiredAction artRefillRequired = RequiredAction(artNumber, RequiredActionType.REFILL_REQUIRED, dueDateART);
       actions.add(artRefillRequired);
     }
     // calculate if preference assessment is required
-    final DateTime dueDatePA = calculateNextAssessment(latestPreferenceAssessment?.createdDate, isSuppressed(this));
-    if (dueDatePA == null || now.isAfter(dueDatePA)) {
-      RequiredAction assessmentRequired = RequiredAction(artNumber, RequiredActionType.ASSESSMENT_REQUIRED, dueDatePA ?? enrollmentDate);
+    final DateTime dueDatePA = calculateNextAssessment(latestPreferenceAssessment?.createdDate, isSuppressed(this)) ?? enrollmentDate;
+    if (now.isAfter(dueDatePA)) {
+      RequiredAction assessmentRequired = RequiredAction(artNumber, RequiredActionType.ASSESSMENT_REQUIRED, dueDatePA);
       actions.add(assessmentRequired);
     }
     this.requiredActions = actions;

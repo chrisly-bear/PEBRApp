@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:pebrapp/config/SwitchConfig.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
+import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
@@ -780,6 +781,20 @@ class DatabaseProvider {
         ARTRefill.tableName,
         where: '${ARTRefill.colPatientART} = ?',
         whereArgs: [patientART],
+        orderBy: '${ARTRefill.colCreatedDate} DESC'
+    );
+    if (res.length > 0) {
+      return ARTRefill.fromMap(res.first);
+    }
+    return null;
+  }
+
+  Future<ARTRefill> retrieveLatestDoneARTRefillForPatient(String patientART) async {
+    final Database db = await _databaseInstance;
+    final List<Map> res = await db.query(
+        ARTRefill.tableName,
+        where: '${ARTRefill.colPatientART} = ? AND ${ARTRefill.colRefillType} != ?',
+        whereArgs: [patientART, RefillType.NOT_DONE().code],
         orderBy: '${ARTRefill.colCreatedDate} DESC'
     );
     if (res.length > 0) {

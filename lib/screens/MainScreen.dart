@@ -640,10 +640,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       }
 
       String nextRefillText = '—';
-      DateTime nextARTRefillDate = curPatient.latestARTRefill?.nextRefillDate;
-      if (nextARTRefillDate != null) {
-        nextRefillText = formatDate(nextARTRefillDate);
-      }
+      DateTime nextARTRefillDate = curPatient.latestDoneARTRefill?.nextRefillDate ?? curPatient.enrollmentDate;
+      nextRefillText = formatDate(nextARTRefillDate);
 
       String refillByText = '—';
       ARTRefillOption aro = curPatient.latestPreferenceAssessment?.lastRefillOption;
@@ -653,28 +651,19 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
 
       String nextAssessmentText = '—';
       DateTime lastAssessmentDate = curPatient.latestPreferenceAssessment?.createdDate;
-      if (lastAssessmentDate != null) {
-        DateTime nextAssessmentDate = calculateNextAssessment(lastAssessmentDate, isSuppressed(curPatient));
-        nextAssessmentText = formatDate(nextAssessmentDate);
-      }
+      DateTime nextAssessmentDate = calculateNextAssessment(lastAssessmentDate, isSuppressed(curPatient)) ?? curPatient.enrollmentDate;
+      nextAssessmentText = formatDate(nextAssessmentDate);
 
       bool nextRefillTextHighlighted = false;
       bool nextAssessmentTextHighlighted = false;
-      if (nextARTRefillDate == null && lastAssessmentDate != null) {
+      if (nextAssessmentDate.isBefore(nextARTRefillDate)) {
         nextAssessmentTextHighlighted = true;
-      } else if (nextARTRefillDate != null && lastAssessmentDate == null) {
+      } else if (nextARTRefillDate.isBefore(nextAssessmentDate)) {
         nextRefillTextHighlighted = true;
-      } else if (nextARTRefillDate != null && lastAssessmentDate != null) {
-        DateTime nextAssessmentDate = calculateNextAssessment(lastAssessmentDate, isSuppressed(curPatient));
-        if (nextAssessmentDate.isBefore(nextARTRefillDate)) {
-          nextAssessmentTextHighlighted = true;
-        } else if (nextARTRefillDate.isBefore(nextAssessmentDate)) {
-          nextRefillTextHighlighted = true;
-        } else {
-          // both on the same day
-          nextAssessmentTextHighlighted = true;
-          nextRefillTextHighlighted = true;
-        }
+      } else {
+        // both on the same day
+        nextAssessmentTextHighlighted = true;
+        nextRefillTextHighlighted = true;
       }
 
       final _curCardMargin = EdgeInsets.symmetric(
@@ -878,8 +867,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   /// Returns `null` if both `latestARTRefill.nextRefillDate` and
   /// `latestPreferenceAssessment` are null.
   DateTime _getDateOfNextAction(Patient patient) {
-    DateTime nextARTRefillDate = patient.latestARTRefill?.nextRefillDate;
-    DateTime nextPreferenceAssessmentDate = calculateNextAssessment(patient.latestPreferenceAssessment?.createdDate, isSuppressed(patient));
+    DateTime nextARTRefillDate = patient.latestDoneARTRefill?.nextRefillDate ?? patient.enrollmentDate;
+    DateTime nextPreferenceAssessmentDate = calculateNextAssessment(patient.latestPreferenceAssessment?.createdDate, isSuppressed(patient)) ?? patient.enrollmentDate;
     return _getLesserDate(nextARTRefillDate, nextPreferenceAssessmentDate);
   }
 

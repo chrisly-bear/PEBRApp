@@ -105,17 +105,11 @@ class _PatientScreenState extends State<PatientScreen> {
     _screenWidth = MediaQuery.of(context).size.width;
 
     DateTime lastAssessmentDate = _patient.latestPreferenceAssessment?.createdDate;
-    if (lastAssessmentDate != null) {
-      DateTime nextAssessmentDate = calculateNextAssessment(lastAssessmentDate, isSuppressed(_patient));
-      _nextAssessmentText = formatDate(nextAssessmentDate);
-    }
+    DateTime nextAssessmentDate = calculateNextAssessment(lastAssessmentDate, isSuppressed(_patient)) ?? _patient.enrollmentDate;
+    _nextAssessmentText = formatDate(nextAssessmentDate);
 
-    DateTime nextRefillDate = _patient.latestARTRefill?.nextRefillDate;
-    if (nextRefillDate != null) {
-      _nextRefillText = formatDate(nextRefillDate);
-    } else {
-      _nextRefillText = '—';
-    }
+    DateTime nextRefillDate = _patient.latestDoneARTRefill?.nextRefillDate ?? _patient.enrollmentDate;
+    _nextRefillText = formatDate(nextRefillDate);
 
     DateTime nextEndpointSurveyDate = calculateNextEndpointSurvey(_patient.enrollmentDate, _patient.requiredActions);
     if (nextEndpointSurveyDate != null) {
