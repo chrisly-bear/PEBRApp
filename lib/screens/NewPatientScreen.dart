@@ -742,7 +742,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
       final DateTime now = DateTime.now();
 
-      _newPatient.enrolmentDate = now;
+      _newPatient.enrollmentDate = now;
       _newPatient.isEligible = _eligible;
       _newPatient.artNumber = _artNumberCtr.text;
       _newPatient.stickerNumber = 'P${_stickerNumberCtr.text}';

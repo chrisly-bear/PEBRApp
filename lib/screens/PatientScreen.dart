@@ -117,7 +117,7 @@ class _PatientScreenState extends State<PatientScreen> {
       _nextRefillText = '—';
     }
 
-    DateTime nextEndpointSurveyDate = calculateNextEndpointSurvey(_patient.enrolmentDate, _patient.requiredActions);
+    DateTime nextEndpointSurveyDate = calculateNextEndpointSurvey(_patient.enrollmentDate, _patient.requiredActions);
     if (nextEndpointSurveyDate != null) {
       _nextEndpointText = formatDate(nextEndpointSurveyDate);
     } else {
@@ -259,7 +259,7 @@ class _PatientScreenState extends State<PatientScreen> {
       title: 'Patient Characterstics',
       child: Column(
         children: [
-          _buildRow('Enrolment Date', formatDateConsistent(_patient.enrolmentDate)),
+          _buildRow('Enrollment Date', formatDateConsistent(_patient.enrollmentDate)),
           _buildRow('ART Number', _patient.artNumber),
           _buildRow('Sticker Number', _patient.stickerNumber),
           _buildRow('Year of Birth', _patient.yearOfBirth.toString()),

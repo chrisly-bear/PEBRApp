@@ -19,7 +19,7 @@ class Patient implements IExcelExportable {
   // column names
   static final colId = 'id'; // primary key
   static final colCreatedDate = 'created_date_utc';
-  static final colEnrolmentDate = 'enrolment_date_utc';
+  static final colEnrollmentDate = 'enrollment_date_utc';
   static final colARTNumber = 'art_number';
   static final colYearOfBirth = 'year_of_birth';
   static final colIsEligible = 'is_eligible';
@@ -37,7 +37,7 @@ class Patient implements IExcelExportable {
   static final colIsActivated = 'is_activated'; // nullable
 
   DateTime _createdDate;
-  DateTime enrolmentDate;
+  DateTime enrollmentDate;
   String artNumber;
   int yearOfBirth;
   bool isEligible;
@@ -68,7 +68,7 @@ class Patient implements IExcelExportable {
   // Constructors
   // ------------
 
-  Patient({this.enrolmentDate, this.artNumber, this.stickerNumber,
+  Patient({this.enrollmentDate, this.artNumber, this.stickerNumber,
     this.yearOfBirth, this.isEligible, this.isVLBaselineAvailable, this.gender,
     this.sexualOrientation, this.village, this.phoneAvailability,
     this.phoneNumber, this.consentGiven, this.noConsentReason,
@@ -76,7 +76,7 @@ class Patient implements IExcelExportable {
 
   Patient.fromMap(map) {
     this.createdDate = DateTime.parse(map[colCreatedDate]);
-    this.enrolmentDate = DateTime.parse(map[colEnrolmentDate]);
+    this.enrollmentDate = DateTime.parse(map[colEnrollmentDate]);
     this.artNumber = map[colARTNumber];
     this.yearOfBirth = int.parse(map[colYearOfBirth]);
     this.isEligible = map[colIsEligible] == 1;
@@ -107,7 +107,7 @@ class Patient implements IExcelExportable {
   toMap() {
     var map = Map<String, dynamic>();
     map[colCreatedDate] = createdDate.toIso8601String();
-    map[colEnrolmentDate] = enrolmentDate.toIso8601String();
+    map[colEnrollmentDate] = enrollmentDate.toIso8601String();
     map[colARTNumber] = artNumber;
     map[colStickerNumber] = stickerNumber;
     map[colYearOfBirth] = yearOfBirth;
@@ -162,8 +162,8 @@ class Patient implements IExcelExportable {
     List<dynamic> row = List<dynamic>(_numberOfColumns);
     row[0] = formatDateIso(_createdDate);
     row[1] = formatTimeIso(_createdDate);
-    row[2] = formatDateIso(enrolmentDate);
-    row[3] = formatTimeIso(enrolmentDate);
+    row[2] = formatDateIso(enrollmentDate);
+    row[3] = formatTimeIso(enrollmentDate);
     row[4] = artNumber;
     row[5] = yearOfBirth;
     row[6] = consentGiven;
@@ -214,13 +214,13 @@ class Patient implements IExcelExportable {
     // calculate if ART refill is required
     final DateTime dueDateART = latestARTRefill?.nextRefillDate;
     if (dueDateART == null || now.isAfter(dueDateART)) {
-      RequiredAction artRefillRequired = RequiredAction(artNumber, RequiredActionType.REFILL_REQUIRED, dueDateART ?? enrolmentDate);
+      RequiredAction artRefillRequired = RequiredAction(artNumber, RequiredActionType.REFILL_REQUIRED, dueDateART ?? enrollmentDate);
       actions.add(artRefillRequired);
     }
     // calculate if preference assessment is required
     final DateTime dueDatePA = calculateNextAssessment(latestPreferenceAssessment?.createdDate, isSuppressed(this));
     if (dueDatePA == null || now.isAfter(dueDatePA)) {
-      RequiredAction assessmentRequired = RequiredAction(artNumber, RequiredActionType.ASSESSMENT_REQUIRED, dueDatePA ?? enrolmentDate);
+      RequiredAction assessmentRequired = RequiredAction(artNumber, RequiredActionType.ASSESSMENT_REQUIRED, dueDatePA ?? enrollmentDate);
       actions.add(assessmentRequired);
     }
     this.requiredActions = actions;
@@ -299,7 +299,7 @@ class Patient implements IExcelExportable {
     Set<RequiredAction> visibleRequiredActions = {};
     visibleRequiredActions.addAll(requiredActions);
     visibleRequiredActions.removeWhere((RequiredAction a) {
-      final bool isEndpointSurveyAndDue = isEndpointSurveyDue(this.enrolmentDate, a.type);
+      final bool isEndpointSurveyAndDue = isEndpointSurveyDue(this.enrollmentDate, a.type);
       if (isEndpointSurveyAndDue != null && !isEndpointSurveyAndDue) {
         // endpoint survey not due yet, remove from visible required actions
         return true;

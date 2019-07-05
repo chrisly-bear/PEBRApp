@@ -20,7 +20,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 35;
+  static const int _DB_VERSION = 36;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -63,7 +63,7 @@ class DatabaseProvider {
         CREATE TABLE IF NOT EXISTS ${Patient.tableName} (
           ${Patient.colId} INTEGER PRIMARY KEY,
           ${Patient.colCreatedDate} TEXT NOT NULL,
-          ${Patient.colEnrolmentDate} TEXT NOT NULL,
+          ${Patient.colEnrollmentDate} TEXT NOT NULL,
           ${Patient.colARTNumber} TEXT NOT NULL,
           ${Patient.colYearOfBirth} TEXT NOT NULL,
           ${Patient.colIsEligible} BIT NOT NULL,
@@ -374,12 +374,12 @@ class DatabaseProvider {
     }
     if (oldVersion < 18) {
       print('Upgrading to database version 18...');
-      // Add new column 'enrolment_date_utc' with default value of 1970-01-01.
-      await db.execute("ALTER TABLE Patient ADD enrolment_date_utc TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z';");
+      // Add new column 'enrollment_date_utc' with default value of 1970-01-01.
+      await db.execute("ALTER TABLE Patient ADD enrollment_date_utc TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z';");
     }
     if (oldVersion < 19) {
       print('Upgrading to database version 19...');
-      // Add new column 'enrolment_date_utc' with default value of false (0).
+      // Add new column 'is_vl_baseline_available' with default value of false (0).
       await db.execute("ALTER TABLE Patient ADD is_vl_baseline_available BIT NOT NULL DEFAULT 0;");
     }
     if (oldVersion < 21) {
@@ -448,15 +448,15 @@ class DatabaseProvider {
       print('Upgrading to database version 34...');
       await db.execute("ALTER TABLE RequiredAction ADD due_date TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z';");
     }
-    if (oldVersion < 35) {
-      print('Upgrading to database version 35...');
+    if (oldVersion < 36) {
+      print('Upgrading to database version 36...');
       print('UPGRADE NOT IMPLEMENTED, PATIENT RELATED DATA WILL BE RESET!');
       await db.execute("DROP TABLE IF EXISTS Patient;");
       await db.execute("DROP TABLE IF EXISTS PreferenceAssessment;");
       await db.execute("DROP TABLE IF EXISTS ARTRefill;");
       await db.execute("DROP TABLE IF EXISTS ViralLoad;");
       await db.execute("DROP TABLE IF EXISTS RequiredAction;");
-      await _onCreate(db, 35);
+      await _onCreate(db, 36);
     }
   }
 
