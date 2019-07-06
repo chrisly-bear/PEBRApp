@@ -102,7 +102,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
   }
 
   Widget _viralLoadBaselineDateQuestion() {
-    return _makeQuestion('Date of most recent viral load (put the date when blood was taken)',
+    return _makeQuestion('Date of the viral load\n(put the date when blood was taken)',
       answer: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -121,7 +121,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
               ),
               onPressed: () async {
                 final now = DateTime.now();
-                DateTime date = await _showDatePicker(context, 'Viral Load Baseline Date', initialDate: _viralLoad.dateOfBloodDraw ?? DateTime(now.year, now.month, now.day));
+                DateTime date = await _showDatePicker(context, initialDate: _viralLoad.dateOfBloodDraw ?? DateTime(now.year, now.month, now.day));
                 if (date != null) {
                   setState(() {
                     _viralLoad.dateOfBloodDraw = date;
@@ -146,7 +146,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
   }
 
   Widget _viralLoadBaselineLowerThanDetectableQuestion() {
-    return _makeQuestion('Was the viral load baseline result lower than detectable limit (<20 copies/mL)?',
+    return _makeQuestion('Was the viral load result lower than detectable limit (<20 copies/mL)?',
       answer: DropdownButtonFormField<bool>(
         value: _isLowerThanDetectable,
         onChanged: (bool newValue) {
@@ -172,11 +172,10 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
     if (_isLowerThanDetectable == null || _isLowerThanDetectable) {
       return Container();
     }
-    return _makeQuestion('What was the result of the viral load baseline (in c/mL)',
+    return _makeQuestion('Result of the viral load (in c/mL)',
       answer: TextFormField(
         inputFormatters: [
-          WhitelistingTextInputFormatter(RegExp('[0-9]')),
-//          LengthLimitingTextInputFormatter(5),
+          WhitelistingTextInputFormatter.digitsOnly,
         ],
         keyboardType: TextInputType.numberWithOptions(),
         controller: _viralLoadResultCtr,
@@ -192,7 +191,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
   }
 
   Widget _viralLoadBaselineLabNumberQuestion() {
-    return _makeQuestion('Lab number of the viral load baseline',
+    return _makeQuestion('Lab number of the viral load',
       answer: TextFormField(
         controller: _viralLoadLabNumberCtr,
       ),
@@ -227,7 +226,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
     );
   }
 
-  Future<DateTime> _showDatePicker(BuildContext context, String title, {DateTime initialDate}) async {
+  Future<DateTime> _showDatePicker(BuildContext context, {DateTime initialDate}) async {
     DateTime now = DateTime.now();
     return showDatePicker(
         context: context,
