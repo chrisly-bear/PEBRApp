@@ -27,7 +27,6 @@ const Color HEADER_TITLE = Colors.black;
 const Color HEADER_SUBTITLE = Colors.black;
 
 // viral load badge
-const Color VL_BADGE_LTDL = Colors.grey;
 const Color VL_BADGE_SUPPRESSED = Color.fromARGB(255, 36, 179, 124);
 const Color VL_BADGE_UNSUPPRESSED = Color.fromARGB(255, 255, 51, 102);
 const Color VL_BADGE_TEXT = Colors.white;

@@ -12,10 +12,7 @@ class ViralLoadBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     String displayText;
     Color displayColor;
-    if (viralLoad.isLowerThanDetectable) {
-      displayText = "LTDL";
-      displayColor = VL_BADGE_LTDL;
-    } else if (viralLoad.isSuppressed) {
+    if (viralLoad.isSuppressed) {
       displayText = smallSize ? "S" : "SUPPRESSED";
       displayColor = VL_BADGE_SUPPRESSED;
     } else {

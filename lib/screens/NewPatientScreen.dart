@@ -61,6 +61,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
   Patient _newPatient = Patient(isActivated: true);
   ViralLoad _viralLoadBaseline = ViralLoad(source: ViralLoadSource.MANUAL_INPUT(), isBaseline: true);
+  bool _isLowerThanDetectable;
 
   TextEditingController _artNumberCtr = TextEditingController();
   TextEditingController _stickerNumberCtr = TextEditingController();
@@ -638,10 +639,10 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     }
     return _makeQuestion('Was the viral load baseline result lower than detectable limit (<20 copies/mL)?',
       answer: DropdownButtonFormField<bool>(
-        value: _viralLoadBaseline.isLowerThanDetectable,
+        value: _isLowerThanDetectable,
         onChanged: (bool newValue) {
           setState(() {
-            _viralLoadBaseline.isLowerThanDetectable = newValue;
+            _isLowerThanDetectable = newValue;
           });
         },
         validator: (value) {
@@ -659,20 +660,21 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _viralLoadBaselineResultQuestion() {
-    if (_newPatient.isVLBaselineAvailable == null || !_newPatient.isVLBaselineAvailable || _viralLoadBaseline.isLowerThanDetectable == null || _viralLoadBaseline.isLowerThanDetectable) {
+    if (_newPatient.isVLBaselineAvailable == null || !_newPatient.isVLBaselineAvailable || _isLowerThanDetectable == null || _isLowerThanDetectable) {
       return Container();
     }
     return _makeQuestion('What was the result of the viral load baseline (in c/mL)',
       answer: TextFormField(
         inputFormatters: [
-          WhitelistingTextInputFormatter(RegExp('[0-9]')),
-//          LengthLimitingTextInputFormatter(5),
+          WhitelistingTextInputFormatter.digitsOnly,
         ],
         keyboardType: TextInputType.numberWithOptions(),
         controller: _viralLoadBaselineResultCtr,
         validator: (value) {
           if (value.isEmpty) {
             return 'Please enter the viral load baseline result';
+          } else if (int.parse(value) < 20) {
+            return 'Value must be ≥ 20 (otherwise it is lower than detectable limit)';
           }
         },
       ),
@@ -762,7 +764,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
       if (_newPatient.isEligible && _newPatient.consentGiven && _newPatient.isVLBaselineAvailable != null && _newPatient.isVLBaselineAvailable) {
         _viralLoadBaseline.patientART = _artNumberCtr.text;
-        _viralLoadBaseline.viralLoad = _viralLoadBaseline.isLowerThanDetectable ? null : int.parse(_viralLoadBaselineResultCtr.text);
+        _viralLoadBaseline.viralLoad = _isLowerThanDetectable ? 0 : int.parse(_viralLoadBaselineResultCtr.text);
         _viralLoadBaseline.labNumber = _viralLoadBaselineLabNumberCtr.text;
         _viralLoadBaseline.checkLogicAndResetUnusedFields();
         await DatabaseProvider().insertViralLoad(_viralLoadBaseline);

@@ -51,6 +51,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
 
   final Patient _patient;
   ViralLoad _viralLoad;
+  bool _isLowerThanDetectable;
   bool _viralLoadBaselineDateValid = true;
   TextEditingController _viralLoadResultCtr = TextEditingController();
   TextEditingController _viralLoadLabNumberCtr = TextEditingController();
@@ -147,10 +148,10 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
   Widget _viralLoadBaselineLowerThanDetectableQuestion() {
     return _makeQuestion('Was the viral load baseline result lower than detectable limit (<20 copies/mL)?',
       answer: DropdownButtonFormField<bool>(
-        value: _viralLoad.isLowerThanDetectable,
+        value: _isLowerThanDetectable,
         onChanged: (bool newValue) {
           setState(() {
-            _viralLoad.isLowerThanDetectable = newValue;
+            _isLowerThanDetectable = newValue;
           });
         },
         validator: (value) {
@@ -168,7 +169,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
   }
 
   Widget _viralLoadBaselineResultQuestion() {
-    if (_viralLoad.isLowerThanDetectable == null || _viralLoad.isLowerThanDetectable) {
+    if (_isLowerThanDetectable == null || _isLowerThanDetectable) {
       return Container();
     }
     return _makeQuestion('What was the result of the viral load baseline (in c/mL)',
@@ -182,6 +183,8 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
         validator: (value) {
           if (value.isEmpty) {
             return 'Please enter the viral load baseline result';
+          } else if (int.parse(value) < 20) {
+            return 'Value must be ≥ 20 (otherwise it is lower than detectable limit)';
           }
         },
       ),
@@ -258,7 +261,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
   _onSubmitForm(BuildContext context) async {
     if (_formKey.currentState.validate() & _validateViralLoadBaselineDate()) {
       
-      _viralLoad.viralLoad = _viralLoad.isLowerThanDetectable ? null : int.parse(_viralLoadResultCtr.text);
+      _viralLoad.viralLoad = _isLowerThanDetectable ? 0 : int.parse(_viralLoadResultCtr.text);
       _viralLoad.labNumber = _viralLoadLabNumberCtr.text;
       _viralLoad.checkLogicAndResetUnusedFields();
       await DatabaseProvider().insertViralLoad(_viralLoad);

@@ -15,8 +15,7 @@ class ViralLoad implements IExcelExportable {
   static final colViralLoadIsBaseline = 'is_baseline';
   static final colDateOfBloodDraw = 'date_blood_draw';
   static final colLabNumber = 'lab_number';
-  static final colIsLowerThanDetectable = 'is_lower_than_detectable';
-  static final colViralLoad = 'viral_load'; // nullable
+  static final colViralLoad = 'viral_load';
   static final colDiscrepancy = 'discrepancy'; // nullable
 
   DateTime _createdDate;
@@ -25,14 +24,13 @@ class ViralLoad implements IExcelExportable {
   bool isBaseline;
   DateTime dateOfBloodDraw;
   String labNumber;
-  bool isLowerThanDetectable;
   int viralLoad;
   bool discrepancy;
 
   // Constructors
   // ------------
 
-  ViralLoad({this.patientART, this.source, this.isBaseline, this.dateOfBloodDraw, this.labNumber, this.isLowerThanDetectable, this.viralLoad});
+  ViralLoad({this.patientART, this.source, this.isBaseline, this.dateOfBloodDraw, this.labNumber, this.viralLoad});
 
   ViralLoad.fromMap(map) {
     this.patientART = map[colPatientART];
@@ -41,9 +39,8 @@ class ViralLoad implements IExcelExportable {
     this.isBaseline = map[colViralLoadIsBaseline] == 1;
     this.dateOfBloodDraw = DateTime.parse(map[colDateOfBloodDraw]);
     this.labNumber = map[colLabNumber];
-    this.isLowerThanDetectable = map[colIsLowerThanDetectable] == 1;
-    // nullables:
     this.viralLoad = map[colViralLoad];
+    // nullables:
     if (map[colDiscrepancy] != null) {
       this.discrepancy = map[colDiscrepancy] == 1;
     }
@@ -61,9 +58,8 @@ class ViralLoad implements IExcelExportable {
     map[colViralLoadIsBaseline] = isBaseline;
     map[colDateOfBloodDraw] = dateOfBloodDraw.toIso8601String();
     map[colLabNumber] = labNumber;
-    map[colIsLowerThanDetectable] = isLowerThanDetectable;
-    // nullables:
     map[colViralLoad] = viralLoad;
+    // nullables:
     map[colDiscrepancy] = discrepancy;
     return map;
   }
@@ -108,13 +104,8 @@ class ViralLoad implements IExcelExportable {
   }
 
 
-  /// Sets fields to null if they are not used. E.g. sets [viralLoad] to null
-  /// if [isLowerThanDetectable] is true.
+  /// Sets fields to null if they are not used.
   void checkLogicAndResetUnusedFields() {
-    if (this.isLowerThanDetectable) {
-      this.viralLoad = null;
-    }
-
     // Only baseline viral load data can have discrepancy, because follow up
     // viral loads only come from the VL database so there's nothing to compare
     // them to, thus there can't be any discrepancy.
@@ -136,14 +127,10 @@ class ViralLoad implements IExcelExportable {
   DateTime get createdDate => _createdDate;
 
   /// Returns true if this viral load counts as suppressed (which also the case
-  /// if it is lower than detectable limit), false if unsuppressed, and null if
-  /// viral load is not defined (which should actually never be the case).
-  bool get isSuppressed {
-    if (isLowerThanDetectable) {
-      return true;
-    }
-    // if not lower than detectable limit, then viralLoad should not be null
-    return viralLoad == null ? null : viralLoad < VL_SUPPRESSED_THRESHOLD;
-  }
+  /// if it is lower than detectable limit), false if unsuppressed.
+  bool get isSuppressed => viralLoad < VL_SUPPRESSED_THRESHOLD;
+
+  /// Returns true if [viralLoad] is lower than detectable limit (<20 c/mL).
+  bool get isLowerThanDetectable => viralLoad < 20;
 
 }
