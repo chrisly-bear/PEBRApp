@@ -9,7 +9,6 @@ import 'package:pebrapp/database/beans/ARTRefillReminderMessage.dart';
 import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderMessage.dart';
-import 'package:pebrapp/database/beans/CondomUsageNotDemonstratedReason.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/HomeVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
@@ -88,7 +87,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   var _schoolCtr = TextEditingController();
   var _schoolVisitPENotPossibleReasonCtr = TextEditingController();
   var _pitsoVisitPENotPossibleReasonCtr = TextEditingController();
-  var _condomUsageNotDemonstratedReasonCtr = TextEditingController();
   var _contraceptivesMoreInfoCtr = TextEditingController();
   var _vmmcMoreInfoCtr = TextEditingController();
   var _psychoSocialShareCtr = TextEditingController();
@@ -1095,7 +1093,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               _pa.supportPreferences.CONDOM_DEMO_selected = newValue;
             })),
       ),
-      _condomDemoFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
 //            secondary: Container(width: 0.0),
@@ -1524,99 +1521,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       return _makeQuestion('Other, specify',
           answer: TextFormField(
             controller: _pitsoVisitPENotPossibleReasonCtr,
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please specify a reason';
-              }
-            },
-          )
-      );
-    }
-
-    return Column(children: [
-      _possibleQuestion(),
-      _notPossibleReasonQuestion(),
-      _notPossibleReasonOtherQuestion(),
-    ]);
-  }
-
-  Widget _condomDemoFollowUpQuestions() {
-    if (!_pa.supportPreferences.CONDOM_DEMO_selected) {
-      return Container();
-    }
-
-    Widget _possibleQuestion() {
-      return _makeQuestion(
-        'Have you demonstrated condom usage?',
-        answer: DropdownButtonFormField<bool>(
-          value: _pa.condomUsageDemonstrated,
-          onChanged: (bool newValue) {
-            setState(() {
-              _pa.condomUsageDemonstrated = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question';
-            }
-          },
-          items:
-          <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
-            String description;
-            switch (value) {
-              case true:
-                description = 'Yes';
-                break;
-              case false:
-                description = 'No';
-                break;
-            }
-            return DropdownMenuItem<bool>(
-              value: value,
-              child: Text(description),
-            );
-          }).toList(),
-        ),
-      );
-    }
-
-    Widget _notPossibleReasonQuestion() {
-      if (_pa.condomUsageDemonstrated == null || _pa.condomUsageDemonstrated) {
-        return Container();
-      }
-      return _makeQuestion('Why not?',
-        answer: DropdownButtonFormField<CondomUsageNotDemonstratedReason>(
-          value: _pa.condomUsageNotDemonstratedReason,
-          onChanged: (CondomUsageNotDemonstratedReason newValue) {
-            setState(() {
-              _pa.condomUsageNotDemonstratedReason = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question';
-            }
-          },
-          items:
-          CondomUsageNotDemonstratedReason.allValues.map<DropdownMenuItem<CondomUsageNotDemonstratedReason>>((CondomUsageNotDemonstratedReason value) {
-            return DropdownMenuItem<CondomUsageNotDemonstratedReason>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-      );
-    }
-
-    Widget _notPossibleReasonOtherQuestion() {
-      if (_pa.condomUsageDemonstrated == null || _pa.condomUsageDemonstrated
-          || _pa.condomUsageNotDemonstratedReason == null
-          || _pa.condomUsageNotDemonstratedReason != CondomUsageNotDemonstratedReason.OTHER()) {
-        return Container();
-      }
-      return _makeQuestion('Other, specify',
-          answer: TextFormField(
-            controller: _condomUsageNotDemonstratedReasonCtr,
             validator: (value) {
               if (value.isEmpty) {
                 return 'Please specify a reason';
@@ -2108,16 +2012,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           && _pa.pitsoPENotPossibleReason != null
           && _pa.pitsoPENotPossibleReason == PitsoPENotPossibleReason.OTHER()) {
         _pa.pitsoPENotPossibleReasonOther = _pitsoVisitPENotPossibleReasonCtr.text;
-      }
-      if (!_pa.supportPreferences.CONDOM_DEMO_selected) {
-        _pa.condomUsageDemonstrated = null;
-        _pa.condomUsageNotDemonstratedReason = null;
-        _pa.condomUsageNotDemonstratedReasonOther = null;
-      }
-      if (_pa.condomUsageDemonstrated != null && !_pa.condomUsageDemonstrated
-          && _pa.condomUsageNotDemonstratedReason != null
-          && _pa.condomUsageNotDemonstratedReason == CondomUsageNotDemonstratedReason.OTHER()) {
-        _pa.condomUsageNotDemonstratedReasonOther = _condomUsageNotDemonstratedReasonCtr.text;
       }
       if (_pa.supportPreferences.CONTRACEPTIVES_INFO_selected) {
         _pa.moreInfoContraceptives = _contraceptivesMoreInfoCtr.text;

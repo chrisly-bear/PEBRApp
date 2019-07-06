@@ -21,7 +21,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 40;
+  static const int _DB_VERSION = 41;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -124,9 +124,6 @@ class DatabaseProvider {
           ${PreferenceAssessment.colPitsoPEPossible} BIT,
           ${PreferenceAssessment.colPitsoPENotPossibleReason} INTEGER,
           ${PreferenceAssessment.colPitsoPENotPossibleReasonOther} TEXT,
-          ${PreferenceAssessment.colCondomUsageDemonstrated} BIT,
-          ${PreferenceAssessment.colCondomUsageNotDemonstratedReason} INTEGER,
-          ${PreferenceAssessment.colCondomUsageNotDemonstratedReasonOther} TEXT,
           ${PreferenceAssessment.colMoreInfoContraceptives} TEXT,
           ${PreferenceAssessment.colMoreInfoVMMC} TEXT,
           ${PreferenceAssessment.colYoungMothersAvailable} BIT,
@@ -470,11 +467,11 @@ class DatabaseProvider {
       print('Upgrading to database version 39...');
       await db.execute("ALTER TABLE PreferenceAssessment ADD patient_phone_available BIT NOT NULL DEFAULT 1;");
     }
-    if (oldVersion < 40 && _DB_VERSION >= 40) {
-      print('Upgrading to database version 40...');
+    if (oldVersion < 41 && _DB_VERSION >= 41) {
+      print('Upgrading to database version 41...');
       print('UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
       await db.execute("DROP TABLE IF EXISTS PreferenceAssessment;");
-      await _onCreate(db, 40);
+      await _onCreate(db, 41);
     }
   }
 

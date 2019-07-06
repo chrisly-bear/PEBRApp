@@ -6,7 +6,6 @@ import 'package:pebrapp/database/beans/ARTRefillReminderMessage.dart';
 import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderMessage.dart';
-import 'package:pebrapp/database/beans/CondomUsageNotDemonstratedReason.dart';
 import 'package:pebrapp/database/beans/HomeVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
 import 'package:pebrapp/database/beans/PitsoPENotPossibleReason.dart';
@@ -62,9 +61,6 @@ class PreferenceAssessment implements IExcelExportable {
   static final colPitsoPEPossible = 'pitso_pe_possible'; // nullable
   static final colPitsoPENotPossibleReason = 'pitso_pe_not_possible_reason'; // nullable
   static final colPitsoPENotPossibleReasonOther = 'pitso_pe_not_possible_reason_other'; // nullable
-  static final colCondomUsageDemonstrated = 'condom_usage_demonstrated'; // nullable
-  static final colCondomUsageNotDemonstratedReason = 'condom_usage_not_demonstrated_reason'; // nullable
-  static final colCondomUsageNotDemonstratedReasonOther = 'condom_usage_not_demonstrated_reason_other'; // nullable
   static final colMoreInfoContraceptives = 'more_info_contraceptives'; // nullable
   static final colMoreInfoVMMC = 'more_info_vmmc'; // nullable
   static final colYoungMothersAvailable = 'young_mothers_available'; // nullable
@@ -116,9 +112,6 @@ class PreferenceAssessment implements IExcelExportable {
   bool pitsoPEPossible;
   PitsoPENotPossibleReason pitsoPENotPossibleReason;
   String pitsoPENotPossibleReasonOther;
-  bool condomUsageDemonstrated;
-  CondomUsageNotDemonstratedReason condomUsageNotDemonstratedReason;
-  String condomUsageNotDemonstratedReasonOther;
   String moreInfoContraceptives;
   String moreInfoVMMC;
   bool youngMothersAvailable;
@@ -176,9 +169,6 @@ class PreferenceAssessment implements IExcelExportable {
         this.pitsoPEPossible,
         this.pitsoPENotPossibleReason,
         this.pitsoPENotPossibleReasonOther,
-        this.condomUsageDemonstrated,
-        this.condomUsageNotDemonstratedReason,
-        this.condomUsageNotDemonstratedReasonOther,
         this.moreInfoContraceptives,
         this.moreInfoVMMC,
         this.youngMothersAvailable,
@@ -239,9 +229,6 @@ class PreferenceAssessment implements IExcelExportable {
     this.pitsoPEPossible = map[colPitsoPEPossible] == null ? null : map[colPitsoPEPossible] == 1;
     this.pitsoPENotPossibleReason = PitsoPENotPossibleReason.fromCode(map[colPitsoPENotPossibleReason]);
     this.pitsoPENotPossibleReasonOther = map[colPitsoPENotPossibleReasonOther];
-    this.condomUsageDemonstrated = map[colCondomUsageDemonstrated] == null ? null : map[colCondomUsageDemonstrated] == 1;
-    this.condomUsageNotDemonstratedReason = CondomUsageNotDemonstratedReason.fromCode(map[colCondomUsageNotDemonstratedReason]);
-    this.condomUsageNotDemonstratedReasonOther = map[colCondomUsageNotDemonstratedReasonOther];
     this.moreInfoContraceptives = map[colMoreInfoContraceptives];
     this.moreInfoVMMC = map[colMoreInfoVMMC];
     this.youngMothersAvailable = map[colYoungMothersAvailable] == null ? null : map[colYoungMothersAvailable] == 1;
@@ -300,9 +287,6 @@ class PreferenceAssessment implements IExcelExportable {
     map[colPitsoPEPossible] = pitsoPEPossible;
     map[colPitsoPENotPossibleReason] = pitsoPENotPossibleReason?.code;
     map[colPitsoPENotPossibleReasonOther] = pitsoPENotPossibleReasonOther;
-    map[colCondomUsageDemonstrated] = condomUsageDemonstrated;
-    map[colCondomUsageNotDemonstratedReason] = condomUsageNotDemonstratedReason?.code;
-    map[colCondomUsageNotDemonstratedReasonOther] = condomUsageNotDemonstratedReasonOther;
     map[colMoreInfoContraceptives] = moreInfoContraceptives;
     map[colMoreInfoVMMC] = moreInfoVMMC;
     map[colYoungMothersAvailable] = youngMothersAvailable;
@@ -316,7 +300,7 @@ class PreferenceAssessment implements IExcelExportable {
     return map;
   }
 
-  static const int _numberOfColumns = 54;
+  static const int _numberOfColumns = 51;
 
   /// Column names for the header row in the excel sheet.
   // If we change the order here, make sure to change the order in the
@@ -364,19 +348,16 @@ class PreferenceAssessment implements IExcelExportable {
     row[38] = 'SUPPORT_PV';
     row[39] = 'SUPPORT_PV_NO';
     row[40] = 'SUPPORT_PV_NO_OTHER';
-    row[41] = 'SUPPORT_CD';
-    row[42] = 'SUPPORT_CD_NO';
-    row[43] = 'SUPPORT_CD_NO_OTHER';
-    row[44] = 'SUPPORT_CC';
-    row[45] = 'SUPPORT_VMMC';
-    row[46] = 'SUPPORT_YM';
-    row[47] = 'SUPPORT_W';
-    row[48] = 'SUPPORT_LA';
-    row[49] = 'PSYCH_SHARE';
-    row[50] = 'PSYCH_SHARE_NOTE';
-    row[51] = 'PSYCH_DOING_NOTE';
-    row[52] = 'UVL_ENV';
-    row[53] = 'UVL_ENV_NOTE';
+    row[41] = 'SUPPORT_CC';
+    row[42] = 'SUPPORT_VMMC';
+    row[43] = 'SUPPORT_YM';
+    row[44] = 'SUPPORT_W';
+    row[45] = 'SUPPORT_LA';
+    row[46] = 'PSYCH_SHARE';
+    row[47] = 'PSYCH_SHARE_NOTE';
+    row[48] = 'PSYCH_DOING_NOTE';
+    row[49] = 'UVL_ENV';
+    row[50] = 'UVL_ENV_NOTE';
     return row;
   }
 
@@ -427,19 +408,16 @@ class PreferenceAssessment implements IExcelExportable {
     row[38] = pitsoPEPossible;
     row[39] = pitsoPENotPossibleReason?.code;
     row[40] = pitsoPENotPossibleReasonOther;
-    row[41] = condomUsageDemonstrated;
-    row[42] = condomUsageNotDemonstratedReason?.code;
-    row[43] = condomUsageNotDemonstratedReasonOther;
-    row[44] = moreInfoContraceptives;
-    row[45] = moreInfoVMMC;
-    row[46] = youngMothersAvailable;
-    row[47] = femaleWorthAvailable;
-    row[48] = legalAidSmartphoneAvailable;
-    row[49] = psychosocialShareSomethingAnswer.code;
-    row[50] = psychosocialShareSomethingContent;
-    row[51] = psychosocialHowDoing;
-    row[52] = unsuppressedSafeEnvironmentAnswer?.code;
-    row[53] = unsuppressedWhyNotSafe;
+    row[41] = moreInfoContraceptives;
+    row[42] = moreInfoVMMC;
+    row[43] = youngMothersAvailable;
+    row[44] = femaleWorthAvailable;
+    row[45] = legalAidSmartphoneAvailable;
+    row[46] = psychosocialShareSomethingAnswer.code;
+    row[47] = psychosocialShareSomethingContent;
+    row[48] = psychosocialHowDoing;
+    row[49] = unsuppressedSafeEnvironmentAnswer?.code;
+    row[50] = unsuppressedWhyNotSafe;
     return row;
   }
 
