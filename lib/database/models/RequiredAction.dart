@@ -4,7 +4,7 @@ class RequiredAction {
 
   // column names
   static final colId = 'id'; // primary key
-  static final colCreatedDate = 'created_date_utc';
+  static final colCreatedDate = 'created_date';
   static final colPatientART = 'patient_art'; // foreign key to [Patient].art_number
   static final colType = 'action_type';
   static final colDueDate = 'due_date';

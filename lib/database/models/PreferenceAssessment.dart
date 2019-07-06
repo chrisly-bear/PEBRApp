@@ -6,7 +6,6 @@ import 'package:pebrapp/database/beans/ARTRefillReminderMessage.dart';
 import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderMessage.dart';
-import 'package:pebrapp/database/beans/CondomUsageNotDemonstratedReason.dart';
 import 'package:pebrapp/database/beans/HomeVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
 import 'package:pebrapp/database/beans/PitsoPENotPossibleReason.dart';
@@ -23,7 +22,7 @@ class PreferenceAssessment implements IExcelExportable {
   // column names
   static final colId = 'id'; // primary key
   static final colPatientART = 'patient_art'; // foreign key to [Patient].art_number
-  static final colCreatedDate = 'created_date_utc';
+  static final colCreatedDate = 'created_date';
   static final colARTRefillOption1 = 'art_refill_option_1';
   static final colARTRefillOption2 = 'art_refill_option_2'; // nullable
   static final colARTRefillOption3 = 'art_refill_option_3'; // nullable
@@ -38,6 +37,7 @@ class PreferenceAssessment implements IExcelExportable {
   static final colARTRefillTreatmentBuddyVillage = 'art_refill_treatment_buddy_village'; // nullable
   static final colARTRefillTreatmentBuddyPhoneNumber = 'art_refill_treatment_buddy_phone_number'; // nullable
   static final colARTSupplyAmount = 'art_supply_amount';
+  static final colPatientPhoneAvailable = 'patient_phone_available';
   static final colAdherenceReminderEnabled = 'adherence_reminder_enabled'; // nullable
   static final colAdherenceReminderFrequency = 'adherence_reminder_frequency'; // nullable
   static final colAdherenceReminderTime = 'adherence_reminder_time'; // nullable
@@ -61,16 +61,11 @@ class PreferenceAssessment implements IExcelExportable {
   static final colPitsoPEPossible = 'pitso_pe_possible'; // nullable
   static final colPitsoPENotPossibleReason = 'pitso_pe_not_possible_reason'; // nullable
   static final colPitsoPENotPossibleReasonOther = 'pitso_pe_not_possible_reason_other'; // nullable
-  static final colCondomUsageDemonstrated = 'condom_usage_demonstrated'; // nullable
-  static final colCondomUsageNotDemonstratedReason = 'condom_usage_not_demonstrated_reason'; // nullable
-  static final colCondomUsageNotDemonstratedReasonOther = 'condom_usage_not_demonstrated_reason_other'; // nullable
   static final colMoreInfoContraceptives = 'more_info_contraceptives'; // nullable
   static final colMoreInfoVMMC = 'more_info_vmmc'; // nullable
   static final colYoungMothersAvailable = 'young_mothers_available'; // nullable
   static final colFemaleWorthAvailable = 'female_worth_available'; // nullable
   static final colLegalAidSmartphoneAvailable = 'legal_aid_smartphone_available'; // nullable
-  static final colTuneMeSmartphoneAvailable = 'tuneme_smartphone_available'; // nullable
-  static final colNtlafatsoSmartphoneAvailable = 'ntlafatso_smartphone_available'; // nullable
   static final colPsychosocialShareSomethingAnswer = 'psychosocial_share_something';
   static final colPsychosocialShareSomethingContent = 'psychosocial_share_something_content'; // nullable
   static final colPsychosocialHowDoing = 'psychosocial_how_doing'; // nullable
@@ -93,6 +88,7 @@ class PreferenceAssessment implements IExcelExportable {
   String artRefillTreatmentBuddyVillage;
   String artRefillTreatmentBuddyPhoneNumber;
   ARTSupplyAmount artSupplyAmount;
+  bool patientPhoneAvailable;
   bool adherenceReminderEnabled;
   AdherenceReminderFrequency adherenceReminderFrequency;
   TimeOfDay adherenceReminderTime;
@@ -116,16 +112,11 @@ class PreferenceAssessment implements IExcelExportable {
   bool pitsoPEPossible;
   PitsoPENotPossibleReason pitsoPENotPossibleReason;
   String pitsoPENotPossibleReasonOther;
-  bool condomUsageDemonstrated;
-  CondomUsageNotDemonstratedReason condomUsageNotDemonstratedReason;
-  String condomUsageNotDemonstratedReasonOther;
   String moreInfoContraceptives;
   String moreInfoVMMC;
   bool youngMothersAvailable;
   bool femaleWorthAvailable;
   bool legalAidSmartphoneAvailable;
-  bool tuneMeSmartphoneAvailable;
-  bool ntlafatsoSmartphoneAvailable;
   YesNoRefused psychosocialShareSomethingAnswer;
   String psychosocialShareSomethingContent;
   String psychosocialHowDoing;
@@ -155,6 +146,7 @@ class PreferenceAssessment implements IExcelExportable {
         this.artRefillTreatmentBuddyART,
         this.artRefillTreatmentBuddyVillage,
         this.artRefillTreatmentBuddyPhoneNumber,
+        this.patientPhoneAvailable,
         this.adherenceReminderEnabled,
         this.adherenceReminderFrequency,
         this.adherenceReminderTime,
@@ -177,16 +169,11 @@ class PreferenceAssessment implements IExcelExportable {
         this.pitsoPEPossible,
         this.pitsoPENotPossibleReason,
         this.pitsoPENotPossibleReasonOther,
-        this.condomUsageDemonstrated,
-        this.condomUsageNotDemonstratedReason,
-        this.condomUsageNotDemonstratedReasonOther,
         this.moreInfoContraceptives,
         this.moreInfoVMMC,
         this.youngMothersAvailable,
         this.femaleWorthAvailable,
         this.legalAidSmartphoneAvailable,
-        this.tuneMeSmartphoneAvailable,
-        this.ntlafatsoSmartphoneAvailable,
         this.psychosocialShareSomethingContent,
         this.psychosocialHowDoing,
         this.unsuppressedSafeEnvironmentAnswer,
@@ -212,6 +199,7 @@ class PreferenceAssessment implements IExcelExportable {
     this.artRefillTreatmentBuddyVillage = map[colARTRefillTreatmentBuddyVillage];
     this.artRefillTreatmentBuddyPhoneNumber = map[colARTRefillTreatmentBuddyPhoneNumber];
     this.artSupplyAmount = ARTSupplyAmount.fromCode(map[colARTSupplyAmount]);
+    this.patientPhoneAvailable = map[colPatientPhoneAvailable] == 1;
     if (map[colAdherenceReminderEnabled] != null) {
       this.adherenceReminderEnabled = map[colAdherenceReminderEnabled] == 1;
     }
@@ -241,16 +229,11 @@ class PreferenceAssessment implements IExcelExportable {
     this.pitsoPEPossible = map[colPitsoPEPossible] == null ? null : map[colPitsoPEPossible] == 1;
     this.pitsoPENotPossibleReason = PitsoPENotPossibleReason.fromCode(map[colPitsoPENotPossibleReason]);
     this.pitsoPENotPossibleReasonOther = map[colPitsoPENotPossibleReasonOther];
-    this.condomUsageDemonstrated = map[colCondomUsageDemonstrated] == null ? null : map[colCondomUsageDemonstrated] == 1;
-    this.condomUsageNotDemonstratedReason = CondomUsageNotDemonstratedReason.fromCode(map[colCondomUsageNotDemonstratedReason]);
-    this.condomUsageNotDemonstratedReasonOther = map[colCondomUsageNotDemonstratedReasonOther];
     this.moreInfoContraceptives = map[colMoreInfoContraceptives];
     this.moreInfoVMMC = map[colMoreInfoVMMC];
     this.youngMothersAvailable = map[colYoungMothersAvailable] == null ? null : map[colYoungMothersAvailable] == 1;
     this.femaleWorthAvailable = map[colFemaleWorthAvailable] == null ? null : map[colFemaleWorthAvailable] == 1;
     this.legalAidSmartphoneAvailable = map[colLegalAidSmartphoneAvailable] == null ? null : map[colLegalAidSmartphoneAvailable] == 1;
-    this.tuneMeSmartphoneAvailable = map[colTuneMeSmartphoneAvailable] == null ? null : map[colTuneMeSmartphoneAvailable] == 1;
-    this.ntlafatsoSmartphoneAvailable = map[colNtlafatsoSmartphoneAvailable] == null ? null : map[colNtlafatsoSmartphoneAvailable] == 1;
     this.psychosocialShareSomethingAnswer = YesNoRefused.fromCode(map[colPsychosocialShareSomethingAnswer]);
     this.psychosocialShareSomethingContent = map[colPsychosocialShareSomethingContent];
     this.psychosocialHowDoing = map[colPsychosocialHowDoing];
@@ -280,6 +263,7 @@ class PreferenceAssessment implements IExcelExportable {
     map[colARTRefillTreatmentBuddyVillage] = artRefillTreatmentBuddyVillage;
     map[colARTRefillTreatmentBuddyPhoneNumber] = artRefillTreatmentBuddyPhoneNumber;
     map[colARTSupplyAmount] = artSupplyAmount.code;
+    map[colPatientPhoneAvailable] = patientPhoneAvailable;
     map[colAdherenceReminderEnabled] = adherenceReminderEnabled;
     map[colAdherenceReminderFrequency] = adherenceReminderFrequency?.code;
     map[colAdherenceReminderTime] = formatTime(adherenceReminderTime);
@@ -303,16 +287,11 @@ class PreferenceAssessment implements IExcelExportable {
     map[colPitsoPEPossible] = pitsoPEPossible;
     map[colPitsoPENotPossibleReason] = pitsoPENotPossibleReason?.code;
     map[colPitsoPENotPossibleReasonOther] = pitsoPENotPossibleReasonOther;
-    map[colCondomUsageDemonstrated] = condomUsageDemonstrated;
-    map[colCondomUsageNotDemonstratedReason] = condomUsageNotDemonstratedReason?.code;
-    map[colCondomUsageNotDemonstratedReasonOther] = condomUsageNotDemonstratedReasonOther;
     map[colMoreInfoContraceptives] = moreInfoContraceptives;
     map[colMoreInfoVMMC] = moreInfoVMMC;
     map[colYoungMothersAvailable] = youngMothersAvailable;
     map[colFemaleWorthAvailable] = femaleWorthAvailable;
     map[colLegalAidSmartphoneAvailable] = legalAidSmartphoneAvailable;
-    map[colTuneMeSmartphoneAvailable] = tuneMeSmartphoneAvailable;
-    map[colNtlafatsoSmartphoneAvailable] = ntlafatsoSmartphoneAvailable;
     map[colPsychosocialShareSomethingAnswer] = psychosocialShareSomethingAnswer.code;
     map[colPsychosocialShareSomethingContent] = psychosocialShareSomethingContent;
     map[colPsychosocialHowDoing] = psychosocialHowDoing;
@@ -321,7 +300,7 @@ class PreferenceAssessment implements IExcelExportable {
     return map;
   }
 
-  static const int _numberOfColumns = 55;
+  static const int _numberOfColumns = 51;
 
   /// Column names for the header row in the excel sheet.
   // If we change the order here, make sure to change the order in the
@@ -345,44 +324,40 @@ class PreferenceAssessment implements IExcelExportable {
     row[14] = 'ART_REFILL_TB_VILLAGE';
     row[15] = 'ART_REFILL_TB_CELL';
     row[16] = 'ART_REFILL_INTERVAL';
-    row[17] = 'NOT_ADH';
-    row[18] = 'NOT_ADH_FREQ';
-    row[19] = 'NOT_ADH_TIME';
-    row[20] = 'NOT_ADH_MESSAGE';
-    row[21] = 'NOT_REFILL';
-    row[22] = 'NOT_REFILL_WHEN';
-    row[23] = 'NOT_REFILL_MESSAGE';
-    row[24] = 'NOT_VL';
-    row[25] = 'NOT_VL_SUPPR_MESSAGE';
-    row[26] = 'NOT_VL_UNSUPPR_MESSAGE';
-    row[27] = 'SUPPORT';
-    row[28] = 'SUPPORT_SCC';
-    row[29] = 'SUPPORT_CYC';
-    row[30] = 'SUPPORT_HV';
-    row[31] = 'SUPPORT_HV_NO';
-    row[32] = 'SUPPORT_HV_NO_OTHER';
-    row[33] = 'SUPPORT_SV';
-    row[34] = 'SUPPORT_SV_SCHOOL';
-    row[35] = 'SUPPORT_SV_NO';
-    row[36] = 'SUPPORT_SV_NO_OTHER';
-    row[37] = 'SUPPORT_PV';
-    row[38] = 'SUPPORT_PV_NO';
-    row[39] = 'SUPPORT_PV_NO_OTHER';
-    row[40] = 'SUPPORT_CD';
-    row[41] = 'SUPPORT_CD_NO';
-    row[42] = 'SUPPORT_CD_NO_OTHER';
-    row[43] = 'SUPPORT_CC';
-    row[44] = 'SUPPORT_VMMC';
-    row[45] = 'SUPPORT_YM';
-    row[46] = 'SUPPORT_W';
-    row[47] = 'SUPPORT_LA';
-    row[48] = 'SUPPORT_TM';
-    row[49] = 'SUPPORT_NF';
-    row[50] = 'PSYCH_SHARE';
-    row[51] = 'PSYCH_SHARE_NOTE';
-    row[52] = 'PSYCH_DOING_NOTE';
-    row[53] = 'UVL_ENV';
-    row[54] = 'UVL_ENV_NOTE';
+    row[17] = 'CELL_AVAILABLE';
+    row[18] = 'NOT_ADH';
+    row[19] = 'NOT_ADH_FREQ';
+    row[20] = 'NOT_ADH_TIME';
+    row[21] = 'NOT_ADH_MESSAGE';
+    row[22] = 'NOT_REFILL';
+    row[23] = 'NOT_REFILL_WHEN';
+    row[24] = 'NOT_REFILL_MESSAGE';
+    row[25] = 'NOT_VL';
+    row[26] = 'NOT_VL_SUPPR_MESSAGE';
+    row[27] = 'NOT_VL_UNSUPPR_MESSAGE';
+    row[28] = 'SUPPORT';
+    row[29] = 'SUPPORT_SCC';
+    row[30] = 'SUPPORT_CYC';
+    row[31] = 'SUPPORT_HV';
+    row[32] = 'SUPPORT_HV_NO';
+    row[33] = 'SUPPORT_HV_NO_OTHER';
+    row[34] = 'SUPPORT_SV';
+    row[35] = 'SUPPORT_SV_SCHOOL';
+    row[36] = 'SUPPORT_SV_NO';
+    row[37] = 'SUPPORT_SV_NO_OTHER';
+    row[38] = 'SUPPORT_PV';
+    row[39] = 'SUPPORT_PV_NO';
+    row[40] = 'SUPPORT_PV_NO_OTHER';
+    row[41] = 'SUPPORT_CC';
+    row[42] = 'SUPPORT_VMMC';
+    row[43] = 'SUPPORT_YM';
+    row[44] = 'SUPPORT_W';
+    row[45] = 'SUPPORT_LA';
+    row[46] = 'PSYCH_SHARE';
+    row[47] = 'PSYCH_SHARE_NOTE';
+    row[48] = 'PSYCH_DOING_NOTE';
+    row[49] = 'UVL_ENV';
+    row[50] = 'UVL_ENV_NOTE';
     return row;
   }
 
@@ -409,44 +384,40 @@ class PreferenceAssessment implements IExcelExportable {
     row[14] = artRefillTreatmentBuddyVillage;
     row[15] = artRefillTreatmentBuddyPhoneNumber;
     row[16] = artSupplyAmount.code;
-    row[17] = adherenceReminderEnabled;
-    row[18] = adherenceReminderFrequency?.code;
-    row[19] = formatTime(adherenceReminderTime);
-    row[20] = adherenceReminderMessage?.code;
-    row[21] = artRefillReminderEnabled;
-    row[22] = artRefillReminderDaysBefore?.serializeToJSON();
-    row[23] = artRefillReminderMessage?.code;
-    row[24] = vlNotificationEnabled;
-    row[25] = vlNotificationMessageSuppressed?.code;
-    row[26] = vlNotificationMessageUnsuppressed?.code;
-    row[27] = supportPreferences.serializeToJSON();
-    row[28] = saturdayClinicClubAvailable;
-    row[29] = communityYouthClubAvailable;
-    row[30] = homeVisitPEPossible;
-    row[31] = homeVisitPENotPossibleReason?.code;
-    row[32] = homeVisitPENotPossibleReasonOther;
-    row[33] = schoolVisitPEPossible;
-    row[34] = school;
-    row[35] = schoolVisitPENotPossibleReason?.code;
-    row[36] = schoolVisitPENotPossibleReasonOther;
-    row[37] = pitsoPEPossible;
-    row[38] = pitsoPENotPossibleReason?.code;
-    row[39] = pitsoPENotPossibleReasonOther;
-    row[40] = condomUsageDemonstrated;
-    row[41] = condomUsageNotDemonstratedReason?.code;
-    row[42] = condomUsageNotDemonstratedReasonOther;
-    row[43] = moreInfoContraceptives;
-    row[44] = moreInfoVMMC;
-    row[45] = youngMothersAvailable;
-    row[46] = femaleWorthAvailable;
-    row[47] = legalAidSmartphoneAvailable;
-    row[48] = tuneMeSmartphoneAvailable;
-    row[49] = ntlafatsoSmartphoneAvailable;
-    row[50] = psychosocialShareSomethingAnswer.code;
-    row[51] = psychosocialShareSomethingContent;
-    row[52] = psychosocialHowDoing;
-    row[53] = unsuppressedSafeEnvironmentAnswer?.code;
-    row[54] = unsuppressedWhyNotSafe;
+    row[17] = patientPhoneAvailable;
+    row[18] = adherenceReminderEnabled;
+    row[19] = adherenceReminderFrequency?.code;
+    row[20] = formatTime(adherenceReminderTime);
+    row[21] = adherenceReminderMessage?.code;
+    row[22] = artRefillReminderEnabled;
+    row[23] = artRefillReminderDaysBefore?.serializeToJSON();
+    row[24] = artRefillReminderMessage?.code;
+    row[25] = vlNotificationEnabled;
+    row[26] = vlNotificationMessageSuppressed?.code;
+    row[27] = vlNotificationMessageUnsuppressed?.code;
+    row[28] = supportPreferences.serializeToJSON();
+    row[29] = saturdayClinicClubAvailable;
+    row[30] = communityYouthClubAvailable;
+    row[31] = homeVisitPEPossible;
+    row[32] = homeVisitPENotPossibleReason?.code;
+    row[33] = homeVisitPENotPossibleReasonOther;
+    row[34] = schoolVisitPEPossible;
+    row[35] = school;
+    row[36] = schoolVisitPENotPossibleReason?.code;
+    row[37] = schoolVisitPENotPossibleReasonOther;
+    row[38] = pitsoPEPossible;
+    row[39] = pitsoPENotPossibleReason?.code;
+    row[40] = pitsoPENotPossibleReasonOther;
+    row[41] = moreInfoContraceptives;
+    row[42] = moreInfoVMMC;
+    row[43] = youngMothersAvailable;
+    row[44] = femaleWorthAvailable;
+    row[45] = legalAidSmartphoneAvailable;
+    row[46] = psychosocialShareSomethingAnswer.code;
+    row[47] = psychosocialShareSomethingContent;
+    row[48] = psychosocialHowDoing;
+    row[49] = unsuppressedSafeEnvironmentAnswer?.code;
+    row[50] = unsuppressedWhyNotSafe;
     return row;
   }
 

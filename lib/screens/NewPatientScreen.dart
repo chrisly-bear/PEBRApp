@@ -259,7 +259,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       child: Column(
         children: [
           _artNumberQuestion(),
-          _stickerNumberQuestion(),
           _yearOfBirthQuestion(),
           _genderQuestion(),
           _sexualOrientationQuestion(),
@@ -281,6 +280,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           _consentGivenQuestion(),
           _noConsentReasonQuestion(),
           _noConsentReasonOtherQuestion(),
+          _stickerNumberQuestion(),
         ],
       ),
     );
@@ -327,6 +327,9 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _stickerNumberQuestion() {
+    if (_newPatient.consentGiven == null || !_newPatient.consentGiven) {
+      return SizedBox();
+    }
     return _makeQuestion('Sticker Number',
       answer: TextFormField(
         decoration: InputDecoration(
@@ -739,7 +742,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
       final DateTime now = DateTime.now();
 
-      _newPatient.enrolmentDate = now;
+      _newPatient.enrollmentDate = now;
       _newPatient.isEligible = _eligible;
       _newPatient.artNumber = _artNumberCtr.text;
       _newPatient.stickerNumber = 'P${_stickerNumberCtr.text}';

@@ -8,6 +8,7 @@ import 'package:pebrapp/utils/Utils.dart';
 
 Future<void> uploadNextARTRefillDate(Patient patient, DateTime nextARTRefillDate) async {
   // TODO: upload the new date to the visible impact database and if it didn't work show a message that the upload has to be retried manually
+  // TODO: if [nextARTRefillDate] is null then do nothing (which is the case if the patient has been deactivated/'refill not done' was selected by the user)
   await Future.delayed(Duration(seconds: 3));
   final bool success = false;
   if (success) {

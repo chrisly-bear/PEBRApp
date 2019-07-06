@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:pebrapp/config/SwitchConfig.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
+import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
@@ -20,7 +21,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 34;
+  static const int _DB_VERSION = 41;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -63,11 +64,11 @@ class DatabaseProvider {
         CREATE TABLE IF NOT EXISTS ${Patient.tableName} (
           ${Patient.colId} INTEGER PRIMARY KEY,
           ${Patient.colCreatedDate} TEXT NOT NULL,
-          ${Patient.colEnrolmentDate} TEXT NOT NULL,
+          ${Patient.colEnrollmentDate} TEXT NOT NULL,
           ${Patient.colARTNumber} TEXT NOT NULL,
-          ${Patient.colStickerNumber} TEXT NOT NULL,
           ${Patient.colYearOfBirth} TEXT NOT NULL,
           ${Patient.colIsEligible} BIT NOT NULL,
+          ${Patient.colStickerNumber} TEXT,
           ${Patient.colIsVLBaselineAvailable} BIT,
           ${Patient.colGender} INTEGER,
           ${Patient.colSexualOrientation} INTEGER,
@@ -99,6 +100,7 @@ class DatabaseProvider {
           ${PreferenceAssessment.colARTRefillTreatmentBuddyVillage} TEXT,
           ${PreferenceAssessment.colARTRefillTreatmentBuddyPhoneNumber} TEXT,
           ${PreferenceAssessment.colARTSupplyAmount} INTEGER NOT NULL,
+          ${PreferenceAssessment.colPatientPhoneAvailable} BIT NOT NULL,
           ${PreferenceAssessment.colAdherenceReminderEnabled} BIT,
           ${PreferenceAssessment.colAdherenceReminderFrequency} INTEGER,
           ${PreferenceAssessment.colAdherenceReminderTime} TEXT,
@@ -122,16 +124,11 @@ class DatabaseProvider {
           ${PreferenceAssessment.colPitsoPEPossible} BIT,
           ${PreferenceAssessment.colPitsoPENotPossibleReason} INTEGER,
           ${PreferenceAssessment.colPitsoPENotPossibleReasonOther} TEXT,
-          ${PreferenceAssessment.colCondomUsageDemonstrated} BIT,
-          ${PreferenceAssessment.colCondomUsageNotDemonstratedReason} INTEGER,
-          ${PreferenceAssessment.colCondomUsageNotDemonstratedReasonOther} TEXT,
           ${PreferenceAssessment.colMoreInfoContraceptives} TEXT,
           ${PreferenceAssessment.colMoreInfoVMMC} TEXT,
           ${PreferenceAssessment.colYoungMothersAvailable} BIT,
           ${PreferenceAssessment.colFemaleWorthAvailable} BIT,
           ${PreferenceAssessment.colLegalAidSmartphoneAvailable} BIT,
-          ${PreferenceAssessment.colTuneMeSmartphoneAvailable} BIT,
-          ${PreferenceAssessment.colNtlafatsoSmartphoneAvailable} BIT,
           ${PreferenceAssessment.colPsychosocialShareSomethingAnswer} INTEGER NOT NULL,
           ${PreferenceAssessment.colPsychosocialShareSomethingContent} TEXT,
           ${PreferenceAssessment.colPsychosocialHowDoing} TEXT,
@@ -374,12 +371,12 @@ class DatabaseProvider {
     }
     if (oldVersion < 18) {
       print('Upgrading to database version 18...');
-      // Add new column 'enrolment_date_utc' with default value of 1970-01-01.
-      await db.execute("ALTER TABLE Patient ADD enrolment_date_utc TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z';");
+      // Add new column 'enrollment_date_utc' with default value of 1970-01-01.
+      await db.execute("ALTER TABLE Patient ADD enrollment_date_utc TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z';");
     }
     if (oldVersion < 19) {
       print('Upgrading to database version 19...');
-      // Add new column 'enrolment_date_utc' with default value of false (0).
+      // Add new column 'is_vl_baseline_available' with default value of false (0).
       await db.execute("ALTER TABLE Patient ADD is_vl_baseline_available BIT NOT NULL DEFAULT 0;");
     }
     if (oldVersion < 21) {
@@ -448,6 +445,34 @@ class DatabaseProvider {
       print('Upgrading to database version 34...');
       await db.execute("ALTER TABLE RequiredAction ADD due_date TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z';");
     }
+    if (oldVersion < 37) {
+      print('Upgrading to database version 37...');
+      print('UPGRADE NOT IMPLEMENTED, DATA WILL BE RESET!');
+      await db.execute("DROP TABLE IF EXISTS Patient;");
+      await db.execute("DROP TABLE IF EXISTS PreferenceAssessment;");
+      await db.execute("DROP TABLE IF EXISTS ARTRefill;");
+      await db.execute("DROP TABLE IF EXISTS ViralLoad;");
+      await db.execute("DROP TABLE IF EXISTS RequiredAction;");
+      await _onCreate(db, 37);
+    }
+    if (oldVersion < 38 && _DB_VERSION >= 38) {
+      print('Upgrading to database version 38...');
+      print('UPGRADE NOT IMPLEMENTED, USER DATA WILL BE RESET! YOU WILL HAVE TO'
+          'CREATE A NEW ACCOUNT OR YOU WILL GET STUCK IN A LOGIN LOOP.');
+      await db.execute("DROP TABLE IF EXISTS UserData;"); // Removing the UserData table will result in a login loop -> user has to create a new account
+      await _onCreate(db, 38);
+      showFlushbar('Please create a new account to continue using the app.', title: 'App Upgraded', error: true);
+    }
+    if (oldVersion < 39 && _DB_VERSION >= 39) {
+      print('Upgrading to database version 39...');
+      await db.execute("ALTER TABLE PreferenceAssessment ADD patient_phone_available BIT NOT NULL DEFAULT 1;");
+    }
+    if (oldVersion < 41 && _DB_VERSION >= 41) {
+      print('Upgrading to database version 41...');
+      print('UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
+      await db.execute("DROP TABLE IF EXISTS PreferenceAssessment;");
+      await _onCreate(db, 41);
+    }
   }
 
   FutureOr<void> _onDowngrade(Database db, int oldVersion, int newVersion) async {
@@ -457,8 +482,10 @@ class DatabaseProvider {
     await db.execute("DROP TABLE IF EXISTS PreferenceAssessment;");
     await db.execute("DROP TABLE IF EXISTS ARTRefill;");
     await db.execute("DROP TABLE IF EXISTS ViralLoad;");
-    await db.execute("DROP TABLE IF EXISTS UserData;");
+    await db.execute("DROP TABLE IF EXISTS RequiredAction;");
+    await db.execute("DROP TABLE IF EXISTS UserData;"); // Removing the UserData table will result in a login loop -> user has to create a new account
     await _onCreate(db, newVersion);
+    showFlushbar('Please create a new account to continue using the app.', title: 'App Downgraded', error: true);
   }
 
 
@@ -760,6 +787,20 @@ class DatabaseProvider {
         ARTRefill.tableName,
         where: '${ARTRefill.colPatientART} = ?',
         whereArgs: [patientART],
+        orderBy: '${ARTRefill.colCreatedDate} DESC'
+    );
+    if (res.length > 0) {
+      return ARTRefill.fromMap(res.first);
+    }
+    return null;
+  }
+
+  Future<ARTRefill> retrieveLatestDoneARTRefillForPatient(String patientART) async {
+    final Database db = await _databaseInstance;
+    final List<Map> res = await db.query(
+        ARTRefill.tableName,
+        where: '${ARTRefill.colPatientART} = ? AND ${ARTRefill.colRefillType} != ?',
+        whereArgs: [patientART, RefillType.NOT_DONE().code],
         orderBy: '${ARTRefill.colCreatedDate} DESC'
     );
     if (res.length > 0) {

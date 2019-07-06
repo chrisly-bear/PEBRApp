@@ -9,7 +9,6 @@ import 'package:pebrapp/database/beans/ARTRefillReminderMessage.dart';
 import 'package:pebrapp/database/beans/ARTSupplyAmount.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderMessage.dart';
-import 'package:pebrapp/database/beans/CondomUsageNotDemonstratedReason.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/HomeVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
@@ -88,7 +87,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   var _schoolCtr = TextEditingController();
   var _schoolVisitPENotPossibleReasonCtr = TextEditingController();
   var _pitsoVisitPENotPossibleReasonCtr = TextEditingController();
-  var _condomUsageNotDemonstratedReasonCtr = TextEditingController();
   var _contraceptivesMoreInfoCtr = TextEditingController();
   var _vmmcMoreInfoCtr = TextEditingController();
   var _psychoSocialShareCtr = TextEditingController();
@@ -1095,7 +1093,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               _pa.supportPreferences.CONDOM_DEMO_selected = newValue;
             })),
       ),
-      _condomDemoFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
 //            secondary: Container(width: 0.0),
@@ -1153,40 +1150,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             })),
       ),
       _legalAidFollowUpQuestions(),
-      _makeQuestionCustom(
-          question: Container(
-              alignment: Alignment.centerRight,
-              child: FlatButton.icon(
-                icon: Icon(Icons.public, size: 18.0),
-                onPressed: () { launchURL('http://ls.tuneme.org/'); },
-                label: Text('Open tuneme.org'),
-              )),
-          answer: CheckboxListTile(
-//              secondary: Container(width: 0.0),
-              title: Text(SupportPreferencesSelection.TUNE_ME_ORG_DESCRIPTION),
-              value: _pa.supportPreferences.TUNE_ME_ORG_selected,
-              onChanged: (bool newValue) => this.setState(() {
-                _pa.supportPreferences.TUNE_ME_ORG_selected = newValue;
-              }))
-      ),
-      _tuneMeFollowUpQuestions(),
-      _makeQuestionCustom(
-        question: Container(
-            alignment: Alignment.centerRight,
-            child: FlatButton.icon(
-              icon: Icon(Icons.public, size: 18.0),
-              onPressed: () { launchURL('https://www.facebook.com/antiStigma123/'); },
-              label: Text('Open Ntlafatso Foundation'),
-            )),
-        answer: CheckboxListTile(
-//            secondary: Container(width: 0.0),
-            title: Text(SupportPreferencesSelection.NTLAFATSO_FOUNDATION_DESCRIPTION),
-            value: _pa.supportPreferences.NTLAFATSO_FOUNDATION_selected,
-            onChanged: (bool newValue) => this.setState(() {
-              _pa.supportPreferences.NTLAFATSO_FOUNDATION_selected = newValue;
-            })),
-      ),
-      _ntlafatsoFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
             secondary: _getPaddedIcon('assets/icons/no_support.png'),
@@ -1574,99 +1537,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     ]);
   }
 
-  Widget _condomDemoFollowUpQuestions() {
-    if (!_pa.supportPreferences.CONDOM_DEMO_selected) {
-      return Container();
-    }
-
-    Widget _possibleQuestion() {
-      return _makeQuestion(
-        'Have you demonstrated condom usage?',
-        answer: DropdownButtonFormField<bool>(
-          value: _pa.condomUsageDemonstrated,
-          onChanged: (bool newValue) {
-            setState(() {
-              _pa.condomUsageDemonstrated = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question';
-            }
-          },
-          items:
-          <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
-            String description;
-            switch (value) {
-              case true:
-                description = 'Yes';
-                break;
-              case false:
-                description = 'No';
-                break;
-            }
-            return DropdownMenuItem<bool>(
-              value: value,
-              child: Text(description),
-            );
-          }).toList(),
-        ),
-      );
-    }
-
-    Widget _notPossibleReasonQuestion() {
-      if (_pa.condomUsageDemonstrated == null || _pa.condomUsageDemonstrated) {
-        return Container();
-      }
-      return _makeQuestion('Why not?',
-        answer: DropdownButtonFormField<CondomUsageNotDemonstratedReason>(
-          value: _pa.condomUsageNotDemonstratedReason,
-          onChanged: (CondomUsageNotDemonstratedReason newValue) {
-            setState(() {
-              _pa.condomUsageNotDemonstratedReason = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please answer this question';
-            }
-          },
-          items:
-          CondomUsageNotDemonstratedReason.allValues.map<DropdownMenuItem<CondomUsageNotDemonstratedReason>>((CondomUsageNotDemonstratedReason value) {
-            return DropdownMenuItem<CondomUsageNotDemonstratedReason>(
-              value: value,
-              child: Text(value.description),
-            );
-          }).toList(),
-        ),
-      );
-    }
-
-    Widget _notPossibleReasonOtherQuestion() {
-      if (_pa.condomUsageDemonstrated == null || _pa.condomUsageDemonstrated
-          || _pa.condomUsageNotDemonstratedReason == null
-          || _pa.condomUsageNotDemonstratedReason != CondomUsageNotDemonstratedReason.OTHER()) {
-        return Container();
-      }
-      return _makeQuestion('Other, specify',
-          answer: TextFormField(
-            controller: _condomUsageNotDemonstratedReasonCtr,
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please specify a reason';
-              }
-            },
-          )
-      );
-    }
-
-    return Column(children: [
-      _possibleQuestion(),
-      _notPossibleReasonQuestion(),
-      _notPossibleReasonOtherQuestion(),
-    ]);
-  }
-
   Widget _contraceptivesInfoFollowUpQuestions() {
     if (!_pa.supportPreferences.CONTRACEPTIVES_INFO_selected) {
       return Container();
@@ -1789,82 +1659,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           }
           setState(() {
             _pa.legalAidSmartphoneAvailable = newValue;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return 'Please answer this question';
-          }
-        },
-        items:
-        <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
-          String description;
-          switch (value) {
-            case true:
-              description = 'Yes';
-              break;
-            case false:
-              description = 'No';
-              break;
-          }
-          return DropdownMenuItem<bool>(
-            value: value,
-            child: Text(description),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _tuneMeFollowUpQuestions() {
-    if (!_pa.supportPreferences.TUNE_ME_ORG_selected) {
-      return Container();
-    }
-    return _makeQuestion(
-      'Does the participant have a functioning smartphone?',
-      answer: DropdownButtonFormField<bool>(
-        value: _pa.tuneMeSmartphoneAvailable,
-        onChanged: (bool newValue) {
-          setState(() {
-            _pa.tuneMeSmartphoneAvailable = newValue;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return 'Please answer this question';
-          }
-        },
-        items:
-        <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
-          String description;
-          switch (value) {
-            case true:
-              description = 'Yes';
-              break;
-            case false:
-              description = 'No';
-              break;
-          }
-          return DropdownMenuItem<bool>(
-            value: value,
-            child: Text(description),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _ntlafatsoFollowUpQuestions() {
-    if (!_pa.supportPreferences.NTLAFATSO_FOUNDATION_selected) {
-      return Container();
-    }
-    return _makeQuestion(
-      'Does the participant have a functioning smartphone?',
-      answer: DropdownButtonFormField<bool>(
-        value: _pa.ntlafatsoSmartphoneAvailable,
-        onChanged: (bool newValue) {
-          setState(() {
-            _pa.ntlafatsoSmartphoneAvailable = newValue;
           });
         },
         validator: (value) {
@@ -2125,6 +1919,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       _pa.artRefillOption3 = _artRefillOptionSelections[2];
       _pa.artRefillOption4 = _artRefillOptionSelections[3];
       _pa.artRefillOption5 = _artRefillOptionSelections[4];
+      _pa.patientPhoneAvailable = _patient.phoneAvailability == PhoneAvailability.YES();
 
       if (_artRefillOptionSelections.contains(ARTRefillOption.PE_HOME_DELIVERY())
           && !_artRefillOptionAvailable[_artRefillOptionSelections.indexOf(ARTRefillOption.PE_HOME_DELIVERY())]
@@ -2218,16 +2013,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           && _pa.pitsoPENotPossibleReason == PitsoPENotPossibleReason.OTHER()) {
         _pa.pitsoPENotPossibleReasonOther = _pitsoVisitPENotPossibleReasonCtr.text;
       }
-      if (!_pa.supportPreferences.CONDOM_DEMO_selected) {
-        _pa.condomUsageDemonstrated = null;
-        _pa.condomUsageNotDemonstratedReason = null;
-        _pa.condomUsageNotDemonstratedReasonOther = null;
-      }
-      if (_pa.condomUsageDemonstrated != null && !_pa.condomUsageDemonstrated
-          && _pa.condomUsageNotDemonstratedReason != null
-          && _pa.condomUsageNotDemonstratedReason == CondomUsageNotDemonstratedReason.OTHER()) {
-        _pa.condomUsageNotDemonstratedReasonOther = _condomUsageNotDemonstratedReasonCtr.text;
-      }
       if (_pa.supportPreferences.CONTRACEPTIVES_INFO_selected) {
         _pa.moreInfoContraceptives = _contraceptivesMoreInfoCtr.text;
       }
@@ -2242,12 +2027,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       }
       if (!_pa.supportPreferences.LEGAL_AID_INFO_selected) {
         _pa.legalAidSmartphoneAvailable = null;
-      }
-      if (!_pa.supportPreferences.TUNE_ME_ORG_selected) {
-        _pa.tuneMeSmartphoneAvailable = null;
-      }
-      if (!_pa.supportPreferences.NTLAFATSO_FOUNDATION_selected) {
-        _pa.ntlafatsoSmartphoneAvailable = null;
       }
       if (_pa.psychosocialShareSomethingAnswer == YesNoRefused.YES()) {
         _pa.psychosocialShareSomethingContent = _psychoSocialShareCtr.text;

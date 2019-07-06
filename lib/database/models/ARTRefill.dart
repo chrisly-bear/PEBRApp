@@ -10,9 +10,9 @@ class ARTRefill implements IExcelExportable {
   // column names
   static final colId = 'id'; // primary key
   static final colPatientART = 'patient_art'; // foreign key to [Patient].art_number
-  static final colCreatedDate = 'created_date_utc';
+  static final colCreatedDate = 'created_date';
   static final colRefillType = 'refill_type';
-  static final colNextRefillDate = 'next_refill_date_utc'; // nullable
+  static final colNextRefillDate = 'next_refill_date'; // nullable
   static final colNotDoneReason = 'not_done_reason'; // nullable
   static final colDateOfDeath = 'date_of_death'; // nullable
   static final colCauseOfDeath = 'cause_of_death'; // nullable
