@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
+import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 
 class IconExplanationsScreen extends StatefulWidget {
@@ -24,6 +25,8 @@ class _IconExplanationsScreenState extends State<IconExplanationsScreen> {
           _makeExplanation('assets/icons/homevisit_pe.png', SupportPreferencesSelection.HOME_VISIT_PE_DESCRIPTION),
           _makeExplanation('assets/icons/schooltalk_pe.png', SupportPreferencesSelection.SCHOOL_VISIT_PE_DESCRIPTION),
           _makeExplanation('assets/icons/pitso.png', SupportPreferencesSelection.PITSO_VISIT_PE_DESCRIPTION),
+          _makeExplanation('assets/icons/viralload_suppressed.png', 'Suppressed (viral load < $VL_SUPPRESSED_THRESHOLD copies/mL)'),
+          _makeExplanation('assets/icons/viralload_unsuppressed.png', 'Unsuppressed (viral load missing or ≥ $VL_SUPPRESSED_THRESHOLD copies/mL)'),
           SizedBox(height: 30),
         ],
       ),
