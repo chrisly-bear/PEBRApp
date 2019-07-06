@@ -291,13 +291,18 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
       return Container();
     }
+    const double _spaceBetweenQuestions = 5.0;
     return _buildCard('Viral Load Baseline',
       child: Column(
         children: [
           _viralLoadBaselineAvailableQuestion(),
+          SizedBox(height: _spaceBetweenQuestions),
           _viralLoadBaselineDateQuestion(),
+          SizedBox(height: _spaceBetweenQuestions),
           _viralLoadBaselineLowerThanDetectableQuestion(),
+          SizedBox(height: _spaceBetweenQuestions),
           _viralLoadBaselineResultQuestion(),
+          SizedBox(height: _spaceBetweenQuestions),
           _viralLoadBaselineLabNumberQuestion(),
         ],
       ),
@@ -590,7 +595,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     if (_newPatient.isVLBaselineAvailable == null || !_newPatient.isVLBaselineAvailable) {
       return Container();
     }
-    return _makeQuestion('Date of most recent viral load (put the date when blood was taken)',
+    return _makeQuestion('Date of the most recent available viral load (put the date when blood was taken)',
       answer: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -609,7 +614,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
             ),
             onPressed: () async {
               final now = DateTime.now();
-              DateTime date = await _showDatePicker(context, 'Viral Load Baseline Date', initialDate: _viralLoadBaseline.dateOfBloodDraw ?? DateTime(now.year, now.month, now.day));
+              DateTime date = await _showDatePicker(context, initialDate: _viralLoadBaseline.dateOfBloodDraw ?? DateTime(now.year, now.month, now.day));
               if (date != null) {
                 setState(() {
                   _viralLoadBaseline.dateOfBloodDraw = date;
@@ -637,7 +642,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     if (_newPatient.isVLBaselineAvailable == null || !_newPatient.isVLBaselineAvailable) {
       return Container();
     }
-    return _makeQuestion('Was the viral load baseline result lower than detectable limit (<20 copies/mL)?',
+    return _makeQuestion('Was that viral load result lower than detectable limit (<20 copies/mL)?',
       answer: DropdownButtonFormField<bool>(
         value: _isLowerThanDetectable,
         onChanged: (bool newValue) {
@@ -663,7 +668,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     if (_newPatient.isVLBaselineAvailable == null || !_newPatient.isVLBaselineAvailable || _isLowerThanDetectable == null || _isLowerThanDetectable) {
       return Container();
     }
-    return _makeQuestion('What was the result of the viral load baseline (in c/mL)',
+    return _makeQuestion('Result of that viral load (in c/mL)',
       answer: TextFormField(
         inputFormatters: [
           WhitelistingTextInputFormatter.digitsOnly,
@@ -685,7 +690,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     if (_newPatient.isVLBaselineAvailable == null || !_newPatient.isVLBaselineAvailable) {
       return Container();
     }
-    return _makeQuestion('Lab number of the viral load baseline',
+    return _makeQuestion('Lab number of that viral load',
       answer: TextFormField(
         controller: _viralLoadBaselineLabNumberCtr,
       ),
@@ -885,7 +890,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     );
   }
 
-  Future<DateTime> _showDatePicker(BuildContext context, String title, {DateTime initialDate}) async {
+  Future<DateTime> _showDatePicker(BuildContext context, {DateTime initialDate}) async {
     DateTime now = DateTime.now();
     return showDatePicker(
       context: context,
