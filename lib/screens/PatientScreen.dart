@@ -298,7 +298,7 @@ class _PatientScreenState extends State<PatientScreen> {
         padding: EdgeInsets.symmetric(vertical: 5.0),
         child: Row(
           children: <Widget>[
-            Expanded(flex: _descriptionFlex, child: _formatHeaderRowText('Date')),
+            Expanded(flex: _descriptionFlex, child: _formatHeaderRowText('Date of Blood Draw')),
             Expanded(flex: _contentFlex, child: content),
           ],
         ),
