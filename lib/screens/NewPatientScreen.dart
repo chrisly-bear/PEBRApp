@@ -688,11 +688,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     return _makeQuestion('Lab number of the viral load baseline',
       answer: TextFormField(
         controller: _viralLoadBaselineLabNumberCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please enter the lab number of the viral load result';
-          }
-        },
       ),
     );
   }
@@ -765,7 +760,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       if (_newPatient.isEligible && _newPatient.consentGiven && _newPatient.isVLBaselineAvailable != null && _newPatient.isVLBaselineAvailable) {
         _viralLoadBaseline.patientART = _artNumberCtr.text;
         _viralLoadBaseline.viralLoad = _isLowerThanDetectable ? 0 : int.parse(_viralLoadBaselineResultCtr.text);
-        _viralLoadBaseline.labNumber = _viralLoadBaselineLabNumberCtr.text;
+        _viralLoadBaseline.labNumber = _viralLoadBaselineLabNumberCtr.text == '' ? null : _viralLoadBaselineLabNumberCtr.text;
         _viralLoadBaseline.checkLogicAndResetUnusedFields();
         await DatabaseProvider().insertViralLoad(_viralLoadBaseline);
         _newPatient.viralLoadBaselineManual = _viralLoadBaseline;

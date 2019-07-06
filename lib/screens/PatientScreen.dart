@@ -327,7 +327,7 @@ class _PatientScreenState extends State<PatientScreen> {
             ),
           ),
           SizedBox(width: 10.0),
-          Expanded(child: Text(vl.labNumber)),
+          Expanded(child: Text(vl.labNumber ?? '—')),
           Expanded(child: Text(vl.source == ViralLoadSource.MANUAL_INPUT() ? 'manual' : 'database')),
         ],
       );

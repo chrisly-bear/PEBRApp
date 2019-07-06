@@ -14,8 +14,8 @@ class ViralLoad implements IExcelExportable {
   static final colViralLoadSource = 'source';
   static final colViralLoadIsBaseline = 'is_baseline';
   static final colDateOfBloodDraw = 'date_blood_draw';
-  static final colLabNumber = 'lab_number';
   static final colViralLoad = 'viral_load';
+  static final colLabNumber = 'lab_number'; // nullable
   static final colDiscrepancy = 'discrepancy'; // nullable
 
   DateTime _createdDate;
@@ -23,8 +23,8 @@ class ViralLoad implements IExcelExportable {
   ViralLoadSource source;
   bool isBaseline;
   DateTime dateOfBloodDraw;
-  String labNumber;
   int viralLoad;
+  String labNumber;
   bool discrepancy;
 
   // Constructors
@@ -38,9 +38,9 @@ class ViralLoad implements IExcelExportable {
     this.source = ViralLoadSource.fromCode(map[colViralLoadSource]);
     this.isBaseline = map[colViralLoadIsBaseline] == 1;
     this.dateOfBloodDraw = DateTime.parse(map[colDateOfBloodDraw]);
-    this.labNumber = map[colLabNumber];
     this.viralLoad = map[colViralLoad];
     // nullables:
+    this.labNumber = map[colLabNumber];
     if (map[colDiscrepancy] != null) {
       this.discrepancy = map[colDiscrepancy] == 1;
     }
@@ -57,9 +57,9 @@ class ViralLoad implements IExcelExportable {
     map[colViralLoadSource] = source.code;
     map[colViralLoadIsBaseline] = isBaseline;
     map[colDateOfBloodDraw] = dateOfBloodDraw.toIso8601String();
-    map[colLabNumber] = labNumber;
     map[colViralLoad] = viralLoad;
     // nullables:
+    map[colLabNumber] = labNumber;
     map[colDiscrepancy] = discrepancy;
     return map;
   }

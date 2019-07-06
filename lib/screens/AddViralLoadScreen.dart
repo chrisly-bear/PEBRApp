@@ -195,11 +195,6 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
     return _makeQuestion('Lab number of the viral load baseline',
       answer: TextFormField(
         controller: _viralLoadLabNumberCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please enter the lab number of the viral load result';
-          }
-        },
       ),
     );
   }
@@ -262,7 +257,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
     if (_formKey.currentState.validate() & _validateViralLoadBaselineDate()) {
       
       _viralLoad.viralLoad = _isLowerThanDetectable ? 0 : int.parse(_viralLoadResultCtr.text);
-      _viralLoad.labNumber = _viralLoadLabNumberCtr.text;
+      _viralLoad.labNumber = _viralLoadLabNumberCtr.text == '' ? null : _viralLoadLabNumberCtr.text;
       _viralLoad.checkLogicAndResetUnusedFields();
       await DatabaseProvider().insertViralLoad(_viralLoad);
       _patient.viralLoadFollowUps.add(_viralLoad);
