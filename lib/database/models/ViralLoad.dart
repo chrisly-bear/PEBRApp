@@ -12,7 +12,6 @@ class ViralLoad implements IExcelExportable {
   static final colCreatedDate = 'created_date';
   static final colPatientART = 'patient_art'; // foreign key to [Patient].art_number
   static final colViralLoadSource = 'source';
-  static final colViralLoadIsBaseline = 'is_baseline';
   static final colDateOfBloodDraw = 'date_blood_draw';
   static final colViralLoad = 'viral_load';
   static final colLabNumber = 'lab_number'; // nullable
@@ -21,7 +20,6 @@ class ViralLoad implements IExcelExportable {
   DateTime _createdDate;
   String patientART;
   ViralLoadSource source;
-  bool isBaseline;
   DateTime dateOfBloodDraw;
   int viralLoad;
   String labNumber;
@@ -30,13 +28,12 @@ class ViralLoad implements IExcelExportable {
   // Constructors
   // ------------
 
-  ViralLoad({this.patientART, this.source, this.isBaseline, this.dateOfBloodDraw, this.labNumber, this.viralLoad});
+  ViralLoad({this.patientART, this.source, this.dateOfBloodDraw, this.labNumber, this.viralLoad});
 
   ViralLoad.fromMap(map) {
     this.patientART = map[colPatientART];
     this._createdDate = DateTime.parse(map[colCreatedDate]);
     this.source = ViralLoadSource.fromCode(map[colViralLoadSource]);
-    this.isBaseline = map[colViralLoadIsBaseline] == 1;
     this.dateOfBloodDraw = DateTime.parse(map[colDateOfBloodDraw]);
     this.viralLoad = map[colViralLoad];
     // nullables:
@@ -55,7 +52,6 @@ class ViralLoad implements IExcelExportable {
     map[colPatientART] = patientART;
     map[colCreatedDate] = _createdDate.toIso8601String();
     map[colViralLoadSource] = source.code;
-    map[colViralLoadIsBaseline] = isBaseline;
     map[colDateOfBloodDraw] = dateOfBloodDraw.toIso8601String();
     map[colViralLoad] = viralLoad;
     // nullables:
@@ -64,7 +60,7 @@ class ViralLoad implements IExcelExportable {
     return map;
   }
 
-  static const int _numberOfColumns = 10;
+  static const int _numberOfColumns = 9;
 
   /// Column names for the header row in the excel sheet.
   // If we change the order here, make sure to change the order in the
@@ -79,8 +75,7 @@ class ViralLoad implements IExcelExportable {
     row[5] = 'VL_RESULT';
     row[6] = 'VL_LNO';
     row[7] = 'VL_DISCREPANCY';
-    row[8] = 'VL_IS_BASELINE';
-    row[9] = 'VL_SOURCE';
+    row[8] = 'VL_SOURCE';
     return row;
   }
 
@@ -98,22 +93,17 @@ class ViralLoad implements IExcelExportable {
     row[5] = viralLoad;
     row[6] = labNumber;
     row[7] = discrepancy;
-    row[8] = isBaseline;
-    row[9] = source?.code;
+    row[8] = source.code;
     return row;
   }
 
 
   /// Sets fields to null if they are not used.
   void checkLogicAndResetUnusedFields() {
-    // Only baseline viral load data can have discrepancy, because follow up
-    // viral loads only come from the VL database so there's nothing to compare
-    // them to, thus there can't be any discrepancy.
-    //
     // Only viral load data from the VL database can have discrepancy,
     // because the baseline result is always entered manually first so there's
     // never a discrepancy for manually entered baseline viral loads.
-    if (!this.isBaseline || this.source != ViralLoadSource.DATABASE()) {
+    if (this.source != ViralLoadSource.DATABASE()) {
       this.discrepancy = null;
     }
   }

@@ -56,9 +56,7 @@ class Patient implements IExcelExportable {
   // access to the latest PreferenceAssessment/ARTRefill.
   // Will be null until the [initializePreferenceAssessmentField]/
   // [initializeARTRefillField] method was called.
-  ViralLoad viralLoadBaselineManual;
-  ViralLoad viralLoadBaselineDatabase;
-  List<ViralLoad> viralLoadFollowUps = [];
+  List<ViralLoad> viralLoads = [];
   PreferenceAssessment latestPreferenceAssessment;
   ARTRefill latestARTRefill; // stores the latest ART refill (done or not done)
   ARTRefill latestDoneARTRefill; // stores the latest ART refill that was done
@@ -182,12 +180,9 @@ class Patient implements IExcelExportable {
     return row;
   }
 
-  /// Initializes the fields [viralLoadBaselineManual], [viralLoadBaselineDatabase], and
-  /// [viralLoadFollowUps] with the latest data from the database.
-  Future<void> initializeViralLoadFields() async {
-    this.viralLoadFollowUps = await DatabaseProvider().retrieveViralLoadFollowUpsForPatient(artNumber);
-    this.viralLoadBaselineManual = await DatabaseProvider().retrieveViralLoadBaselineManualForPatient(artNumber);
-    this.viralLoadBaselineDatabase = await DatabaseProvider().retrieveViralLoadBaselineDatabaseForPatient(artNumber);
+  /// Initializes the field [viralLoads] with the latest data from the database.
+  Future<void> initializeViralLoadsField() async {
+    this.viralLoads = await DatabaseProvider().retrieveViralLoadsForPatient(artNumber);
   }
 
   /// Initializes the field [latestPreferenceAssessment] with the latest data from the database.
@@ -208,7 +203,7 @@ class Patient implements IExcelExportable {
   /// Initializes the field [requiredActions] with the latest data from the database.
   ///
   /// Before calling this, [initializeARTRefillField],
-  /// [initializePreferenceAssessmentField], [initializeViralLoadFields] should
+  /// [initializePreferenceAssessmentField], [initializeViralLoadsField] should
   /// be called, otherwise actions are required because the fields are not
   /// initialized (null).
   Future<void> initializeRequiredActionsField() async {
@@ -235,20 +230,10 @@ class Patient implements IExcelExportable {
   ///
   /// Might return null if no viral loads are available for this patient or the
   /// viral load fields have not been initialized by calling
-  /// [initializeViralLoadFields].
+  /// [initializeViralLoadsField].
   ViralLoad get mostRecentViralLoad {
     ViralLoad mostRecent;
-    if (this.viralLoadBaselineManual != null) {
-      if (mostRecent == null || !this.viralLoadBaselineManual.dateOfBloodDraw.isBefore(mostRecent.dateOfBloodDraw)) {
-        mostRecent = this.viralLoadBaselineManual;
-      }
-    }
-    if (this.viralLoadBaselineDatabase != null) {
-      if (mostRecent == null || !this.viralLoadBaselineDatabase.dateOfBloodDraw.isBefore(mostRecent.dateOfBloodDraw)) {
-        mostRecent = this.viralLoadBaselineDatabase;
-      }
-    }
-    for (ViralLoad vl in viralLoadFollowUps) {
+    for (ViralLoad vl in viralLoads) {
       if (mostRecent == null || !vl.dateOfBloodDraw.isBefore(mostRecent.dateOfBloodDraw)) {
         mostRecent = vl;
       }

@@ -268,18 +268,6 @@ class _PatientScreenState extends State<PatientScreen> {
 
   _buildViralLoadHistoryCard() {
 
-    if (_patient.mostRecentViralLoad == null) {
-      return _buildCard(
-        title: 'Viral Load History',
-        child: Center(
-          child: Text(
-            "No viral load data available for this patient. Fetch data from the viral load database or add a new entry manually.",
-            style: TextStyle(color: NO_DATA_TEXT),
-          ),
-        ),
-      );
-    }
-
     Widget _buildViralLoadHeader() {
       Widget content = Row(
         children: <Widget>[
@@ -335,54 +323,28 @@ class _PatientScreenState extends State<PatientScreen> {
       return _buildRowWithWidget(description, content);
     }
 
-    final vlFollowUps = _patient.viralLoadFollowUps.map((ViralLoad vl) {
-      return _buildViralLoadRow(vl);
-    }).toList();
+    Widget content;
 
-    Widget _baselineVLRows() {
-      Widget content;
-      if (_patient.viralLoadBaselineManual == null && _patient.viralLoadBaselineDatabase == null) {
-        content = Text('No Baseline Viral Load data available', style: TextStyle(color: NO_DATA_TEXT),);
-      } else {
-        content = Column(children: <Widget>[
-          _buildViralLoadHeader(),
-          _buildViralLoadRow(_patient.viralLoadBaselineManual),
-          _buildViralLoadRow(_patient.viralLoadBaselineDatabase),
-        ]);
-      }
-      return Column(children: <Widget>[
-        _buildSubtitle('Baseline Viral Load'),
-        Divider(),
-        content,
-      ]);
-    }
-
-    Widget _followUpVLRows() {
-      Widget content;
-      if (vlFollowUps.length == 0) {
-        content = Text('No Follow Up Viral Load data available', style: TextStyle(color: NO_DATA_TEXT),);
-      } else {
-        content = Column(children: <Widget>[
-          _buildViralLoadHeader(),
-          ...vlFollowUps,
-        ]);
-      }
-      return Column(children: <Widget>[
-        _buildSubtitle('Follow Up Viral Loads'),
-        Divider(),
-        content,
+    if (_patient.viralLoads.length == 0) {
+      content = Center(
+        child: Text(
+          "No viral load data available for this patient. Fetch data from the viral load database or add a new entry manually.",
+          style: TextStyle(color: NO_DATA_TEXT),
+        ),
+      );
+    } else {
+      final viralLoads = _patient.viralLoads.map((ViralLoad vl) {
+        return _buildViralLoadRow(vl);
+      }).toList();
+      content = Column(children: <Widget>[
+        _buildViralLoadHeader(),
+        ...viralLoads,
       ]);
     }
 
     return _buildCard(
       title: 'Viral Load History',
-      child: Column(
-        children: [
-          _baselineVLRows(),
-          SizedBox(height: 20.0),
-          _followUpVLRows(),
-        ],
-      ),
+      child: content,
     );
 
   }

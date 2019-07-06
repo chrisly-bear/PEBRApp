@@ -58,7 +58,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
 
   // constructor
   _AddViralLoadFormState(this._patient) {
-    _viralLoad = ViralLoad(patientART: _patient.artNumber, source: ViralLoadSource.MANUAL_INPUT(), isBaseline: false);
+    _viralLoad = ViralLoad(patientART: _patient.artNumber, source: ViralLoadSource.MANUAL_INPUT());
   }
 
   @override
@@ -260,7 +260,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
       _viralLoad.labNumber = _viralLoadLabNumberCtr.text == '' ? null : _viralLoadLabNumberCtr.text;
       _viralLoad.checkLogicAndResetUnusedFields();
       await DatabaseProvider().insertViralLoad(_viralLoad);
-      _patient.viralLoadFollowUps.add(_viralLoad);
+      _patient.viralLoads.add(_viralLoad);
       
       // we will also have to sink a PatientData event in case the patient's isActivated state changes
       Navigator.of(context).popUntil((Route<dynamic> route) {

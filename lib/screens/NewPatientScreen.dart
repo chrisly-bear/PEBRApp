@@ -60,7 +60,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   bool get _eligible => _newPatient.yearOfBirth != null && _newPatient.yearOfBirth >= minYearForEligibility && _newPatient.yearOfBirth <= maxYearForEligibility;
 
   Patient _newPatient = Patient(isActivated: true);
-  ViralLoad _viralLoadBaseline = ViralLoad(source: ViralLoadSource.MANUAL_INPUT(), isBaseline: true);
+  ViralLoad _viralLoadBaseline = ViralLoad(source: ViralLoadSource.MANUAL_INPUT());
   bool _isLowerThanDetectable;
 
   TextEditingController _artNumberCtr = TextEditingController();
@@ -763,7 +763,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
         _viralLoadBaseline.labNumber = _viralLoadBaselineLabNumberCtr.text == '' ? null : _viralLoadBaselineLabNumberCtr.text;
         _viralLoadBaseline.checkLogicAndResetUnusedFields();
         await DatabaseProvider().insertViralLoad(_viralLoadBaseline);
-        _newPatient.viralLoadBaselineManual = _viralLoadBaseline;
+        _newPatient.viralLoads = [_viralLoadBaseline];
       }
 
       await _newPatient.initializeRequiredActionsField();

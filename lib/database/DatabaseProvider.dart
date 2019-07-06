@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:pebrapp/config/SwitchConfig.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/beans/RefillType.dart';
-import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/Patient.dart';
@@ -21,7 +20,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 43;
+  static const int _DB_VERSION = 44;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -158,7 +157,6 @@ class DatabaseProvider {
           ${ViralLoad.colPatientART} TEXT NOT NULL,
           ${ViralLoad.colCreatedDate} TEXT NOT NULL,
           ${ViralLoad.colViralLoadSource} INTEGER NOT NULL,
-          ${ViralLoad.colViralLoadIsBaseline} BIT NOT NULL,
           ${ViralLoad.colDateOfBloodDraw} TEXT NOT NULL,
           ${ViralLoad.colViralLoad} INTEGER NOT NULL,
           ${ViralLoad.colLabNumber} TEXT,
@@ -472,11 +470,11 @@ class DatabaseProvider {
       await db.execute("DROP TABLE IF EXISTS PreferenceAssessment;");
       await _onCreate(db, 41);
     }
-    if (oldVersion < 43 && _DB_VERSION >= 43) {
-      print('Upgrading to database version 43...');
+    if (oldVersion < 44 && _DB_VERSION >= 44) {
+      print('Upgrading to database version 44...');
       print('UPGRADE NOT IMPLEMENTED, VIRAL LOAD DATA WILL BE RESET!');
       await db.execute("DROP TABLE IF EXISTS ViralLoad;");
-      await _onCreate(db, 43);
+      await _onCreate(db, 44);
     }
   }
 
@@ -651,7 +649,7 @@ class DatabaseProvider {
     if (res.isNotEmpty) {
       for (Map<String, dynamic> map in res) {
         Patient p = Patient.fromMap(map);
-        await p.initializeViralLoadFields();
+        await p.initializeViralLoadsField();
         await p.initializePreferenceAssessmentField();
         await p.initializeARTRefillField();
         await p.initializeRequiredActionsField();
@@ -709,11 +707,11 @@ class DatabaseProvider {
     }
   }
 
-  Future<List<ViralLoad>> retrieveViralLoadFollowUpsForPatient(String patientART) async {
+  Future<List<ViralLoad>> retrieveViralLoadsForPatient(String patientART) async {
     final Database db = await _databaseInstance;
     final List<Map> res = await db.query(
         ViralLoad.tableName,
-        where: '${ViralLoad.colPatientART} = ? AND ${ViralLoad.colViralLoadIsBaseline} = 0',
+        where: '${ViralLoad.colPatientART} = ?',
         whereArgs: [patientART],
         orderBy: '${ViralLoad.colDateOfBloodDraw}, ${ViralLoad.colCreatedDate}',
     );
@@ -721,34 +719,6 @@ class DatabaseProvider {
       return res.map((Map<dynamic, dynamic> map) => ViralLoad.fromMap(map)).toList();
     }
     return [];
-  }
-
-  Future<ViralLoad> retrieveViralLoadBaselineManualForPatient(String patientART) async {
-    final Database db = await _databaseInstance;
-    final List<Map> res = await db.query(
-      ViralLoad.tableName,
-      where: '${ViralLoad.colPatientART} = ? AND ${ViralLoad.colViralLoadIsBaseline} = 1 AND ${ViralLoad.colViralLoadSource} = ?',
-      whereArgs: [patientART, ViralLoadSource.MANUAL_INPUT().code],
-    );
-    assert (res.length < 2); // there should only be one baseline result per patient
-    if (res.length > 0) {
-      return res.map((Map<dynamic, dynamic> map) => ViralLoad.fromMap(map)).toList().first;
-    }
-    return null;
-  }
-
-  Future<ViralLoad> retrieveViralLoadBaselineDatabaseForPatient(String patientART) async {
-    final Database db = await _databaseInstance;
-    final List<Map> res = await db.query(
-      ViralLoad.tableName,
-      where: '${ViralLoad.colPatientART} = ? AND ${ViralLoad.colViralLoadIsBaseline} = 1 AND ${ViralLoad.colViralLoadSource} = ?',
-      whereArgs: [patientART, ViralLoadSource.DATABASE().code],
-    );
-    assert (res.length < 2); // there should only be one baseline result per patient
-    if (res.length > 0) {
-      return res.map((Map<dynamic, dynamic> map) => ViralLoad.fromMap(map)).toList().first;
-    }
-    return null;
   }
 
   Future<PreferenceAssessment> retrieveLatestPreferenceAssessmentForPatient(String patientART) async {
