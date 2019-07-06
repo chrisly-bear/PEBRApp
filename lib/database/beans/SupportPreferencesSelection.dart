@@ -23,8 +23,6 @@ class SupportPreferencesSelection {
     _SupportPreference.YOUNG_MOTHERS_GROUP: 11,
     _SupportPreference.FEMALE_WORTH_GROUP: 12,
     _SupportPreference.LEGAL_AID_INFO: 13,
-    _SupportPreference.TUNE_ME_ORG: 14,
-    _SupportPreference.NTLAFATSO_FOUNDATION: 15,
   };
 
   // These are the descriptions that will be displayed in the UI.
@@ -41,8 +39,6 @@ class SupportPreferencesSelection {
   static String get YOUNG_MOTHERS_GROUP_DESCRIPTION => "Linkage to young mothers group (DREAMS or Mothers-to-Mothers)";
   static String get FEMALE_WORTH_GROUP_DESCRIPTION => "Linkage to a female WORTH group (Social Asset Building Model)";
   static String get LEGAL_AID_INFO_DESCRIPTION => "Legal aid information";
-  static String get TUNE_ME_ORG_DESCRIPTION => "Show me tuneme.org (teenage topics)";
-  static String get NTLAFATSO_FOUNDATION_DESCRIPTION => "Show me Ntlafatso Foundation Facebook (HIV stigma/discrimination topics)";
   static String get NONE_DESCRIPTION => "No support wished";
 
   Set<_SupportPreference> _selection = Set();
@@ -169,18 +165,6 @@ class SupportPreferencesSelection {
         : _selection.remove(_SupportPreference.LEGAL_AID_INFO);
   }
 
-  set TUNE_ME_ORG_selected(bool selected) {
-    selected
-        ? _selection.add(_SupportPreference.TUNE_ME_ORG)
-        : _selection.remove(_SupportPreference.TUNE_ME_ORG);
-  }
-
-  set NTLAFATSO_FOUNDATION_selected(bool selected) {
-    selected
-        ? _selection.add(_SupportPreference.NTLAFATSO_FOUNDATION)
-        : _selection.remove(_SupportPreference.NTLAFATSO_FOUNDATION);
-  }
-
 
   bool get NURSE_CLINIC_selected => _selection.contains(_SupportPreference.NURSE_CLINIC);
 
@@ -208,10 +192,6 @@ class SupportPreferencesSelection {
 
   bool get LEGAL_AID_INFO_selected => _selection.contains(_SupportPreference.LEGAL_AID_INFO);
 
-  bool get TUNE_ME_ORG_selected => _selection.contains(_SupportPreference.TUNE_ME_ORG);
-
-  bool get NTLAFATSO_FOUNDATION_selected => _selection.contains(_SupportPreference.NTLAFATSO_FOUNDATION);
-
 }
 
 enum _SupportPreference {
@@ -228,6 +208,4 @@ enum _SupportPreference {
   YOUNG_MOTHERS_GROUP,
   FEMALE_WORTH_GROUP,
   LEGAL_AID_INFO,
-  TUNE_ME_ORG,
-  NTLAFATSO_FOUNDATION,
 }

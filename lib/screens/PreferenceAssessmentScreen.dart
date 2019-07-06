@@ -1153,40 +1153,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             })),
       ),
       _legalAidFollowUpQuestions(),
-      _makeQuestionCustom(
-          question: Container(
-              alignment: Alignment.centerRight,
-              child: FlatButton.icon(
-                icon: Icon(Icons.public, size: 18.0),
-                onPressed: () { launchURL('http://ls.tuneme.org/'); },
-                label: Text('Open tuneme.org'),
-              )),
-          answer: CheckboxListTile(
-//              secondary: Container(width: 0.0),
-              title: Text(SupportPreferencesSelection.TUNE_ME_ORG_DESCRIPTION),
-              value: _pa.supportPreferences.TUNE_ME_ORG_selected,
-              onChanged: (bool newValue) => this.setState(() {
-                _pa.supportPreferences.TUNE_ME_ORG_selected = newValue;
-              }))
-      ),
-      _tuneMeFollowUpQuestions(),
-      _makeQuestionCustom(
-        question: Container(
-            alignment: Alignment.centerRight,
-            child: FlatButton.icon(
-              icon: Icon(Icons.public, size: 18.0),
-              onPressed: () { launchURL('https://www.facebook.com/antiStigma123/'); },
-              label: Text('Open Ntlafatso Foundation'),
-            )),
-        answer: CheckboxListTile(
-//            secondary: Container(width: 0.0),
-            title: Text(SupportPreferencesSelection.NTLAFATSO_FOUNDATION_DESCRIPTION),
-            value: _pa.supportPreferences.NTLAFATSO_FOUNDATION_selected,
-            onChanged: (bool newValue) => this.setState(() {
-              _pa.supportPreferences.NTLAFATSO_FOUNDATION_selected = newValue;
-            })),
-      ),
-      _ntlafatsoFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
             secondary: _getPaddedIcon('assets/icons/no_support.png'),
@@ -1816,82 +1782,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     );
   }
 
-  Widget _tuneMeFollowUpQuestions() {
-    if (!_pa.supportPreferences.TUNE_ME_ORG_selected) {
-      return Container();
-    }
-    return _makeQuestion(
-      'Does the participant have a functioning smartphone?',
-      answer: DropdownButtonFormField<bool>(
-        value: _pa.tuneMeSmartphoneAvailable,
-        onChanged: (bool newValue) {
-          setState(() {
-            _pa.tuneMeSmartphoneAvailable = newValue;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return 'Please answer this question';
-          }
-        },
-        items:
-        <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
-          String description;
-          switch (value) {
-            case true:
-              description = 'Yes';
-              break;
-            case false:
-              description = 'No';
-              break;
-          }
-          return DropdownMenuItem<bool>(
-            value: value,
-            child: Text(description),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _ntlafatsoFollowUpQuestions() {
-    if (!_pa.supportPreferences.NTLAFATSO_FOUNDATION_selected) {
-      return Container();
-    }
-    return _makeQuestion(
-      'Does the participant have a functioning smartphone?',
-      answer: DropdownButtonFormField<bool>(
-        value: _pa.ntlafatsoSmartphoneAvailable,
-        onChanged: (bool newValue) {
-          setState(() {
-            _pa.ntlafatsoSmartphoneAvailable = newValue;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return 'Please answer this question';
-          }
-        },
-        items:
-        <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
-          String description;
-          switch (value) {
-            case true:
-              description = 'Yes';
-              break;
-            case false:
-              description = 'No';
-              break;
-          }
-          return DropdownMenuItem<bool>(
-            value: value,
-            child: Text(description),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
   _buildPsychosocialCard() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2243,12 +2133,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       }
       if (!_pa.supportPreferences.LEGAL_AID_INFO_selected) {
         _pa.legalAidSmartphoneAvailable = null;
-      }
-      if (!_pa.supportPreferences.TUNE_ME_ORG_selected) {
-        _pa.tuneMeSmartphoneAvailable = null;
-      }
-      if (!_pa.supportPreferences.NTLAFATSO_FOUNDATION_selected) {
-        _pa.ntlafatsoSmartphoneAvailable = null;
       }
       if (_pa.psychosocialShareSomethingAnswer == YesNoRefused.YES()) {
         _pa.psychosocialShareSomethingContent = _psychoSocialShareCtr.text;

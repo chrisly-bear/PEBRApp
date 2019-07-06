@@ -70,8 +70,6 @@ class PreferenceAssessment implements IExcelExportable {
   static final colYoungMothersAvailable = 'young_mothers_available'; // nullable
   static final colFemaleWorthAvailable = 'female_worth_available'; // nullable
   static final colLegalAidSmartphoneAvailable = 'legal_aid_smartphone_available'; // nullable
-  static final colTuneMeSmartphoneAvailable = 'tuneme_smartphone_available'; // nullable
-  static final colNtlafatsoSmartphoneAvailable = 'ntlafatso_smartphone_available'; // nullable
   static final colPsychosocialShareSomethingAnswer = 'psychosocial_share_something';
   static final colPsychosocialShareSomethingContent = 'psychosocial_share_something_content'; // nullable
   static final colPsychosocialHowDoing = 'psychosocial_how_doing'; // nullable
@@ -126,8 +124,6 @@ class PreferenceAssessment implements IExcelExportable {
   bool youngMothersAvailable;
   bool femaleWorthAvailable;
   bool legalAidSmartphoneAvailable;
-  bool tuneMeSmartphoneAvailable;
-  bool ntlafatsoSmartphoneAvailable;
   YesNoRefused psychosocialShareSomethingAnswer;
   String psychosocialShareSomethingContent;
   String psychosocialHowDoing;
@@ -188,8 +184,6 @@ class PreferenceAssessment implements IExcelExportable {
         this.youngMothersAvailable,
         this.femaleWorthAvailable,
         this.legalAidSmartphoneAvailable,
-        this.tuneMeSmartphoneAvailable,
-        this.ntlafatsoSmartphoneAvailable,
         this.psychosocialShareSomethingContent,
         this.psychosocialHowDoing,
         this.unsuppressedSafeEnvironmentAnswer,
@@ -253,8 +247,6 @@ class PreferenceAssessment implements IExcelExportable {
     this.youngMothersAvailable = map[colYoungMothersAvailable] == null ? null : map[colYoungMothersAvailable] == 1;
     this.femaleWorthAvailable = map[colFemaleWorthAvailable] == null ? null : map[colFemaleWorthAvailable] == 1;
     this.legalAidSmartphoneAvailable = map[colLegalAidSmartphoneAvailable] == null ? null : map[colLegalAidSmartphoneAvailable] == 1;
-    this.tuneMeSmartphoneAvailable = map[colTuneMeSmartphoneAvailable] == null ? null : map[colTuneMeSmartphoneAvailable] == 1;
-    this.ntlafatsoSmartphoneAvailable = map[colNtlafatsoSmartphoneAvailable] == null ? null : map[colNtlafatsoSmartphoneAvailable] == 1;
     this.psychosocialShareSomethingAnswer = YesNoRefused.fromCode(map[colPsychosocialShareSomethingAnswer]);
     this.psychosocialShareSomethingContent = map[colPsychosocialShareSomethingContent];
     this.psychosocialHowDoing = map[colPsychosocialHowDoing];
@@ -316,8 +308,6 @@ class PreferenceAssessment implements IExcelExportable {
     map[colYoungMothersAvailable] = youngMothersAvailable;
     map[colFemaleWorthAvailable] = femaleWorthAvailable;
     map[colLegalAidSmartphoneAvailable] = legalAidSmartphoneAvailable;
-    map[colTuneMeSmartphoneAvailable] = tuneMeSmartphoneAvailable;
-    map[colNtlafatsoSmartphoneAvailable] = ntlafatsoSmartphoneAvailable;
     map[colPsychosocialShareSomethingAnswer] = psychosocialShareSomethingAnswer.code;
     map[colPsychosocialShareSomethingContent] = psychosocialShareSomethingContent;
     map[colPsychosocialHowDoing] = psychosocialHowDoing;
@@ -326,7 +316,7 @@ class PreferenceAssessment implements IExcelExportable {
     return map;
   }
 
-  static const int _numberOfColumns = 56;
+  static const int _numberOfColumns = 54;
 
   /// Column names for the header row in the excel sheet.
   // If we change the order here, make sure to change the order in the
@@ -382,13 +372,11 @@ class PreferenceAssessment implements IExcelExportable {
     row[46] = 'SUPPORT_YM';
     row[47] = 'SUPPORT_W';
     row[48] = 'SUPPORT_LA';
-    row[49] = 'SUPPORT_TM';
-    row[50] = 'SUPPORT_NF';
-    row[51] = 'PSYCH_SHARE';
-    row[52] = 'PSYCH_SHARE_NOTE';
-    row[53] = 'PSYCH_DOING_NOTE';
-    row[54] = 'UVL_ENV';
-    row[55] = 'UVL_ENV_NOTE';
+    row[49] = 'PSYCH_SHARE';
+    row[50] = 'PSYCH_SHARE_NOTE';
+    row[51] = 'PSYCH_DOING_NOTE';
+    row[52] = 'UVL_ENV';
+    row[53] = 'UVL_ENV_NOTE';
     return row;
   }
 
@@ -447,13 +435,11 @@ class PreferenceAssessment implements IExcelExportable {
     row[46] = youngMothersAvailable;
     row[47] = femaleWorthAvailable;
     row[48] = legalAidSmartphoneAvailable;
-    row[49] = tuneMeSmartphoneAvailable;
-    row[50] = ntlafatsoSmartphoneAvailable;
-    row[51] = psychosocialShareSomethingAnswer.code;
-    row[52] = psychosocialShareSomethingContent;
-    row[53] = psychosocialHowDoing;
-    row[54] = unsuppressedSafeEnvironmentAnswer?.code;
-    row[55] = unsuppressedWhyNotSafe;
+    row[49] = psychosocialShareSomethingAnswer.code;
+    row[50] = psychosocialShareSomethingContent;
+    row[51] = psychosocialHowDoing;
+    row[52] = unsuppressedSafeEnvironmentAnswer?.code;
+    row[53] = unsuppressedWhyNotSafe;
     return row;
   }
 
