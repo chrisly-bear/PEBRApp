@@ -1939,9 +1939,11 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         _pa.artRefillTreatmentBuddyPhoneNumber = '+266-${_treatmentBuddyPhoneNumberCtr.text}';
       }
       if (_patient.phoneAvailability == PhoneAvailability.YES()) {
-        if (_patientPhoneNumberBeforeAssessment != '+266-${_patientPhoneNumberCtr.text}') {
-          _patient.phoneNumber = '+266-${_patientPhoneNumberCtr.text}';
+        final String newPatientPhoneNumber = '+266-${_patientPhoneNumberCtr.text}';
+        if (_patientPhoneNumberBeforeAssessment != newPatientPhoneNumber) {
+          _patient.phoneNumber = newPatientPhoneNumber;
           _patientUpdated = true;
+          uploadPatientPhoneNumber(_patient, newPatientPhoneNumber);
         }
         if (!_pa.adherenceReminderEnabled) {
           _pa.adherenceReminderTime = null;
@@ -1949,7 +1951,12 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       }
       if (_patient.phoneAvailability != PhoneAvailability.YES()) {
         // reset all phone related fields
-        _patient.phoneNumber = null;
+        final String newPatientPhoneNumber = null;
+        if (_patientPhoneNumberBeforeAssessment != newPatientPhoneNumber) {
+          _patient.phoneNumber = newPatientPhoneNumber;
+          _patientUpdated = true;
+          uploadPatientPhoneNumber(_patient, newPatientPhoneNumber);
+        }
         _pa.adherenceReminderEnabled = null;
         _pa.adherenceReminderFrequency = null;
         _pa.adherenceReminderMessage = null;

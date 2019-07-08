@@ -9,6 +9,7 @@ import 'package:pebrapp/database/beans/SexualOrientation.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/utils/InputFormatters.dart';
 import 'package:pebrapp/utils/Utils.dart';
+import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
 // TODO: implement this screen. Think about what fields have to be changeable for a patient.
 class EditPatientScreen extends StatelessWidget {
@@ -48,14 +49,15 @@ class _EditPatientFormState extends State<_EditPatientForm> {
   final _questionsFlex = 1;
   final _answersFlex = 1;
   double _screenWidth = double.infinity;
+  String _existingPhoneNumber;
 
   final Patient _existingPatient;
   TextEditingController _villageCtr = TextEditingController();
   TextEditingController _phoneNumberCtr = TextEditingController();
 
   _EditPatientFormState(this._existingPatient) {
-    _villageCtr.text = _existingPatient?.village;
-    final String _existingPhoneNumber = _existingPatient?.phoneNumber;
+    _villageCtr.text = _existingPatient.village;
+    _existingPhoneNumber = _existingPatient.phoneNumber;
     if (_existingPhoneNumber != null) {
       _phoneNumberCtr.text = _existingPhoneNumber.substring(5);
     }
@@ -224,10 +226,18 @@ class _EditPatientFormState extends State<_EditPatientForm> {
     // Validate will return true if the form is valid, or false if the form is invalid.
     if (_formKey.currentState.validate()) {
       // TODO: check that all fields are updated
-      if (_existingPatient.phoneAvailability != null && _existingPatient.phoneAvailability == PhoneAvailability.YES()) {
-        _existingPatient.phoneNumber = '+266-${_phoneNumberCtr.text}';
+      if (_existingPatient.phoneAvailability == PhoneAvailability.YES()) {
+        final String newPatientPhoneNumber = '+266-${_phoneNumberCtr.text}';
+        if (_existingPhoneNumber != newPatientPhoneNumber) {
+          _existingPatient.phoneNumber = newPatientPhoneNumber;
+          uploadPatientPhoneNumber(_existingPatient, newPatientPhoneNumber);
+        }
       } else {
-        _existingPatient.phoneNumber = null;
+        final String newPatientPhoneNumber = null;
+        if (_existingPhoneNumber != newPatientPhoneNumber) {
+          _existingPatient.phoneNumber = newPatientPhoneNumber;
+          uploadPatientPhoneNumber(_existingPatient, newPatientPhoneNumber);
+        }
       }
       _existingPatient.village = _villageCtr.text;
       await DatabaseProvider().insertPatient(_existingPatient);
