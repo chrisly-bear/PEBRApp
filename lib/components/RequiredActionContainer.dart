@@ -151,6 +151,22 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
           ),
         );
         break;
+      case RequiredActionType.PATIENT_PHONE_UPLOAD_REQUIRED:
+        actionText = "The automatic synchronization of the patient's phone number with the database failed. Please synchronize manually.";
+        actionButton = FlatButton(
+          onPressed: () async {
+            await uploadPatientPhoneNumber(widget.patient, widget.patient.phoneNumber);
+          },
+          splashColor: NOTIFICATION_INFO_SPLASH,
+          child: Text(
+            "SYNCHRONIZE",
+            style: TextStyle(
+              color: NOTIFICATION_INFO_TEXT,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        );
+        break;
     }
 
     final double badgeSize = 30.0;
