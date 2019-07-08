@@ -631,9 +631,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
         } else if (curPatient.mostRecentViralLoad?.isSuppressed != null && !curPatient.mostRecentViralLoad.isSuppressed) {
           viralLoadIcon = _getPaddedIcon('assets/icons/viralload_unsuppressed.png', color: iconColor);
           viralLoadBadge = ViralLoadBadge(curPatient.mostRecentViralLoad, smallSize: true); // TODO: show greyed out version if isActivated is false
-        } else if (curPatient.mostRecentViralLoad != null && curPatient.mostRecentViralLoad.isLowerThanDetectable) {
-          viralLoadIcon = ViralLoadBadge(curPatient.mostRecentViralLoad, smallSize: true); // TODO: show greyed out version if isActivated is false
-          viralLoadBadge = ViralLoadBadge(curPatient.mostRecentViralLoad, smallSize: true); // TODO: show greyed out version if isActivated is false
         }
         return viralLoadIcon;
 //        return viralLoadBadge;

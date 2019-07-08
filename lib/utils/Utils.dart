@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:pebrapp/config/SharedPreferencesConfig.dart';
 import 'package:intl/intl.dart';
+import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
+import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/main.dart';
 import 'package:pebrapp/screens/LockScreen.dart';
 import 'package:pebrapp/utils/AppColors.dart';
@@ -372,4 +374,37 @@ Future<bool> verifyHashAsync(String string, String hash) async {
 /// compute function.
 bool _verifyHashOneArg(Map<String, String> stringAndHash) {
   return Password.verify(stringAndHash['string'], stringAndHash['hash']);
+}
+
+/// Sorts a list of viral loads [viralLoads] according to the following rules:
+///
+/// 1. older createdDate comes before newer createdDate
+///
+/// 2. older dateOfBloodDraw comes before newer dateOfBloodDraw
+///
+/// 3. source manual comes before any other sources
+///
+/// 4. labNumber alphabetically ordered
+void sortViralLoads(List<ViralLoad> viralLoads) {
+  viralLoads.sort((ViralLoad a, ViralLoad b) {
+    if (a.createdDate.isBefore(b.createdDate)) {
+      return -1;
+    }
+    if (b.createdDate.isBefore(a.createdDate)) {
+      return 1;
+    }
+    if (a.dateOfBloodDraw.isBefore(b.dateOfBloodDraw)) {
+      return -1;
+    }
+    if (b.dateOfBloodDraw.isBefore(a.dateOfBloodDraw)) {
+      return 1;
+    }
+    if (a.source == ViralLoadSource.MANUAL_INPUT() && b.source != ViralLoadSource.MANUAL_INPUT()) {
+      return -1;
+    }
+    if (a.source != ViralLoadSource.MANUAL_INPUT() && b.source == ViralLoadSource.MANUAL_INPUT()) {
+      return 1;
+    }
+    return a.labNumber.compareTo(b.labNumber);
+  });
 }

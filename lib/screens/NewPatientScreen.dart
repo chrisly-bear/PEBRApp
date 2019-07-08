@@ -60,7 +60,8 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   bool get _eligible => _newPatient.yearOfBirth != null && _newPatient.yearOfBirth >= minYearForEligibility && _newPatient.yearOfBirth <= maxYearForEligibility;
 
   Patient _newPatient = Patient(isActivated: true);
-  ViralLoad _viralLoadBaseline = ViralLoad(source: ViralLoadSource.MANUAL_INPUT(), isBaseline: true);
+  ViralLoad _viralLoadBaseline = ViralLoad(source: ViralLoadSource.MANUAL_INPUT());
+  bool _isLowerThanDetectable;
 
   TextEditingController _artNumberCtr = TextEditingController();
   TextEditingController _stickerNumberCtr = TextEditingController();
@@ -290,13 +291,18 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
       return Container();
     }
+    const double _spaceBetweenQuestions = 5.0;
     return _buildCard('Viral Load Baseline',
       child: Column(
         children: [
           _viralLoadBaselineAvailableQuestion(),
+          SizedBox(height: _spaceBetweenQuestions),
           _viralLoadBaselineDateQuestion(),
+          SizedBox(height: _spaceBetweenQuestions),
           _viralLoadBaselineLowerThanDetectableQuestion(),
+          SizedBox(height: _spaceBetweenQuestions),
           _viralLoadBaselineResultQuestion(),
+          SizedBox(height: _spaceBetweenQuestions),
           _viralLoadBaselineLabNumberQuestion(),
         ],
       ),
@@ -589,7 +595,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     if (_newPatient.isVLBaselineAvailable == null || !_newPatient.isVLBaselineAvailable) {
       return Container();
     }
-    return _makeQuestion('Date of most recent viral load (put the date when blood was taken)',
+    return _makeQuestion('Date of the most recent available viral load (put the date when blood was taken)',
       answer: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -608,7 +614,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
             ),
             onPressed: () async {
               final now = DateTime.now();
-              DateTime date = await _showDatePicker(context, 'Viral Load Baseline Date', initialDate: _viralLoadBaseline.dateOfBloodDraw ?? DateTime(now.year, now.month, now.day));
+              DateTime date = await _showDatePicker(context, initialDate: _viralLoadBaseline.dateOfBloodDraw ?? DateTime(now.year, now.month, now.day));
               if (date != null) {
                 setState(() {
                   _viralLoadBaseline.dateOfBloodDraw = date;
@@ -636,12 +642,12 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     if (_newPatient.isVLBaselineAvailable == null || !_newPatient.isVLBaselineAvailable) {
       return Container();
     }
-    return _makeQuestion('Was the viral load baseline result lower than detectable limit (<20 copies/mL)?',
+    return _makeQuestion('Was that viral load result lower than detectable limit (<20 copies/mL)?',
       answer: DropdownButtonFormField<bool>(
-        value: _viralLoadBaseline.isLowerThanDetectable,
+        value: _isLowerThanDetectable,
         onChanged: (bool newValue) {
           setState(() {
-            _viralLoadBaseline.isLowerThanDetectable = newValue;
+            _isLowerThanDetectable = newValue;
           });
         },
         validator: (value) {
@@ -659,20 +665,21 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _viralLoadBaselineResultQuestion() {
-    if (_newPatient.isVLBaselineAvailable == null || !_newPatient.isVLBaselineAvailable || _viralLoadBaseline.isLowerThanDetectable == null || _viralLoadBaseline.isLowerThanDetectable) {
+    if (_newPatient.isVLBaselineAvailable == null || !_newPatient.isVLBaselineAvailable || _isLowerThanDetectable == null || _isLowerThanDetectable) {
       return Container();
     }
-    return _makeQuestion('What was the result of the viral load baseline (in c/mL)',
+    return _makeQuestion('Result of that viral load (in c/mL)',
       answer: TextFormField(
         inputFormatters: [
-          WhitelistingTextInputFormatter(RegExp('[0-9]')),
-//          LengthLimitingTextInputFormatter(5),
+          WhitelistingTextInputFormatter.digitsOnly,
         ],
         keyboardType: TextInputType.numberWithOptions(),
         controller: _viralLoadBaselineResultCtr,
         validator: (value) {
           if (value.isEmpty) {
             return 'Please enter the viral load baseline result';
+          } else if (int.parse(value) < 20) {
+            return 'Value must be ≥ 20 (otherwise it is lower than detectable limit)';
           }
         },
       ),
@@ -683,14 +690,9 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     if (_newPatient.isVLBaselineAvailable == null || !_newPatient.isVLBaselineAvailable) {
       return Container();
     }
-    return _makeQuestion('Lab number of the viral load baseline',
+    return _makeQuestion('Lab number of that viral load',
       answer: TextFormField(
         controller: _viralLoadBaselineLabNumberCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please enter the lab number of the viral load result';
-          }
-        },
       ),
     );
   }
@@ -762,11 +764,11 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
       if (_newPatient.isEligible && _newPatient.consentGiven && _newPatient.isVLBaselineAvailable != null && _newPatient.isVLBaselineAvailable) {
         _viralLoadBaseline.patientART = _artNumberCtr.text;
-        _viralLoadBaseline.viralLoad = _viralLoadBaseline.isLowerThanDetectable ? null : int.parse(_viralLoadBaselineResultCtr.text);
-        _viralLoadBaseline.labNumber = _viralLoadBaselineLabNumberCtr.text;
+        _viralLoadBaseline.viralLoad = _isLowerThanDetectable ? 0 : int.parse(_viralLoadBaselineResultCtr.text);
+        _viralLoadBaseline.labNumber = _viralLoadBaselineLabNumberCtr.text == '' ? null : _viralLoadBaselineLabNumberCtr.text;
         _viralLoadBaseline.checkLogicAndResetUnusedFields();
         await DatabaseProvider().insertViralLoad(_viralLoadBaseline);
-        _newPatient.viralLoadBaselineManual = _viralLoadBaseline;
+        _newPatient.viralLoads = [_viralLoadBaseline];
       }
 
       await _newPatient.initializeRequiredActionsField();
@@ -888,7 +890,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     );
   }
 
-  Future<DateTime> _showDatePicker(BuildContext context, String title, {DateTime initialDate}) async {
+  Future<DateTime> _showDatePicker(BuildContext context, {DateTime initialDate}) async {
     DateTime now = DateTime.now();
     return showDatePicker(
       context: context,

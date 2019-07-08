@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
@@ -6,6 +7,7 @@ import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/RequiredActionContainer.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
+import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
@@ -21,6 +23,7 @@ import 'package:pebrapp/screens/PreferenceAssessmentScreen.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
+import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PatientScreen extends StatefulWidget {
@@ -268,45 +271,38 @@ class _PatientScreenState extends State<PatientScreen> {
 
   _buildViralLoadHistoryCard() {
 
-    if (_patient.mostRecentViralLoad == null) {
-      return _buildCard(
-        title: 'Viral Load History',
-        child: Center(
-          child: Text(
-            "No viral load data available for this patient. Fetch data from the viral load database or add a new entry manually.",
-            style: TextStyle(color: NO_DATA_TEXT),
-          ),
-        ),
-      );
-    }
+    final double _spaceBetweenColumns = 10.0;
+    final double _sourceColumnWidth = 70.0;
 
     Widget _buildViralLoadHeader() {
-      Widget content = Row(
-        children: <Widget>[
-          Expanded(
-            child: Container(
-              alignment: Alignment.centerLeft,
-              child: _formatHeaderRowText('Viral Load'),
-            ),
-          ),
-          SizedBox(width: 10.0),
-          Expanded(child: _formatHeaderRowText('Lab Number')),
-          Expanded(child: _formatHeaderRowText('Source')),
-        ],
-      );
       Widget row = Padding(
         padding: EdgeInsets.symmetric(vertical: 5.0),
         child: Row(
           children: <Widget>[
-            Expanded(flex: _descriptionFlex, child: _formatHeaderRowText('Date')),
-            Expanded(flex: _contentFlex, child: content),
+            Expanded(child: _formatHeaderRowText('Date Created / Fetched')),
+            SizedBox(width: _spaceBetweenColumns),
+            Expanded(child: _formatHeaderRowText('Date of Blood Draw')),
+            SizedBox(width: _spaceBetweenColumns),
+            Expanded(
+              child: Container(
+                alignment: Alignment.centerLeft,
+                child: _formatHeaderRowText('Viral Load'),
+              ),
+            ),
+            SizedBox(width: _spaceBetweenColumns),
+            Expanded(child: _formatHeaderRowText('Lab Number')),
+            SizedBox(width: _spaceBetweenColumns),
+            SizedBox(
+              width: _sourceColumnWidth,
+              child: _formatHeaderRowText('Source'),
+            ),
           ],
         ),
       );
       return row;
     }
 
-    Widget _buildViralLoadRow(vl) {
+    Widget _buildViralLoadRow(vl, {bool bold: false}) {
 
       if (vl?.isSuppressed == null) { return Column(); }
 
@@ -317,72 +313,78 @@ class _PatientScreenState extends State<PatientScreen> {
           : _getPaddedIcon('assets/icons/viralload_unsuppressed.png', width: vlIconSize, height: vlIconSize);
       Widget viralLoadBadge = ViralLoadBadge(vl, smallSize: false);
 
-      Widget content = Row(
-        children: <Widget>[
-          Expanded(
-            child: Container(
-              alignment: Alignment.centerLeft,
-              child: viralLoadIcon,
-//              child: viralLoadBadge,
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5.0),
+        child: Row(
+          children: <Widget>[
+            Expanded(child: Text(formatDateConsistent(vl.createdDate), style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal))),
+            SizedBox(width: _spaceBetweenColumns),
+            Expanded(child: Text(description, style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal))),
+            SizedBox(width: _spaceBetweenColumns),
+            Expanded(
+              child: Row(
+                children:
+                [
+                  viralLoadIcon,
+//              viralLoadBadge,
+                  SizedBox(width: 5.0),
+                  Text(vl.isLowerThanDetectable ? 'LTDL' : '${vl.viralLoad} c/mL', style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
+                ],
+              ),
+            ),
+            SizedBox(width: _spaceBetweenColumns),
+            Expanded(child: Text(vl.labNumber ?? '—', style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal))),
+            SizedBox(width: _spaceBetweenColumns),
+            SizedBox(
+              width: _sourceColumnWidth,
+              child: Text(vl.source == ViralLoadSource.MANUAL_INPUT() ? 'manual' : 'database', style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
+            ),
+          ],
+        ),
+      );
+    }
+
+    Widget content;
+
+    if (_patient.viralLoads.length == 0) {
+      content = Center(
+        child: Text(
+          "No viral load data available for this patient. Fetch data from the viral load database or add a new entry manually.",
+          style: TextStyle(color: NO_DATA_TEXT),
+        ),
+      );
+    } else {
+      final int numOfVLs = _patient.viralLoads.length;
+      final viralLoads = _patient.viralLoads.asMap().map((int i, ViralLoad vl) {
+        return MapEntry(i, _buildViralLoadRow(vl, bold: numOfVLs > 1 && i == numOfVLs - 1));
+      }).values.toList();
+      content = Column(children: <Widget>[
+        _buildViralLoadHeader(),
+        ...viralLoads,
+      ]);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTitle('Viral Load History'),
+        Card(
+          margin: const EdgeInsets.symmetric(horizontal: 15.0),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: 550.0,
+                maxWidth: max(550.0, MediaQuery.of(context).size.width - 2 * 15.0),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+                child: content,
+              ),
             ),
           ),
-          SizedBox(width: 10.0),
-          Expanded(child: Text(vl.labNumber)),
-          Expanded(child: Text(vl.source == ViralLoadSource.MANUAL_INPUT() ? 'manual' : 'database')),
-        ],
-      );
-
-      return _buildRowWithWidget(description, content);
-    }
-
-    final vlFollowUps = _patient.viralLoadFollowUps.map((ViralLoad vl) {
-      return _buildViralLoadRow(vl);
-    }).toList();
-
-    Widget _baselineVLRows() {
-      Widget content;
-      if (_patient.viralLoadBaselineManual == null && _patient.viralLoadBaselineDatabase == null) {
-        content = Text('No Baseline Viral Load data available', style: TextStyle(color: NO_DATA_TEXT),);
-      } else {
-        content = Column(children: <Widget>[
-          _buildViralLoadHeader(),
-          _buildViralLoadRow(_patient.viralLoadBaselineManual),
-          _buildViralLoadRow(_patient.viralLoadBaselineDatabase),
-        ]);
-      }
-      return Column(children: <Widget>[
-        _buildSubtitle('Baseline Viral Load'),
-        Divider(),
-        content,
-      ]);
-    }
-
-    Widget _followUpVLRows() {
-      Widget content;
-      if (vlFollowUps.length == 0) {
-        content = Text('No Follow Up Viral Load data available', style: TextStyle(color: NO_DATA_TEXT),);
-      } else {
-        content = Column(children: <Widget>[
-          _buildViralLoadHeader(),
-          ...vlFollowUps,
-        ]);
-      }
-      return Column(children: <Widget>[
-        _buildSubtitle('Follow Up Viral Loads'),
-        Divider(),
-        content,
-      ]);
-    }
-
-    return _buildCard(
-      title: 'Viral Load History',
-      child: Column(
-        children: [
-          _baselineVLRows(),
-          SizedBox(height: 20.0),
-          _followUpVLRows(),
-        ],
-      ),
+        ),
+      ],
     );
 
   }
@@ -813,22 +815,21 @@ class _PatientScreenState extends State<PatientScreen> {
     });
   }
 
+  // TODO: improve UI interactions (show loading indicator, show message when finished, show error when there's one, e.g. offline-error)
   Future<void> _fetchFromDatabasePressed(BuildContext context, Patient patient) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Not Implemented'),
-          content: Text('This feature is not yet available.'),
-          actions: [
-            FlatButton(
-              child: Text("Dismiss"),
-              onPressed: () { Navigator.of(context).pop(); },
-            ),
-          ],
-        );
-      },
-    );
+    List<ViralLoad> viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient.artNumber);
+    if (viralLoadsFromDB == null) {
+      return;
+    }
+    final DateTime fetchedDate = DateTime.now();
+    for (ViralLoad vl in viralLoadsFromDB) {
+      // TODO: check for discrepancy with baseline viral load (i.e. first manual
+      //  viral load entry for this patient) in each [vl] object, if there is a
+      //  discrepancy, set the [vl.discrepancy] variable to `true` before inser-
+      //  ting into DatabaseProvider
+      await DatabaseProvider().insertViralLoad(vl, createdDate: fetchedDate);
+    }
+    patient.addViralLoads(viralLoadsFromDB);
     // TODO: implement call to viral load database API
     // calling setState to trigger a re-render of the page and display the new
     // viral load history

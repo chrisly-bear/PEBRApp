@@ -1939,9 +1939,11 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         _pa.artRefillTreatmentBuddyPhoneNumber = '+266-${_treatmentBuddyPhoneNumberCtr.text}';
       }
       if (_patient.phoneAvailability == PhoneAvailability.YES()) {
-        if (_patientPhoneNumberBeforeAssessment != '+266-${_patientPhoneNumberCtr.text}') {
-          _patient.phoneNumber = '+266-${_patientPhoneNumberCtr.text}';
+        final String newPatientPhoneNumber = '+266-${_patientPhoneNumberCtr.text}';
+        if (_patientPhoneNumberBeforeAssessment != newPatientPhoneNumber) {
+          _patient.phoneNumber = newPatientPhoneNumber;
           _patientUpdated = true;
+          uploadPatientPhoneNumber(_patient, newPatientPhoneNumber);
         }
         if (!_pa.adherenceReminderEnabled) {
           _pa.adherenceReminderTime = null;
@@ -1949,7 +1951,12 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       }
       if (_patient.phoneAvailability != PhoneAvailability.YES()) {
         // reset all phone related fields
-        _patient.phoneNumber = null;
+        final String newPatientPhoneNumber = null;
+        if (_patientPhoneNumberBeforeAssessment != newPatientPhoneNumber) {
+          _patient.phoneNumber = newPatientPhoneNumber;
+          _patientUpdated = true;
+          uploadPatientPhoneNumber(_patient, newPatientPhoneNumber);
+        }
         _pa.adherenceReminderEnabled = null;
         _pa.adherenceReminderFrequency = null;
         _pa.adherenceReminderMessage = null;
@@ -2038,15 +2045,28 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
       print('NEW PREFERENCE ASSESSMENT (_id will be given by SQLite database):\n$_pa');
       await DatabaseProvider().insertPreferenceAssessment(_pa);
+
+      final String newPEPhoneNumber = '+266-${_pePhoneNumberCtr.text}';
+      if (newPEPhoneNumber != _user.phoneNumber) {
+        _user.phoneNumber = newPEPhoneNumber;
+        _user.phoneNumberUploadRequired = true;
+        await DatabaseProvider().insertUserData(_user);
+        // PE's phone number changed, this affects all patients so we do a sync
+        // with VisibleImpact for all patients
+        uploadPeerEducatorPhoneNumberForAllPatients(newPEPhoneNumber);
+      } else if (_patient.latestPreferenceAssessment == null) {
+        // this is the first preference assessment, we have to upload the PE's
+        // phone number to VisibleImpact so that the callback can be set on all
+        // notification SMS
+        _user.phoneNumberUploadRequired = true;
+        await DatabaseProvider().insertUserData(_user);
+        uploadPeerEducatorPhoneNumber(_patient.artNumber, newPEPhoneNumber);
+      }
+
       _patient.latestPreferenceAssessment = _pa;
       if (_patientUpdated) {
         print('PATIENT UPDATED, INSERTING NEW PATIENT ROW FOR ${_patient.artNumber}');
         await DatabaseProvider().insertPatient(_patient);
-      }
-      final String newPEPhoneNumber = '+266-${_pePhoneNumberCtr.text}';
-      if (newPEPhoneNumber != _user.phoneNumber) {
-        _user.phoneNumber = newPEPhoneNumber;
-        DatabaseProvider().insertUserData(_user);
       }
       // send an event indicating that the preference assessment was done
       PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.ASSESSMENT_REQUIRED, null), true);

@@ -5,11 +5,13 @@ import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/UserData.dart';
+import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/InvalidPINException.dart';
 import 'package:pebrapp/exceptions/NoPasswordFileException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
 import 'package:pebrapp/screens/NewPINScreen.dart';
+import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 import 'package:pebrapp/utils/Utils.dart';
@@ -40,23 +42,32 @@ class _DebugScreenState extends State<DebugScreen> {
   Widget get _body {
     const double _spacing = 20.0;
     return Center(
-      child: Column(
+      child: _isLoading
+          ? SizedBox(
+        height: 15.0,
+        width: 15.0,
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(SPINNER_SETTINGS_SCREEN),
+        ),
+      )
+          : Column(
         children: <Widget>[
           SizedBox(height: _spacing),
           PEBRAButtonRaised('Restore',
-              onPressed: _isLoading
-                  ? null
-                  : () {
-                      _onPressRestoreButton(context);
-                    },
-              widget: _isLoading
-                  ? SizedBox(
-                      height: 15.0,
-                      width: 15.0,
-                      child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                              SPINNER_SETTINGS_SCREEN)))
-                  : null),
+            onPressed: _isLoading
+                ? null
+                : () {
+              _onPressRestoreButton(context);
+            },
+          ),
+          SizedBox(height: _spacing),
+          PEBRAButtonRaised('Drop Viral Load Table',
+            onPressed: _isLoading
+                ? null
+                : () {
+              _onPressDropTableButton(context, ViralLoad.tableName);
+            },
+          ),
           SizedBox(height: _spacing),
         ],
       ),
@@ -132,6 +143,14 @@ class _DebugScreenState extends State<DebugScreen> {
     });
     showFlushbar(notificationMessage,
         title: title, error: error, onButtonPress: onNotificationButtonPress);
+  }
+
+  Future<void> _onPressDropTableButton(BuildContext context, String tableName) async {
+    setState(() { _isLoading = true; });
+    int rowsDeleted = await DatabaseProvider().resetTable(tableName);
+    setState(() { _isLoading = false; });
+    PatientBloc.instance.sinkAllPatientsFromDatabase();
+    showFlushbar('Deleted $rowsDeleted rows.', title: '$tableName reset');
   }
 
   Future<String> _setNewPIN(String username, BuildContext context) async {
