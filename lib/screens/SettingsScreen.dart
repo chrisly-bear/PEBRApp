@@ -562,7 +562,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       setState(() { _isLoadingLoginBody = false; });
       if (!error) { Navigator.of(context).popUntil(ModalRoute.withName('/')); }
       showFlushbar(notificationMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
-      // TODO: refresh settings screen to show the logged in state -> use the BloC
     }
   }
 
