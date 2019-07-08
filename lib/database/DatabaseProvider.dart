@@ -906,4 +906,10 @@ class DatabaseProvider {
     return rowsDeletedPatientTable + rowsDeletedViralLoadTable + rowsDeletedPreferenceAssessmentTable + rowsDeletedARTRefillTable + rowsDeletedRequiredActionTable;
   }
 
+  Future<int> resetTable(String tableName) async {
+    final Database db = await _databaseInstance;
+    final int rowsDeleted = await db.delete(tableName);
+    return rowsDeleted;
+  }
+
 }
