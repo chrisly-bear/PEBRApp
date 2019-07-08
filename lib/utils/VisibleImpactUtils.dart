@@ -3,6 +3,7 @@ import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
+import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
@@ -74,9 +75,25 @@ Future<void> uploadPatientPhoneNumber(Patient patient, String phoneNumber) async
 }
 
 /// PE Phone Number Update
-Future<void> uploadPeerEducatorPhoneNumber(List<String> artNumbers, String phoneNumber) async {
+Future<void> uploadPeerEducatorPhoneNumber(String phoneNumber) async {
   // Since this affects all patients that the PE oversees we have to provide a list of ART numbers to the visible impact API (to be discussed with VisibleSolutions)
   // TODO: upload the peer educator phone number to the visible impact database and if it didn't work show a message that the upload has to be retried manually
+  await Future.delayed(Duration(seconds: 3));
+  final bool success = false;
+  if (success) {
+    final UserData user = await DatabaseProvider().retrieveLatestUserData();
+    user.phoneNumberUploadRequired = false;
+    await DatabaseProvider().insertUserData(user);
+  } else {
+    showFlushbar('Please upload your phone number manually.',
+      title: 'Upload of Peer Educator Phone Number Failed',
+      error: true,
+      buttonText: 'Retry\nNow',
+      onButtonPress: () {
+        uploadPeerEducatorPhoneNumber(phoneNumber);
+      },
+    );
+  }
 }
 
 /// Viral Load Measurements Download

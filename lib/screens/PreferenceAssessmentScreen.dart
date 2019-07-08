@@ -2053,7 +2053,9 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       final String newPEPhoneNumber = '+266-${_pePhoneNumberCtr.text}';
       if (newPEPhoneNumber != _user.phoneNumber) {
         _user.phoneNumber = newPEPhoneNumber;
+        _user.phoneNumberUploadRequired = true;
         DatabaseProvider().insertUserData(_user);
+        uploadPeerEducatorPhoneNumber(newPEPhoneNumber);
       }
       // send an event indicating that the preference assessment was done
       PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.ASSESSMENT_REQUIRED, null), true);

@@ -17,6 +17,7 @@ class UserData implements IExcelExportable {
   static final colLastName = 'last_name';
   static final colUsername = 'username';
   static final colPhoneNumber = 'phone_number';
+  static final colPhoneNumberUploadRequired = 'phone_number_upload_required';
   static final colHealthCenter = 'health_center';
   static final colIsActive = 'is_active';
   static final colDeactivatedDate = 'deactivated_date'; // nullable
@@ -26,6 +27,7 @@ class UserData implements IExcelExportable {
   String lastName;
   String username;
   String phoneNumber;
+  bool phoneNumberUploadRequired;
   HealthCenter healthCenter;
   bool isActive;
   DateTime _deactivatedDate;
@@ -41,6 +43,7 @@ class UserData implements IExcelExportable {
     this.lastName = map[colLastName];
     this.username = map[colUsername];
     this.phoneNumber = map[colPhoneNumber];
+    this.phoneNumberUploadRequired = map[colPhoneNumberUploadRequired] == 1;
     this.healthCenter = HealthCenter.fromCode(map[colHealthCenter]);
     this.isActive = map[colIsActive] == 1;
     this.deactivatedDate = map[colDeactivatedDate] == null ? null : DateTime.parse(map[colDeactivatedDate]);
@@ -57,13 +60,14 @@ class UserData implements IExcelExportable {
     map[colLastName] = lastName;
     map[colUsername] = username;
     map[colPhoneNumber] = phoneNumber;
+    map[colPhoneNumberUploadRequired] = phoneNumberUploadRequired;
     map[colHealthCenter] = healthCenter.code;
     map[colIsActive] = isActive;
     map[colDeactivatedDate] = _deactivatedDate?.toIso8601String();
     return map;
   }
 
-  static const int _numberOfColumns = 12;
+  static const int _numberOfColumns = 13;
 
   /// Column names for the header row in the excel sheet.
   // If we change the order here, make sure to change the order in the
@@ -76,12 +80,13 @@ class UserData implements IExcelExportable {
     row[3] = 'LAST_NAME_PE';
     row[4] = 'USERNAME_PE';
     row[5] = 'CELL_PE';
-    row[6] = 'CLUSTER';
-    row[7] = 'DISTRICT';
-    row[8] = 'ARM';
-    row[9] = 'ACTIVE';
-    row[10] = 'DATE_DEACTIVATED';
-    row[11] = 'TIME_DEACTIVATED';
+    row[6] = 'CELL_PE_SYNCED';
+    row[7] = 'CLUSTER';
+    row[8] = 'DISTRICT';
+    row[9] = 'ARM';
+    row[10] = 'ACTIVE';
+    row[11] = 'DATE_DEACTIVATED';
+    row[12] = 'TIME_DEACTIVATED';
     return row;
   }
 
@@ -97,12 +102,13 @@ class UserData implements IExcelExportable {
     row[3] = lastName;
     row[4] = username;
     row[5] = phoneNumber;
-    row[6] = healthCenter.description;
-    row[7] = healthCenter.district;
-    row[8] = healthCenter.studyArm;
-    row[9] = isActive;
-    row[10] = formatDateIso(_deactivatedDate);
-    row[11] = formatTimeIso(_deactivatedDate);
+    row[6] = !phoneNumberUploadRequired;
+    row[7] = healthCenter.description;
+    row[8] = healthCenter.district;
+    row[9] = healthCenter.studyArm;
+    row[10] = isActive;
+    row[11] = formatDateIso(_deactivatedDate);
+    row[12] = formatTimeIso(_deactivatedDate);
     return row;
   }
 
