@@ -74,12 +74,18 @@ Future<void> uploadPatientPhoneNumber(Patient patient, String phoneNumber) async
   }
 }
 
-/// PE Phone Number Update
-Future<void> uploadPeerEducatorPhoneNumber(String phoneNumber) async {
-  // Since this affects all patients that the PE oversees we have to provide a list of ART numbers to the visible impact API (to be discussed with VisibleSolutions)
-  // TODO: upload the peer educator phone number to the visible impact database and if it didn't work show a message that the upload has to be retried manually
+Future<bool> _uploadPeerEducatorPhoneNumber(List<String> patientARTs, String peerEducatorPhoneNumber) async {
+  // TODO: upload the peer educator phone number to the visible impact database
   await Future.delayed(Duration(seconds: 3));
   final bool success = false;
+  return success;
+}
+
+/// PE Phone Number Upload for single patient
+///
+/// Will be called during first preference assessment of a patient.
+Future<void> uploadPeerEducatorPhoneNumber(String patientART, String peerEducatorPhoneNumber) async {
+  final bool success = await _uploadPeerEducatorPhoneNumber([patientART], peerEducatorPhoneNumber);
   if (success) {
     final UserData user = await DatabaseProvider().retrieveLatestUserData();
     user.phoneNumberUploadRequired = false;
@@ -90,7 +96,33 @@ Future<void> uploadPeerEducatorPhoneNumber(String phoneNumber) async {
       error: true,
       buttonText: 'Retry\nNow',
       onButtonPress: () {
-        uploadPeerEducatorPhoneNumber(phoneNumber);
+        uploadPeerEducatorPhoneNumber(patientART, peerEducatorPhoneNumber);
+      },
+    );
+  }
+}
+
+/// PE Phone Number Upload for all patients
+///
+/// Will be called when the Peer Educator changes their phone number and all of
+/// their patients need to be updated on the VisibleImpact side.
+///
+/// Will also be called if a [uploadPeerEducatorPhoneNumber] for a single
+/// patient failed and the PE triggers a re-sync from the settings screen.
+Future<void> uploadPeerEducatorPhoneNumberForAllPatients(String peerEducatorPhoneNumber) async {
+  List<String> patientARTNumbers = await DatabaseProvider().retrievePatientsART(retrieveNonConsents: false, retrieveNonEligibles: false);
+  final bool success = await _uploadPeerEducatorPhoneNumber(patientARTNumbers, peerEducatorPhoneNumber);
+  if (success) {
+    final UserData user = await DatabaseProvider().retrieveLatestUserData();
+    user.phoneNumberUploadRequired = false;
+    await DatabaseProvider().insertUserData(user);
+  } else {
+    showFlushbar('Please upload your phone number manually.',
+      title: 'Upload of Peer Educator Phone Number Failed',
+      error: true,
+      buttonText: 'Retry\nNow',
+      onButtonPress: () {
+        uploadPeerEducatorPhoneNumberForAllPatients(peerEducatorPhoneNumber);
       },
     );
   }
