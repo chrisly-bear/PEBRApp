@@ -1,5 +1,8 @@
 
+import 'dart:convert';
+import 'package:pebrapp/config/VisibleImpactConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
@@ -7,6 +10,7 @@ import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
+import 'package:http/http.dart' as http;
 
 /// ART Refill Date Upload
 Future<void> uploadNextARTRefillDate(Patient patient, DateTime nextARTRefillDate) async {
@@ -128,9 +132,47 @@ Future<void> uploadPeerEducatorPhoneNumberForAllPatients(String peerEducatorPhon
   }
 }
 
+Future<String> _getAPIToken() async {
+  String basicAuth = 'Basic ' + base64Encode(utf8.encode('$VI_USERNAME:$VI_PASSWORD'));
+  http.Response _resp = await http.post(
+    'https://lstowards909090.org/db-test/apiv1/token',
+    headers: {'authorization': basicAuth},
+  );
+  return jsonDecode(_resp.body)['token'];
+}
+
 /// Viral Load Measurements Download
 Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART) async {
-  // TODO: fetch all viral loads for the given [patientART]
+  // TODO: handle errors in client
+  try {
+    final String _token = await _getAPIToken();
+    final _resp = await http.get(
+      'https://lstowards909090.org/db-test/apiv1/labdata?art_number=$patientART',
+      headers: {'Authorization' : 'Custom $_token'},
+    );
+    if (_resp.statusCode != 200) {
+      print('An error occurred while fetching viral loads from database, returning null...');
+      print(_resp.statusCode);
+      print(_resp.body);
+      return null;
+    }
+    final List<dynamic> list = jsonDecode(_resp.body);
+    List<ViralLoad> viralLoadsFromDB = list.map((dynamic vlLabResult) {
+      final ViralLoad vl = ViralLoad(
+        patientART: patientART,
+        dateOfBloodDraw: DateTime.parse(vlLabResult['date_sample']),
+        labNumber: vlLabResult['lab_number'],
+        viralLoad: vlLabResult['lab_hivvmnumerical'],
+        source: ViralLoadSource.DATABASE(),
+      );
+      return vl;
+    }).toList();
+    return viralLoadsFromDB;
+  } catch (e, s) {
+    print('An error occurred while fetching viral loads from database, returning null...');
+    print(e);
+    print(s);
+  }
   return null;
 }
 

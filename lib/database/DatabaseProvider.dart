@@ -20,7 +20,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 45;
+  static const int _DB_VERSION = 46;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -160,7 +160,8 @@ class DatabaseProvider {
           ${ViralLoad.colDateOfBloodDraw} TEXT NOT NULL,
           ${ViralLoad.colViralLoad} INTEGER NOT NULL,
           ${ViralLoad.colLabNumber} TEXT,
-          ${ViralLoad.colDiscrepancy} BIT
+          ${ViralLoad.colDiscrepancy} BIT,
+          UNIQUE(${ViralLoad.colPatientART}, ${ViralLoad.colViralLoadSource}, ${ViralLoad.colDateOfBloodDraw}, ${ViralLoad.colViralLoad}, ${ViralLoad.colLabNumber}) ON CONFLICT IGNORE
         );
         """);
     await db.execute("""
@@ -481,6 +482,12 @@ class DatabaseProvider {
       print('Upgrading to database version 45...');
       await db.execute("ALTER TABLE UserData ADD phone_number_upload_required BIT NOT NULL DEFAULT 1;");
     }
+    if (oldVersion < 46 && _DB_VERSION >= 46) {
+      print('Upgrading to database version 46...');
+      print('UPGRADE NOT IMPLEMENTED, VIRAL LOAD DATA WILL BE RESET!');
+      await db.execute("DROP TABLE IF EXISTS ViralLoad;");
+      await _onCreate(db, 46);
+    }
   }
 
   FutureOr<void> _onDowngrade(Database db, int oldVersion, int newVersion) async {
@@ -600,9 +607,9 @@ class DatabaseProvider {
     return res;
   }
   
-  Future<void> insertViralLoad(ViralLoad viralLoad) async {
+  Future<void> insertViralLoad(ViralLoad viralLoad, {DateTime createdDate}) async {
     final Database db = await _databaseInstance;
-    viralLoad.createdDate = DateTime.now().toUtc();
+    viralLoad.createdDate = createdDate ?? DateTime.now().toUtc();
     final res = await db.insert(ViralLoad.tableName, viralLoad.toMap());
     return res;
   }
@@ -718,10 +725,11 @@ class DatabaseProvider {
         ViralLoad.tableName,
         where: '${ViralLoad.colPatientART} = ?',
         whereArgs: [patientART],
-        orderBy: '${ViralLoad.colDateOfBloodDraw}, ${ViralLoad.colCreatedDate}',
     );
     if (res.length > 0) {
-      return res.map((Map<dynamic, dynamic> map) => ViralLoad.fromMap(map)).toList();
+      final List<ViralLoad> vls = res.map((Map<dynamic, dynamic> map) => ViralLoad.fromMap(map)).toList();
+      sortViralLoads(vls);
+      return vls;
     }
     return [];
   }

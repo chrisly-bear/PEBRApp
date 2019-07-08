@@ -298,4 +298,13 @@ class Patient implements IExcelExportable {
     return visibleRequiredActions;
   }
 
+  void addViralLoads(List<ViralLoad> newViralLoads) {
+    for (ViralLoad vl in newViralLoads) {
+      if (!viralLoads.contains(vl)) {
+        viralLoads.add(vl);
+      }
+    }
+    sortViralLoads(viralLoads);
+  }
+
 }

@@ -47,6 +47,23 @@ class ViralLoad implements IExcelExportable {
   // Other
   // -----
 
+  // override the equality operator
+  @override
+  bool operator ==(o) => o is ViralLoad
+      && o.patientART == this.patientART
+      && o.source == this.source
+      && o.dateOfBloodDraw == this.dateOfBloodDraw
+      && o.viralLoad == this.viralLoad
+      && o.labNumber == this.labNumber;
+
+  // override hashcode
+  @override
+  int get hashCode => patientART.hashCode
+      ^source.hashCode
+      ^dateOfBloodDraw.hashCode
+      ^viralLoad.hashCode
+      ^labNumber.hashCode;
+
   toMap() {
     var map = Map<String, dynamic>();
     map[colPatientART] = patientART;
