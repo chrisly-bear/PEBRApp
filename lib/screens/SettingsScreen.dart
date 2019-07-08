@@ -527,6 +527,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _userData.firstName = _firstNameCtr.text;
       _userData.lastName = _lastNameCtr.text;
       _userData.phoneNumber = '+266-${_phoneNumberCtr.text}';
+      _userData.phoneNumberUploadRequired = false;
       _userData.isActive = true;
       final String pinCodeHash = hash(_pinCtr.text);
       try {
