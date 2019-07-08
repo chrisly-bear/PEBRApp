@@ -370,13 +370,33 @@ class DatabaseProvider {
     }
     if (oldVersion < 18) {
       print('Upgrading to database version 18...');
-      // Add new column 'enrollment_date_utc' with default value of 1970-01-01.
-      await db.execute("ALTER TABLE Patient ADD enrollment_date_utc TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z';");
+      List<Map<String, dynamic>> tableInfo = await db.rawQuery("PRAGMA table_info(Patient);");
+      bool _columnAlreadyInTable = false;
+      for (Map<String, dynamic> map in tableInfo) {
+        if (map['name'] == 'enrollment_date_utc') {
+          _columnAlreadyInTable = true;
+          break;
+        }
+      }
+      if (!_columnAlreadyInTable) {
+        // Add new column 'enrollment_date_utc' with default value of 1970-01-01.
+        await db.execute("ALTER TABLE Patient ADD enrollment_date_utc TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z';");
+      }
     }
     if (oldVersion < 19) {
       print('Upgrading to database version 19...');
-      // Add new column 'is_vl_baseline_available' with default value of false (0).
-      await db.execute("ALTER TABLE Patient ADD is_vl_baseline_available BIT NOT NULL DEFAULT 0;");
+      List<Map<String, dynamic>> tableInfo = await db.rawQuery("PRAGMA table_info(Patient);");
+      bool _columnAlreadyInTable = false;
+      for (Map<String, dynamic> map in tableInfo) {
+        if (map['name'] == 'is_vl_baseline_available') {
+          _columnAlreadyInTable = true;
+          break;
+        }
+      }
+      if (!_columnAlreadyInTable) {
+        // Add new column 'is_vl_baseline_available' with default value of false (0).
+        await db.execute("ALTER TABLE Patient ADD is_vl_baseline_available BIT NOT NULL DEFAULT 0;");
+      }
     }
     if (oldVersion < 21) {
       print('Upgrading to database version 21...');
@@ -442,7 +462,17 @@ class DatabaseProvider {
     }
     if (oldVersion < 34) {
       print('Upgrading to database version 34...');
-      await db.execute("ALTER TABLE RequiredAction ADD due_date TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z';");
+      List<Map<String, dynamic>> tableInfo = await db.rawQuery("PRAGMA table_info(RequiredAction);");
+      bool _columnAlreadyInTable = false;
+      for (Map<String, dynamic> map in tableInfo) {
+        if (map['name'] == 'due_date') {
+          _columnAlreadyInTable = true;
+          break;
+        }
+      }
+      if (!_columnAlreadyInTable) {
+        await db.execute("ALTER TABLE RequiredAction ADD due_date TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z';");
+      }
     }
     if (oldVersion < 37) {
       print('Upgrading to database version 37...');
@@ -464,7 +494,17 @@ class DatabaseProvider {
     }
     if (oldVersion < 39 && _DB_VERSION >= 39) {
       print('Upgrading to database version 39...');
-      await db.execute("ALTER TABLE PreferenceAssessment ADD patient_phone_available BIT NOT NULL DEFAULT 1;");
+      List<Map<String, dynamic>> tableInfo = await db.rawQuery("PRAGMA table_info(PreferenceAssessment);");
+      bool _columnAlreadyInTable = false;
+      for (Map<String, dynamic> map in tableInfo) {
+        if (map['name'] == 'patient_phone_available') {
+          _columnAlreadyInTable = true;
+          break;
+        }
+      }
+      if (!_columnAlreadyInTable) {
+        await db.execute("ALTER TABLE PreferenceAssessment ADD patient_phone_available BIT NOT NULL DEFAULT 1;");
+      }
     }
     if (oldVersion < 41 && _DB_VERSION >= 41) {
       print('Upgrading to database version 41...');
@@ -480,7 +520,17 @@ class DatabaseProvider {
     }
     if (oldVersion < 45 && _DB_VERSION >= 45) {
       print('Upgrading to database version 45...');
-      await db.execute("ALTER TABLE UserData ADD phone_number_upload_required BIT NOT NULL DEFAULT 1;");
+      List<Map<String, dynamic>> tableInfo = await db.rawQuery("PRAGMA table_info(UserData);");
+      bool _columnAlreadyInTable = false;
+      for (Map<String, dynamic> map in tableInfo) {
+        if (map['name'] == 'phone_number_upload_required') {
+          _columnAlreadyInTable = true;
+          break;
+        }
+      }
+      if (!_columnAlreadyInTable) {
+        await db.execute("ALTER TABLE UserData ADD phone_number_upload_required BIT NOT NULL DEFAULT 1;");
+      }
     }
     if (oldVersion < 46 && _DB_VERSION >= 46) {
       print('Upgrading to database version 46...');
