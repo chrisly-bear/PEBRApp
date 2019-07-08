@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
@@ -271,7 +272,7 @@ class _PatientScreenState extends State<PatientScreen> {
   _buildViralLoadHistoryCard() {
 
     final double _spaceBetweenColumns = 10.0;
-    final double _sourceColumnWidth = 100.0;
+    final double _sourceColumnWidth = 70.0;
 
     Widget _buildViralLoadHeader() {
       Widget row = Padding(
@@ -362,9 +363,27 @@ class _PatientScreenState extends State<PatientScreen> {
       ]);
     }
 
-    return _buildCard(
-      title: 'Viral Load History',
-      child: content,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTitle('Viral Load History'),
+        Card(
+          margin: const EdgeInsets.symmetric(horizontal: 15.0),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: 550.0,
+                maxWidth: max(550.0, MediaQuery.of(context).size.width - 2 * 15.0),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+                child: content,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
 
   }
