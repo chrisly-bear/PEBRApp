@@ -302,7 +302,7 @@ class _PatientScreenState extends State<PatientScreen> {
       return row;
     }
 
-    Widget _buildViralLoadRow(vl) {
+    Widget _buildViralLoadRow(vl, {bool bold: false}) {
 
       if (vl?.isSuppressed == null) { return Column(); }
 
@@ -317,9 +317,9 @@ class _PatientScreenState extends State<PatientScreen> {
         padding: const EdgeInsets.symmetric(vertical: 5.0),
         child: Row(
           children: <Widget>[
-            Expanded(child: Text(formatDateConsistent(vl.createdDate))),
+            Expanded(child: Text(formatDateConsistent(vl.createdDate), style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal))),
             SizedBox(width: _spaceBetweenColumns),
-            Expanded(child: Text(description)),
+            Expanded(child: Text(description, style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal))),
             SizedBox(width: _spaceBetweenColumns),
             Expanded(
               child: Row(
@@ -328,16 +328,16 @@ class _PatientScreenState extends State<PatientScreen> {
                   viralLoadIcon,
 //              viralLoadBadge,
                   SizedBox(width: 5.0),
-                  Text(vl.isLowerThanDetectable ? 'LTDL' : '${vl.viralLoad} c/mL'),
+                  Text(vl.isLowerThanDetectable ? 'LTDL' : '${vl.viralLoad} c/mL', style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
                 ],
               ),
             ),
             SizedBox(width: _spaceBetweenColumns),
-            Expanded(child: Text(vl.labNumber ?? '—')),
+            Expanded(child: Text(vl.labNumber ?? '—', style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal))),
             SizedBox(width: _spaceBetweenColumns),
             SizedBox(
               width: _sourceColumnWidth,
-              child: Text(vl.source == ViralLoadSource.MANUAL_INPUT() ? 'manual' : 'database'),
+              child: Text(vl.source == ViralLoadSource.MANUAL_INPUT() ? 'manual' : 'database', style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
             ),
           ],
         ),
@@ -354,9 +354,10 @@ class _PatientScreenState extends State<PatientScreen> {
         ),
       );
     } else {
-      final viralLoads = _patient.viralLoads.map((ViralLoad vl) {
-        return _buildViralLoadRow(vl);
-      }).toList();
+      final int numOfVLs = _patient.viralLoads.length;
+      final viralLoads = _patient.viralLoads.asMap().map((int i, ViralLoad vl) {
+        return MapEntry(i, _buildViralLoadRow(vl, bold: i == numOfVLs - 1));
+      }).values.toList();
       content = Column(children: <Widget>[
         _buildViralLoadHeader(),
         ...viralLoads,
