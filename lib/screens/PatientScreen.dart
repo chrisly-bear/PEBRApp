@@ -356,7 +356,7 @@ class _PatientScreenState extends State<PatientScreen> {
     } else {
       final int numOfVLs = _patient.viralLoads.length;
       final viralLoads = _patient.viralLoads.asMap().map((int i, ViralLoad vl) {
-        return MapEntry(i, _buildViralLoadRow(vl, bold: i == numOfVLs - 1));
+        return MapEntry(i, _buildViralLoadRow(vl, bold: numOfVLs > 1 && i == numOfVLs - 1));
       }).values.toList();
       content = Column(children: <Widget>[
         _buildViralLoadHeader(),
