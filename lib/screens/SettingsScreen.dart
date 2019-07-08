@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
+import 'package:pebrapp/components/RequiredActionContainerPEPhoneNumberUpload.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/HealthCenter.dart';
 import 'package:pebrapp/database/models/UserData.dart';
@@ -44,6 +45,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   TextEditingController _phoneNumberCtr = TextEditingController();
   TextEditingController _pinCtr = TextEditingController();
   bool _isLoadingLoginBody = false;
+  AnimateDirection shouldAnimateRequiredActionContainer;
 
   bool get _isLoggedIn => _loginData != null;
 
@@ -132,10 +134,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  Widget _buildRequiredActions() {
+    if (_loginData.phoneNumberUploadRequired) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 20.0),
+        child: RequiredActionContainerPEPhoneNumberUpload(
+          _loginData.phoneNumber,
+          animateDirection: shouldAnimateRequiredActionContainer,
+        ),
+      );
+    }
+    return SizedBox();
+  }
+
   Widget get _settingsBody {
     const double _spacing = 20.0;
     return Column(
       children: <Widget>[
+        _buildRequiredActions(),
         _buildUserDataCard(),
         SizedBox(height: _spacing),
         PEBRAButtonRaised('Start Backup', onPressed: _isLoadingSettingsBody ? null : () {_onPressBackupButton(context);},),
