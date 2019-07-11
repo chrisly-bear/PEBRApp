@@ -14,6 +14,7 @@ import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/beans/YesNoRefused.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/screens/ARTRefillScreen.dart';
@@ -398,7 +399,8 @@ class _PatientScreenState extends State<PatientScreen> {
   _buildPreferencesCard() {
 
     Widget _buildSupportOptions() {
-      final SupportPreferencesSelection sps = _patient.latestPreferenceAssessment.supportPreferences;
+      final PreferenceAssessment _pa = _patient.latestPreferenceAssessment;
+      final SupportPreferencesSelection sps = _pa.supportPreferences;
       final double iconWidth = 28.0;
       final double iconHeight = 28.0;
       if (sps.areAllDeselected) {
@@ -423,14 +425,14 @@ class _PatientScreenState extends State<PatientScreen> {
           icon: _getPaddedIcon('assets/icons/nurse_clinic.png', width: iconWidth, height: iconHeight, color: NURSE_CLINIC_done ? ICON_INACTIVE : ICON_ACTIVE),
         ));
       }
-      if (sps.SATURDAY_CLINIC_CLUB_selected) {
+      if (sps.SATURDAY_CLINIC_CLUB_selected && _pa.saturdayClinicClubAvailable) {
         supportOptions.add(_buildSupportOption(SupportPreferencesSelection.SATURDAY_CLINIC_CLUB_DESCRIPTION,
           checkboxState: SATURDAY_CLINIC_CLUB_done,
           onChanged: (bool newState) { setState(() { SATURDAY_CLINIC_CLUB_done = newState; }); },
           icon: _getPaddedIcon('assets/icons/saturday_clinic_club.png', width: iconWidth, height: iconHeight, color: SATURDAY_CLINIC_CLUB_done ? ICON_INACTIVE : ICON_ACTIVE),
         ));
       }
-      if (sps.COMMUNITY_YOUTH_CLUB_selected) {
+      if (sps.COMMUNITY_YOUTH_CLUB_selected && _pa.communityYouthClubAvailable) {
         supportOptions.add(_buildSupportOption(SupportPreferencesSelection.COMMUNITY_YOUTH_CLUB_DESCRIPTION,
           checkboxState: COMMUNITY_YOUTH_CLUB_done,
           onChanged: (bool newState) { setState(() { COMMUNITY_YOUTH_CLUB_done = newState; }); },
@@ -444,14 +446,14 @@ class _PatientScreenState extends State<PatientScreen> {
           icon: _getPaddedIcon('assets/icons/phonecall_pe.png', width: iconWidth, height: iconHeight, color: PHONE_CALL_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
         ));
       }
-      if (sps.HOME_VISIT_PE_selected) {
+      if (sps.HOME_VISIT_PE_selected && _pa.homeVisitPEPossible) {
         supportOptions.add(_buildSupportOption(SupportPreferencesSelection.HOME_VISIT_PE_DESCRIPTION,
           checkboxState: HOME_VISIT_PE_done,
           onChanged: (bool newState) { setState(() { HOME_VISIT_PE_done = newState; }); },
           icon: _getPaddedIcon('assets/icons/homevisit_pe.png', width: iconWidth, height: iconHeight, color: HOME_VISIT_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
         ));
       }
-      if (sps.SCHOOL_VISIT_PE_selected) {
+      if (sps.SCHOOL_VISIT_PE_selected && _pa.schoolVisitPEPossible) {
         String schoolNameAndVillage = _patient.latestPreferenceAssessment?.school;
         schoolNameAndVillage = schoolNameAndVillage == null ? '' : '\n($schoolNameAndVillage)';
         supportOptions.add(_buildSupportOption(SupportPreferencesSelection.SCHOOL_VISIT_PE_DESCRIPTION + schoolNameAndVillage,
@@ -460,7 +462,7 @@ class _PatientScreenState extends State<PatientScreen> {
           icon: _getPaddedIcon('assets/icons/schooltalk_pe.png', width: iconWidth, height: iconHeight, color: SCHOOL_VISIT_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
         ));
       }
-      if (sps.PITSO_VISIT_PE_selected) {
+      if (sps.PITSO_VISIT_PE_selected && _pa.pitsoPEPossible) {
         supportOptions.add(_buildSupportOption(SupportPreferencesSelection.PITSO_VISIT_PE_DESCRIPTION,
           checkboxState: PITSO_VISIT_PE_done,
           onChanged: (bool newState) { setState(() { PITSO_VISIT_PE_done = newState; }); },
@@ -485,19 +487,19 @@ class _PatientScreenState extends State<PatientScreen> {
           onChanged: (bool newState) { setState(() { VMMC_INFO_done = newState; }); },
         ));
       }
-      if (sps.YOUNG_MOTHERS_GROUP_selected) {
+      if (sps.YOUNG_MOTHERS_GROUP_selected && _pa.youngMothersAvailable) {
         supportOptions.add(_buildSupportOption(SupportPreferencesSelection.YOUNG_MOTHERS_GROUP_DESCRIPTION,
           checkboxState: YOUNG_MOTHERS_GROUP_done,
           onChanged: (bool newState) { setState(() { YOUNG_MOTHERS_GROUP_done = newState; }); },
         ));
       }
-      if (sps.FEMALE_WORTH_GROUP_selected) {
+      if (sps.FEMALE_WORTH_GROUP_selected && _pa.femaleWorthAvailable) {
         supportOptions.add(_buildSupportOption(SupportPreferencesSelection.FEMALE_WORTH_GROUP_DESCRIPTION,
           checkboxState: FEMALE_WORTH_GROUP_done,
           onChanged: (bool newState) { setState(() { FEMALE_WORTH_GROUP_done = newState; }); },
         ));
       }
-      if (sps.LEGAL_AID_INFO_selected) {
+      if (sps.LEGAL_AID_INFO_selected && _pa.legalAidSmartphoneAvailable) {
         supportOptions.add(_buildSupportOption(SupportPreferencesSelection.LEGAL_AID_INFO_DESCRIPTION,
           checkboxState: LEGAL_AID_INFO_done,
           onChanged: (bool newState) { setState(() { LEGAL_AID_INFO_done = newState; }); },
