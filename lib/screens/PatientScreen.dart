@@ -50,6 +50,12 @@ class _PatientScreenState extends State<PatientScreen> {
   bool HOME_VISIT_PE_done = false;
   bool SCHOOL_VISIT_PE_done = false;
   bool PITSO_VISIT_PE_done = false;
+  bool CONDOM_DEMO_done = false;
+  bool CONTRACEPTIVES_INFO_done = false;
+  bool VMMC_INFO_done = false;
+  bool YOUNG_MOTHERS_GROUP_done = false;
+  bool FEMALE_WORTH_GROUP_done = false;
+  bool LEGAL_AID_INFO_done = false;
 
   StreamSubscription<AppState> _appStateStream;
 
@@ -459,6 +465,42 @@ class _PatientScreenState extends State<PatientScreen> {
           checkboxState: PITSO_VISIT_PE_done,
           onChanged: (bool newState) { setState(() { PITSO_VISIT_PE_done = newState; }); },
           icon: _getPaddedIcon('assets/icons/pitso.png', width: iconWidth, height: iconHeight, color: PITSO_VISIT_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
+        ));
+      }
+      if (sps.CONDOM_DEMO_selected) {
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.CONDOM_DEMO_DESCRIPTION,
+          checkboxState: CONDOM_DEMO_done,
+          onChanged: (bool newState) { setState(() { CONDOM_DEMO_done = newState; }); },
+        ));
+      }
+      if (sps.CONTRACEPTIVES_INFO_selected) {
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.CONTRACEPTIVES_INFO_DESCRIPTION,
+          checkboxState: CONTRACEPTIVES_INFO_done,
+          onChanged: (bool newState) { setState(() { CONTRACEPTIVES_INFO_done = newState; }); },
+        ));
+      }
+      if (sps.VMMC_INFO_selected) {
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.VMMC_INFO_DESCRIPTION,
+          checkboxState: VMMC_INFO_done,
+          onChanged: (bool newState) { setState(() { VMMC_INFO_done = newState; }); },
+        ));
+      }
+      if (sps.YOUNG_MOTHERS_GROUP_selected) {
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.YOUNG_MOTHERS_GROUP_DESCRIPTION,
+          checkboxState: YOUNG_MOTHERS_GROUP_done,
+          onChanged: (bool newState) { setState(() { YOUNG_MOTHERS_GROUP_done = newState; }); },
+        ));
+      }
+      if (sps.FEMALE_WORTH_GROUP_selected) {
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.FEMALE_WORTH_GROUP_DESCRIPTION,
+          checkboxState: FEMALE_WORTH_GROUP_done,
+          onChanged: (bool newState) { setState(() { FEMALE_WORTH_GROUP_done = newState; }); },
+        ));
+      }
+      if (sps.LEGAL_AID_INFO_selected) {
+        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.LEGAL_AID_INFO_DESCRIPTION,
+          checkboxState: LEGAL_AID_INFO_done,
+          onChanged: (bool newState) { setState(() { LEGAL_AID_INFO_done = newState; }); },
         ));
       }
 
