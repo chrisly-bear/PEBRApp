@@ -414,9 +414,6 @@ class _PatientScreenState extends State<PatientScreen> {
           ),
         );
       }
-      if (sps.areAllWithTodoDeselected) {
-        return _buildRow('Support', '—');
-      }
       List<Widget> supportOptions = [];
       if (sps.NURSE_CLINIC_selected) {
         supportOptions.add(_buildSupportOption(SupportPreferencesSelection.NURSE_CLINIC_DESCRIPTION,

@@ -12,6 +12,7 @@ import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
+import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
@@ -527,22 +528,23 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
               )));
     }
 
-    Widget _buildSupportIcons(SupportPreferencesSelection sps, {bool isActivated: true}) {
+    Widget _buildSupportIcons(PreferenceAssessment pa, {bool isActivated: true}) {
+      if (pa == null) {
+        return _formatPatientRowText('—', isActivated: isActivated);
+      }
+      final SupportPreferencesSelection sps = pa.supportPreferences;
       List<Widget> icons = List<Widget>();
       Color iconColor = isActivated ? ICON_ACTIVE : ICON_INACTIVE;
       final Container spacer = Container(width: 3);
-      if (sps == null) {
-        return _formatPatientRowText('—', isActivated: isActivated);
-      }
       if (sps.NURSE_CLINIC_selected) {
         icons.add(_getPaddedIcon('assets/icons/nurse_clinic.png', color: iconColor));
         icons.add(spacer);
       }
-      if (sps.SATURDAY_CLINIC_CLUB_selected) {
+      if (sps.SATURDAY_CLINIC_CLUB_selected && pa.saturdayClinicClubAvailable) {
         icons.add(_getPaddedIcon('assets/icons/saturday_clinic_club.png', color: iconColor));
         icons.add(spacer);
       }
-      if (sps.COMMUNITY_YOUTH_CLUB_selected) {
+      if (sps.COMMUNITY_YOUTH_CLUB_selected && pa.communityYouthClubAvailable) {
         icons.add(_getPaddedIcon('assets/icons/youth_club.png', color: iconColor));
         icons.add(spacer);
       }
@@ -551,25 +553,25 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
         icons.add(_getPaddedIcon('assets/icons/phonecall_pe.png', color: iconColor));
         icons.add(spacer);
       }
-      if (sps.HOME_VISIT_PE_selected) {
+      if (sps.HOME_VISIT_PE_selected && pa.homeVisitPEPossible) {
 //        icons.add(Icon(Icons.home));
         icons.add(_getPaddedIcon('assets/icons/homevisit_pe.png', color: iconColor));
         icons.add(spacer);
       }
-      if (sps.SCHOOL_VISIT_PE_selected) {
+      if (sps.SCHOOL_VISIT_PE_selected && pa.schoolVisitPEPossible) {
 //        icons.add(Icon(Icons.school));
         icons.add(_getPaddedIcon('assets/icons/schooltalk_pe.png', color: iconColor));
         icons.add(spacer);
       }
-      if (sps.PITSO_VISIT_PE_selected) {
+      if (sps.PITSO_VISIT_PE_selected && pa.pitsoPEPossible) {
         icons.add(_getPaddedIcon('assets/icons/pitso.png', color: iconColor));
         icons.add(spacer);
       }
       if (sps.areAllDeselected) {
         icons.add(_getPaddedIcon('assets/icons/no_support.png', color: iconColor));
         icons.add(spacer);
-      } else if (sps.areAllWithTodoDeselected) {
-        return _formatPatientRowText('—', isActivated: isActivated);
+      } else if (sps.areAllWithIconDeselected) {
+        return _formatPatientRowText('…', isActivated: isActivated);
       }
       if (icons.length > 0 && icons.last == spacer) {
         // remove last spacer as there are no more icons that follow it
@@ -766,7 +768,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
                       // Support
                       Container(
                         width: _supportWidth,
-                        child: _buildSupportIcons(curPatient?.latestPreferenceAssessment?.supportPreferences, isActivated: curPatient.isActivated),
+                        child: _buildSupportIcons(curPatient?.latestPreferenceAssessment, isActivated: curPatient.isActivated),
                       ),
                       // Viral Load
                       Container(
