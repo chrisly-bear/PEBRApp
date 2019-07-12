@@ -570,7 +570,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       if (sps.areAllDeselected) {
         icons.add(_getPaddedIcon('assets/icons/no_support.png', color: iconColor));
         icons.add(spacer);
-      } else if (sps.areAllWithIconDeselected) {
+      } if (icons.isEmpty) {
+        // indicate with '…' that options were selected which do not have an icon
         return _formatPatientRowText('…', isActivated: isActivated);
       }
       if (icons.length > 0 && icons.last == spacer) {

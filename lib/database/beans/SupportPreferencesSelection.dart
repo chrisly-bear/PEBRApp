@@ -7,7 +7,7 @@ class SupportPreferencesSelection {
   // Class Variables
   // ---------------
 
-  Set<SupportOption> _selection = { SupportOption.NONE() };
+  Set<SupportOption> _selection = {};
 
 
   // Constructors
@@ -34,8 +34,19 @@ class SupportPreferencesSelection {
     }
   }
 
+  String toExcelString() {
+    String excelString = '';
+    final List<int> selectionAsList = _selection.map((SupportOption option) => option.code).toList();
+    selectionAsList.sort((int a, int b) => a > b ? 1 : -1);
+    if (selectionAsList.isEmpty) {
+      selectionAsList.add(SupportOption.NONE().code);
+    }
+    selectionAsList.forEach((int code) => excelString += '$code, ');
+    return excelString.substring(0, excelString.length - 2);
+  }
+
   String serializeToJSON() {
-    final selectionAsList = _selection.map((SupportOption option) => option.code).toList();
+    final List<int> selectionAsList = _selection.map((SupportOption option) => option.code).toList();
     selectionAsList.sort((int a, int b) => a > b ? 1 : -1);
     return jsonEncode(selectionAsList);
   }
@@ -56,16 +67,9 @@ class SupportPreferencesSelection {
 
   void deselectAll() {
     _selection.clear();
-    _selection.add(SupportOption.NONE());
   }
 
-  bool get areAllDeselected => _selection.length == 1 && _selection.first == SupportOption.NONE();
-
-  /// Returns true if no options are selected that have an icon.
-  bool get areAllWithIconDeselected => (!NURSE_CLINIC_selected
-      && !SATURDAY_CLINIC_CLUB_selected  && !COMMUNITY_YOUTH_CLUB_selected
-      && !PHONE_CALL_PE_selected && !HOME_VISIT_PE_selected
-      && !SCHOOL_VISIT_PE_selected && !PITSO_VISIT_PE_selected);
+  bool get areAllDeselected => _selection.length == 0;
 
   set NURSE_CLINIC_selected(bool selected) {
     selected

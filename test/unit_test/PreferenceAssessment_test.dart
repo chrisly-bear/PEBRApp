@@ -33,6 +33,41 @@ void main() {
       expect(sps.SCHOOL_VISIT_PE_selected, false);
     });
 
+    test('excel formatting', () {
+      var sps = SupportPreferencesSelection();
+      sps.NURSE_CLINIC_selected = true;
+      sps.SATURDAY_CLINIC_CLUB_selected = false;
+      sps.HOME_VISIT_PE_selected = true;
+      sps.PHONE_CALL_PE_selected = false;
+      sps.COMMUNITY_YOUTH_CLUB_selected = true;
+      sps.SCHOOL_VISIT_PE_selected = false;
+
+      final excelString = sps.toExcelString();
+      final expected = '1, 3, 5';
+      expect(excelString, expected);
+    });
+
+    test('excel formatting with None option', () {
+      var sps = SupportPreferencesSelection();
+      final excelString = sps.toExcelString();
+      final expected = '14';
+      expect(excelString, expected);
+    });
+
+    test('excel formatting with None option and some deselected', () {
+      var sps = SupportPreferencesSelection();
+      sps.NURSE_CLINIC_selected = false;
+      sps.SATURDAY_CLINIC_CLUB_selected = false;
+      sps.HOME_VISIT_PE_selected = false;
+      sps.PHONE_CALL_PE_selected = false;
+      sps.COMMUNITY_YOUTH_CLUB_selected = false;
+      sps.SCHOOL_VISIT_PE_selected = false;
+
+      final excelString = sps.toExcelString();
+      final expected = '14';
+      expect(excelString, expected);
+    });
+
   });
 
   group('Enums', () {
