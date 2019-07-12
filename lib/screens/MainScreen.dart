@@ -537,34 +537,34 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       Color iconColor = isActivated ? ICON_ACTIVE : ICON_INACTIVE;
       final Container spacer = Container(width: 3);
       if (sps.NURSE_CLINIC_selected) {
-        icons.add(_getPaddedIcon('assets/icons/nurse_clinic.png', color: iconColor));
+        icons.add(_getPaddedIcon('assets/icons/nurse_clinic.png', color: pa.NURSE_CLINIC_done ? ICON_INACTIVE : iconColor));
         icons.add(spacer);
       }
       if (sps.SATURDAY_CLINIC_CLUB_selected && pa.saturdayClinicClubAvailable) {
-        icons.add(_getPaddedIcon('assets/icons/saturday_clinic_club.png', color: iconColor));
+        icons.add(_getPaddedIcon('assets/icons/saturday_clinic_club.png', color: pa.SATURDAY_CLINIC_CLUB_done ? ICON_INACTIVE : iconColor));
         icons.add(spacer);
       }
       if (sps.COMMUNITY_YOUTH_CLUB_selected && pa.communityYouthClubAvailable) {
-        icons.add(_getPaddedIcon('assets/icons/youth_club.png', color: iconColor));
+        icons.add(_getPaddedIcon('assets/icons/youth_club.png', color: pa.COMMUNITY_YOUTH_CLUB_done ? ICON_INACTIVE : iconColor));
         icons.add(spacer);
       }
       if (sps.PHONE_CALL_PE_selected) {
 //        icons.add(Icon(Icons.phone));
-        icons.add(_getPaddedIcon('assets/icons/phonecall_pe.png', color: iconColor));
+        icons.add(_getPaddedIcon('assets/icons/phonecall_pe.png', color: pa.PHONE_CALL_PE_done ? ICON_INACTIVE : iconColor));
         icons.add(spacer);
       }
       if (sps.HOME_VISIT_PE_selected && pa.homeVisitPEPossible) {
 //        icons.add(Icon(Icons.home));
-        icons.add(_getPaddedIcon('assets/icons/homevisit_pe.png', color: iconColor));
+        icons.add(_getPaddedIcon('assets/icons/homevisit_pe.png', color: pa.HOME_VISIT_PE_done ? ICON_INACTIVE : iconColor));
         icons.add(spacer);
       }
       if (sps.SCHOOL_VISIT_PE_selected && pa.schoolVisitPEPossible) {
 //        icons.add(Icon(Icons.school));
-        icons.add(_getPaddedIcon('assets/icons/schooltalk_pe.png', color: iconColor));
+        icons.add(_getPaddedIcon('assets/icons/schooltalk_pe.png', color: pa.SCHOOL_VISIT_PE_done ? ICON_INACTIVE : iconColor));
         icons.add(spacer);
       }
       if (sps.PITSO_VISIT_PE_selected && pa.pitsoPEPossible) {
-        icons.add(_getPaddedIcon('assets/icons/pitso.png', color: iconColor));
+        icons.add(_getPaddedIcon('assets/icons/pitso.png', color: pa.PITSO_VISIT_PE_done ? ICON_INACTIVE : iconColor));
         icons.add(spacer);
       }
       if (sps.areAllDeselected) {
