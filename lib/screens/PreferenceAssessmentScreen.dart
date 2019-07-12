@@ -105,6 +105,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     _phoneAvailabilityBeforeAssessment = _patient.phoneAvailability;
     _patientPhoneNumberBeforeAssessment = _patient.phoneNumber;
     _pa.patientART = patient.artNumber;
+    _pa.supportPreferences = SupportPreferencesSelection.fromLastAssessment(_patient.latestPreferenceAssessment);
     DatabaseProvider().retrieveLatestUserData().then((UserData user) {
       _user = user;
       final String _existingPEPhoneNumber = _user.phoneNumber;
@@ -2045,7 +2046,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       }
 
       print('NEW PREFERENCE ASSESSMENT (_id will be given by SQLite database):\n$_pa');
-      await DatabaseProvider().insertPreferenceAssessment(_pa);
+      _pa.id = await DatabaseProvider().insertPreferenceAssessment(_pa);
 
       final String newPEPhoneNumber = '+266-${_pePhoneNumberCtr.text}';
       if (newPEPhoneNumber != _user.phoneNumber) {

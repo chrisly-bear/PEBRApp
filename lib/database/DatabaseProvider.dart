@@ -743,11 +743,12 @@ class DatabaseProvider {
     return list;
   }
 
-  Future<void> insertPreferenceAssessment(PreferenceAssessment newPreferenceAssessment) async {
+  /// Inserts a [PreferenceAssessment] object into database and return the id
+  /// given by the database.
+  Future<int> insertPreferenceAssessment(PreferenceAssessment newPreferenceAssessment) async {
     final Database db = await _databaseInstance;
     newPreferenceAssessment.createdDate = DateTime.now().toUtc();
-    final res = await db.insert(PreferenceAssessment.tableName, newPreferenceAssessment.toMap());
-    return res;
+    return db.insert(PreferenceAssessment.tableName, newPreferenceAssessment.toMap());
   }
 
   Future<void> insertUserData(UserData userData) async {

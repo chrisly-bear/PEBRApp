@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:pebrapp/database/beans/SupportOption.dart';
+import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 
 class SupportPreferencesSelection {
 
@@ -11,6 +12,27 @@ class SupportPreferencesSelection {
 
   // Constructors
   // ------------
+
+  SupportPreferencesSelection();
+
+  SupportPreferencesSelection.fromLastAssessment(PreferenceAssessment pa) {
+    if (pa != null) {
+      final SupportPreferencesSelection lastSelection = pa.supportPreferences;
+      NURSE_CLINIC_selected = lastSelection.NURSE_CLINIC_selected && !pa.NURSE_CLINIC_done;
+      SATURDAY_CLINIC_CLUB_selected = lastSelection.SATURDAY_CLINIC_CLUB_selected && pa.saturdayClinicClubAvailable && !pa.SATURDAY_CLINIC_CLUB_done;
+      COMMUNITY_YOUTH_CLUB_selected = lastSelection.COMMUNITY_YOUTH_CLUB_selected && pa.communityYouthClubAvailable && !pa.COMMUNITY_YOUTH_CLUB_done;
+      PHONE_CALL_PE_selected = lastSelection.PHONE_CALL_PE_selected && !pa.PHONE_CALL_PE_done;
+      HOME_VISIT_PE_selected = lastSelection.HOME_VISIT_PE_selected && pa.homeVisitPEPossible && !pa.HOME_VISIT_PE_done;
+      SCHOOL_VISIT_PE_selected = lastSelection.SCHOOL_VISIT_PE_selected && pa.schoolVisitPEPossible && !pa.SCHOOL_VISIT_PE_done;
+      PITSO_VISIT_PE_selected = lastSelection.PITSO_VISIT_PE_selected && pa.pitsoPEPossible && !pa.PITSO_VISIT_PE_done;
+      CONDOM_DEMO_selected = lastSelection.CONDOM_DEMO_selected && !pa.CONDOM_DEMO_done;
+      CONTRACEPTIVES_INFO_selected = lastSelection.CONTRACEPTIVES_INFO_selected && !pa.CONTRACEPTIVES_INFO_done;
+      VMMC_INFO_selected = lastSelection.VMMC_INFO_selected && !pa.VMMC_INFO_done;
+      YOUNG_MOTHERS_GROUP_selected = lastSelection.YOUNG_MOTHERS_GROUP_selected && pa.youngMothersAvailable && !pa.YOUNG_MOTHERS_GROUP_done;
+      FEMALE_WORTH_GROUP_selected = lastSelection.FEMALE_WORTH_GROUP_selected && pa.femaleWorthAvailable && !pa.FEMALE_WORTH_GROUP_done;
+      LEGAL_AID_INFO_selected = lastSelection.LEGAL_AID_INFO_selected && pa.legalAidSmartphoneAvailable && !pa.LEGAL_AID_INFO_done;
+    }
+  }
 
   String serializeToJSON() {
     final selectionAsList = _selection.map((SupportOption option) => option.code).toList();
