@@ -7,7 +7,7 @@ class SupportPreferencesSelection {
   // Class Variables
   // ---------------
 
-  Set<SupportOption> _selection = Set();
+  Set<SupportOption> _selection = { SupportOption.NONE() };
 
 
   // Constructors
