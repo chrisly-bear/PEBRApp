@@ -528,44 +528,48 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
               )));
     }
 
+    ClipRect _getPaddedSupportIcon(String assetLocation, {bool active: true}) {
+      final Color iconColor = active ? ICON_ACTIVE : ICON_INACTIVE;
+      return _getPaddedIcon(assetLocation, color: iconColor);
+    }
+
     Widget _buildSupportIcons(PreferenceAssessment pa, {bool isActivated: true}) {
       if (pa == null) {
         return _formatPatientRowText('—', isActivated: isActivated);
       }
       final SupportPreferencesSelection sps = pa.supportPreferences;
       List<Widget> icons = List<Widget>();
-      Color iconColor = isActivated ? ICON_ACTIVE : ICON_INACTIVE;
       final Container spacer = Container(width: 3);
       if (sps.NURSE_CLINIC_selected) {
-        final icon = [_getPaddedIcon('assets/icons/nurse_clinic.png', color: pa.NURSE_CLINIC_done ? ICON_INACTIVE : iconColor), spacer];
+        final icon = [_getPaddedSupportIcon('assets/icons/nurse_clinic.png', active: isActivated && !pa.NURSE_CLINIC_done), spacer];
         pa.NURSE_CLINIC_done ? icons.addAll(icon) : icons.insertAll(0, icon);
       }
       if (sps.SATURDAY_CLINIC_CLUB_selected && pa.saturdayClinicClubAvailable) {
-        final icon = [_getPaddedIcon('assets/icons/saturday_clinic_club.png', color: pa.SATURDAY_CLINIC_CLUB_done ? ICON_INACTIVE : iconColor), spacer];
+        final icon = [_getPaddedSupportIcon('assets/icons/saturday_clinic_club.png', active: isActivated && !pa.SATURDAY_CLINIC_CLUB_done), spacer];
         pa.SATURDAY_CLINIC_CLUB_done ? icons.addAll(icon) : icons.insertAll(0, icon);
       }
       if (sps.COMMUNITY_YOUTH_CLUB_selected && pa.communityYouthClubAvailable) {
-        final icon = [_getPaddedIcon('assets/icons/youth_club.png', color: pa.COMMUNITY_YOUTH_CLUB_done ? ICON_INACTIVE : iconColor), spacer];
+        final icon = [_getPaddedSupportIcon('assets/icons/youth_club.png', active: isActivated && !pa.COMMUNITY_YOUTH_CLUB_done), spacer];
         pa.COMMUNITY_YOUTH_CLUB_done ? icons.addAll(icon) : icons.insertAll(0, icon);
       }
       if (sps.PHONE_CALL_PE_selected) {
-        final icon = [_getPaddedIcon('assets/icons/phonecall_pe.png', color: pa.PHONE_CALL_PE_done ? ICON_INACTIVE : iconColor), spacer];
+        final icon = [_getPaddedSupportIcon('assets/icons/phonecall_pe.png', active: isActivated && !pa.PHONE_CALL_PE_done), spacer];
         pa.PHONE_CALL_PE_done ? icons.addAll(icon) : icons.insertAll(0, icon);
       }
       if (sps.HOME_VISIT_PE_selected && pa.homeVisitPEPossible) {
-        final icon = [_getPaddedIcon('assets/icons/homevisit_pe.png', color: pa.HOME_VISIT_PE_done ? ICON_INACTIVE : iconColor), spacer];
+        final icon = [_getPaddedSupportIcon('assets/icons/homevisit_pe.png', active: isActivated && !pa.HOME_VISIT_PE_done), spacer];
         pa.HOME_VISIT_PE_done ? icons.addAll(icon) : icons.insertAll(0, icon);
       }
       if (sps.SCHOOL_VISIT_PE_selected && pa.schoolVisitPEPossible) {
-        final icon = [_getPaddedIcon('assets/icons/schooltalk_pe.png', color: pa.SCHOOL_VISIT_PE_done ? ICON_INACTIVE : iconColor), spacer];
+        final icon = [_getPaddedSupportIcon('assets/icons/schooltalk_pe.png', active: isActivated && !pa.SCHOOL_VISIT_PE_done), spacer];
         pa.SCHOOL_VISIT_PE_done ? icons.addAll(icon) : icons.insertAll(0, icon);
       }
       if (sps.PITSO_VISIT_PE_selected && pa.pitsoPEPossible) {
-        final icon = [_getPaddedIcon('assets/icons/pitso.png', color: pa.PITSO_VISIT_PE_done ? ICON_INACTIVE : iconColor), spacer];
+        final icon = [_getPaddedSupportIcon('assets/icons/pitso.png', active: isActivated && !pa.PITSO_VISIT_PE_done), spacer];
         pa.PITSO_VISIT_PE_done ? icons.addAll(icon) : icons.insertAll(0, icon);
       }
       if (sps.areAllDeselected) {
-        icons.add(_getPaddedIcon('assets/icons/no_support.png', color: iconColor));
+        icons.add(_getPaddedSupportIcon('assets/icons/no_support.png', active: isActivated));
         icons.add(spacer);
       } if (icons.isEmpty) {
         // indicate with '…' that options were selected which do not have an icon
