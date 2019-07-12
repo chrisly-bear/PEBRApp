@@ -52,10 +52,9 @@ class Patient implements IExcelExportable {
   NoConsentReason noConsentReason;
   String noConsentReasonOther;
   bool isActivated;
-  // The following are not columns in the database, just the objects for easier
-  // access to the latest PreferenceAssessment/ARTRefill.
-  // Will be null until the [initializePreferenceAssessmentField]/
-  // [initializeARTRefillField] method was called.
+  // The following fields are other database tables, to make access to related
+  // database objects easier.
+  // Will be null until the corresponding initialize... methods were called.
   List<ViralLoad> viralLoads = [];
   PreferenceAssessment latestPreferenceAssessment;
   ARTRefill latestARTRefill; // stores the latest ART refill (done or not done)

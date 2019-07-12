@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
+import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderDaysBeforeSelection.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderMessage.dart';
@@ -10,10 +11,12 @@ import 'package:pebrapp/database/beans/HomeVisitPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/PEHomeDeliveryNotPossibleReason.dart';
 import 'package:pebrapp/database/beans/PitsoPENotPossibleReason.dart';
 import 'package:pebrapp/database/beans/SchoolVisitPENotPossibleReason.dart';
+import 'package:pebrapp/database/beans/SupportOption.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/beans/VLSuppressedMessage.dart';
 import 'package:pebrapp/database/beans/VLUnsuppressedMessage.dart';
 import 'package:pebrapp/database/beans/YesNoRefused.dart';
+import 'package:pebrapp/database/models/SupportOptionDone.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 class PreferenceAssessment implements IExcelExportable {
@@ -72,6 +75,7 @@ class PreferenceAssessment implements IExcelExportable {
   static final colUnsuppressedSafeEnvironmentAnswer = 'unsuppressed_safe_env_answer'; // nullable
   static final colUnsuppressedWhyNotSafe = 'unsuppressed_why_not_safe_env'; // nullable
 
+  int id;
   String patientART;
   DateTime _createdDate;
   ARTRefillOption artRefillOption1;
@@ -122,12 +126,17 @@ class PreferenceAssessment implements IExcelExportable {
   String psychosocialHowDoing;
   YesNoRefused unsuppressedSafeEnvironmentAnswer;
   String unsuppressedWhyNotSafe;
+  // The following fields are from the [SupportOptionDone] table.
+  // Will be null until the [initializeSupportOptionDoneFields] methods is
+  // called.
+  Set<SupportOptionDone> _supportOptionDones = {};
 
 
   // Constructors
   // ------------
 
   PreferenceAssessment(
+      this.id,
       this.patientART,
       this.artRefillOption1,
       this.supportPreferences,
@@ -183,6 +192,7 @@ class PreferenceAssessment implements IExcelExportable {
   PreferenceAssessment.uninitialized();
 
   PreferenceAssessment.fromMap(map) {
+    this.id = map[colId];
     this.patientART = map[colPatientART];
     this.createdDate = DateTime.parse(map[colCreatedDate]);
     this.artRefillOption1 = ARTRefillOption.fromCode(map[colARTRefillOption1]);
@@ -300,64 +310,65 @@ class PreferenceAssessment implements IExcelExportable {
     return map;
   }
 
-  static const int _numberOfColumns = 51;
+  static const int _numberOfColumns = 52;
 
   /// Column names for the header row in the excel sheet.
   // If we change the order here, make sure to change the order in the
   // [toExcelRow] method as well!
   static List<String> get excelHeaderRow {
     List<String> row = List<String>(_numberOfColumns);
-    row[0] = 'DATE_CREATED';
-    row[1] = 'TIME_CREATED';
-    row[2] = 'IND_ID';
-    row[3] = 'ART_REFILL_1';
-    row[4] = 'ART_REFILL_2';
-    row[5] = 'ART_REFILL_3';
-    row[6] = 'ART_REFILL_4';
-    row[7] = 'ART_REFILL_5';
-    row[8] = 'ART_REFILL_PE_NO';
-    row[9] = 'ART_REFILL_PE_NO_OTHER';
-    row[10] = 'ART_REFILL_VHW_NAME';
-    row[11] = 'ART_REFILL_VHW_VILLAGE';
-    row[12] = 'ART_REFILL_VHW_CELL';
-    row[13] = 'ART_REFILL_TB_ART';
-    row[14] = 'ART_REFILL_TB_VILLAGE';
-    row[15] = 'ART_REFILL_TB_CELL';
-    row[16] = 'ART_REFILL_INTERVAL';
-    row[17] = 'CELL_AVAILABLE';
-    row[18] = 'NOT_ADH';
-    row[19] = 'NOT_ADH_FREQ';
-    row[20] = 'NOT_ADH_TIME';
-    row[21] = 'NOT_ADH_MESSAGE';
-    row[22] = 'NOT_REFILL';
-    row[23] = 'NOT_REFILL_WHEN';
-    row[24] = 'NOT_REFILL_MESSAGE';
-    row[25] = 'NOT_VL';
-    row[26] = 'NOT_VL_SUPPR_MESSAGE';
-    row[27] = 'NOT_VL_UNSUPPR_MESSAGE';
-    row[28] = 'SUPPORT';
-    row[29] = 'SUPPORT_SCC';
-    row[30] = 'SUPPORT_CYC';
-    row[31] = 'SUPPORT_HV';
-    row[32] = 'SUPPORT_HV_NO';
-    row[33] = 'SUPPORT_HV_NO_OTHER';
-    row[34] = 'SUPPORT_SV';
-    row[35] = 'SUPPORT_SV_SCHOOL';
-    row[36] = 'SUPPORT_SV_NO';
-    row[37] = 'SUPPORT_SV_NO_OTHER';
-    row[38] = 'SUPPORT_PV';
-    row[39] = 'SUPPORT_PV_NO';
-    row[40] = 'SUPPORT_PV_NO_OTHER';
-    row[41] = 'SUPPORT_CC';
-    row[42] = 'SUPPORT_VMMC';
-    row[43] = 'SUPPORT_YM';
-    row[44] = 'SUPPORT_W';
-    row[45] = 'SUPPORT_LA';
-    row[46] = 'PSYCH_SHARE';
-    row[47] = 'PSYCH_SHARE_NOTE';
-    row[48] = 'PSYCH_DOING_NOTE';
-    row[49] = 'UVL_ENV';
-    row[50] = 'UVL_ENV_NOTE';
+    row[0] = 'ID';
+    row[1] = 'DATE_CREATED';
+    row[2] = 'TIME_CREATED';
+    row[3] = 'IND_ID';
+    row[4] = 'ART_REFILL_1';
+    row[5] = 'ART_REFILL_2';
+    row[6] = 'ART_REFILL_3';
+    row[7] = 'ART_REFILL_4';
+    row[8] = 'ART_REFILL_5';
+    row[9] = 'ART_REFILL_PE_NO';
+    row[10] = 'ART_REFILL_PE_NO_OTHER';
+    row[11] = 'ART_REFILL_VHW_NAME';
+    row[12] = 'ART_REFILL_VHW_VILLAGE';
+    row[13] = 'ART_REFILL_VHW_CELL';
+    row[14] = 'ART_REFILL_TB_ART';
+    row[15] = 'ART_REFILL_TB_VILLAGE';
+    row[16] = 'ART_REFILL_TB_CELL';
+    row[17] = 'ART_REFILL_INTERVAL';
+    row[18] = 'CELL_AVAILABLE';
+    row[19] = 'NOT_ADH';
+    row[20] = 'NOT_ADH_FREQ';
+    row[21] = 'NOT_ADH_TIME';
+    row[22] = 'NOT_ADH_MESSAGE';
+    row[23] = 'NOT_REFILL';
+    row[24] = 'NOT_REFILL_WHEN';
+    row[25] = 'NOT_REFILL_MESSAGE';
+    row[26] = 'NOT_VL';
+    row[27] = 'NOT_VL_SUPPR_MESSAGE';
+    row[28] = 'NOT_VL_UNSUPPR_MESSAGE';
+    row[29] = 'SUPPORT';
+    row[30] = 'SUPPORT_SCC';
+    row[31] = 'SUPPORT_CYC';
+    row[32] = 'SUPPORT_HV';
+    row[33] = 'SUPPORT_HV_NO';
+    row[34] = 'SUPPORT_HV_NO_OTHER';
+    row[35] = 'SUPPORT_SV';
+    row[36] = 'SUPPORT_SV_SCHOOL';
+    row[37] = 'SUPPORT_SV_NO';
+    row[38] = 'SUPPORT_SV_NO_OTHER';
+    row[39] = 'SUPPORT_PV';
+    row[40] = 'SUPPORT_PV_NO';
+    row[41] = 'SUPPORT_PV_NO_OTHER';
+    row[42] = 'SUPPORT_CC';
+    row[43] = 'SUPPORT_VMMC';
+    row[44] = 'SUPPORT_YM';
+    row[45] = 'SUPPORT_W';
+    row[46] = 'SUPPORT_LA';
+    row[47] = 'PSYCH_SHARE';
+    row[48] = 'PSYCH_SHARE_NOTE';
+    row[49] = 'PSYCH_DOING_NOTE';
+    row[50] = 'UVL_ENV';
+    row[51] = 'UVL_ENV_NOTE';
     return row;
   }
 
@@ -367,60 +378,65 @@ class PreferenceAssessment implements IExcelExportable {
   @override
   List<dynamic> toExcelRow() {
     List<dynamic> row = List<dynamic>(_numberOfColumns);
-    row[0] = formatDateIso(_createdDate);
-    row[1] = formatTimeIso(_createdDate);
-    row[2] = patientART;
-    row[3] = artRefillOption1.code;
-    row[4] = artRefillOption2?.code;
-    row[5] = artRefillOption3?.code;
-    row[6] = artRefillOption4?.code;
-    row[7] = artRefillOption5?.code;
-    row[8] = artRefillPENotPossibleReason?.code;
-    row[9] = artRefillPENotPossibleReasonOther;
-    row[10] = artRefillVHWName;
-    row[11] = artRefillVHWVillage;
-    row[12] = artRefillVHWPhoneNumber;
-    row[13] = artRefillTreatmentBuddyART;
-    row[14] = artRefillTreatmentBuddyVillage;
-    row[15] = artRefillTreatmentBuddyPhoneNumber;
-    row[16] = artSupplyAmount.code;
-    row[17] = patientPhoneAvailable;
-    row[18] = adherenceReminderEnabled;
-    row[19] = adherenceReminderFrequency?.code;
-    row[20] = formatTime(adherenceReminderTime);
-    row[21] = adherenceReminderMessage?.code;
-    row[22] = artRefillReminderEnabled;
-    row[23] = artRefillReminderDaysBefore?.serializeToJSON();
-    row[24] = artRefillReminderMessage?.code;
-    row[25] = vlNotificationEnabled;
-    row[26] = vlNotificationMessageSuppressed?.code;
-    row[27] = vlNotificationMessageUnsuppressed?.code;
-    row[28] = supportPreferences.serializeToJSON();
-    row[29] = saturdayClinicClubAvailable;
-    row[30] = communityYouthClubAvailable;
-    row[31] = homeVisitPEPossible;
-    row[32] = homeVisitPENotPossibleReason?.code;
-    row[33] = homeVisitPENotPossibleReasonOther;
-    row[34] = schoolVisitPEPossible;
-    row[35] = school;
-    row[36] = schoolVisitPENotPossibleReason?.code;
-    row[37] = schoolVisitPENotPossibleReasonOther;
-    row[38] = pitsoPEPossible;
-    row[39] = pitsoPENotPossibleReason?.code;
-    row[40] = pitsoPENotPossibleReasonOther;
-    row[41] = moreInfoContraceptives;
-    row[42] = moreInfoVMMC;
-    row[43] = youngMothersAvailable;
-    row[44] = femaleWorthAvailable;
-    row[45] = legalAidSmartphoneAvailable;
-    row[46] = psychosocialShareSomethingAnswer.code;
-    row[47] = psychosocialShareSomethingContent;
-    row[48] = psychosocialHowDoing;
-    row[49] = unsuppressedSafeEnvironmentAnswer?.code;
-    row[50] = unsuppressedWhyNotSafe;
+    row[0] = id;
+    row[1] = formatDateIso(_createdDate);
+    row[2] = formatTimeIso(_createdDate);
+    row[3] = patientART;
+    row[4] = artRefillOption1.code;
+    row[5] = artRefillOption2?.code;
+    row[6] = artRefillOption3?.code;
+    row[7] = artRefillOption4?.code;
+    row[8] = artRefillOption5?.code;
+    row[9] = artRefillPENotPossibleReason?.code;
+    row[10] = artRefillPENotPossibleReasonOther;
+    row[11] = artRefillVHWName;
+    row[12] = artRefillVHWVillage;
+    row[13] = artRefillVHWPhoneNumber;
+    row[14] = artRefillTreatmentBuddyART;
+    row[15] = artRefillTreatmentBuddyVillage;
+    row[16] = artRefillTreatmentBuddyPhoneNumber;
+    row[17] = artSupplyAmount.code;
+    row[18] = patientPhoneAvailable;
+    row[19] = adherenceReminderEnabled;
+    row[20] = adherenceReminderFrequency?.code;
+    row[21] = formatTime(adherenceReminderTime);
+    row[22] = adherenceReminderMessage?.code;
+    row[23] = artRefillReminderEnabled;
+    row[24] = artRefillReminderDaysBefore?.serializeToJSON();
+    row[25] = artRefillReminderMessage?.code;
+    row[26] = vlNotificationEnabled;
+    row[27] = vlNotificationMessageSuppressed?.code;
+    row[28] = vlNotificationMessageUnsuppressed?.code;
+    row[29] = supportPreferences.serializeToJSON();
+    row[30] = saturdayClinicClubAvailable;
+    row[31] = communityYouthClubAvailable;
+    row[32] = homeVisitPEPossible;
+    row[33] = homeVisitPENotPossibleReason?.code;
+    row[34] = homeVisitPENotPossibleReasonOther;
+    row[35] = schoolVisitPEPossible;
+    row[36] = school;
+    row[37] = schoolVisitPENotPossibleReason?.code;
+    row[38] = schoolVisitPENotPossibleReasonOther;
+    row[39] = pitsoPEPossible;
+    row[40] = pitsoPENotPossibleReason?.code;
+    row[41] = pitsoPENotPossibleReasonOther;
+    row[42] = moreInfoContraceptives;
+    row[43] = moreInfoVMMC;
+    row[44] = youngMothersAvailable;
+    row[45] = femaleWorthAvailable;
+    row[46] = legalAidSmartphoneAvailable;
+    row[47] = psychosocialShareSomethingAnswer.code;
+    row[48] = psychosocialShareSomethingContent;
+    row[49] = psychosocialHowDoing;
+    row[50] = unsuppressedSafeEnvironmentAnswer?.code;
+    row[51] = unsuppressedWhyNotSafe;
     return row;
   }
 
+  /// Initializes the support option done fields with the latest data from the database.
+  Future<void> initializeSupportOptionDoneFields() async {
+    _supportOptionDones = await DatabaseProvider().retrieveDoneSupportOptionsForPreferenceAssessment(id);
+  }
 
   /// Do not set the createdDate manually! The DatabaseProvider sets the date
   /// automatically on inserts into database.
@@ -429,5 +445,136 @@ class PreferenceAssessment implements IExcelExportable {
   DateTime get createdDate => this._createdDate;
 
   ARTRefillOption get lastRefillOption => artRefillOption5 ?? artRefillOption4 ?? artRefillOption3 ?? artRefillOption2 ?? artRefillOption1;
+
+  bool get NURSE_CLINIC_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.NURSE_CLINIC() && s.done, orElse: () => null) != null;
+  bool get SATURDAY_CLINIC_CLUB_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.SATURDAY_CLINIC_CLUB() && s.done, orElse: () => null) != null;
+  bool get COMMUNITY_YOUTH_CLUB_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.COMMUNITY_YOUTH_CLUB() && s.done, orElse: () => null) != null;
+  bool get PHONE_CALL_PE_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.PHONE_CALL_PE() && s.done, orElse: () => null) != null;
+  bool get HOME_VISIT_PE_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.HOME_VISIT_PE() && s.done, orElse: () => null) != null;
+  bool get SCHOOL_VISIT_PE_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.SCHOOL_VISIT_PE() && s.done, orElse: () => null) != null;
+  bool get PITSO_VISIT_PE_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.PITSO_VISIT_PE() && s.done, orElse: () => null) != null;
+  bool get CONDOM_DEMO_done =>_supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.CONDOM_DEMO() && s.done, orElse: () => null) != null;
+  bool get CONTRACEPTIVES_INFO_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.CONTRACEPTIVES_INFO() && s.done, orElse: () => null) != null;
+  bool get VMMC_INFO_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.VMMC_INFO() && s.done, orElse: () => null) != null;
+  bool get YOUNG_MOTHERS_GROUP_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.YOUNG_MOTHERS_GROUP() && s.done, orElse: () => null) != null;
+  bool get FEMALE_WORTH_GROUP_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.FEMALE_WORTH_GROUP() && s.done, orElse: () => null) != null;
+  bool get LEGAL_AID_INFO_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.LEGAL_AID_INFO() && s.done, orElse: () => null) != null;
+
+  set_NURSE_CLINIC_done(bool done) async {
+    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.NURSE_CLINIC(), done: done);
+    DateTime now = DateTime.now().toUtc();
+    s.createdDate = now;
+    _supportOptionDones.remove(s);
+    _supportOptionDones.add(s);
+    await DatabaseProvider().insertSupportOptionDone(s, createdDate: now);
+  }
+
+  set_SATURDAY_CLINIC_CLUB_done(bool done) async {
+    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.SATURDAY_CLINIC_CLUB(), done: done);
+    DateTime now = DateTime.now().toUtc();
+    s.createdDate = now;
+    _supportOptionDones.remove(s);
+    _supportOptionDones.add(s);
+    await DatabaseProvider().insertSupportOptionDone(s, createdDate: now);
+  }
+
+  set_COMMUNITY_YOUTH_CLUB_done(bool done) async {
+    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.COMMUNITY_YOUTH_CLUB(), done: done);
+    DateTime now = DateTime.now().toUtc();
+    s.createdDate = now;
+    _supportOptionDones.remove(s);
+    _supportOptionDones.add(s);
+    await DatabaseProvider().insertSupportOptionDone(s, createdDate: now);
+  }
+
+  set_PHONE_CALL_PE_done(bool done) async {
+    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.PHONE_CALL_PE(), done: done);
+    DateTime now = DateTime.now().toUtc();
+    s.createdDate = now;
+    _supportOptionDones.remove(s);
+    _supportOptionDones.add(s);
+    await DatabaseProvider().insertSupportOptionDone(s, createdDate: now);
+  }
+
+  set_HOME_VISIT_PE_done(bool done) async {
+    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.HOME_VISIT_PE(), done: done);
+    DateTime now = DateTime.now().toUtc();
+    s.createdDate = now;
+    _supportOptionDones.remove(s);
+    _supportOptionDones.add(s);
+    await DatabaseProvider().insertSupportOptionDone(s, createdDate: now);
+  }
+
+  set_SCHOOL_VISIT_PE_done(bool done) async {
+    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.SCHOOL_VISIT_PE(), done: done);
+    DateTime now = DateTime.now().toUtc();
+    s.createdDate = now;
+    _supportOptionDones.remove(s);
+    _supportOptionDones.add(s);
+    await DatabaseProvider().insertSupportOptionDone(s, createdDate: now);
+  }
+
+  set_PITSO_VISIT_PE_done(bool done) async {
+    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.PITSO_VISIT_PE(), done: done);
+    DateTime now = DateTime.now().toUtc();
+    s.createdDate = now;
+    _supportOptionDones.remove(s);
+    _supportOptionDones.add(s);
+    await DatabaseProvider().insertSupportOptionDone(s, createdDate: now);
+  }
+
+  set_CONDOM_DEMO_done(bool done) async {
+    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.CONDOM_DEMO(), done: done);
+    DateTime now = DateTime.now().toUtc();
+    s.createdDate = now;
+    _supportOptionDones.remove(s);
+    _supportOptionDones.add(s);
+    await DatabaseProvider().insertSupportOptionDone(s, createdDate: now);
+  }
+
+  set_CONTRACEPTIVES_INFO_done(bool done) async {
+    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.CONTRACEPTIVES_INFO(), done: done);
+    DateTime now = DateTime.now().toUtc();
+    s.createdDate = now;
+    _supportOptionDones.remove(s);
+    _supportOptionDones.add(s);
+    await DatabaseProvider().insertSupportOptionDone(s, createdDate: now);
+  }
+
+  set_VMMC_INFO_done(bool done) async {
+    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.VMMC_INFO(), done: done);
+    DateTime now = DateTime.now().toUtc();
+    s.createdDate = now;
+    _supportOptionDones.remove(s);
+    _supportOptionDones.add(s);
+    await DatabaseProvider().insertSupportOptionDone(s, createdDate: now);
+  }
+
+  set_YOUNG_MOTHERS_GROUP_done(bool done) async {
+    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.YOUNG_MOTHERS_GROUP(), done: done);
+    DateTime now = DateTime.now().toUtc();
+    s.createdDate = now;
+    _supportOptionDones.remove(s);
+    _supportOptionDones.add(s);
+    await DatabaseProvider().insertSupportOptionDone(s, createdDate: now);
+  }
+
+  set_FEMALE_WORTH_GROUP_done(bool done) async {
+    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.FEMALE_WORTH_GROUP(), done: done);
+    DateTime now = DateTime.now().toUtc();
+    s.createdDate = now;
+    _supportOptionDones.remove(s);
+    _supportOptionDones.add(s);
+    await DatabaseProvider().insertSupportOptionDone(s, createdDate: now);
+  }
+
+  set_LEGAL_AID_INFO_done(bool done) async {
+    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.LEGAL_AID_INFO(), done: done);
+    DateTime now = DateTime.now().toUtc();
+    s.createdDate = now;
+    _supportOptionDones.remove(s);
+    _supportOptionDones.add(s);
+    await DatabaseProvider().insertSupportOptionDone(s, createdDate: now);
+  }
 
 }
