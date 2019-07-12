@@ -1,54 +1,52 @@
 import 'dart:convert';
+import 'package:pebrapp/database/beans/SupportOption.dart';
+import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 
 class SupportPreferencesSelection {
 
   // Class Variables
   // ---------------
 
-  // Encoding as defined in the study codebook.
-  // NOTE: These integers are the values that are stored in the database. So if
-  // you change the encoding (the integers) you will have to migrate the entire
-  // database to the new encoding!
-  static const Map<_SupportPreference, int> _encoding = {
-    _SupportPreference.NURSE_CLINIC: 1,
-    _SupportPreference.SATURDAY_CLINIC_CLUB: 2,
-    _SupportPreference.COMMUNITY_YOUTH_CLUB: 3,
-    _SupportPreference.PHONE_CALL_PE: 4,
-    _SupportPreference.HOME_VISIT_PE: 5,
-    _SupportPreference.SCHOOL_VISIT_PE: 6,
-    _SupportPreference.PITSO_VISIT_PE: 7,
-    _SupportPreference.CONDOM_DEMO: 8,
-    _SupportPreference.CONTRACEPTIVES_INFO: 9,
-    _SupportPreference.VMMC_INFO: 10,
-    _SupportPreference.YOUNG_MOTHERS_GROUP: 11,
-    _SupportPreference.FEMALE_WORTH_GROUP: 12,
-    _SupportPreference.LEGAL_AID_INFO: 13,
-  };
-
-  // These are the descriptions that will be displayed in the UI.
-  static String get NURSE_CLINIC_DESCRIPTION => "By the nurse at the clinic";
-  static String get SATURDAY_CLINIC_CLUB_DESCRIPTION => "Saturday Clinic Club (SCC)";
-  static String get COMMUNITY_YOUTH_CLUB_DESCRIPTION => "Community Youth Club (CYC)";
-  static String get PHONE_CALL_PE_DESCRIPTION => "Phone Call by PE";
-  static String get HOME_VISIT_PE_DESCRIPTION => "Home-visit by PE";
-  static String get SCHOOL_VISIT_PE_DESCRIPTION => "School visit and health talk by PE";
-  static String get PITSO_VISIT_PE_DESCRIPTION => "Pitso visit and health talk by PE";
-  static String get CONDOM_DEMO_DESCRIPTION => "Condom demonstration";
-  static String get CONTRACEPTIVES_INFO_DESCRIPTION => "More information about contraceptives";
-  static String get VMMC_INFO_DESCRIPTION => "More information about VMMC";
-  static String get YOUNG_MOTHERS_GROUP_DESCRIPTION => "Linkage to young mothers group (DREAMS or Mothers-to-Mothers)";
-  static String get FEMALE_WORTH_GROUP_DESCRIPTION => "Linkage to a female WORTH group (Social Asset Building Model)";
-  static String get LEGAL_AID_INFO_DESCRIPTION => "Legal aid information";
-  static String get NONE_DESCRIPTION => "No support wished";
-
-  Set<_SupportPreference> _selection = Set();
+  Set<SupportOption> _selection = {};
 
 
   // Constructors
   // ------------
 
+  SupportPreferencesSelection();
+
+  SupportPreferencesSelection.fromLastAssessment(PreferenceAssessment pa) {
+    if (pa != null) {
+      final SupportPreferencesSelection lastSelection = pa.supportPreferences;
+      NURSE_CLINIC_selected = lastSelection.NURSE_CLINIC_selected && !pa.NURSE_CLINIC_done;
+      SATURDAY_CLINIC_CLUB_selected = lastSelection.SATURDAY_CLINIC_CLUB_selected && pa.saturdayClinicClubAvailable && !pa.SATURDAY_CLINIC_CLUB_done;
+      COMMUNITY_YOUTH_CLUB_selected = lastSelection.COMMUNITY_YOUTH_CLUB_selected && pa.communityYouthClubAvailable && !pa.COMMUNITY_YOUTH_CLUB_done;
+      PHONE_CALL_PE_selected = lastSelection.PHONE_CALL_PE_selected && !pa.PHONE_CALL_PE_done;
+      HOME_VISIT_PE_selected = lastSelection.HOME_VISIT_PE_selected && pa.homeVisitPEPossible && !pa.HOME_VISIT_PE_done;
+      SCHOOL_VISIT_PE_selected = lastSelection.SCHOOL_VISIT_PE_selected && pa.schoolVisitPEPossible && !pa.SCHOOL_VISIT_PE_done;
+      PITSO_VISIT_PE_selected = lastSelection.PITSO_VISIT_PE_selected && pa.pitsoPEPossible && !pa.PITSO_VISIT_PE_done;
+      CONDOM_DEMO_selected = lastSelection.CONDOM_DEMO_selected && !pa.CONDOM_DEMO_done;
+      CONTRACEPTIVES_INFO_selected = lastSelection.CONTRACEPTIVES_INFO_selected && !pa.CONTRACEPTIVES_INFO_done;
+      VMMC_INFO_selected = lastSelection.VMMC_INFO_selected && !pa.VMMC_INFO_done;
+      YOUNG_MOTHERS_GROUP_selected = lastSelection.YOUNG_MOTHERS_GROUP_selected && pa.youngMothersAvailable && !pa.YOUNG_MOTHERS_GROUP_done;
+      FEMALE_WORTH_GROUP_selected = lastSelection.FEMALE_WORTH_GROUP_selected && pa.femaleWorthAvailable && !pa.FEMALE_WORTH_GROUP_done;
+      LEGAL_AID_INFO_selected = lastSelection.LEGAL_AID_INFO_selected && pa.legalAidSmartphoneAvailable && !pa.LEGAL_AID_INFO_done;
+    }
+  }
+
+  String toExcelString() {
+    String excelString = '';
+    final List<int> selectionAsList = _selection.map((SupportOption option) => option.code).toList();
+    selectionAsList.sort((int a, int b) => a > b ? 1 : -1);
+    if (selectionAsList.isEmpty) {
+      selectionAsList.add(SupportOption.NONE().code);
+    }
+    selectionAsList.forEach((int code) => excelString += '$code, ');
+    return excelString.substring(0, excelString.length - 2);
+  }
+
   String serializeToJSON() {
-    final selectionAsList = _selection.map((_SupportPreference pref) => _encoding[pref]).toList();
+    final List<int> selectionAsList = _selection.map((SupportOption option) => option.code).toList();
     selectionAsList.sort((int a, int b) => a > b ? 1 : -1);
     return jsonEncode(selectionAsList);
   }
@@ -57,10 +55,8 @@ class SupportPreferencesSelection {
     final list = jsonDecode(json) as List<dynamic>;
     var obj = SupportPreferencesSelection();
     obj._selection = list.map((dynamic code) {
-      final _SupportPreference preference = _encoding.entries.firstWhere((MapEntry<_SupportPreference, int> entry) {
-        return entry.value == code as int;
-      }).key;
-      return preference;
+      final SupportOption option = SupportOption.fromCode(code);
+      return option;
     }).toSet();
     return obj;
   }
@@ -73,139 +69,111 @@ class SupportPreferencesSelection {
     _selection.clear();
   }
 
-  bool get areAllDeselected => _selection.isEmpty;
-
-  /// Returns true if no options are selected that require an action from the
-  /// peer educator.
-  ///
-  /// E.g., the option 'Phone Call PE' requires the peer educator to make a call
-  /// and then tick off the option in the patient screen.
-  ///
-  /// These are also the support options which have an icon.
-  bool get areAllWithTodoDeselected => (!NURSE_CLINIC_selected
-      && !SATURDAY_CLINIC_CLUB_selected  && !COMMUNITY_YOUTH_CLUB_selected
-      && !PHONE_CALL_PE_selected && !HOME_VISIT_PE_selected
-      && !SCHOOL_VISIT_PE_selected && !PITSO_VISIT_PE_selected);
+  bool get areAllDeselected => _selection.length == 0;
 
   set NURSE_CLINIC_selected(bool selected) {
     selected
-      ? _selection.add(_SupportPreference.NURSE_CLINIC)
-      : _selection.remove(_SupportPreference.NURSE_CLINIC);
+      ? _selection.add(SupportOption.NURSE_CLINIC())
+      : _selection.remove(SupportOption.NURSE_CLINIC());
   }
 
   set SATURDAY_CLINIC_CLUB_selected(bool selected) {
     selected
-        ? _selection.add(_SupportPreference.SATURDAY_CLINIC_CLUB)
-        : _selection.remove(_SupportPreference.SATURDAY_CLINIC_CLUB);
+        ? _selection.add(SupportOption.SATURDAY_CLINIC_CLUB())
+        : _selection.remove(SupportOption.SATURDAY_CLINIC_CLUB());
   }
 
   set COMMUNITY_YOUTH_CLUB_selected(bool selected) {
     selected
-        ? _selection.add(_SupportPreference.COMMUNITY_YOUTH_CLUB)
-        : _selection.remove(_SupportPreference.COMMUNITY_YOUTH_CLUB);
+        ? _selection.add(SupportOption.COMMUNITY_YOUTH_CLUB())
+        : _selection.remove(SupportOption.COMMUNITY_YOUTH_CLUB());
   }
 
   set PHONE_CALL_PE_selected(bool selected) {
     selected
-        ? _selection.add(_SupportPreference.PHONE_CALL_PE)
-        : _selection.remove(_SupportPreference.PHONE_CALL_PE);
+        ? _selection.add(SupportOption.PHONE_CALL_PE())
+        : _selection.remove(SupportOption.PHONE_CALL_PE());
   }
 
   set HOME_VISIT_PE_selected(bool selected) {
     selected
-        ? _selection.add(_SupportPreference.HOME_VISIT_PE)
-        : _selection.remove(_SupportPreference.HOME_VISIT_PE);
+        ? _selection.add(SupportOption.HOME_VISIT_PE())
+        : _selection.remove(SupportOption.HOME_VISIT_PE());
   }
 
   set SCHOOL_VISIT_PE_selected(bool selected) {
     selected
-        ? _selection.add(_SupportPreference.SCHOOL_VISIT_PE)
-        : _selection.remove(_SupportPreference.SCHOOL_VISIT_PE);
+        ? _selection.add(SupportOption.SCHOOL_VISIT_PE())
+        : _selection.remove(SupportOption.SCHOOL_VISIT_PE());
   }
 
   set PITSO_VISIT_PE_selected(bool selected) {
     selected
-        ? _selection.add(_SupportPreference.PITSO_VISIT_PE)
-        : _selection.remove(_SupportPreference.PITSO_VISIT_PE);
+        ? _selection.add(SupportOption.PITSO_VISIT_PE())
+        : _selection.remove(SupportOption.PITSO_VISIT_PE());
   }
 
   set CONDOM_DEMO_selected(bool selected) {
     selected
-        ? _selection.add(_SupportPreference.CONDOM_DEMO)
-        : _selection.remove(_SupportPreference.CONDOM_DEMO);
+        ? _selection.add(SupportOption.CONDOM_DEMO())
+        : _selection.remove(SupportOption.CONDOM_DEMO());
   }
 
   set CONTRACEPTIVES_INFO_selected(bool selected) {
     selected
-        ? _selection.add(_SupportPreference.CONTRACEPTIVES_INFO)
-        : _selection.remove(_SupportPreference.CONTRACEPTIVES_INFO);
+        ? _selection.add(SupportOption.CONTRACEPTIVES_INFO())
+        : _selection.remove(SupportOption.CONTRACEPTIVES_INFO());
   }
 
   set VMMC_INFO_selected(bool selected) {
     selected
-        ? _selection.add(_SupportPreference.VMMC_INFO)
-        : _selection.remove(_SupportPreference.VMMC_INFO);
+        ? _selection.add(SupportOption.VMMC_INFO())
+        : _selection.remove(SupportOption.VMMC_INFO());
   }
 
   set YOUNG_MOTHERS_GROUP_selected(bool selected) {
     selected
-        ? _selection.add(_SupportPreference.YOUNG_MOTHERS_GROUP)
-        : _selection.remove(_SupportPreference.YOUNG_MOTHERS_GROUP);
+        ? _selection.add(SupportOption.YOUNG_MOTHERS_GROUP())
+        : _selection.remove(SupportOption.YOUNG_MOTHERS_GROUP());
   }
 
   set FEMALE_WORTH_GROUP_selected(bool selected) {
     selected
-        ? _selection.add(_SupportPreference.FEMALE_WORTH_GROUP)
-        : _selection.remove(_SupportPreference.FEMALE_WORTH_GROUP);
+        ? _selection.add(SupportOption.FEMALE_WORTH_GROUP())
+        : _selection.remove(SupportOption.FEMALE_WORTH_GROUP());
   }
 
   set LEGAL_AID_INFO_selected(bool selected) {
     selected
-        ? _selection.add(_SupportPreference.LEGAL_AID_INFO)
-        : _selection.remove(_SupportPreference.LEGAL_AID_INFO);
+        ? _selection.add(SupportOption.LEGAL_AID_INFO())
+        : _selection.remove(SupportOption.LEGAL_AID_INFO());
   }
 
 
-  bool get NURSE_CLINIC_selected => _selection.contains(_SupportPreference.NURSE_CLINIC);
+  bool get NURSE_CLINIC_selected => _selection.contains(SupportOption.NURSE_CLINIC());
 
-  bool get SATURDAY_CLINIC_CLUB_selected => _selection.contains(_SupportPreference.SATURDAY_CLINIC_CLUB);
+  bool get SATURDAY_CLINIC_CLUB_selected => _selection.contains(SupportOption.SATURDAY_CLINIC_CLUB());
 
-  bool get COMMUNITY_YOUTH_CLUB_selected => _selection.contains(_SupportPreference.COMMUNITY_YOUTH_CLUB);
+  bool get COMMUNITY_YOUTH_CLUB_selected => _selection.contains(SupportOption.COMMUNITY_YOUTH_CLUB());
 
-  bool get PHONE_CALL_PE_selected => _selection.contains(_SupportPreference.PHONE_CALL_PE);
+  bool get PHONE_CALL_PE_selected => _selection.contains(SupportOption.PHONE_CALL_PE());
 
-  bool get HOME_VISIT_PE_selected => _selection.contains(_SupportPreference.HOME_VISIT_PE);
+  bool get HOME_VISIT_PE_selected => _selection.contains(SupportOption.HOME_VISIT_PE());
 
-  bool get SCHOOL_VISIT_PE_selected => _selection.contains(_SupportPreference.SCHOOL_VISIT_PE);
+  bool get SCHOOL_VISIT_PE_selected => _selection.contains(SupportOption.SCHOOL_VISIT_PE());
 
-  bool get PITSO_VISIT_PE_selected => _selection.contains(_SupportPreference.PITSO_VISIT_PE);
+  bool get PITSO_VISIT_PE_selected => _selection.contains(SupportOption.PITSO_VISIT_PE());
 
-  bool get CONDOM_DEMO_selected => _selection.contains(_SupportPreference.CONDOM_DEMO);
+  bool get CONDOM_DEMO_selected => _selection.contains(SupportOption.CONDOM_DEMO());
 
-  bool get CONTRACEPTIVES_INFO_selected => _selection.contains(_SupportPreference.CONTRACEPTIVES_INFO);
+  bool get CONTRACEPTIVES_INFO_selected => _selection.contains(SupportOption.CONTRACEPTIVES_INFO());
 
-  bool get VMMC_INFO_selected => _selection.contains(_SupportPreference.VMMC_INFO);
+  bool get VMMC_INFO_selected => _selection.contains(SupportOption.VMMC_INFO());
 
-  bool get YOUNG_MOTHERS_GROUP_selected => _selection.contains(_SupportPreference.YOUNG_MOTHERS_GROUP);
+  bool get YOUNG_MOTHERS_GROUP_selected => _selection.contains(SupportOption.YOUNG_MOTHERS_GROUP());
 
-  bool get FEMALE_WORTH_GROUP_selected => _selection.contains(_SupportPreference.FEMALE_WORTH_GROUP);
+  bool get FEMALE_WORTH_GROUP_selected => _selection.contains(SupportOption.FEMALE_WORTH_GROUP());
 
-  bool get LEGAL_AID_INFO_selected => _selection.contains(_SupportPreference.LEGAL_AID_INFO);
+  bool get LEGAL_AID_INFO_selected => _selection.contains(SupportOption.LEGAL_AID_INFO());
 
-}
-
-enum _SupportPreference {
-  NURSE_CLINIC,
-  SATURDAY_CLINIC_CLUB,
-  COMMUNITY_YOUTH_CLUB,
-  PHONE_CALL_PE,
-  HOME_VISIT_PE,
-  SCHOOL_VISIT_PE,
-  PITSO_VISIT_PE,
-  CONDOM_DEMO,
-  CONTRACEPTIVES_INFO,
-  VMMC_INFO,
-  YOUNG_MOTHERS_GROUP,
-  FEMALE_WORTH_GROUP,
-  LEGAL_AID_INFO,
 }

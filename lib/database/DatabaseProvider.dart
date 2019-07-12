@@ -5,6 +5,7 @@ import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/database/models/SupportOptionDone.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
@@ -20,7 +21,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 46;
+  static const int _DB_VERSION = 47;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -189,6 +190,15 @@ class DatabaseProvider {
           ${RequiredAction.colType} INTEGER NOT NULL,
           ${RequiredAction.colDueDate} TEXT NOT NULL,
           UNIQUE(${RequiredAction.colPatientART}, ${RequiredAction.colType}) ON CONFLICT IGNORE
+        );
+        """);
+    await db.execute("""
+        CREATE TABLE IF NOT EXISTS ${SupportOptionDone.tableName} (
+          ${SupportOptionDone.colId} INTEGER PRIMARY KEY,
+          ${SupportOptionDone.colCreatedDate} TEXT NOT NULL,
+          ${SupportOptionDone.colPreferenceAssessmentId} INTEGER NOT NULL,
+          ${SupportOptionDone.colSupportOption} INTEGER NOT NULL,
+          ${SupportOptionDone.colDone} BIT NOT NULL
         );
         """);
     // TODO: set colLatestPreferenceAssessment as foreign key to `PreferenceAssessment` table
@@ -538,6 +548,18 @@ class DatabaseProvider {
       await db.execute("DROP TABLE IF EXISTS ViralLoad;");
       await _onCreate(db, 46);
     }
+    if (oldVersion < 47 && _DB_VERSION >= 47) {
+      print('Upgrading to database version 47...');
+      await db.execute("""
+        CREATE TABLE IF NOT EXISTS SupportOptionDone (
+          id INTEGER PRIMARY KEY,
+          created_date TEXT NOT NULL,
+          preference_assessment_id INTEGER NOT NULL,
+          support_option INTEGER NOT NULL,
+          done BIT NOT NULL
+        );
+        """);
+    }
   }
 
   FutureOr<void> _onDowngrade(Database db, int oldVersion, int newVersion) async {
@@ -721,11 +743,12 @@ class DatabaseProvider {
     return list;
   }
 
-  Future<void> insertPreferenceAssessment(PreferenceAssessment newPreferenceAssessment) async {
+  /// Inserts a [PreferenceAssessment] object into database and return the id
+  /// given by the database.
+  Future<int> insertPreferenceAssessment(PreferenceAssessment newPreferenceAssessment) async {
     final Database db = await _databaseInstance;
     newPreferenceAssessment.createdDate = DateTime.now().toUtc();
-    final res = await db.insert(PreferenceAssessment.tableName, newPreferenceAssessment.toMap());
-    return res;
+    return db.insert(PreferenceAssessment.tableName, newPreferenceAssessment.toMap());
   }
 
   Future<void> insertUserData(UserData userData) async {
@@ -793,7 +816,9 @@ class DatabaseProvider {
         orderBy: '${PreferenceAssessment.colCreatedDate} DESC'
     );
     if (res.length > 0) {
-      return PreferenceAssessment.fromMap(res.first);
+      final PreferenceAssessment pa = PreferenceAssessment.fromMap(res.first);
+      await pa.initializeSupportOptionDoneFields();
+      return pa;
     }
     return null;
   }
@@ -816,6 +841,13 @@ class DatabaseProvider {
     final Database db = await _databaseInstance;
     newARTRefill.createdDate = DateTime.now().toUtc();
     final res = await db.insert(ARTRefill.tableName, newARTRefill.toMap());
+    return res;
+  }
+
+  Future<void> insertSupportOptionDone(SupportOptionDone supportOptionDone, {DateTime createdDate}) async {
+    final Database db = await _databaseInstance;
+    supportOptionDone.createdDate = createdDate ?? DateTime.now().toUtc();
+    final res = await db.insert(SupportOptionDone.tableName, supportOptionDone.toMap());
     return res;
   }
 
@@ -857,6 +889,25 @@ class DatabaseProvider {
     final Set<RequiredAction> set = {};
     for (Map map in res) {
       set.add(RequiredAction.fromMap(map));
+    }
+    return set;
+  }
+
+  /// Retrieves only the support option done statuses for the preference
+  /// assessment with [preferenceAssessmentId]. The elements in the set will
+  /// be the ones with the most recent 'done' status.
+  Future<Set<SupportOptionDone>> retrieveDoneSupportOptionsForPreferenceAssessment(int preferenceAssessmentId) async {
+    final Database db = await _databaseInstance;
+    final List<Map> res = await db.query(
+      SupportOptionDone.tableName,
+      where: '${SupportOptionDone.colPreferenceAssessmentId} = ?',
+      whereArgs: [preferenceAssessmentId],
+      orderBy: '${SupportOptionDone.colCreatedDate} DESC',
+    );
+    final Set<SupportOptionDone> set = {};
+    for (Map map in res) {
+      SupportOptionDone supportOptionDone = SupportOptionDone.fromMap(map);
+      set.add(supportOptionDone);
     }
     return set;
   }
@@ -928,6 +979,21 @@ class DatabaseProvider {
       for (Map<String, dynamic> map in res) {
         UserData u = UserData.fromMap(map);
         list.add(u);
+      }
+    }
+    return list;
+  }
+
+  /// Retrieves all support option done data rows from the database, including
+  /// all edits.
+  Future<List<SupportOptionDone>> retrieveAllSupportOptionDones() async {
+    final Database db = await _databaseInstance;
+    final res = await db.query(SupportOptionDone.tableName);
+    List<SupportOptionDone> list = List<SupportOptionDone>();
+    if (res.isNotEmpty) {
+      for (Map<String, dynamic> map in res) {
+        SupportOptionDone s = SupportOptionDone.fromMap(map);
+        list.add(s);
       }
     }
     return list;

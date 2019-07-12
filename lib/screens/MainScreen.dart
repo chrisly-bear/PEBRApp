@@ -12,6 +12,7 @@ import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
+import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
@@ -527,49 +528,52 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
               )));
     }
 
-    Widget _buildSupportIcons(SupportPreferencesSelection sps, {bool isActivated: true}) {
-      List<Widget> icons = List<Widget>();
-      Color iconColor = isActivated ? ICON_ACTIVE : ICON_INACTIVE;
-      final Container spacer = Container(width: 3);
-      if (sps == null) {
+    ClipRect _getPaddedSupportIcon(String assetLocation, {bool active: true}) {
+      final Color iconColor = active ? ICON_ACTIVE : ICON_INACTIVE;
+      return _getPaddedIcon(assetLocation, color: iconColor);
+    }
+
+    Widget _buildSupportIcons(PreferenceAssessment pa, {bool isActivated: true}) {
+      if (pa == null) {
         return _formatPatientRowText('—', isActivated: isActivated);
       }
+      final SupportPreferencesSelection sps = pa.supportPreferences;
+      List<Widget> icons = List<Widget>();
+      final Container spacer = Container(width: 3);
       if (sps.NURSE_CLINIC_selected) {
-        icons.add(_getPaddedIcon('assets/icons/nurse_clinic.png', color: iconColor));
-        icons.add(spacer);
+        final icon = [_getPaddedSupportIcon('assets/icons/nurse_clinic.png', active: isActivated && !pa.NURSE_CLINIC_done), spacer];
+        pa.NURSE_CLINIC_done ? icons.addAll(icon) : icons.insertAll(0, icon);
       }
-      if (sps.SATURDAY_CLINIC_CLUB_selected) {
-        icons.add(_getPaddedIcon('assets/icons/saturday_clinic_club.png', color: iconColor));
-        icons.add(spacer);
+      if (sps.SATURDAY_CLINIC_CLUB_selected && pa.saturdayClinicClubAvailable) {
+        final icon = [_getPaddedSupportIcon('assets/icons/saturday_clinic_club.png', active: isActivated && !pa.SATURDAY_CLINIC_CLUB_done), spacer];
+        pa.SATURDAY_CLINIC_CLUB_done ? icons.addAll(icon) : icons.insertAll(0, icon);
       }
-      if (sps.COMMUNITY_YOUTH_CLUB_selected) {
-        icons.add(_getPaddedIcon('assets/icons/youth_club.png', color: iconColor));
-        icons.add(spacer);
+      if (sps.COMMUNITY_YOUTH_CLUB_selected && pa.communityYouthClubAvailable) {
+        final icon = [_getPaddedSupportIcon('assets/icons/youth_club.png', active: isActivated && !pa.COMMUNITY_YOUTH_CLUB_done), spacer];
+        pa.COMMUNITY_YOUTH_CLUB_done ? icons.addAll(icon) : icons.insertAll(0, icon);
       }
       if (sps.PHONE_CALL_PE_selected) {
-//        icons.add(Icon(Icons.phone));
-        icons.add(_getPaddedIcon('assets/icons/phonecall_pe.png', color: iconColor));
-        icons.add(spacer);
+        final icon = [_getPaddedSupportIcon('assets/icons/phonecall_pe.png', active: isActivated && !pa.PHONE_CALL_PE_done), spacer];
+        pa.PHONE_CALL_PE_done ? icons.addAll(icon) : icons.insertAll(0, icon);
       }
-      if (sps.HOME_VISIT_PE_selected) {
-//        icons.add(Icon(Icons.home));
-        icons.add(_getPaddedIcon('assets/icons/homevisit_pe.png', color: iconColor));
-        icons.add(spacer);
+      if (sps.HOME_VISIT_PE_selected && pa.homeVisitPEPossible) {
+        final icon = [_getPaddedSupportIcon('assets/icons/homevisit_pe.png', active: isActivated && !pa.HOME_VISIT_PE_done), spacer];
+        pa.HOME_VISIT_PE_done ? icons.addAll(icon) : icons.insertAll(0, icon);
       }
-      if (sps.SCHOOL_VISIT_PE_selected) {
-//        icons.add(Icon(Icons.school));
-        icons.add(_getPaddedIcon('assets/icons/schooltalk_pe.png', color: iconColor));
-        icons.add(spacer);
+      if (sps.SCHOOL_VISIT_PE_selected && pa.schoolVisitPEPossible) {
+        final icon = [_getPaddedSupportIcon('assets/icons/schooltalk_pe.png', active: isActivated && !pa.SCHOOL_VISIT_PE_done), spacer];
+        pa.SCHOOL_VISIT_PE_done ? icons.addAll(icon) : icons.insertAll(0, icon);
       }
-      if (sps.PITSO_VISIT_PE_selected) {
-        icons.add(_getPaddedIcon('assets/icons/pitso.png', color: iconColor));
-        icons.add(spacer);
+      if (sps.PITSO_VISIT_PE_selected && pa.pitsoPEPossible) {
+        final icon = [_getPaddedSupportIcon('assets/icons/pitso.png', active: isActivated && !pa.PITSO_VISIT_PE_done), spacer];
+        pa.PITSO_VISIT_PE_done ? icons.addAll(icon) : icons.insertAll(0, icon);
       }
       if (sps.areAllDeselected) {
-        icons.add(_getPaddedIcon('assets/icons/no_support.png', color: iconColor));
+        icons.add(_getPaddedSupportIcon('assets/icons/no_support.png', active: isActivated));
         icons.add(spacer);
-      } else if (sps.areAllWithTodoDeselected) {
-        return _formatPatientRowText('—', isActivated: isActivated);
+      } if (icons.isEmpty) {
+        // indicate with '…' that options were selected which do not have an icon
+        return _formatPatientRowText('…', isActivated: isActivated);
       }
       if (icons.length > 0 && icons.last == spacer) {
         // remove last spacer as there are no more icons that follow it
@@ -766,7 +770,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
                       // Support
                       Container(
                         width: _supportWidth,
-                        child: _buildSupportIcons(curPatient?.latestPreferenceAssessment?.supportPreferences, isActivated: curPatient.isActivated),
+                        child: _buildSupportIcons(curPatient?.latestPreferenceAssessment, isActivated: curPatient.isActivated),
                       ),
                       // Viral Load
                       Container(

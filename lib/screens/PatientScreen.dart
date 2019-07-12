@@ -10,10 +10,12 @@ import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
+import 'package:pebrapp/database/beans/SupportOption.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/beans/YesNoRefused.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/screens/ARTRefillScreen.dart';
@@ -42,14 +44,6 @@ class _PatientScreenState extends State<PatientScreen> {
   String _nextRefillText = '—';
   String _nextEndpointText = '—';
   double _screenWidth;
-
-  bool NURSE_CLINIC_done = false;
-  bool SATURDAY_CLINIC_CLUB_done = false;
-  bool COMMUNITY_YOUTH_CLUB_done = false;
-  bool PHONE_CALL_PE_done = false;
-  bool HOME_VISIT_PE_done = false;
-  bool SCHOOL_VISIT_PE_done = false;
-  bool PITSO_VISIT_PE_done = false;
 
   StreamSubscription<AppState> _appStateStream;
 
@@ -392,7 +386,8 @@ class _PatientScreenState extends State<PatientScreen> {
   _buildPreferencesCard() {
 
     Widget _buildSupportOptions() {
-      final SupportPreferencesSelection sps = _patient.latestPreferenceAssessment.supportPreferences;
+      final PreferenceAssessment _pa = _patient.latestPreferenceAssessment;
+      final SupportPreferencesSelection sps = _pa.supportPreferences;
       final double iconWidth = 28.0;
       final double iconHeight = 28.0;
       if (sps.areAllDeselected) {
@@ -401,64 +396,188 @@ class _PatientScreenState extends State<PatientScreen> {
             children: [
             _getPaddedIcon('assets/icons/no_support.png', width: iconWidth, height: iconHeight),
             SizedBox(width: 5.0),
-            Text(SupportPreferencesSelection.NONE_DESCRIPTION),
+            Text(SupportOption.NONE().description),
             ],
           ),
         );
       }
-      if (sps.areAllWithTodoDeselected) {
-        return _buildRow('Support', '—');
-      }
       List<Widget> supportOptions = [];
       if (sps.NURSE_CLINIC_selected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.NURSE_CLINIC_DESCRIPTION,
-          checkboxState: NURSE_CLINIC_done,
-          onChanged: (bool newState) { setState(() { NURSE_CLINIC_done = newState; }); },
-          icon: _getPaddedIcon('assets/icons/nurse_clinic.png', width: iconWidth, height: iconHeight, color: NURSE_CLINIC_done ? ICON_INACTIVE : ICON_ACTIVE),
+        supportOptions.add(_buildSupportOption(
+          SupportOption.NURSE_CLINIC().description,
+          checkboxState: _pa.NURSE_CLINIC_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.NURSE_CLINIC_done_date)}',
+          onChanged: (bool newState) {
+            setState(() {
+              _pa.set_NURSE_CLINIC_done(newState);
+            });
+            return;
+          },
+          icon: _getPaddedIcon('assets/icons/nurse_clinic.png', width: iconWidth, height: iconHeight, color: _pa.NURSE_CLINIC_done ? ICON_INACTIVE : ICON_ACTIVE),
         ));
       }
-      if (sps.SATURDAY_CLINIC_CLUB_selected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.SATURDAY_CLINIC_CLUB_DESCRIPTION,
-          checkboxState: SATURDAY_CLINIC_CLUB_done,
-          onChanged: (bool newState) { setState(() { SATURDAY_CLINIC_CLUB_done = newState; }); },
-          icon: _getPaddedIcon('assets/icons/saturday_clinic_club.png', width: iconWidth, height: iconHeight, color: SATURDAY_CLINIC_CLUB_done ? ICON_INACTIVE : ICON_ACTIVE),
+      if (sps.SATURDAY_CLINIC_CLUB_selected && _pa.saturdayClinicClubAvailable) {
+        supportOptions.add(_buildSupportOption(
+          SupportOption.SATURDAY_CLINIC_CLUB().description,
+          checkboxState: _pa.SATURDAY_CLINIC_CLUB_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.SATURDAY_CLINIC_CLUB_done_date)}',
+          onChanged: (bool newState) {
+            setState(() {
+              _pa.set_SATURDAY_CLINIC_CLUB_done(newState);
+            });
+            return;
+          },
+          icon: _getPaddedIcon('assets/icons/saturday_clinic_club.png', width: iconWidth, height: iconHeight, color: _pa.SATURDAY_CLINIC_CLUB_done ? ICON_INACTIVE : ICON_ACTIVE),
         ));
       }
-      if (sps.COMMUNITY_YOUTH_CLUB_selected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.COMMUNITY_YOUTH_CLUB_DESCRIPTION,
-          checkboxState: COMMUNITY_YOUTH_CLUB_done,
-          onChanged: (bool newState) { setState(() { COMMUNITY_YOUTH_CLUB_done = newState; }); },
-          icon: _getPaddedIcon('assets/icons/youth_club.png', width: iconWidth, height: iconHeight, color: COMMUNITY_YOUTH_CLUB_done ? ICON_INACTIVE : ICON_ACTIVE),
+      if (sps.COMMUNITY_YOUTH_CLUB_selected && _pa.communityYouthClubAvailable) {
+        supportOptions.add(_buildSupportOption(
+          SupportOption.COMMUNITY_YOUTH_CLUB().description,
+          checkboxState: _pa.COMMUNITY_YOUTH_CLUB_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.COMMUNITY_YOUTH_CLUB_done_date)}',
+          onChanged: (bool newState) {
+            setState(() {
+              _pa.set_COMMUNITY_YOUTH_CLUB_done(newState);
+            });
+            return;
+          },
+          icon: _getPaddedIcon('assets/icons/youth_club.png', width: iconWidth, height: iconHeight, color: _pa.COMMUNITY_YOUTH_CLUB_done ? ICON_INACTIVE : ICON_ACTIVE),
         ));
       }
       if (sps.PHONE_CALL_PE_selected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.PHONE_CALL_PE_DESCRIPTION,
-          checkboxState: PHONE_CALL_PE_done,
-          onChanged: (bool newState) { setState(() { PHONE_CALL_PE_done = newState; }); },
-          icon: _getPaddedIcon('assets/icons/phonecall_pe.png', width: iconWidth, height: iconHeight, color: PHONE_CALL_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
+        supportOptions.add(_buildSupportOption(
+          SupportOption.PHONE_CALL_PE().description,
+          checkboxState: _pa.PHONE_CALL_PE_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.PHONE_CALL_PE_done_date)}',
+          onChanged: (bool newState) {
+            setState(() {
+              _pa.set_PHONE_CALL_PE_done(newState);
+            });
+            return;
+          },
+          icon: _getPaddedIcon('assets/icons/phonecall_pe.png', width: iconWidth, height: iconHeight, color: _pa.PHONE_CALL_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
         ));
       }
-      if (sps.HOME_VISIT_PE_selected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.HOME_VISIT_PE_DESCRIPTION,
-          checkboxState: HOME_VISIT_PE_done,
-          onChanged: (bool newState) { setState(() { HOME_VISIT_PE_done = newState; }); },
-          icon: _getPaddedIcon('assets/icons/homevisit_pe.png', width: iconWidth, height: iconHeight, color: HOME_VISIT_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
+      if (sps.HOME_VISIT_PE_selected && _pa.homeVisitPEPossible) {
+        supportOptions.add(_buildSupportOption(
+          SupportOption.HOME_VISIT_PE().description,
+          checkboxState: _pa.HOME_VISIT_PE_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.HOME_VISIT_PE_done_date)}',
+          onChanged: (bool newState) {
+            setState(() {
+              _pa.set_HOME_VISIT_PE_done(newState);
+            });
+            return;
+          },
+          icon: _getPaddedIcon('assets/icons/homevisit_pe.png', width: iconWidth, height: iconHeight, color: _pa.HOME_VISIT_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
         ));
       }
-      if (sps.SCHOOL_VISIT_PE_selected) {
+      if (sps.SCHOOL_VISIT_PE_selected && _pa.schoolVisitPEPossible) {
         String schoolNameAndVillage = _patient.latestPreferenceAssessment?.school;
         schoolNameAndVillage = schoolNameAndVillage == null ? '' : '\n($schoolNameAndVillage)';
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.SCHOOL_VISIT_PE_DESCRIPTION + schoolNameAndVillage,
-          checkboxState: SCHOOL_VISIT_PE_done,
-          onChanged: (bool newState) { setState(() { SCHOOL_VISIT_PE_done = newState; }); },
-          icon: _getPaddedIcon('assets/icons/schooltalk_pe.png', width: iconWidth, height: iconHeight, color: SCHOOL_VISIT_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
+        supportOptions.add(_buildSupportOption(
+          SupportOption.SCHOOL_VISIT_PE().description + schoolNameAndVillage,
+          checkboxState: _pa.SCHOOL_VISIT_PE_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.SCHOOL_VISIT_PE_done_date)}',
+          onChanged: (bool newState) {
+            setState(() {
+              _pa.set_SCHOOL_VISIT_PE_done(newState);
+            });
+            return;
+          },
+          icon: _getPaddedIcon('assets/icons/schooltalk_pe.png', width: iconWidth, height: iconHeight, color: _pa.SCHOOL_VISIT_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
         ));
       }
-      if (sps.PITSO_VISIT_PE_selected) {
-        supportOptions.add(_buildSupportOption(SupportPreferencesSelection.PITSO_VISIT_PE_DESCRIPTION,
-          checkboxState: PITSO_VISIT_PE_done,
-          onChanged: (bool newState) { setState(() { PITSO_VISIT_PE_done = newState; }); },
-          icon: _getPaddedIcon('assets/icons/pitso.png', width: iconWidth, height: iconHeight, color: PITSO_VISIT_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
+      if (sps.PITSO_VISIT_PE_selected && _pa.pitsoPEPossible) {
+        supportOptions.add(_buildSupportOption(
+          SupportOption.PITSO_VISIT_PE().description,
+          checkboxState: _pa.PITSO_VISIT_PE_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.PITSO_VISIT_PE_done_date)}',
+          onChanged: (bool newState) {
+            setState(() {
+              _pa.set_PITSO_VISIT_PE_done(newState);
+            });
+            return;
+          },
+          icon: _getPaddedIcon('assets/icons/pitso.png', width: iconWidth, height: iconHeight, color: _pa.PITSO_VISIT_PE_done ? ICON_INACTIVE : ICON_ACTIVE),
+        ));
+      }
+      if (sps.CONDOM_DEMO_selected) {
+        supportOptions.add(_buildSupportOption(
+          SupportOption.CONDOM_DEMO().description,
+          checkboxState: _pa.CONDOM_DEMO_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.CONDOM_DEMO_done_date)}',
+          onChanged: (bool newState) {
+            setState(() {
+              _pa.set_CONDOM_DEMO_done(newState);
+            });
+            return;
+          },
+        ));
+      }
+      if (sps.CONTRACEPTIVES_INFO_selected) {
+        supportOptions.add(_buildSupportOption(
+          SupportOption.CONTRACEPTIVES_INFO().description,
+          checkboxState: _pa.CONTRACEPTIVES_INFO_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.CONTRACEPTIVES_INFO_done_date)}',
+          onChanged: (bool newState) {
+            setState(() {
+              _pa.set_CONTRACEPTIVES_INFO_done(newState);
+            });
+            return;
+          },
+        ));
+      }
+      if (sps.VMMC_INFO_selected) {
+        supportOptions.add(_buildSupportOption(
+          SupportOption.VMMC_INFO().description,
+          checkboxState: _pa.VMMC_INFO_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.VMMC_INFO_done_date)}',
+          onChanged: (bool newState) {
+            setState(() {
+              _pa.set_VMMC_INFO_done(newState);
+            });
+            return;
+          },
+        ));
+      }
+      if (sps.YOUNG_MOTHERS_GROUP_selected && _pa.youngMothersAvailable) {
+        supportOptions.add(_buildSupportOption(
+          SupportOption.YOUNG_MOTHERS_GROUP().description,
+          checkboxState: _pa.YOUNG_MOTHERS_GROUP_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.YOUNG_MOTHERS_GROUP_done_date)}',
+          onChanged: (bool newState) {
+            setState(() {
+              _pa.set_YOUNG_MOTHERS_GROUP_done(newState);
+            });
+            return;
+          },
+        ));
+      }
+      if (sps.FEMALE_WORTH_GROUP_selected && _pa.femaleWorthAvailable) {
+        supportOptions.add(_buildSupportOption(
+          SupportOption.FEMALE_WORTH_GROUP().description,
+          checkboxState: _pa.FEMALE_WORTH_GROUP_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.FEMALE_WORTH_GROUP_done_date)}',
+          onChanged: (bool newState) {
+            setState(() {
+              _pa.set_FEMALE_WORTH_GROUP_done(newState);
+            });
+            return;
+          },
+        ));
+      }
+      if (sps.LEGAL_AID_INFO_selected && _pa.legalAidSmartphoneAvailable) {
+        supportOptions.add(_buildSupportOption(
+          SupportOption.LEGAL_AID_INFO().description,
+          checkboxState: _pa.LEGAL_AID_INFO_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.LEGAL_AID_INFO_done_date)}',
+          onChanged: (bool newState) {
+            setState(() {
+              _pa.set_LEGAL_AID_INFO_done(newState);
+            });
+            return;
+          },
         ));
       }
 
