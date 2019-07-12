@@ -446,6 +446,20 @@ class PreferenceAssessment implements IExcelExportable {
 
   ARTRefillOption get lastRefillOption => artRefillOption5 ?? artRefillOption4 ?? artRefillOption3 ?? artRefillOption2 ?? artRefillOption1;
 
+  DateTime get NURSE_CLINIC_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.NURSE_CLINIC() && s.done, orElse: () => null)?.createdDate;
+  DateTime get SATURDAY_CLINIC_CLUB_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.SATURDAY_CLINIC_CLUB() && s.done, orElse: () => null)?.createdDate;
+  DateTime get COMMUNITY_YOUTH_CLUB_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.COMMUNITY_YOUTH_CLUB() && s.done, orElse: () => null)?.createdDate;
+  DateTime get PHONE_CALL_PE_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.PHONE_CALL_PE() && s.done, orElse: () => null)?.createdDate;
+  DateTime get HOME_VISIT_PE_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.HOME_VISIT_PE() && s.done, orElse: () => null)?.createdDate;
+  DateTime get SCHOOL_VISIT_PE_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.SCHOOL_VISIT_PE() && s.done, orElse: () => null)?.createdDate;
+  DateTime get PITSO_VISIT_PE_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.PITSO_VISIT_PE() && s.done, orElse: () => null)?.createdDate;
+  DateTime get CONDOM_DEMO_done_date =>_supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.CONDOM_DEMO() && s.done, orElse: () => null)?.createdDate;
+  DateTime get CONTRACEPTIVES_INFO_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.CONTRACEPTIVES_INFO() && s.done, orElse: () => null)?.createdDate;
+  DateTime get VMMC_INFO_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.VMMC_INFO() && s.done, orElse: () => null)?.createdDate;
+  DateTime get YOUNG_MOTHERS_GROUP_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.YOUNG_MOTHERS_GROUP() && s.done, orElse: () => null)?.createdDate;
+  DateTime get FEMALE_WORTH_GROUP_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.FEMALE_WORTH_GROUP() && s.done, orElse: () => null)?.createdDate;
+  DateTime get LEGAL_AID_INFO_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.LEGAL_AID_INFO() && s.done, orElse: () => null)?.createdDate;
+
   bool get NURSE_CLINIC_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.NURSE_CLINIC() && s.done, orElse: () => null) != null;
   bool get SATURDAY_CLINIC_CLUB_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.SATURDAY_CLINIC_CLUB() && s.done, orElse: () => null) != null;
   bool get COMMUNITY_YOUTH_CLUB_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.COMMUNITY_YOUTH_CLUB() && s.done, orElse: () => null) != null;

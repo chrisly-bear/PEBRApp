@@ -142,6 +142,26 @@ String formatDate(DateTime date) {
   return DateFormat("dd.MM.yyyy").format(date.toLocal());
 }
 
+/// Turns a date into a formatted String. If the date is
+///
+/// * today it will return "Today, HH:mm"
+/// * yesterday it will return "Yesterday, HH:mm"
+/// * in the past it will return "dd.MM.yyyy HH:mm".
+///
+/// Returns null if [date] is null.
+String formatDateAndTimeTodayYesterday(DateTime date) {
+  if (date == null) {
+    return null;
+  }
+  final int daysFromToday = differenceInDays(DateTime.now(), date);
+  if (daysFromToday == 0) {
+    return "today, ${DateFormat("HH:mm").format(date.toLocal())}";
+  } else if (daysFromToday == -1) {
+    return "yesterday, ${DateFormat("HH:mm").format(date.toLocal())}";
+  }
+  return DateFormat("dd.MM.yyyy HH:mm").format(date.toLocal());
+}
+
 /// Turns a date into a formatted String with date and time. If the date is
 /// today it will return "Today, HH:mm". If the date was yesterday, it will
 /// return "Yesterday, HH:mm". If the date was before yesterday, it will return

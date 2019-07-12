@@ -403,8 +403,10 @@ class _PatientScreenState extends State<PatientScreen> {
       }
       List<Widget> supportOptions = [];
       if (sps.NURSE_CLINIC_selected) {
-        supportOptions.add(_buildSupportOption(SupportOption.NURSE_CLINIC().description,
+        supportOptions.add(_buildSupportOption(
+          SupportOption.NURSE_CLINIC().description,
           checkboxState: _pa.NURSE_CLINIC_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.NURSE_CLINIC_done_date)}',
           onChanged: (bool newState) {
             setState(() {
               _pa.set_NURSE_CLINIC_done(newState);
@@ -415,8 +417,10 @@ class _PatientScreenState extends State<PatientScreen> {
         ));
       }
       if (sps.SATURDAY_CLINIC_CLUB_selected && _pa.saturdayClinicClubAvailable) {
-        supportOptions.add(_buildSupportOption(SupportOption.SATURDAY_CLINIC_CLUB().description,
+        supportOptions.add(_buildSupportOption(
+          SupportOption.SATURDAY_CLINIC_CLUB().description,
           checkboxState: _pa.SATURDAY_CLINIC_CLUB_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.SATURDAY_CLINIC_CLUB_done_date)}',
           onChanged: (bool newState) {
             setState(() {
               _pa.set_SATURDAY_CLINIC_CLUB_done(newState);
@@ -427,8 +431,10 @@ class _PatientScreenState extends State<PatientScreen> {
         ));
       }
       if (sps.COMMUNITY_YOUTH_CLUB_selected && _pa.communityYouthClubAvailable) {
-        supportOptions.add(_buildSupportOption(SupportOption.COMMUNITY_YOUTH_CLUB().description,
+        supportOptions.add(_buildSupportOption(
+          SupportOption.COMMUNITY_YOUTH_CLUB().description,
           checkboxState: _pa.COMMUNITY_YOUTH_CLUB_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.COMMUNITY_YOUTH_CLUB_done_date)}',
           onChanged: (bool newState) {
             setState(() {
               _pa.set_COMMUNITY_YOUTH_CLUB_done(newState);
@@ -439,8 +445,10 @@ class _PatientScreenState extends State<PatientScreen> {
         ));
       }
       if (sps.PHONE_CALL_PE_selected) {
-        supportOptions.add(_buildSupportOption(SupportOption.PHONE_CALL_PE().description,
+        supportOptions.add(_buildSupportOption(
+          SupportOption.PHONE_CALL_PE().description,
           checkboxState: _pa.PHONE_CALL_PE_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.PHONE_CALL_PE_done_date)}',
           onChanged: (bool newState) {
             setState(() {
               _pa.set_PHONE_CALL_PE_done(newState);
@@ -451,8 +459,10 @@ class _PatientScreenState extends State<PatientScreen> {
         ));
       }
       if (sps.HOME_VISIT_PE_selected && _pa.homeVisitPEPossible) {
-        supportOptions.add(_buildSupportOption(SupportOption.HOME_VISIT_PE().description,
+        supportOptions.add(_buildSupportOption(
+          SupportOption.HOME_VISIT_PE().description,
           checkboxState: _pa.HOME_VISIT_PE_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.HOME_VISIT_PE_done_date)}',
           onChanged: (bool newState) {
             setState(() {
               _pa.set_HOME_VISIT_PE_done(newState);
@@ -465,8 +475,10 @@ class _PatientScreenState extends State<PatientScreen> {
       if (sps.SCHOOL_VISIT_PE_selected && _pa.schoolVisitPEPossible) {
         String schoolNameAndVillage = _patient.latestPreferenceAssessment?.school;
         schoolNameAndVillage = schoolNameAndVillage == null ? '' : '\n($schoolNameAndVillage)';
-        supportOptions.add(_buildSupportOption(SupportOption.SCHOOL_VISIT_PE().description + schoolNameAndVillage,
+        supportOptions.add(_buildSupportOption(
+          SupportOption.SCHOOL_VISIT_PE().description + schoolNameAndVillage,
           checkboxState: _pa.SCHOOL_VISIT_PE_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.SCHOOL_VISIT_PE_done_date)}',
           onChanged: (bool newState) {
             setState(() {
               _pa.set_SCHOOL_VISIT_PE_done(newState);
@@ -477,8 +489,10 @@ class _PatientScreenState extends State<PatientScreen> {
         ));
       }
       if (sps.PITSO_VISIT_PE_selected && _pa.pitsoPEPossible) {
-        supportOptions.add(_buildSupportOption(SupportOption.PITSO_VISIT_PE().description,
+        supportOptions.add(_buildSupportOption(
+          SupportOption.PITSO_VISIT_PE().description,
           checkboxState: _pa.PITSO_VISIT_PE_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.PITSO_VISIT_PE_done_date)}',
           onChanged: (bool newState) {
             setState(() {
               _pa.set_PITSO_VISIT_PE_done(newState);
@@ -489,8 +503,10 @@ class _PatientScreenState extends State<PatientScreen> {
         ));
       }
       if (sps.CONDOM_DEMO_selected) {
-        supportOptions.add(_buildSupportOption(SupportOption.CONDOM_DEMO().description,
+        supportOptions.add(_buildSupportOption(
+          SupportOption.CONDOM_DEMO().description,
           checkboxState: _pa.CONDOM_DEMO_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.CONDOM_DEMO_done_date)}',
           onChanged: (bool newState) {
             setState(() {
               _pa.set_CONDOM_DEMO_done(newState);
@@ -500,8 +516,10 @@ class _PatientScreenState extends State<PatientScreen> {
         ));
       }
       if (sps.CONTRACEPTIVES_INFO_selected) {
-        supportOptions.add(_buildSupportOption(SupportOption.CONTRACEPTIVES_INFO().description,
+        supportOptions.add(_buildSupportOption(
+          SupportOption.CONTRACEPTIVES_INFO().description,
           checkboxState: _pa.CONTRACEPTIVES_INFO_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.CONTRACEPTIVES_INFO_done_date)}',
           onChanged: (bool newState) {
             setState(() {
               _pa.set_CONTRACEPTIVES_INFO_done(newState);
@@ -511,8 +529,10 @@ class _PatientScreenState extends State<PatientScreen> {
         ));
       }
       if (sps.VMMC_INFO_selected) {
-        supportOptions.add(_buildSupportOption(SupportOption.VMMC_INFO().description,
+        supportOptions.add(_buildSupportOption(
+          SupportOption.VMMC_INFO().description,
           checkboxState: _pa.VMMC_INFO_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.VMMC_INFO_done_date)}',
           onChanged: (bool newState) {
             setState(() {
               _pa.set_VMMC_INFO_done(newState);
@@ -522,8 +542,10 @@ class _PatientScreenState extends State<PatientScreen> {
         ));
       }
       if (sps.YOUNG_MOTHERS_GROUP_selected && _pa.youngMothersAvailable) {
-        supportOptions.add(_buildSupportOption(SupportOption.YOUNG_MOTHERS_GROUP().description,
+        supportOptions.add(_buildSupportOption(
+          SupportOption.YOUNG_MOTHERS_GROUP().description,
           checkboxState: _pa.YOUNG_MOTHERS_GROUP_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.YOUNG_MOTHERS_GROUP_done_date)}',
           onChanged: (bool newState) {
             setState(() {
               _pa.set_YOUNG_MOTHERS_GROUP_done(newState);
@@ -533,8 +555,10 @@ class _PatientScreenState extends State<PatientScreen> {
         ));
       }
       if (sps.FEMALE_WORTH_GROUP_selected && _pa.femaleWorthAvailable) {
-        supportOptions.add(_buildSupportOption(SupportOption.FEMALE_WORTH_GROUP().description,
+        supportOptions.add(_buildSupportOption(
+          SupportOption.FEMALE_WORTH_GROUP().description,
           checkboxState: _pa.FEMALE_WORTH_GROUP_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.FEMALE_WORTH_GROUP_done_date)}',
           onChanged: (bool newState) {
             setState(() {
               _pa.set_FEMALE_WORTH_GROUP_done(newState);
@@ -544,8 +568,10 @@ class _PatientScreenState extends State<PatientScreen> {
         ));
       }
       if (sps.LEGAL_AID_INFO_selected && _pa.legalAidSmartphoneAvailable) {
-        supportOptions.add(_buildSupportOption(SupportOption.LEGAL_AID_INFO().description,
+        supportOptions.add(_buildSupportOption(
+          SupportOption.LEGAL_AID_INFO().description,
           checkboxState: _pa.LEGAL_AID_INFO_done,
+          doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.LEGAL_AID_INFO_done_date)}',
           onChanged: (bool newState) {
             setState(() {
               _pa.set_LEGAL_AID_INFO_done(newState);
