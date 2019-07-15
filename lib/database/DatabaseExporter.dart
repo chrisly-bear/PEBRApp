@@ -5,6 +5,7 @@ import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:path/path.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
+import 'package:pebrapp/database/models/SupportOptionDone.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'dart:io';
@@ -24,6 +25,7 @@ class DatabaseExporter {
     const String patientSheet = 'Patient';
     const String viralLoadSheet = 'Viral Load';
     const String preferenceAssessmentSheet = 'Preference Assessment';
+    const String supportOptionDoneSheet = 'Support Option Done';
     const String artRefillSheet = 'ART Refill';
 
     // open database
@@ -72,6 +74,9 @@ class DatabaseExporter {
 
     final List<PreferenceAssessment> preferenceAssessmentRows = await dbp.retrieveAllPreferenceAssessments();
     _writeRowsToExcel(preferenceAssessmentSheet, PreferenceAssessment.excelHeaderRow, preferenceAssessmentRows);
+
+    final List<SupportOptionDone> supportOptionDoneRows = await dbp.retrieveAllSupportOptionDones();
+    _writeRowsToExcel(supportOptionDoneSheet, SupportOptionDone.excelHeaderRow, supportOptionDoneRows);
 
     final List<ARTRefill> artRefillRows = await dbp.retrieveAllARTRefills();
     _writeRowsToExcel(artRefillSheet, ARTRefill.excelHeaderRow, artRefillRows);

@@ -407,7 +407,7 @@ class PreferenceAssessment implements IExcelExportable {
     row[26] = vlNotificationEnabled;
     row[27] = vlNotificationMessageSuppressed?.code;
     row[28] = vlNotificationMessageUnsuppressed?.code;
-    row[29] = supportPreferences.serializeToJSON();
+    row[29] = supportPreferences.toExcelString();
     row[30] = saturdayClinicClubAvailable;
     row[31] = communityYouthClubAvailable;
     row[32] = homeVisitPEPossible;

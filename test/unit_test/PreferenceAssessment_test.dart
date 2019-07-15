@@ -21,6 +21,14 @@ void main() {
       expect(json, expectedJson);
     });
 
+    test('serialization with None', () {
+      var sps = SupportPreferencesSelection();
+      sps.deselectAll();
+      final json = sps.serializeToJSON();
+      final expectedJson = '[]';
+      expect(json, expectedJson);
+    });
+
     test('deserialization', () {
       final json = '[1,3,5]';
       final sps = SupportPreferencesSelection.deserializeFromJSON(json);
@@ -31,6 +39,12 @@ void main() {
       expect(sps.PHONE_CALL_PE_selected, false);
       expect(sps.COMMUNITY_YOUTH_CLUB_selected, true);
       expect(sps.SCHOOL_VISIT_PE_selected, false);
+    });
+
+    test('deserialization with None', () {
+      final json = '[]';
+      final sps = SupportPreferencesSelection.deserializeFromJSON(json);
+      expect(sps.areAllDeselected, true);
     });
 
     test('excel formatting', () {

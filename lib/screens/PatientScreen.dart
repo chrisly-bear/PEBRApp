@@ -516,8 +516,10 @@ class _PatientScreenState extends State<PatientScreen> {
         ));
       }
       if (sps.CONTRACEPTIVES_INFO_selected) {
+        String contraceptivesPerson = _patient.latestPreferenceAssessment?.moreInfoContraceptives;
+        contraceptivesPerson = contraceptivesPerson == null ? '' : '\n($contraceptivesPerson)';
         supportOptions.add(_buildSupportOption(
-          SupportOption.CONTRACEPTIVES_INFO().description,
+          SupportOption.CONTRACEPTIVES_INFO().description + contraceptivesPerson,
           checkboxState: _pa.CONTRACEPTIVES_INFO_done,
           doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.CONTRACEPTIVES_INFO_done_date)}',
           onChanged: (bool newState) {
@@ -529,8 +531,10 @@ class _PatientScreenState extends State<PatientScreen> {
         ));
       }
       if (sps.VMMC_INFO_selected) {
+        String vmmcPerson = _patient.latestPreferenceAssessment?.moreInfoVMMC;
+        vmmcPerson = vmmcPerson == null ? '' : '\n($vmmcPerson)';
         supportOptions.add(_buildSupportOption(
-          SupportOption.VMMC_INFO().description,
+          SupportOption.VMMC_INFO().description + vmmcPerson,
           checkboxState: _pa.VMMC_INFO_done,
           doneText: 'done ${formatDateAndTimeTodayYesterday(_pa.VMMC_INFO_done_date)}',
           onChanged: (bool newState) {
