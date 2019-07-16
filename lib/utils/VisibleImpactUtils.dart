@@ -146,8 +146,17 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART) async 
   // TODO: handle errors in client
   try {
     final String _token = await _getAPIToken();
+    final List<int> patientIds = await _getPatientIdsVisibleImpact(patientART, _token);
+    if (patientIds.isEmpty) {
+      // TODO: write custom exception and handle in client
+      throw Exception('No patient with ART number $patientART found on VisibleImpact.');
+    }
+    if (patientIds.length > 1) {
+      // TODO: write custom exception and handle in client
+      throw Exception('Several matching patients with ART number $patientART found on VisibleImpact.');
+    }
     final _resp = await http.get(
-      'https://lstowards909090.org/db-test/apiv1/labdata?art_number=$patientART',
+      'https://lstowards909090.org/db-test/apiv1/labdata?patient_id=${patientIds.first}',
       headers: {'Authorization' : 'Custom $_token'},
     );
     if (_resp.statusCode != 200) {
@@ -174,6 +183,32 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART) async 
     print(s);
   }
   return null;
+}
+
+
+/// Matches ART number to IDs on the VisibleImpact database.
+///
+/// @param [patientART] ART number to match. Can be a full ART number
+/// (e.g. B/01/11111) or a partial ART number (e.g. B/01). Using a partial ART
+/// number will find all patient IDs which partially match it.
+Future<List<int>> _getPatientIdsVisibleImpact(String patientART, String _apiAuthToken) async {
+  final _resp = await http.get(
+    'https://lstowards909090.org/db-test/apiv1/patient?art_number=$patientART',
+    headers: {'Authorization' : 'Custom $_apiAuthToken'},
+  );
+  if (_resp.statusCode != 200) {
+    print(
+        'An error occurred while fetching viral loads from database, returning null...');
+    print(_resp.statusCode);
+    print(_resp.body);
+    // TODO: maybe return exception (this will most likely fail because of wrong authentication/invalid token)
+    return null;
+  }
+  final List<dynamic> list = jsonDecode(_resp.body);
+  List<int> patientIds = list.map((dynamic patientMap) {
+    return patientMap['patient_id'] as int;
+  }).toList();
+  return patientIds;
 }
 
 
