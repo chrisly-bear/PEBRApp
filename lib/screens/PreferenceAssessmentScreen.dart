@@ -247,7 +247,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             }
           },
           validator: (value) {
-            if (value == null) { return 'Please answer this question'; }
+            if (value == null) {
+              return 'Please answer this question';
+            }
+            return null;
           },
           items: remainingOptions.map<DropdownMenuItem<ARTRefillOption>>((ARTRefillOption value) {
             return DropdownMenuItem<ARTRefillOption>(
@@ -300,6 +303,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               if (value == null) {
                 return 'Please answer this question';
               }
+              return null;
             },
             items:
             <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
@@ -339,6 +343,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             if (value == null) {
               return 'Please answer this question';
             }
+            return null;
           },
           items:
           PEHomeDeliveryNotPossibleReason.allValues.map<DropdownMenuItem<PEHomeDeliveryNotPossibleReason>>((PEHomeDeliveryNotPossibleReason value) {
@@ -366,6 +371,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               if (value.isEmpty) {
                 return 'Please specify the reason';
               }
+              return null;
             },
           ),
       );
@@ -384,6 +390,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             if (value.isEmpty) {
               return "Please enter the VHW's name";
             }
+            return null;
           },
         ),
       );
@@ -402,6 +409,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             if (value.isEmpty) {
               return "Please enter the VHW's village";
             }
+            return null;
           },
         ),
       );
@@ -526,7 +534,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             });
           },
           validator: (value) {
-            if (value == null) { return 'Please answer this question'; }
+            if (value == null) {
+              return 'Please answer this question';
+            }
+            return null;
           },
           items: ARTSupplyAmount.allValues.map<DropdownMenuItem<ARTSupplyAmount>>((ARTSupplyAmount value) {
             return DropdownMenuItem<ARTSupplyAmount>(
@@ -590,7 +601,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             });
           },
           validator: (value) {
-            if (value == null) { return 'Please answer this question'; }
+            if (value == null) {
+              return 'Please answer this question';
+            }
+            return null;
           },
           items:
           PhoneAvailability.allValues.map<DropdownMenuItem<PhoneAvailability>>((PhoneAvailability value) {
@@ -644,7 +658,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question'; }
+          if (value == null) {
+            return 'Please answer this question';
+          }
+          return null;
         },
         items:
         <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
@@ -680,7 +697,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question'; }
+          if (value == null) {
+            return 'Please answer this question';
+          }
+          return null;
         },
         items: AdherenceReminderFrequency.allValues.map<DropdownMenuItem<AdherenceReminderFrequency>>((AdherenceReminderFrequency value) {
           return DropdownMenuItem<AdherenceReminderFrequency>(
@@ -754,7 +774,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question'; }
+          if (value == null) {
+            return 'Please answer this question';
+          }
+          return null;
         },
         items: AdherenceReminderMessage.allValues.map<DropdownMenuItem<AdherenceReminderMessage>>((AdherenceReminderMessage value) {
           return DropdownMenuItem<AdherenceReminderMessage>(
@@ -788,7 +811,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question'; }
+          if (value == null) {
+            return 'Please answer this question';
+          }
+          return null;
         },
         items:
         <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
@@ -875,7 +901,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question'; }
+          if (value == null) {
+            return 'Please answer this question';
+          }
+          return null;
         },
         items: ARTRefillReminderMessage.allValues.map<DropdownMenuItem<ARTRefillReminderMessage>>((ARTRefillReminderMessage value) {
           return DropdownMenuItem<ARTRefillReminderMessage>(
@@ -908,7 +937,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question'; }
+          if (value == null) {
+            return 'Please answer this question';
+          }
+          return null;
         },
         items:
         <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
@@ -944,7 +976,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question'; }
+          if (value == null) {
+            return 'Please answer this question';
+          }
+          return null;
         },
         items: VLSuppressedMessage.allValues.map<DropdownMenuItem<VLSuppressedMessage>>((VLSuppressedMessage value) {
           return DropdownMenuItem<VLSuppressedMessage>(
@@ -970,7 +1005,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question'; }
+          if (value == null) {
+            return 'Please answer this question';
+          }
+          return null;
         },
         items: VLUnsuppressedMessage.allValues.map<DropdownMenuItem<VLUnsuppressedMessage>>((VLUnsuppressedMessage value) {
           return DropdownMenuItem<VLUnsuppressedMessage>(
@@ -1194,6 +1232,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           if (value == null) {
             return 'Please answer this question';
           }
+          return null;
         },
         items:
         <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
@@ -1232,6 +1271,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           if (value == null) {
             return 'Please answer this question';
           }
+          return null;
         },
         items:
         <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
@@ -1272,6 +1312,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             if (value == null) {
               return 'Please answer this question';
             }
+            return null;
           },
           items:
           <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
@@ -1309,6 +1350,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             if (value == null) {
               return 'Please answer this question';
             }
+            return null;
           },
           items:
           HomeVisitPENotPossibleReason.allValues.map<DropdownMenuItem<HomeVisitPENotPossibleReason>>((HomeVisitPENotPossibleReason value) {
@@ -1334,6 +1376,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               if (value.isEmpty) {
                 return 'Please specify a reason';
               }
+              return null;
             },
           )
       );
@@ -1365,6 +1408,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             if (value == null) {
               return 'Please answer this question';
             }
+            return null;
           },
           items:
           <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
@@ -1397,6 +1441,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               if (value.isEmpty) {
                 return 'Please specify a school and village';
               }
+              return null;
             },
           )
       );
@@ -1418,6 +1463,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             if (value == null) {
               return 'Please answer this question';
             }
+            return null;
           },
           items:
           SchoolVisitPENotPossibleReason.allValues.map<DropdownMenuItem<SchoolVisitPENotPossibleReason>>((SchoolVisitPENotPossibleReason value) {
@@ -1443,6 +1489,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               if (value.isEmpty) {
                 return 'Please specify a reason';
               }
+              return null;
             },
           )
       );
@@ -1475,6 +1522,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             if (value == null) {
               return 'Please answer this question';
             }
+            return null;
           },
           items:
           <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
@@ -1512,6 +1560,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             if (value == null) {
               return 'Please answer this question';
             }
+            return null;
           },
           items:
           PitsoPENotPossibleReason.allValues.map<DropdownMenuItem<PitsoPENotPossibleReason>>((PitsoPENotPossibleReason value) {
@@ -1537,6 +1586,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
               if (value.isEmpty) {
                 return 'Please specify a reason';
               }
+              return null;
             },
           )
       );
@@ -1560,6 +1610,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             if (value.isEmpty) {
               return 'Please specify a person';
             }
+            return null;
           },
         )
     );
@@ -1576,6 +1627,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             if (value.isEmpty) {
               return 'Please specify a person';
             }
+            return null;
           },
         )
     );
@@ -1598,6 +1650,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           if (value == null) {
             return 'Please answer this question';
           }
+          return null;
         },
         items:
         <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
@@ -1636,6 +1689,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           if (value == null) {
             return 'Please answer this question';
           }
+          return null;
         },
         items:
         <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
@@ -1677,6 +1731,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           if (value == null) {
             return 'Please answer this question';
           }
+          return null;
         },
         items:
         <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
@@ -1753,6 +1808,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             if (value.isEmpty) {
               return 'Please specify';
             }
+            return null;
           },
         )
     );
@@ -1766,6 +1822,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             if (value.isEmpty) {
               return 'Please specify';
             }
+            return null;
           },
         )
     );
@@ -1805,7 +1862,10 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             });
           },
           validator: (value) {
-            if (value == null) { return 'Please answer this question'; }
+            if (value == null) {
+              return 'Please answer this question';
+            }
+            return null;
           },
           items: YesNoRefused.allValues.map<DropdownMenuItem<YesNoRefused>>((YesNoRefused value) {
             return DropdownMenuItem<YesNoRefused>(
@@ -1828,6 +1888,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             if (value.isEmpty) {
               return 'Please specify';
             }
+            return null;
           },
         )
     );
