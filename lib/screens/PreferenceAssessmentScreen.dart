@@ -444,7 +444,12 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             LengthLimitingTextInputFormatter(8),
             ARTNumberTextInputFormatter(),
           ],
-          validator: validateARTNumber,
+          validator: (String artNumber) {
+            if (artNumber == null || artNumber == '') {
+              return null;
+            }
+            return validateARTNumber(artNumber);
+          },
         ),
       );
     }
