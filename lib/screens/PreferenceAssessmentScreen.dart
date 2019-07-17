@@ -463,11 +463,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       return _makeQuestion("Where does your Treatment Buddy live?",
         answer: TextFormField(
           controller: _treatmentBuddyVillageCtr,
-          validator: (value) {
-            if (value.isEmpty) {
-              return 'Please enter the home town of the Treatment Buddy';
-            }
-          },
         ),
       );
     }
