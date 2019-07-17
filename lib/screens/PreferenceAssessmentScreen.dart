@@ -485,7 +485,12 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             LengthLimitingTextInputFormatter(8),
             LesothoPhoneNumberTextInputFormatter(),
           ],
-          validator: validatePhoneNumber,
+          validator: (String phoneNumber) {
+            if (phoneNumber == null || phoneNumber == '') {
+              return null;
+            }
+            return validatePhoneNumber(phoneNumber);
+          },
         ),
       );
     }
