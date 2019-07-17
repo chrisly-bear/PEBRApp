@@ -80,8 +80,32 @@ class ARTNumberTextInputFormatter extends TextInputFormatter {
 }
 
 String validateARTNumber(String value) {
-  final RegExp phoneExp = RegExp(r'^[A-Z]/[A-Z0-9]{2}/\d{5}$');
-  if (!phoneExp.hasMatch(value))
+  final RegExp artNumberExp = RegExp(r'^[A-Z]/[A-Z0-9]{2}/\d{5}$');
+  if (!artNumberExp.hasMatch(value))
     return 'Enter a valid ART number';
+  return null;
+}
+
+
+class LabNumberTextInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
+    return TextEditingValue(
+      text: newValue.text.toUpperCase(),
+      selection: TextSelection.collapsed(offset: newValue.selection.end),
+    );
+  }
+}
+
+String validateLabNumber(String value) {
+  final RegExp labNumberExp = RegExp(r'^[A-Z]{3}\d+$');
+  if (value == null || value == '') {
+    return 'Please specify the lab number.';
+  }
+  if (!labNumberExp.hasMatch(value))
+    return 'Expected 3 letters followed by 1 or more digits.';
   return null;
 }
