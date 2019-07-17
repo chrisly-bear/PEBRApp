@@ -9,6 +9,7 @@ import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
+import 'package:pebrapp/utils/InputFormatters.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 class AddViralLoadScreen extends StatelessWidget {
@@ -194,6 +195,12 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
     return _makeQuestion('Lab number of the viral load',
       answer: TextFormField(
         controller: _viralLoadLabNumberCtr,
+        inputFormatters: [
+          WhitelistingTextInputFormatter(RegExp(r'[a-zA-Z0-9]')),
+          LengthLimitingTextInputFormatter(13),
+          LabNumberTextInputFormatter(),
+        ],
+        validator: validateLabNumber,
       ),
     );
   }

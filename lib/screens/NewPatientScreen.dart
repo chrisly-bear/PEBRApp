@@ -693,6 +693,12 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     return _makeQuestion('Lab number of that viral load',
       answer: TextFormField(
         controller: _viralLoadBaselineLabNumberCtr,
+        inputFormatters: [
+          WhitelistingTextInputFormatter(RegExp(r'[a-zA-Z0-9]')),
+          LengthLimitingTextInputFormatter(13),
+          LabNumberTextInputFormatter(),
+        ],
+        validator: validateLabNumber,
       ),
     );
   }
