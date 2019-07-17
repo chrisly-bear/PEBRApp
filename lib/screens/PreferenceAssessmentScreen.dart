@@ -69,6 +69,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   Patient _patient;
   // if this is true we will store another row in Patient table of the database
   bool _patientUpdated = false;
+  PhoneAvailability _phoneAvailability;
   PhoneAvailability _phoneAvailabilityBeforeAssessment;
   String _patientPhoneNumberBeforeAssessment;
   UserData _user;
@@ -102,6 +103,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     if (_existingPatientPhoneNumber != null) {
       _patientPhoneNumberCtr.text = _existingPatientPhoneNumber.substring(5);
     }
+    _phoneAvailability = _patient.phoneAvailability;
     _phoneAvailabilityBeforeAssessment = _patient.phoneAvailability;
     _patientPhoneNumberBeforeAssessment = _patient.phoneNumber;
     _pa.patientART = patient.artNumber;
@@ -571,13 +573,11 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   Widget _phoneAvailableQuestion() {
     return _makeQuestion('Do you have regular access to a phone where you can receive confidential information?',
         answer: DropdownButtonFormField<PhoneAvailability>(
-          value: _patient.phoneAvailability,
+          value: _phoneAvailability,
           onChanged: (PhoneAvailability newValue) {
             setState(() {
-              _patient.phoneAvailability = newValue;
+              _phoneAvailability = newValue;
             });
-            // if the new value is different from before we should update the patient table in the database
-            _patientUpdated = _phoneAvailabilityBeforeAssessment != newValue;
           },
           validator: (value) {
             if (value == null) { return 'Please answer this question'; }
@@ -594,7 +594,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _phoneNumberPatientQuestion() {
-    if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES()) {
+    if (_phoneAvailability == null || _phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
     return _makeQuestion('Patient Phone Number',
@@ -615,14 +615,14 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _adherenceReminderSubtitle() {
-    if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES()) {
+    if (_phoneAvailability == null || _phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
     return _makeSubtitle('Adherence Reminder');
   }
 
   Widget _adherenceReminderQuestion() {
-    if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES()) {
+    if (_phoneAvailability == null || _phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
     return _makeQuestion('Do you want to receive adherence reminders?',
@@ -657,7 +657,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _adherenceReminderFrequencyQuestion() {
-    if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES() ||
+    if (_phoneAvailability == null || _phoneAvailability != PhoneAvailability.YES() ||
         _pa.adherenceReminderEnabled == null || !_pa.adherenceReminderEnabled) {
       return Container();
     }
@@ -683,7 +683,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _adherenceReminderTimeQuestion() {
-    if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES() ||
+    if (_phoneAvailability == null || _phoneAvailability != PhoneAvailability.YES() ||
         _pa.adherenceReminderEnabled == null || !_pa.adherenceReminderEnabled) {
       return Container();
     }
@@ -730,7 +730,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _adherenceReminderMessageQuestion() {
-    if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES() ||
+    if (_phoneAvailability == null || _phoneAvailability != PhoneAvailability.YES() ||
         _pa.adherenceReminderEnabled == null || !_pa.adherenceReminderEnabled) {
       return Container();
     }
@@ -757,14 +757,14 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _artRefillReminderSubtitle() {
-    if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES()) {
+    if (_phoneAvailability == null || _phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
     return _makeSubtitle('ART Refill Reminder');
   }
 
   Widget _artRefillReminderQuestion() {
-    if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES()) {
+    if (_phoneAvailability == null || _phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
     return _makeQuestion('Do you want to receive ART refill reminders?',
@@ -801,7 +801,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _artRefillReminderDaysBeforeQuestion() {
-    if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES() ||
+    if (_phoneAvailability == null || _phoneAvailability != PhoneAvailability.YES() ||
         _pa.artRefillReminderEnabled == null || !_pa.artRefillReminderEnabled) {
       return Container();
     }
@@ -852,7 +852,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _artRefillReminderMessageQuestion() {
-    if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES() ||
+    if (_phoneAvailability == null || _phoneAvailability != PhoneAvailability.YES() ||
         _pa.artRefillReminderEnabled == null || !_pa.artRefillReminderEnabled) {
       return Container();
     }
@@ -879,14 +879,14 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
 
   Widget _viralLoadNotificationSubtitle() {
-    if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES()) {
+    if (_phoneAvailability == null || _phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
     return _makeSubtitle('Viral Load Notification');
   }
 
   Widget _viralLoadNotificationQuestion() {
-    if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES()) {
+    if (_phoneAvailability == null || _phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
     return _makeQuestion('Do you want to receive a notification after a VL measurement?',
@@ -921,7 +921,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _viralLoadMessageSuppressedQuestion() {
-    if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES() ||
+    if (_phoneAvailability == null || _phoneAvailability != PhoneAvailability.YES() ||
         _pa.vlNotificationEnabled == null || !_pa.vlNotificationEnabled) {
       return Container();
     }
@@ -947,7 +947,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _viralLoadMessageUnsuppressedQuestion() {
-    if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES() ||
+    if (_phoneAvailability == null || _phoneAvailability != PhoneAvailability.YES() ||
         _pa.vlNotificationEnabled == null || !_pa.vlNotificationEnabled) {
       return Container();
     }
@@ -973,14 +973,14 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
   }
 
   Widget _phoneNumberPEPadding() {
-    if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES()) {
+    if (_phoneAvailability == null || _phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
     return Container(height: 20,);
   }
 
   Widget _phoneNumberPEQuestion() {
-    if (_patient.phoneAvailability == null || _patient.phoneAvailability != PhoneAvailability.YES()) {
+    if (_phoneAvailability == null || _phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
     return _makeQuestion('PE Phone Number',
@@ -1896,7 +1896,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     // if the adherence reminder time is not selected when it should be show
     // the error message under the adherence reminder time field and return
     // false.
-    if (_patient.phoneAvailability != null && _patient.phoneAvailability == PhoneAvailability.YES() &&
+    if (_phoneAvailability != null && _phoneAvailability == PhoneAvailability.YES() &&
         _pa.adherenceReminderEnabled != null && _pa.adherenceReminderEnabled &&
         _pa.adherenceReminderTime == null) {
       setState(() {
@@ -1921,7 +1921,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       _pa.artRefillOption3 = _artRefillOptionSelections[2];
       _pa.artRefillOption4 = _artRefillOptionSelections[3];
       _pa.artRefillOption5 = _artRefillOptionSelections[4];
-      _pa.patientPhoneAvailable = _patient.phoneAvailability == PhoneAvailability.YES();
+      _pa.patientPhoneAvailable = _phoneAvailability == PhoneAvailability.YES();
 
       if (_artRefillOptionSelections.contains(ARTRefillOption.PE_HOME_DELIVERY())
           && !_artRefillOptionAvailable[_artRefillOptionSelections.indexOf(ARTRefillOption.PE_HOME_DELIVERY())]
@@ -1940,7 +1940,13 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         _pa.artRefillTreatmentBuddyVillage = _treatmentBuddyVillageCtr.text;
         _pa.artRefillTreatmentBuddyPhoneNumber = '+266-${_treatmentBuddyPhoneNumberCtr.text}';
       }
-      if (_patient.phoneAvailability == PhoneAvailability.YES()) {
+      if (_phoneAvailability != _phoneAvailabilityBeforeAssessment) {
+        // if the new value is different from before the assessment we should
+        // update the patient in the database
+        _patient.phoneAvailability = _phoneAvailability;
+        _patientUpdated = true;
+      }
+      if (_phoneAvailability == PhoneAvailability.YES()) {
         final String newPatientPhoneNumber = '+266-${_patientPhoneNumberCtr.text}';
         if (_patientPhoneNumberBeforeAssessment != newPatientPhoneNumber) {
           _patient.phoneNumber = newPatientPhoneNumber;
@@ -1951,7 +1957,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           _pa.adherenceReminderTime = null;
         }
       }
-      if (_patient.phoneAvailability != PhoneAvailability.YES()) {
+      if (_phoneAvailability != PhoneAvailability.YES()) {
         // reset all phone related fields
         final String newPatientPhoneNumber = null;
         if (_patientPhoneNumberBeforeAssessment != newPatientPhoneNumber) {
