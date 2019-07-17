@@ -19,7 +19,7 @@ class VLSuppressedMessage {
 
   // These are the descriptions that will be displayed in the UI.
   static const Map<_Message, String> _description = {
-    _Message.MESSAGE_1: "😊",
+    _Message.MESSAGE_1: ":-)",
     _Message.MESSAGE_2: "Well done, keep it up!",
     _Message.MESSAGE_3: "Hoooha!",
     _Message.MESSAGE_4: "GOT IT!",

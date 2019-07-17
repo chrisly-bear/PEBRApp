@@ -23,8 +23,8 @@ class VLUnsuppressedMessage {
     _Message.MESSAGE_2: "No leke. Etsa betere ka moso.",
     _Message.MESSAGE_3: "Ahhh!!!",
     _Message.MESSAGE_4: "OH NO!!!",
-    _Message.MESSAGE_5: "Battery low. Take action! 😑",
-    _Message.MESSAGE_6: "Battery e tlase. Etsa hohong! 😑",
+    _Message.MESSAGE_5: "Battery low. Take action! -.-'",
+    _Message.MESSAGE_6: "Battery e tlase. Etsa hohong! -.-'",
   };
 
   _Message _message;

@@ -22,8 +22,8 @@ class AdherenceReminderMessage {
 
   // These are the descriptions that will be displayed in the UI.
   static const Map<_Message, String> _description = {
-    _Message.MESSAGE_1: "Meds time 🕒",
-    _Message.MESSAGE_2: "Nako ea lithlare 🕒",
+    _Message.MESSAGE_1: "Meds time",
+    _Message.MESSAGE_2: "Nako ea lithlare",
     _Message.MESSAGE_3: "Recharge!",
     _Message.MESSAGE_4: "Healthy living!",
     _Message.MESSAGE_5: "Bophelo bo botle!",

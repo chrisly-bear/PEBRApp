@@ -2003,13 +2003,13 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
           && _artRefillOptionAvailable[_artRefillOptionSelections.indexOf(ARTRefillOption.VHW())]) {
         _pa.artRefillVHWName = _vhwNameCtr.text;
         _pa.artRefillVHWVillage = _vhwVillageCtr.text;
-        _pa.artRefillVHWPhoneNumber = '+266-${_vhwPhoneNumberCtr.text}';
+        _pa.artRefillVHWPhoneNumber = _vhwPhoneNumberCtr.text == '' ? null : '+266-${_vhwPhoneNumberCtr.text}';
       }
       if (_artRefillOptionSelections.contains(ARTRefillOption.TREATMENT_BUDDY())
           && _artRefillOptionAvailable[_artRefillOptionSelections.indexOf(ARTRefillOption.TREATMENT_BUDDY())]) {
-        _pa.artRefillTreatmentBuddyART = _treatmentBuddyARTNumberCtr.text;
-        _pa.artRefillTreatmentBuddyVillage = _treatmentBuddyVillageCtr.text;
-        _pa.artRefillTreatmentBuddyPhoneNumber = '+266-${_treatmentBuddyPhoneNumberCtr.text}';
+        _pa.artRefillTreatmentBuddyART = _treatmentBuddyARTNumberCtr.text == '' ? null : _treatmentBuddyARTNumberCtr.text;
+        _pa.artRefillTreatmentBuddyVillage = _treatmentBuddyVillageCtr.text == '' ? null : _treatmentBuddyVillageCtr.text;
+        _pa.artRefillTreatmentBuddyPhoneNumber = _treatmentBuddyPhoneNumberCtr.text == '' ? null : '+266-${_treatmentBuddyPhoneNumberCtr.text}';
       }
       if (_phoneAvailability != _phoneAvailabilityBeforeAssessment) {
         // if the new value is different from before the assessment we should
