@@ -67,7 +67,12 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
         SizedBox(height: _spacing),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.0),
-          child: Text('Patient will be deactivated and appear greyed out in the main screen.', textAlign: TextAlign.center,),
+          child: Text(
+            _artRefill.notDoneReason == null || _artRefill.notDoneReason == ARTRefillNotDoneReason.STOCK_OUT_OR_FAILED_DELIVERY()
+              ? ''
+              : 'Patient will be deactivated and appear greyed out in the main screen.',
+            textAlign: TextAlign.center,
+          ),
         ),
         SizedBox(height: _spacing),
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -263,7 +268,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
       print('NEW ART REFILL (_id will be given by SQLite database):\n$_artRefill');
       await DatabaseProvider().insertARTRefill(_artRefill);
       _patient.latestARTRefill = _artRefill;
-      if (_patient.isActivated) {
+      if (_patient.isActivated && _artRefill.notDoneReason != ARTRefillNotDoneReason.STOCK_OUT_OR_FAILED_DELIVERY()) {
         _patient.isActivated = false;
         // the isActivated field changed on the patient object, we have to store
         // this change in the Patient table of the SQLite database
