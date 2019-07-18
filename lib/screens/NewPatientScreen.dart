@@ -373,7 +373,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
                 ),
               ),
               onPressed: () async {
-                final now = DateTime.now();
                 DateTime date = await showDatePicker(
                   context: context,
                   initialDate: _newPatient.birthday ?? minBirthdayForEligibility,
