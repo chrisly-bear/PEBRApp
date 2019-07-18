@@ -50,7 +50,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   static final int minAgeForEligibility = 15;
   static final int maxAgeForEligibility = 24;
   static final DateTime now = DateTime.now();
-  static final DateTime minBirthdayForEligibility = DateTime(now.year - maxAgeForEligibility, now.month, now.day);
+  static final DateTime minBirthdayForEligibility = DateTime(now.year - maxAgeForEligibility - 1, now.month, now.day + 1);
   static final DateTime maxBirthdayForEligibility = DateTime(now.year - minAgeForEligibility, now.month, now.day);
   bool get _eligible => _newPatient.birthday != null && !_newPatient.birthday.isBefore(minBirthdayForEligibility) && !_newPatient.birthday.isAfter(maxBirthdayForEligibility);
 
@@ -364,7 +364,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
               child: SizedBox(
                 width: double.infinity,
                 child: Text(
-                  _newPatient.birthday == null ? '' : formatDateConsistent(_newPatient.birthday),
+                  _newPatient.birthday == null ? '' : '${formatDateConsistent(_newPatient.birthday)} (age ${calculateAge(_newPatient.birthday)})',
                   textAlign: TextAlign.left,
                   style: TextStyle(
                     fontSize: 16.0,
