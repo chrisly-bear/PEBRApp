@@ -71,7 +71,7 @@ Future<void> showFlushbar(String message, {String title, bool error=false, VoidC
     boxShadows: [BoxShadow(color: NOTIFICATION_SHADOW, blurRadius: 5.0, offset: Offset(0.0, 0.0), spreadRadius: 0.0)],
     borderRadius: 5,
     backgroundColor: error ? NOTIFICATION_ERROR : NOTIFICATION_NORMAL,
-    aroundPadding: EdgeInsets.symmetric(horizontal: padding),
+    margin: EdgeInsets.symmetric(horizontal: padding),
     duration: error ? null : Duration(seconds: 5),
   );
 
