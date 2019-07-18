@@ -253,7 +253,7 @@ class _PatientScreenState extends State<PatientScreen> {
           _buildRow('Enrollment Date', formatDateConsistent(_patient.enrollmentDate)),
           _buildRow('ART Number', _patient.artNumber),
           _buildRow('Sticker Number', _patient.stickerNumber),
-          _buildRow('Year of Birth', _patient.yearOfBirth.toString()),
+          _buildRow('Year of Birth', _patient.birthday.toString()),
           _buildRow('Gender', _patient.gender.description),
           _buildRow('Sexual Orientation', _patient.sexualOrientation.description),
           _buildRow('Village', _patient.village),
