@@ -6,18 +6,20 @@ class PEBRAButtonFlat extends StatelessWidget {
   final String _buttonText;
   final onPressed;
   final Widget widget;
+  final double minWidth;
+  final double maxWidth;
 
   /// If `onPressed` is null then the button is painted gray to show that it's
   /// deactivated. If a `widget` is passed, the `_buttonText` is ignored and the
   /// `widget` is displayed instead.
-  const PEBRAButtonFlat(this._buttonText, {this.onPressed, this.widget}) : super();
+  const PEBRAButtonFlat(this._buttonText, {this.onPressed, this.widget, this.minWidth, this.maxWidth}) : super();
 
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: BoxConstraints(
-        maxWidth: 300,
-        minWidth: 150,
+        maxWidth: maxWidth ?? double.infinity,
+        minWidth: minWidth ?? 0.0,
         minHeight: 40,
       ),
       child: FlatButton(

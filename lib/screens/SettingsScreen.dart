@@ -236,27 +236,72 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  /// Returns true if the user selected 'proceed', false if the user selected
+  /// 'cancel'.
+  Future<bool> _showWarningDialog(String title, String body) {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(body),
+          actions: [
+            PEBRAButtonFlat(
+              'Cancel',
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            PEBRAButtonRaised(
+              'Proceed',
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              color: NOTIFICATION_ERROR,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   _onPressLogout() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove(LAST_SUCCESSFUL_BACKUP_KEY);
-    await DatabaseProvider().resetDatabase();
-    await PatientBloc.instance.sinkAllPatientsFromDatabase();
-    setState(() {
-      this._loginData = null;
-    });
-    showFlushbar('Logged Out');
+    final bool proceed = await _showWarningDialog(
+        'Warning',
+        'If you log out all data on this device will be deleted. Data since '
+            'your last backup ($lastBackup) will be lost forever! Before you '
+            'proceed make sure you have made a backup.\n\n'
+            'Are you sure you want to proceed?');
+    if (proceed) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.remove(LAST_SUCCESSFUL_BACKUP_KEY);
+      await DatabaseProvider().resetDatabase();
+      await PatientBloc.instance.sinkAllPatientsFromDatabase();
+      setState(() {
+        this._loginData = null;
+      });
+      showFlushbar('Logged Out');
+    }
   }
 
   _onPressTransferTablet() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove(LAST_SUCCESSFUL_BACKUP_KEY);
-    await DatabaseProvider().deactivateCurrentUser();
-    // Do not remove database data (otherwise this function is the same as the logout function)
-    setState(() {
-      this._loginData = null;
-      this._createAccountMode = true;
-    });
-    showFlushbar('Logged out. Create a new account now.');
+    final bool proceed = await _showWarningDialog(
+        'Warning',
+        'If you transfer this device and then log in again with your own '
+            'account all data since your last backup ($lastBackup) will be '
+            'lost! Before you proceed make sure you have made a backup.\n\n'
+            'Are you sure you want to proceed?');
+    if (proceed) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.remove(LAST_SUCCESSFUL_BACKUP_KEY);
+      await DatabaseProvider().deactivateCurrentUser();
+      // Do not remove database data (otherwise this function is the same as the logout function)
+      setState(() {
+        this._loginData = null;
+        this._createAccountMode = true;
+      });
+      showFlushbar('Logged out. Create a new account now.');
+    }
   }
 
 
