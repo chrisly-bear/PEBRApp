@@ -127,7 +127,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     );
 
     Widget finishStep() {
-      if (_patientSaved && _kobocollectOpened) {
+      if (_patientSaved && (_kobocollectOpened || !(_newPatient.consentGiven ?? true))) {
         return Container(
           width: double.infinity,
           child: Text("All done! You can close this screen by tapping ✓ below."),
@@ -154,7 +154,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       Step(
         title: Text('Baseline Assessment', style: TextStyle(fontWeight: currentStep == 1 ? FontWeight.bold : FontWeight.normal)),
         isActive: _kobocollectOpened,
-        state: _kobocollectOpened ? StepState.complete : StepState.indexed,
+        state: _kobocollectOpened || !(_newPatient.consentGiven ?? true) ? StepState.complete : StepState.indexed,
         content: baselineAssessmentStep,
       ),
       Step(
@@ -169,6 +169,16 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       if (step == 0 && _patientSaved) {
         // do not allow going back to first step if the patient has already
         // been saved
+        return;
+      }
+      if (step == 1 && !(_newPatient.consentGiven ?? true)) {
+        // skip going to step 'baseline assessment' if no consent is given and
+        // we are coming from step 'patient characteristics'
+        if (currentStep == 0) {
+          setState(() => currentStep = step + 1);
+        }
+        // do not allow going to step 'baseline assessment' if no consent is
+        // given
         return;
       }
       setState(() => currentStep = step);
@@ -209,8 +219,8 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 //      type: StepperType.horizontal,
       currentStep: currentStep,
       onStepTapped: goTo,
-      onStepContinue: (_isLoading || (currentStep == 2 && (!_patientSaved || !_kobocollectOpened))) ? null : next,
-      onStepCancel: (currentStep == 1 && _patientSaved) ? null : cancel,
+      onStepContinue: (_isLoading || (currentStep == 2 && (!_patientSaved || (!_kobocollectOpened && (_newPatient.consentGiven ?? false))))) ? null : next,
+      onStepCancel: (currentStep == 1 && _patientSaved || (currentStep == 2 && !(_newPatient.consentGiven ?? true))) ? null : cancel,
       controlsBuilder: (BuildContext context, {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
         final Color navigationButtonsColor = Colors.blue;
         return Padding(
@@ -806,7 +816,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       _newPatient.enrollmentDate = now;
       _newPatient.isEligible = _eligible;
       _newPatient.artNumber = _artNumberCtr.text;
-      _newPatient.stickerNumber = 'P${_stickerNumberCtr.text}';
+      _newPatient.stickerNumber = _newPatient.consentGiven ? 'P${_stickerNumberCtr.text}' : null;
       _newPatient.village = _villageCtr.text;
       _newPatient.phoneNumber = '+266-${_phoneNumberCtr.text}';
       _newPatient.noConsentReasonOther = _noConsentReasonOtherCtr.text;
