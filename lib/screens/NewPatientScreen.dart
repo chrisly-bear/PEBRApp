@@ -47,17 +47,13 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   final _questionsFlex = 1;
   final _answersFlex = 1;
 
-  static final currentYear = DateTime.now().year;
-
-  static final int birthYearOptionsStart = 1990;
-  static final int birthYearOptionsEnd = currentYear;
-  List<int> birthYearOptions = List<int>.generate(birthYearOptionsEnd - birthYearOptionsStart + 1, (i) => birthYearOptionsStart + i);
-
   static final int minAgeForEligibility = 15;
   static final int maxAgeForEligibility = 24;
-  static final int minYearForEligibility = currentYear - maxAgeForEligibility;
-  static final int maxYearForEligibility = currentYear - minAgeForEligibility;
-  bool get _eligible => _newPatient.yearOfBirth != null && _newPatient.yearOfBirth >= minYearForEligibility && _newPatient.yearOfBirth <= maxYearForEligibility;
+  static final DateTime now = DateTime.now();
+  static final DateTime minBirthdayForEligibility = DateTime(now.year - maxAgeForEligibility - 1, now.month, now.day + 1);
+  static final DateTime maxBirthdayForEligibility = DateTime(now.year - minAgeForEligibility, now.month, now.day);
+  bool get _eligible => _newPatient.birthday != null && !_newPatient.birthday.isBefore(minBirthdayForEligibility) && !_newPatient.birthday.isAfter(maxBirthdayForEligibility);
+  bool get _notEligibleAfterBirthdaySpecified => _newPatient.birthday != null && !_eligible;
 
   Patient _newPatient = Patient(isActivated: true);
   ViralLoad _viralLoadBaseline = ViralLoad(source: ViralLoadSource.MANUAL_INPUT());
@@ -74,6 +70,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   // this field is used to display an error when the form is validated and if
   // the viral load baseline date is not selected
   bool _viralLoadBaselineDateValid = true;
+  bool _patientBirthdayValid = true;
 
   List<String> _artNumbersInDB;
   bool _isLoading = true;
@@ -107,9 +104,11 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       child: Column(
         children: [
           _personalInformationCard(),
-          _consentCard(),
-          _viralLoadBaselineCard(),
           _eligibilityDisclaimer(),
+          _consentCard(),
+          _additionalInformationCard(),
+          _viralLoadBaselineCard(),
+          _notEligibleDisclaimer(),
         ],
       ),
     );
@@ -260,19 +259,14 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       child: Column(
         children: [
           _artNumberQuestion(),
-          _yearOfBirthQuestion(),
-          _genderQuestion(),
-          _sexualOrientationQuestion(),
-          _villageQuestion(),
-          _phoneAvailabilityQuestion(),
-          _phoneNumberQuestion(),
+          _birthdayQuestion(),
         ],
       ),
     );
   }
 
   Widget _consentCard() {
-    if (!_eligible) {
+    if (_notEligibleAfterBirthdaySpecified) {
       return Container();
     }
     return _buildCard('Consent',
@@ -287,8 +281,25 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     );
   }
 
+  Widget _additionalInformationCard() {
+    if (_notEligibleAfterBirthdaySpecified || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
+      return Container();
+    }
+    return _buildCard('Additional Information',
+      child: Column(
+        children: [
+          _genderQuestion(),
+          _sexualOrientationQuestion(),
+          _villageQuestion(),
+          _phoneAvailabilityQuestion(),
+          _phoneNumberQuestion(),
+        ],
+      ),
+    );
+  }
+
   Widget _viralLoadBaselineCard() {
-    if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
+    if (_notEligibleAfterBirthdaySpecified || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
       return Container();
     }
     const double _spaceBetweenQuestions = 5.0;
@@ -358,38 +369,55 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     );
   }
 
-  Widget _yearOfBirthQuestion() {
-    return _makeQuestion('Year of Birth',
-        answer: DropdownButtonFormField<int>(
-          value: _newPatient.yearOfBirth,
-          onChanged: (int newValue) {
-            setState(() {
-              _newPatient.yearOfBirth = newValue;
-            });
-          },
-          validator: (value) {
-            if (value == null) { return 'Please select a year of birth.'; }
-          },
-          items: birthYearOptions.map<DropdownMenuItem<int>>((int value) {
-            String description = '$value';
-            return DropdownMenuItem<int>(
-              value: value,
-              child: Text(
-                description,
-                style: TextStyle(
-                  color: value <= maxYearForEligibility && value >= minYearForEligibility ? TEXT_ACTIVE : TEXT_INACTIVE,
+  Widget _birthdayQuestion() {
+    return _makeQuestion('Birthday',
+        answer: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FlatButton(
+              padding: EdgeInsets.all(0.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: Text(
+                  _newPatient.birthday == null ? '' : '${formatDateConsistent(_newPatient.birthday)} (age ${calculateAge(_newPatient.birthday)})',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.normal,
+                  ),
                 ),
               ),
-            );
-          }).toList(),
-        ),
+              onPressed: () async {
+                DateTime date = await showDatePicker(
+                  context: context,
+                  initialDate: _newPatient.birthday ?? minBirthdayForEligibility,
+                  firstDate: minBirthdayForEligibility,
+                  lastDate: maxBirthdayForEligibility,
+                );
+                if (date != null) {
+                  setState(() {
+                    _newPatient.birthday = date;
+                  });
+                }
+              },
+            ),
+            Divider(color: CUSTOM_FORM_FIELD_UNDERLINE, height: 1.0,),
+            _patientBirthdayValid ? Container() : Padding(
+              padding: const EdgeInsets.only(top: 5.0),
+              child: Text(
+                'Please select a date',
+                style: TextStyle(
+                  color: CUSTOM_FORM_FIELD_ERROR_TEXT,
+                  fontSize: 12.0,
+                ),
+              ),
+            ),
+        ]
+      ),
     );
   }
 
   Widget _genderQuestion() {
-    if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
-      return Container();
-    }
     return _makeQuestion(
       'Gender',
       answer: DropdownButtonFormField<Gender>(
@@ -413,9 +441,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _sexualOrientationQuestion() {
-    if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
-      return Container();
-    }
     return _makeQuestion(
       'Sexual Orientation',
       answer: DropdownButtonFormField<SexualOrientation>(
@@ -439,9 +464,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _villageQuestion() {
-    if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
-      return Container();
-    }
     return _makeQuestion(
       'Village',
       answer: TextFormField(
@@ -456,9 +478,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _phoneAvailabilityQuestion() {
-    if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
-      return Container();
-    }
     return _makeQuestion('Do you have regular access to a phone (with Lesotho number) where you can receive confidential information?',
       answer: DropdownButtonFormField<PhoneAvailability>(
         value: _newPatient.phoneAvailability,
@@ -481,7 +500,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _phoneNumberQuestion() {
-    if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven || _newPatient.phoneAvailability == null || _newPatient.phoneAvailability != PhoneAvailability.YES()) {
+    if (_newPatient.phoneAvailability == null || _newPatient.phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
     return _makeQuestion('Phone Number',
@@ -604,7 +623,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
             child: SizedBox(
               width: double.infinity,
               child: Text(
-                _viralLoadBaseline.dateOfBloodDraw == null ? 'Select Date' : formatDateConsistent(_viralLoadBaseline.dateOfBloodDraw),
+                _viralLoadBaseline.dateOfBloodDraw == null ? '' : formatDateConsistent(_viralLoadBaseline.dateOfBloodDraw),
                 textAlign: TextAlign.left,
                 style: TextStyle(
                   fontSize: 16.0,
@@ -614,7 +633,12 @@ class _NewPatientFormState extends State<_NewPatientForm> {
             ),
             onPressed: () async {
               final now = DateTime.now();
-              DateTime date = await _showDatePicker(context, initialDate: _viralLoadBaseline.dateOfBloodDraw ?? DateTime(now.year, now.month, now.day));
+              DateTime date = await showDatePicker(
+                context: context,
+                initialDate: _viralLoadBaseline.dateOfBloodDraw ?? DateTime(now.year, now.month, now.day),
+                firstDate: DateTime(now.year - 1, now.month, now.day),
+                lastDate: DateTime(now.year, now.month, now.day),
+              );
               if (date != null) {
                 setState(() {
                   _viralLoadBaseline.dateOfBloodDraw = date;
@@ -708,7 +732,21 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   // ----------
 
   Widget _eligibilityDisclaimer() {
-    if (_newPatient.yearOfBirth == null || _eligible) {
+    if (_newPatient.birthday != null) {
+      return Container();
+    }
+    return
+      Padding(
+        padding: EdgeInsets.only(top: 15.0),
+        child:
+        Text('Only patients between ages $minAgeForEligibility and $maxAgeForEligibility are eligible.',
+          textAlign: TextAlign.left,
+        ),
+      );
+  }
+
+  Widget _notEligibleDisclaimer() {
+    if (_newPatient.birthday == null || _eligible) {
       return Container();
     }
     return
@@ -716,9 +754,9 @@ class _NewPatientFormState extends State<_NewPatientForm> {
         padding: EdgeInsets.only(top: 15.0),
         child:
         Text('This patient is not eligible for the study. Only patients born '
-            'between $minYearForEligibility and $maxYearForEligibility are '
-            'eligible. Please, save the patient anyway for study evaluation '
-            'reasons. The patient will not appear in the PEBRApp, however.',
+            'between ${formatDateConsistent(minBirthdayForEligibility)} and '
+            '${formatDateConsistent(maxBirthdayForEligibility)} are '
+            'eligible. The patient will not appear in the PEBRApp.',
           textAlign: TextAlign.left,
         ),
       );
@@ -740,13 +778,28 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     return true;
   }
 
+  bool _validatePatientBirthday() {
+    // if the birthday is not specified show the error message under the
+    // birthday field and return false.
+    if (_newPatient.birthday == null) {
+      setState(() {
+        _patientBirthdayValid = false;
+      });
+      return false;
+    }
+    setState(() {
+      _patientBirthdayValid = true;
+    });
+    return true;
+  }
+
   /// Returns true if the form validation succeeds and the patient was saved
   /// successfully.
   Future<bool> _onSubmitForm() async {
     setState(() {
       _isLoading = true;
     });
-    if (_formKey.currentState.validate() & _validateViralLoadBaselineDate()) {
+    if (_formKey.currentState.validate() & _validatePatientBirthday() & _validateViralLoadBaselineDate()) {
 
       final DateTime now = DateTime.now();
 
@@ -893,16 +946,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           ],
         );
       },
-    );
-  }
-
-  Future<DateTime> _showDatePicker(BuildContext context, {DateTime initialDate}) async {
-    DateTime now = DateTime.now();
-    return showDatePicker(
-      context: context,
-      initialDate: initialDate ?? now,
-      firstDate: DateTime(now.year - 1, now.month, now.day),
-      lastDate: DateTime.now(),
     );
   }
 

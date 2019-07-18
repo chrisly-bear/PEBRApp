@@ -21,7 +21,7 @@ class Patient implements IExcelExportable {
   static final colCreatedDate = 'created_date';
   static final colEnrollmentDate = 'enrollment_date';
   static final colARTNumber = 'art_number';
-  static final colYearOfBirth = 'year_of_birth';
+  static final colBirthday = 'birthday';
   static final colIsEligible = 'is_eligible';
   // nullables:
   static final colStickerNumber = 'sticker_number';
@@ -39,7 +39,7 @@ class Patient implements IExcelExportable {
   DateTime _createdDate;
   DateTime enrollmentDate;
   String artNumber;
-  int yearOfBirth;
+  DateTime birthday;
   bool isEligible;
   String stickerNumber;
   bool isVLBaselineAvailable;
@@ -67,7 +67,7 @@ class Patient implements IExcelExportable {
   // ------------
 
   Patient({this.enrollmentDate, this.artNumber, this.stickerNumber,
-    this.yearOfBirth, this.isEligible, this.isVLBaselineAvailable, this.gender,
+    this.birthday, this.isEligible, this.isVLBaselineAvailable, this.gender,
     this.sexualOrientation, this.village, this.phoneAvailability,
     this.phoneNumber, this.consentGiven, this.noConsentReason,
     this.noConsentReasonOther, this.isActivated});
@@ -76,7 +76,7 @@ class Patient implements IExcelExportable {
     this.createdDate = DateTime.parse(map[colCreatedDate]);
     this.enrollmentDate = DateTime.parse(map[colEnrollmentDate]);
     this.artNumber = map[colARTNumber];
-    this.yearOfBirth = int.parse(map[colYearOfBirth]);
+    this.birthday = DateTime.parse(map[colBirthday]);
     this.isEligible = map[colIsEligible] == 1;
     // nullables:
     this.stickerNumber = map[colStickerNumber];
@@ -108,7 +108,7 @@ class Patient implements IExcelExportable {
     map[colEnrollmentDate] = enrollmentDate.toIso8601String();
     map[colARTNumber] = artNumber;
     map[colStickerNumber] = stickerNumber;
-    map[colYearOfBirth] = yearOfBirth;
+    map[colBirthday] = birthday.toIso8601String();
     map[colIsEligible] = isEligible;
     // nullables:
     map[colIsVLBaselineAvailable] = isVLBaselineAvailable;
@@ -136,7 +136,7 @@ class Patient implements IExcelExportable {
     row[2] = 'DATE_ENROL';
     row[3] = 'TIME_ENROL';
     row[4] = 'IND_ID';
-    row[5] = 'BIRTH_YEAR';
+    row[5] = 'BIRTHDAY';
     row[6] = 'CONSENT';
     row[7] = 'CONSENT_NO';
     row[8] = 'CONSENT_OTHER';
@@ -163,7 +163,7 @@ class Patient implements IExcelExportable {
     row[2] = formatDateIso(enrollmentDate);
     row[3] = formatTimeIso(enrollmentDate);
     row[4] = artNumber;
-    row[5] = yearOfBirth;
+    row[5] = formatDateIso(birthday);
     row[6] = consentGiven;
     row[7] = noConsentReason?.code;
     row[8] = noConsentReasonOther;

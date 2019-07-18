@@ -104,6 +104,23 @@ int differenceInDays(DateTime date1, DateTime date2) {
   return date2.difference(date1).inDays;
 }
 
+/// Calculates age of someone since his/her [birthday].
+///
+/// Returns today's age in years.
+int calculateAge(DateTime birthday) {
+  final DateTime birthdayUtc = birthday.toLocal();
+  final DateTime now = DateTime.now().toLocal();
+  int years = now.year - birthdayUtc.year;
+  if (birthdayUtc.month > now.month) {
+    // birthday is yet to come this year
+    years--;
+  } else if (birthdayUtc.month == now.month && birthdayUtc.day > now.day) {
+    // birthday is yet to come this month
+    years--;
+  }
+  return years;
+}
+
 /// Turns date into the format dd.MM.yyyy.
 String formatDateConsistent(DateTime date) {
   return DateFormat("dd.MM.yyyy").format(date.toLocal());
