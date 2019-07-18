@@ -53,6 +53,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   static final DateTime minBirthdayForEligibility = DateTime(now.year - maxAgeForEligibility - 1, now.month, now.day + 1);
   static final DateTime maxBirthdayForEligibility = DateTime(now.year - minAgeForEligibility, now.month, now.day);
   bool get _eligible => _newPatient.birthday != null && !_newPatient.birthday.isBefore(minBirthdayForEligibility) && !_newPatient.birthday.isAfter(maxBirthdayForEligibility);
+  bool get _notEligibleAfterBirthdaySpecified => _newPatient.birthday != null && !_eligible;
 
   Patient _newPatient = Patient(isActivated: true);
   ViralLoad _viralLoadBaseline = ViralLoad(source: ViralLoadSource.MANUAL_INPUT());
@@ -103,9 +104,10 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       child: Column(
         children: [
           _personalInformationCard(),
+          _eligibilityDisclaimer(),
           _consentCard(),
           _viralLoadBaselineCard(),
-          _eligibilityDisclaimer(),
+          _notEligibleDisclaimer(),
         ],
       ),
     );
@@ -268,7 +270,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _consentCard() {
-    if (!_eligible) {
+    if (_notEligibleAfterBirthdaySpecified) {
       return Container();
     }
     return _buildCard('Consent',
@@ -403,7 +405,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _genderQuestion() {
-    if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
+    if (_notEligibleAfterBirthdaySpecified || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
       return Container();
     }
     return _makeQuestion(
@@ -429,7 +431,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _sexualOrientationQuestion() {
-    if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
+    if (_notEligibleAfterBirthdaySpecified || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
       return Container();
     }
     return _makeQuestion(
@@ -455,7 +457,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _villageQuestion() {
-    if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
+    if (_notEligibleAfterBirthdaySpecified || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
       return Container();
     }
     return _makeQuestion(
@@ -472,7 +474,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _phoneAvailabilityQuestion() {
-    if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
+    if (_notEligibleAfterBirthdaySpecified || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
       return Container();
     }
     return _makeQuestion('Do you have regular access to a phone (with Lesotho number) where you can receive confidential information?',
@@ -497,7 +499,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _phoneNumberQuestion() {
-    if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven || _newPatient.phoneAvailability == null || _newPatient.phoneAvailability != PhoneAvailability.YES()) {
+    if (_notEligibleAfterBirthdaySpecified || _newPatient.consentGiven == null || !_newPatient.consentGiven || _newPatient.phoneAvailability == null || _newPatient.phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
     return _makeQuestion('Phone Number',
@@ -729,6 +731,20 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   // ----------
 
   Widget _eligibilityDisclaimer() {
+    if (_newPatient.consentGiven ?? false || _newPatient.birthday != null) {
+      return Container();
+    }
+    return
+      Padding(
+        padding: EdgeInsets.only(top: 15.0),
+        child:
+        Text('Only patients between ages $minAgeForEligibility and $maxAgeForEligibility are eligible.',
+          textAlign: TextAlign.left,
+        ),
+      );
+  }
+
+  Widget _notEligibleDisclaimer() {
     if (_newPatient.birthday == null || _eligible) {
       return Container();
     }
