@@ -816,7 +816,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       _newPatient.enrollmentDate = now;
       _newPatient.isEligible = _eligible;
       _newPatient.artNumber = _artNumberCtr.text;
-      _newPatient.stickerNumber = 'P${_stickerNumberCtr.text}';
+      _newPatient.stickerNumber = _newPatient.consentGiven ? 'P${_stickerNumberCtr.text}' : null;
       _newPatient.village = _villageCtr.text;
       _newPatient.phoneNumber = '+266-${_phoneNumberCtr.text}';
       _newPatient.noConsentReasonOther = _noConsentReasonOtherCtr.text;
