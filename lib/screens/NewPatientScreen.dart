@@ -106,6 +106,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           _personalInformationCard(),
           _eligibilityDisclaimer(),
           _consentCard(),
+          _additionalInformationCard(),
           _viralLoadBaselineCard(),
           _notEligibleDisclaimer(),
         ],
@@ -259,11 +260,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
         children: [
           _artNumberQuestion(),
           _birthdayQuestion(),
-          _genderQuestion(),
-          _sexualOrientationQuestion(),
-          _villageQuestion(),
-          _phoneAvailabilityQuestion(),
-          _phoneNumberQuestion(),
         ],
       ),
     );
@@ -285,8 +281,25 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     );
   }
 
+  Widget _additionalInformationCard() {
+    if (_notEligibleAfterBirthdaySpecified || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
+      return Container();
+    }
+    return _buildCard('Additional Information',
+      child: Column(
+        children: [
+          _genderQuestion(),
+          _sexualOrientationQuestion(),
+          _villageQuestion(),
+          _phoneAvailabilityQuestion(),
+          _phoneNumberQuestion(),
+        ],
+      ),
+    );
+  }
+
   Widget _viralLoadBaselineCard() {
-    if (!_eligible || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
+    if (_notEligibleAfterBirthdaySpecified || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
       return Container();
     }
     const double _spaceBetweenQuestions = 5.0;
@@ -405,9 +418,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _genderQuestion() {
-    if (_notEligibleAfterBirthdaySpecified || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
-      return Container();
-    }
     return _makeQuestion(
       'Gender',
       answer: DropdownButtonFormField<Gender>(
@@ -431,9 +441,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _sexualOrientationQuestion() {
-    if (_notEligibleAfterBirthdaySpecified || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
-      return Container();
-    }
     return _makeQuestion(
       'Sexual Orientation',
       answer: DropdownButtonFormField<SexualOrientation>(
@@ -457,9 +464,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _villageQuestion() {
-    if (_notEligibleAfterBirthdaySpecified || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
-      return Container();
-    }
     return _makeQuestion(
       'Village',
       answer: TextFormField(
@@ -474,9 +478,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _phoneAvailabilityQuestion() {
-    if (_notEligibleAfterBirthdaySpecified || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
-      return Container();
-    }
     return _makeQuestion('Do you have regular access to a phone (with Lesotho number) where you can receive confidential information?',
       answer: DropdownButtonFormField<PhoneAvailability>(
         value: _newPatient.phoneAvailability,
@@ -499,7 +500,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _phoneNumberQuestion() {
-    if (_notEligibleAfterBirthdaySpecified || _newPatient.consentGiven == null || !_newPatient.consentGiven || _newPatient.phoneAvailability == null || _newPatient.phoneAvailability != PhoneAvailability.YES()) {
+    if (_newPatient.phoneAvailability == null || _newPatient.phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
     return _makeQuestion('Phone Number',
@@ -731,7 +732,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   // ----------
 
   Widget _eligibilityDisclaimer() {
-    if (_newPatient.consentGiven ?? false || _newPatient.birthday != null) {
+    if (_newPatient.birthday != null) {
       return Container();
     }
     return
