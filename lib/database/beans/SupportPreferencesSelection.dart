@@ -30,7 +30,7 @@ class SupportPreferencesSelection {
       VMMC_INFO_selected = lastSelection.VMMC_INFO_selected && !pa.VMMC_INFO_done;
       YOUNG_MOTHERS_GROUP_selected = lastSelection.YOUNG_MOTHERS_GROUP_selected && pa.youngMothersAvailable && !pa.YOUNG_MOTHERS_GROUP_done;
       FEMALE_WORTH_GROUP_selected = lastSelection.FEMALE_WORTH_GROUP_selected && pa.femaleWorthAvailable && !pa.FEMALE_WORTH_GROUP_done;
-      LEGAL_AID_INFO_selected = lastSelection.LEGAL_AID_INFO_selected && pa.legalAidSmartphoneAvailable && !pa.LEGAL_AID_INFO_done;
+      LEGAL_AID_INFO_selected = lastSelection.LEGAL_AID_INFO_selected && !pa.LEGAL_AID_INFO_done;
     }
   }
 

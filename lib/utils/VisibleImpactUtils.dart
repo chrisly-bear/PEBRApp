@@ -37,9 +37,9 @@ Future<void> uploadNextARTRefillDate(Patient patient, DateTime nextARTRefillDate
 Future<void> uploadNotificationsPreferences(Patient patient, PreferenceAssessment latestPreferenceAssessment) async {
   // TODO: upload the notifications preferences from the assessment to the visible impact database and if it didn't work show a message that the upload has to be retried manually
   print('...uploading notifications preferences\n'
-      'Adherence Reminder: ${latestPreferenceAssessment.adherenceReminderEnabled}\n'
-      'ART Refill Reminder: ${latestPreferenceAssessment.artRefillReminderEnabled}\n'
-      'Viral Load Notifications: ${latestPreferenceAssessment.vlNotificationEnabled}');
+      'Adherence Reminder: ${latestPreferenceAssessment?.adherenceReminderEnabled}\n'
+      'ART Refill Reminder: ${latestPreferenceAssessment?.artRefillReminderEnabled}\n'
+      'Viral Load Notifications: ${latestPreferenceAssessment?.vlNotificationEnabled}');
   await Future.delayed(Duration(seconds: 3));
   final bool success = false;
   if (success) {

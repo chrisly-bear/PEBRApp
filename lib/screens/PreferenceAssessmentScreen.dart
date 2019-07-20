@@ -271,12 +271,22 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
       var displayValue = _artRefillOptionAvailable[optionNumber];
 
+      String possesivePronoun = 'his/her';
+      String pronoun = 'he/she';
+      if (_patient.gender == Gender.FEMALE()) {
+        possesivePronoun = 'her';
+        pronoun = 'she';
+      } else if (_patient.gender == Gender.MALE()) {
+        possesivePronoun = 'his';
+        pronoun = 'he';
+      }
+
       String question;
       final ARTRefillOption aro = _artRefillOptionSelections[optionNumber];
       if (aro == ARTRefillOption.PE_HOME_DELIVERY()) {
         question = "This means, I, the PE, have to deliver the ART. Is this possible for me?";
       } else if (aro == ARTRefillOption.VHW()) {
-        question = "This means, you want to get your ART at the VHW's home. Is there a VHW available nearby your village where you would pick up ART?";
+        question = "This means the participant wants to get $possesivePronoun ART at the VHW's home. Is there a VHW available nearby the participant's village where $pronoun could pick up ART?";
       } else if (aro == ARTRefillOption.COMMUNITY_ADHERENCE_CLUB()) {
         question = "This means you want to get your ART mainly through a CAC. Is there currently a CAC in the participants' community available?";
       } else if (aro == ARTRefillOption.TREATMENT_BUDDY()) {
@@ -1196,10 +1206,12 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             title: Text(SupportOption.LEGAL_AID_INFO().description),
             value: _pa.supportPreferences.LEGAL_AID_INFO_selected,
             onChanged: (bool newValue) => this.setState(() {
+              if (newValue) {
+                _showDialog('${SupportOption.LEGAL_AID_INFO().description} selected', 'Give patient a legal aid leaflet.');
+              }
               _pa.supportPreferences.LEGAL_AID_INFO_selected = newValue;
             })),
       ),
-      _legalAidFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
             secondary: _getPaddedIcon('assets/icons/no_support.png'),
@@ -1711,48 +1723,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     );
   }
 
-  Widget _legalAidFollowUpQuestions() {
-    if (!_pa.supportPreferences.LEGAL_AID_INFO_selected) {
-      return Container();
-    }
-    return _makeQuestion(
-      'Does the participant have a functioning smartphone?',
-      answer: DropdownButtonFormField<bool>(
-        value: _pa.legalAidSmartphoneAvailable,
-        onChanged: (bool newValue) {
-          if (!newValue) {
-            _showDialog('No Smartphone Available', 'Give patient a legal aid leaflet.');
-          }
-          setState(() {
-            _pa.legalAidSmartphoneAvailable = newValue;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return 'Please answer this question';
-          }
-          return null;
-        },
-        items:
-        <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
-          String description;
-          switch (value) {
-            case true:
-              description = 'Yes';
-              break;
-            case false:
-              description = 'No';
-              break;
-          }
-          return DropdownMenuItem<bool>(
-            value: value,
-            child: Text(description),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
   _buildPsychosocialCard() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2110,9 +2080,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       }
       if (!_pa.supportPreferences.FEMALE_WORTH_GROUP_selected) {
         _pa.femaleWorthAvailable = null;
-      }
-      if (!_pa.supportPreferences.LEGAL_AID_INFO_selected) {
-        _pa.legalAidSmartphoneAvailable = null;
       }
       if (_pa.psychosocialShareSomethingAnswer == YesNoRefused.YES()) {
         _pa.psychosocialShareSomethingContent = _psychoSocialShareCtr.text;

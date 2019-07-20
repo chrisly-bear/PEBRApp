@@ -586,7 +586,7 @@ class _PatientScreenState extends State<PatientScreen> {
           },
         ));
       }
-      if (sps.LEGAL_AID_INFO_selected && _pa.legalAidSmartphoneAvailable) {
+      if (sps.LEGAL_AID_INFO_selected) {
         supportOptions.add(_buildSupportOption(
           SupportOption.LEGAL_AID_INFO().description,
           checkboxState: _pa.LEGAL_AID_INFO_done,
