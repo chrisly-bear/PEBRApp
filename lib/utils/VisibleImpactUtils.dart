@@ -177,6 +177,12 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART) async 
       );
       return vl;
     }).toList();
+    viralLoadsFromDB.sort((ViralLoad a, ViralLoad b) => a.dateOfBloodDraw.isBefore(b.dateOfBloodDraw) ? -1 : 1);
+    if (viralLoadsFromDB.isNotEmpty && viralLoadsFromDB.last.failed) {
+      RequiredAction vlRequired = RequiredAction(patientART, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, DateTime.now());
+      DatabaseProvider().insertRequiredAction(vlRequired);
+      PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
+    }
     return viralLoadsFromDB;
   } catch (e, s) {
     print('An error occurred while fetching viral loads from database, returning null...');
