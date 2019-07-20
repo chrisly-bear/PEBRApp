@@ -853,10 +853,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     }
 
     final int daysUntilNextAction = differenceInDays(DateTime.now(), dateOfNextAction);
-    if (daysUntilNextAction <= 0) {
+    if (daysUntilNextAction <= 1) {
       return URGENCY_HIGH;
     }
-    if (daysUntilNextAction <= 2) {
+    if (daysUntilNextAction <= 3) {
       return URGENCY_MEDIUM;
     }
     if (daysUntilNextAction <= 7) {
