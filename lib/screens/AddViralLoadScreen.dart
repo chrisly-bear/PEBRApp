@@ -6,6 +6,7 @@ import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
@@ -296,7 +297,11 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
   _onSubmitForm(BuildContext context) async {
     if (_formKey.currentState.validate() & _validateViralLoadBaselineDate()) {
 
-      if (!_viralLoad.failed) {
+      if (_viralLoad.failed) {
+        RequiredAction vlRequired = RequiredAction(_patient.artNumber, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, DateTime.now());
+        DatabaseProvider().insertRequiredAction(vlRequired);
+        PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
+      } else {
         _viralLoad.viralLoad = _isLowerThanDetectable ? 0 : int.parse(_viralLoadResultCtr.text);
       }
       _viralLoad.labNumber = _viralLoadLabNumberCtr.text == '' ? null : _viralLoadLabNumberCtr.text;
