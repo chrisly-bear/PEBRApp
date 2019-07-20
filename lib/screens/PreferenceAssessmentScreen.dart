@@ -1206,10 +1206,12 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             title: Text(SupportOption.LEGAL_AID_INFO().description),
             value: _pa.supportPreferences.LEGAL_AID_INFO_selected,
             onChanged: (bool newValue) => this.setState(() {
+              if (newValue) {
+                _showDialog('${SupportOption.LEGAL_AID_INFO().description} selected', 'Give patient a legal aid leaflet.');
+              }
               _pa.supportPreferences.LEGAL_AID_INFO_selected = newValue;
             })),
       ),
-      _legalAidFollowUpQuestions(),
       _makeQuestion('',
         answer: CheckboxListTile(
             secondary: _getPaddedIcon('assets/icons/no_support.png'),
@@ -1721,48 +1723,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     );
   }
 
-  Widget _legalAidFollowUpQuestions() {
-    if (!_pa.supportPreferences.LEGAL_AID_INFO_selected) {
-      return Container();
-    }
-    return _makeQuestion(
-      'Does the participant have a functioning smartphone?',
-      answer: DropdownButtonFormField<bool>(
-        value: _pa.legalAidSmartphoneAvailable,
-        onChanged: (bool newValue) {
-          if (!newValue) {
-            _showDialog('No Smartphone Available', 'Give patient a legal aid leaflet.');
-          }
-          setState(() {
-            _pa.legalAidSmartphoneAvailable = newValue;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return 'Please answer this question';
-          }
-          return null;
-        },
-        items:
-        <bool>[true, false].map<DropdownMenuItem<bool>>((bool value) {
-          String description;
-          switch (value) {
-            case true:
-              description = 'Yes';
-              break;
-            case false:
-              description = 'No';
-              break;
-          }
-          return DropdownMenuItem<bool>(
-            value: value,
-            child: Text(description),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
   _buildPsychosocialCard() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2120,9 +2080,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       }
       if (!_pa.supportPreferences.FEMALE_WORTH_GROUP_selected) {
         _pa.femaleWorthAvailable = null;
-      }
-      if (!_pa.supportPreferences.LEGAL_AID_INFO_selected) {
-        _pa.legalAidSmartphoneAvailable = null;
       }
       if (_pa.psychosocialShareSomethingAnswer == YesNoRefused.YES()) {
         _pa.psychosocialShareSomethingContent = _psychoSocialShareCtr.text;
