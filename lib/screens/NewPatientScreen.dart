@@ -374,6 +374,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           } else if (value.length != 3) {
             return 'Exactly 3 digits required';
           }
+          return null;
         },
       ),
     );
@@ -438,7 +439,10 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question.'; }
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+          return null;
         },
         items: Gender.allValues.map<DropdownMenuItem<Gender>>((Gender value) {
           return DropdownMenuItem<Gender>(
@@ -461,7 +465,10 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question.'; }
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+          return null;
         },
         items: SexualOrientation.allValues.map<DropdownMenuItem<SexualOrientation>>((SexualOrientation value) {
           return DropdownMenuItem<SexualOrientation>(
@@ -482,6 +489,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
             if (value.isEmpty) {
               return 'Please enter a village';
             }
+            return null;
           },
         ),
       );
@@ -497,7 +505,10 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question.'; }
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+          return null;
         },
         items: PhoneAvailability.allValues.map<DropdownMenuItem<PhoneAvailability>>((PhoneAvailability value) {
           return DropdownMenuItem<PhoneAvailability>(
@@ -540,7 +551,10 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question.'; }
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+          return null;
         },
         items: [true, false].map<DropdownMenuItem<bool>>((bool value) {
           String description = value ? 'Yes' : 'No';
@@ -566,7 +580,10 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question.'; }
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+          return null;
         },
         items: NoConsentReason.allValues.map<DropdownMenuItem<NoConsentReason>>((NoConsentReason value) {
           return DropdownMenuItem<NoConsentReason>(
@@ -589,6 +606,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           if (value.isEmpty) {
             return 'Please specify the reasons';
           }
+          return null;
         },
       ),
     );
@@ -607,7 +625,10 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question.'; }
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+          return null;
         },
         items: [true, false].map<DropdownMenuItem<bool>>((bool value) {
           String description = value ? 'Yes' : 'No';
@@ -685,7 +706,10 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question.'; }
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+          return null;
         },
         items: [true, false].map<DropdownMenuItem<bool>>((bool value) {
           String description = value ? 'Yes' : 'No';
@@ -715,6 +739,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           } else if (int.parse(value) < 20) {
             return 'Value must be ≥ 20 (otherwise it is lower than detectable limit)';
           }
+          return null;
         },
       ),
     );
