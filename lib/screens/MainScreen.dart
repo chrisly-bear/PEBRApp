@@ -629,7 +629,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
         Widget viralLoadIcon = Padding(padding: EdgeInsets.only(left: 8.0), child: _formatPatientRowText('—', isActivated: isActivated));
         Widget viralLoadBadge = _formatPatientRowText('—', isActivated: isActivated);
         Color iconColor = isActivated ? null : ICON_INACTIVE;
-        if (curPatient.mostRecentViralLoad?.isSuppressed != null && curPatient.mostRecentViralLoad.isSuppressed) {
+        if (curPatient.mostRecentViralLoad?.failed != null && curPatient.mostRecentViralLoad.failed) {
+          viralLoadIcon = _getPaddedIcon('assets/icons/viralload_failed.png', color: iconColor);
+        } else if (curPatient.mostRecentViralLoad?.isSuppressed != null && curPatient.mostRecentViralLoad.isSuppressed) {
           viralLoadIcon = _getPaddedIcon('assets/icons/viralload_suppressed.png', color: iconColor);
           viralLoadBadge = ViralLoadBadge(curPatient.mostRecentViralLoad, smallSize: true); // TODO: show greyed out version if isActivated is false
         } else if (curPatient.mostRecentViralLoad?.isSuppressed != null && !curPatient.mostRecentViralLoad.isSuppressed) {

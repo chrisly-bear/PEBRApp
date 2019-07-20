@@ -303,7 +303,7 @@ class _PatientScreenState extends State<PatientScreen> {
       Widget _viralLoadIcon(ViralLoad vl) {
       final double vlIconSize = 25.0;
         if (vl.failed) {
-          return Icon(Icons.highlight_off, size: vlIconSize);
+          return _getPaddedIcon('assets/icons/viralload_failed.png', width: vlIconSize, height: vlIconSize);
         } else if (vl.isSuppressed) {
           return _getPaddedIcon('assets/icons/viralload_suppressed.png', width: vlIconSize, height: vlIconSize);
         } else if (!vl.isSuppressed) {
