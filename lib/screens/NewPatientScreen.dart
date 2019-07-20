@@ -831,13 +831,19 @@ class _NewPatientFormState extends State<_NewPatientForm> {
         await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.ENDPOINT_12M_SURVEY_REQUIRED, addMonths(now, 12)));
       }
 
-      if (_newPatient.isEligible && _newPatient.consentGiven && _newPatient.isVLBaselineAvailable != null && _newPatient.isVLBaselineAvailable) {
-        _viralLoadBaseline.patientART = _artNumberCtr.text;
-        _viralLoadBaseline.viralLoad = _isLowerThanDetectable ? 0 : int.parse(_viralLoadBaselineResultCtr.text);
-        _viralLoadBaseline.labNumber = _viralLoadBaselineLabNumberCtr.text == '' ? null : _viralLoadBaselineLabNumberCtr.text;
-        _viralLoadBaseline.checkLogicAndResetUnusedFields();
-        await DatabaseProvider().insertViralLoad(_viralLoadBaseline);
-        _newPatient.viralLoads = [_viralLoadBaseline];
+      if (_newPatient.isEligible && _newPatient.consentGiven){
+        if (_newPatient.isVLBaselineAvailable) {
+          _viralLoadBaseline.patientART = _artNumberCtr.text;
+          _viralLoadBaseline.viralLoad = _isLowerThanDetectable ? 0 : int.parse(_viralLoadBaselineResultCtr.text);
+          _viralLoadBaseline.labNumber = _viralLoadBaselineLabNumberCtr.text == '' ? null : _viralLoadBaselineLabNumberCtr.text;
+          _viralLoadBaseline.checkLogicAndResetUnusedFields();
+          await DatabaseProvider().insertViralLoad(_viralLoadBaseline);
+          _newPatient.viralLoads = [_viralLoadBaseline];
+        } else {
+          RequiredAction vlRequired = RequiredAction(_artNumberCtr.text, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, now);
+          DatabaseProvider().insertRequiredAction(vlRequired);
+          PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
+        }
       }
 
       await _newPatient.initializeRequiredActionsField();
