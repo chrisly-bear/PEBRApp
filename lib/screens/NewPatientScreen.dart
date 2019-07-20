@@ -56,7 +56,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   bool get _notEligibleAfterBirthdaySpecified => _newPatient.birthday != null && !_eligible;
 
   Patient _newPatient = Patient(isActivated: true);
-  ViralLoad _viralLoadBaseline = ViralLoad(source: ViralLoadSource.MANUAL_INPUT());
+  ViralLoad _viralLoadBaseline = ViralLoad(source: ViralLoadSource.MANUAL_INPUT(), failed: false);
   bool _isLowerThanDetectable;
 
   TextEditingController _artNumberCtr = TextEditingController();
