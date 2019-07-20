@@ -366,7 +366,7 @@ void showErrorInPopup(e, StackTrace s, BuildContext context) {
 /// this method. Otherwise the viral load will be `null` and this method will
 /// return false.
 bool isSuppressed(Patient patient) {
-  return patient.mostRecentViralLoad?.isSuppressed ?? false;
+  return patient.mostRecentViralLoad?.isSuppressed ?? true;
 }
 
 /// Shows the lock screen, where the user has to enter their PIN code to unlock.

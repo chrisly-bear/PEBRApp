@@ -233,7 +233,7 @@ class Patient implements IExcelExportable {
   ViralLoad get mostRecentViralLoad {
     ViralLoad mostRecent;
     for (ViralLoad vl in viralLoads) {
-      if (mostRecent == null || !vl.dateOfBloodDraw.isBefore(mostRecent.dateOfBloodDraw)) {
+      if (mostRecent == null || !vl.createdDate.isBefore(mostRecent.createdDate)) {
         mostRecent = vl;
       }
     }

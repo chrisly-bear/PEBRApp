@@ -82,7 +82,7 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
   FlatButton _endpointSurveyDoneButton(RequiredAction action) {
     return FlatButton(
       onPressed: () async {
-        await DatabaseProvider().removeRequiredAction(widget.patient.artNumber, action.type);
+        DatabaseProvider().removeRequiredAction(widget.patient.artNumber, action.type);
         PatientBloc.instance.sinkRequiredActionData(action, true);
       },
       splashColor: NOTIFICATION_INFO_SPLASH,
@@ -160,6 +160,23 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
           splashColor: NOTIFICATION_INFO_SPLASH,
           child: Text(
             "SYNCHRONIZE",
+            style: TextStyle(
+              color: NOTIFICATION_INFO_TEXT,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        );
+        break;
+      case RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED:
+        actionText = "Viral load measurement required. Please send the participant to the nurse for blood draw.";
+        actionButton = FlatButton(
+          onPressed: () async {
+            DatabaseProvider().removeRequiredAction(widget.patient.artNumber, widget.action.type);
+            PatientBloc.instance.sinkRequiredActionData(widget.action, true);
+          },
+          splashColor: NOTIFICATION_INFO_SPLASH,
+          child: Text(
+            "DONE",
             style: TextStyle(
               color: NOTIFICATION_INFO_TEXT,
               fontWeight: FontWeight.bold,

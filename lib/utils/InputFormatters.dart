@@ -103,7 +103,8 @@ class LabNumberTextInputFormatter extends TextInputFormatter {
 String validateLabNumber(String value) {
   final RegExp labNumberExp = RegExp(r'^[A-Z]{3}\d+$');
   if (value == null || value == '') {
-    return 'Please specify the lab number.';
+    // lab number may be left empty
+    return null;
   }
   if (!labNumberExp.hasMatch(value))
     return 'Expected 3 letters followed by 1 or more digits.';
