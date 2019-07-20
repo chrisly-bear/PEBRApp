@@ -21,7 +21,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 49;
+  static const int _DB_VERSION = 50;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -160,10 +160,10 @@ class DatabaseProvider {
           ${ViralLoad.colViralLoadSource} INTEGER NOT NULL,
           ${ViralLoad.colDateOfBloodDraw} TEXT NOT NULL,
           ${ViralLoad.colFailed} BIT NOT NULL,
-          ${ViralLoad.colViralLoad} INTEGER NOT NULL,
+          ${ViralLoad.colViralLoad} INTEGER,
           ${ViralLoad.colLabNumber} TEXT,
           ${ViralLoad.colDiscrepancy} BIT,
-          UNIQUE(${ViralLoad.colPatientART}, ${ViralLoad.colViralLoadSource}, ${ViralLoad.colDateOfBloodDraw}, ${ViralLoad.colViralLoad}, ${ViralLoad.colLabNumber}) ON CONFLICT IGNORE
+          UNIQUE(${ViralLoad.colPatientART}, ${ViralLoad.colViralLoadSource}, ${ViralLoad.colDateOfBloodDraw}, ${ViralLoad.colFailed}, ${ViralLoad.colViralLoad}, ${ViralLoad.colLabNumber}) ON CONFLICT IGNORE
         );
         """);
     await db.execute("""
@@ -564,6 +564,12 @@ class DatabaseProvider {
       if (!(await _columnExistsInTable(db, 'failed', 'ViralLoad'))) {
         await db.execute("ALTER TABLE ViralLoad ADD failed BIT NOT NULL DEFAULT 0;");
       }
+    }
+    if (oldVersion < 50 && _DB_VERSION >= 50) {
+      print('Upgrading to database version 50...');
+      print('UPGRADE NOT IMPLEMENTED, VIRAL LOAD DATA WILL BE RESET!');
+      await db.execute("DROP TABLE IF EXISTS ViralLoad;");
+      await _onCreate(db, 50);
     }
   }
 

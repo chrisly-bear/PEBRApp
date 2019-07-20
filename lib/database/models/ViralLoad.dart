@@ -14,7 +14,7 @@ class ViralLoad implements IExcelExportable {
   static final colViralLoadSource = 'source';
   static final colDateOfBloodDraw = 'date_blood_draw';
   static final colFailed = 'failed';
-  static final colViralLoad = 'viral_load';
+  static final colViralLoad = 'viral_load'; // nullable
   static final colLabNumber = 'lab_number'; // nullable
   static final colDiscrepancy = 'discrepancy'; // nullable
 
@@ -143,9 +143,12 @@ class ViralLoad implements IExcelExportable {
 
   /// Returns true if this viral load counts as suppressed (which also the case
   /// if it is lower than detectable limit), false if unsuppressed.
-  bool get isSuppressed => viralLoad < VL_SUPPRESSED_THRESHOLD;
+  ///
+  /// Returns null if the viral load is null (which is the case if the viral
+  /// load failed).
+  bool get isSuppressed => viralLoad == null ? null : viralLoad < VL_SUPPRESSED_THRESHOLD;
 
   /// Returns true if [viralLoad] is lower than detectable limit (<20 c/mL).
-  bool get isLowerThanDetectable => viralLoad < 20;
+  bool get isLowerThanDetectable => viralLoad == null ? null : viralLoad < 20;
 
 }
