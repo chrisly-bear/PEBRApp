@@ -271,12 +271,22 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
       var displayValue = _artRefillOptionAvailable[optionNumber];
 
+      String possesivePronoun = 'his/her';
+      String pronoun = 'he/she';
+      if (_patient.gender == Gender.FEMALE()) {
+        possesivePronoun = 'her';
+        pronoun = 'she';
+      } else if (_patient.gender == Gender.MALE()) {
+        possesivePronoun = 'his';
+        pronoun = 'he';
+      }
+
       String question;
       final ARTRefillOption aro = _artRefillOptionSelections[optionNumber];
       if (aro == ARTRefillOption.PE_HOME_DELIVERY()) {
         question = "This means, I, the PE, have to deliver the ART. Is this possible for me?";
       } else if (aro == ARTRefillOption.VHW()) {
-        question = "This means, you want to get your ART at the VHW's home. Is there a VHW available nearby your village where you would pick up ART?";
+        question = "This means the participant wants to get $possesivePronoun ART at the VHW's home. Is there a VHW available nearby the participant's village where $pronoun could pick up ART?";
       } else if (aro == ARTRefillOption.COMMUNITY_ADHERENCE_CLUB()) {
         question = "This means you want to get your ART mainly through a CAC. Is there currently a CAC in the participants' community available?";
       } else if (aro == ARTRefillOption.TREATMENT_BUDDY()) {

@@ -39,7 +39,7 @@ class SupportOption {
     _SupportOption.VMMC_INFO: "More information about VMMC",
     _SupportOption.YOUNG_MOTHERS_GROUP: "Linkage to young mothers group (DREAMS or Mothers-to-Mothers)",
     _SupportOption.FEMALE_WORTH_GROUP: "Linkage to a female WORTH group (Social Asset Building Model)",
-    _SupportOption.LEGAL_AID_INFO: "Legal aid information",
+    _SupportOption.LEGAL_AID_INFO: "More information about gender-based violence / legal aid",
     _SupportOption.NONE: "No support wished",
   };
 
