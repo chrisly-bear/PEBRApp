@@ -298,14 +298,29 @@ class _PatientScreenState extends State<PatientScreen> {
 
     Widget _buildViralLoadRow(vl, {bool bold: false}) {
 
-      if (vl?.isSuppressed == null) { return Column(); }
-
       final String description = '${formatDateConsistent(vl.dateOfBloodDraw)}';
+
+      Widget _viralLoadIcon(ViralLoad vl) {
       final double vlIconSize = 25.0;
-      Widget viralLoadIcon = vl.isSuppressed
-          ? _getPaddedIcon('assets/icons/viralload_suppressed.png', width: vlIconSize, height: vlIconSize)
-          : _getPaddedIcon('assets/icons/viralload_unsuppressed.png', width: vlIconSize, height: vlIconSize);
+        if (vl.failed) {
+          return Icon(Icons.highlight_off, size: vlIconSize);
+        } else if (vl.isSuppressed) {
+          return _getPaddedIcon('assets/icons/viralload_suppressed.png', width: vlIconSize, height: vlIconSize);
+        } else if (!vl.isSuppressed) {
+          return _getPaddedIcon('assets/icons/viralload_unsuppressed.png', width: vlIconSize, height: vlIconSize);
+        }
+        return Text('—');
+      }
       Widget viralLoadBadge = ViralLoadBadge(vl, smallSize: false);
+
+      String _vlText(ViralLoad vl) {
+        if (vl.failed) {
+          return 'failed';
+        } else if (vl.isLowerThanDetectable) {
+          return 'LTDL';
+        }
+        return '${vl.viralLoad} c/mL';
+      }
 
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -319,10 +334,10 @@ class _PatientScreenState extends State<PatientScreen> {
               child: Row(
                 children:
                 [
-                  viralLoadIcon,
+                  _viralLoadIcon(vl),
 //              viralLoadBadge,
                   SizedBox(width: 5.0),
-                  Text(vl.isLowerThanDetectable ? 'LTDL' : '${vl.viralLoad} c/mL', style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
+                  Text(_vlText(vl), style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
                 ],
               ),
             ),
