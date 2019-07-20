@@ -172,6 +172,7 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART) async 
         dateOfBloodDraw: DateTime.parse(vlLabResult['date_sample']),
         labNumber: vlLabResult['lab_number'],
         viralLoad: vlLabResult['lab_hivvmnumerical'],
+        failed: vlLabResult['lab_hivvmnumerical'] == null,
         source: ViralLoadSource.DATABASE(),
       );
       return vl;
