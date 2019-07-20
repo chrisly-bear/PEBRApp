@@ -168,7 +168,7 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
         );
         break;
       case RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED:
-        actionText = "Viral load measurement required. Please send the patient to take a viral load measurement.";
+        actionText = "Viral load measurement required. Please send the participant to the nurse for blood draw.";
         actionButton = FlatButton(
           onPressed: () async {
             DatabaseProvider().removeRequiredAction(widget.patient.artNumber, widget.action.type);
