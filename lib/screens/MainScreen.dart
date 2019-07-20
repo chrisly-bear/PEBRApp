@@ -343,7 +343,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       }
     }
 
-    String resultMessage = 'Backup Successful';
+    String resultMessage = 'Upload Successful';
     String title;
     bool error = false;
     VoidCallback onNotificationButtonPress;
@@ -351,7 +351,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       await DatabaseProvider().createAdditionalBackupOnSWITCH(loginData);
     } catch (e, s) {
       error = true;
-      title = 'Backup Failed';
+      title = 'Upload Failed';
       switch (e.runtimeType) {
         case NoLoginDataException:
           // this case should never occur since we force the user to login when
@@ -377,7 +377,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       }
       // show additional warning if backup wasn't successful for a long time
       if (daysSinceLastBackup >= SHOW_WARNING_AFTER_X_DAYS) {
-        showFlushbar("Last backup was $daysSinceLastBackup days ago.\nPlease perform a manual backup from the settings screen.", title: "Warning", error: true);
+        showFlushbar("Last upload was $daysSinceLastBackup days ago.\nPlease perform a manual upload from the settings screen.", title: "Warning", error: true);
       }
     }
     showFlushbar(resultMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);

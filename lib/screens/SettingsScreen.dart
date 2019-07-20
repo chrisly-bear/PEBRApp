@@ -154,14 +154,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _buildRequiredActions(),
         _buildUserDataCard(),
         SizedBox(height: _spacing),
-        PEBRAButtonRaised('Start Backup', onPressed: _isLoadingSettingsBody ? null : () {_onPressBackupButton(context);},),
+        PEBRAButtonRaised('Start Upload', onPressed: _isLoadingSettingsBody ? null : () {_onPressBackupButton(context);},),
         SizedBox(height: 10.0),
         Container(
           height: 40,
           child: Column(
               mainAxisAlignment: _isLoadingSettingsBody ? MainAxisAlignment.center : MainAxisAlignment.start,
               children: _isLoadingSettingsBody ? [SizedBox(width: 15.0, height: 15.0, child: CircularProgressIndicator())] : [
-                Text("last backup:"),
+                Text("last upload:"),
                 Text(lastBackup),
               ]),
         ),
@@ -180,7 +180,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   _onPressBackupButton(BuildContext context) async {
-    String message = 'Backup Successful';
+    String message = 'Upload Successful';
     String title;
     bool error = false;
     VoidCallback onNotificationButtonPress;
@@ -192,7 +192,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       });
     } catch (e, s) {
       error = true;
-      title = 'Backup Failed';
+      title = 'Upload Failed';
       switch (e.runtimeType) {
       // case NoLoginDataException should never occur because we don't show
       // the backup button when the user is not logged in
@@ -269,8 +269,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final bool proceed = await _showWarningDialog(
         'Warning',
         'If you log out all data on this device will be deleted. Data since '
-            'your last backup ($lastBackup) will be lost forever! Before you '
-            'proceed make sure you have made a backup.\n\n'
+            'your last upload ($lastBackup) will be lost forever! Before you '
+            'proceed make sure you have uploaded your data.\n\n'
             'Are you sure you want to proceed?');
     if (proceed) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -288,8 +288,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final bool proceed = await _showWarningDialog(
         'Warning',
         'If you transfer this device and then log in again with your own '
-            'account all data since your last backup ($lastBackup) will be '
-            'lost! Before you proceed make sure you have made a backup.\n\n'
+            'account all data since your last upload ($lastBackup) will be '
+            'lost! Before you proceed make sure you uploaded your data.\n\n'
             'Are you sure you want to proceed?');
     if (proceed) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -465,7 +465,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 25.0),
           child: Text(_createAccountMode
               ? 'Creating an account will store the name and health center on the server.'
-              : 'Logging in will replace all data on this device with the data from the latest backup.',
+              : 'Logging in will replace all data on this device with the data from the latest upload.',
             textAlign: TextAlign.center,
           ),
         ),
