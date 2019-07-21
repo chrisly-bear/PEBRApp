@@ -982,7 +982,7 @@ class _PatientScreenState extends State<PatientScreen> {
   Future<void> _fetchFromDatabasePressed(BuildContext context, Patient patient) async {
     setState(() { _isFetchingViralLoads = true; });
     List<ViralLoad> viralLoadsFromDB;
-    String message = 'No new viral load results found';
+    String message = 'No new viral load results found.';
     String title = 'Viral Load Fetch Successful';
     bool error = false;
     VoidCallback onNotificationButtonPress;
@@ -996,13 +996,13 @@ class _PatientScreenState extends State<PatientScreen> {
         //  ting into DatabaseProvider
         await DatabaseProvider().insertViralLoad(vl, createdDate: fetchedDate);
       }
-      final int oldEntries = _patient.viralLoads.length;
+      final int oldEntries = patient.viralLoads.length;
       patient.addViralLoads(viralLoadsFromDB);
-      final int newEntries = _patient.viralLoads.length - oldEntries;
+      final int newEntries = patient.viralLoads.length - oldEntries;
       if (newEntries > 0) {
         message = '$newEntries new viral load result${newEntries > 1 ? 's' : ''} found.';
       }
-      await storeLatestViralLoadFetchInSharedPrefs(_patient.artNumber);
+      await storeLatestViralLoadFetchInSharedPrefs(patient.artNumber);
       lastVLFetchDate = formatDateAndTime(DateTime.now());
     } catch (e, s) {
       error = true;
