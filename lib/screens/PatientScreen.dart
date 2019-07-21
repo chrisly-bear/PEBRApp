@@ -969,16 +969,29 @@ class _PatientScreenState extends State<PatientScreen> {
     });
   }
 
-  // TODO: improve UI interactions (show loading indicator, show message when finished, show error when there's one, e.g. offline-error)
   Future<void> _fetchFromDatabasePressed(BuildContext context, Patient patient) async {
     setState(() { _isFetchingViralLoads = true; });
     List<ViralLoad> viralLoadsFromDB;
-    String message = 'Viral Load Fetch Successful';
-    String title;
+    String message = 'No new viral load results found';
+    String title = 'Viral Load Fetch Successful';
     bool error = false;
     VoidCallback onNotificationButtonPress;
     try {
       viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient.artNumber);
+      final DateTime fetchedDate = DateTime.now();
+      for (ViralLoad vl in viralLoadsFromDB) {
+        // TODO: check for discrepancy with baseline viral load (i.e. first manual
+        //  viral load entry for this patient) in each [vl] object, if there is a
+        //  discrepancy, set the [vl.discrepancy] variable to `true` before inser-
+        //  ting into DatabaseProvider
+        await DatabaseProvider().insertViralLoad(vl, createdDate: fetchedDate);
+      }
+      final int oldEntries = _patient.viralLoads.length;
+      patient.addViralLoads(viralLoadsFromDB);
+      final int newEntries = _patient.viralLoads.length - oldEntries;
+      if (newEntries > 0) {
+        message = '$newEntries new viral load result${newEntries > 1 ? 's' : ''} found.';
+      }
     } catch (e, s) {
       error = true;
       title = 'Viral Load Fetch Failed';
@@ -1006,22 +1019,6 @@ class _PatientScreenState extends State<PatientScreen> {
     }
     setState(() { _isFetchingViralLoads = false; });
     showFlushbar(message, title: title, error: error, onButtonPress: onNotificationButtonPress);
-
-    if (viralLoadsFromDB == null) {
-      return;
-    }
-    final DateTime fetchedDate = DateTime.now();
-    for (ViralLoad vl in viralLoadsFromDB) {
-      // TODO: check for discrepancy with baseline viral load (i.e. first manual
-      //  viral load entry for this patient) in each [vl] object, if there is a
-      //  discrepancy, set the [vl.discrepancy] variable to `true` before inser-
-      //  ting into DatabaseProvider
-      await DatabaseProvider().insertViralLoad(vl, createdDate: fetchedDate);
-    }
-    patient.addViralLoads(viralLoadsFromDB);
-    // calling setState to trigger a re-render of the page and display the new
-    // viral load history
-    setState(() {});
   }
 
   void _addManualEntryPressed(BuildContext context, Patient patient) {
