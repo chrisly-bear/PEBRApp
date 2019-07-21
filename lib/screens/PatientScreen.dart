@@ -49,6 +49,7 @@ class _PatientScreenState extends State<PatientScreen> {
   String _nextEndpointText = '—';
   double _screenWidth;
   bool _isFetchingViralLoads = false;
+  String lastVLFetchDate = 'loading...';
 
   StreamSubscription<AppState> _appStateStream;
 
@@ -61,6 +62,11 @@ class _PatientScreenState extends State<PatientScreen> {
   @override
   void initState() {
     super.initState();
+    getLatestViralLoadFetchFromSharedPrefs(_patient.artNumber).then((DateTime fetchDate) {
+      setState(() {
+        lastVLFetchDate = fetchDate == null ? 'never' : formatDateAndTime(fetchDate);
+      });
+    });
     _appStateStream = PatientBloc.instance.appState.listen( (streamEvent) {
       if (streamEvent is AppStatePatientData && streamEvent.patient.artNumber == _patient.artNumber) {
         // TODO: animate changes to the new patient data (e.g. insertions and removals of required action card) with an animation for visual fidelity
@@ -135,6 +141,10 @@ class _PatientScreenState extends State<PatientScreen> {
             ? SizedBox(height: 15.0, width: 15.0, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(SPINNER_PATIENT_SCREEN_FETCH_VIRAL_LOADS)))
             : null,
           flat: true,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.0),
+          child: Text('Last fetch: ${lastVLFetchDate ?? 'never'}', textAlign: TextAlign.center),
         ),
         _makeButton(
           'add manual entry',
@@ -972,7 +982,7 @@ class _PatientScreenState extends State<PatientScreen> {
   Future<void> _fetchFromDatabasePressed(BuildContext context, Patient patient) async {
     setState(() { _isFetchingViralLoads = true; });
     List<ViralLoad> viralLoadsFromDB;
-    String message = 'No new viral load results found';
+    String message = 'No new viral load results found.';
     String title = 'Viral Load Fetch Successful';
     bool error = false;
     VoidCallback onNotificationButtonPress;
@@ -980,18 +990,18 @@ class _PatientScreenState extends State<PatientScreen> {
       viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient.artNumber);
       final DateTime fetchedDate = DateTime.now();
       for (ViralLoad vl in viralLoadsFromDB) {
-        // TODO: check for discrepancy with baseline viral load (i.e. first manual
-        //  viral load entry for this patient) in each [vl] object, if there is a
-        //  discrepancy, set the [vl.discrepancy] variable to `true` before inser-
-        //  ting into DatabaseProvider
         await DatabaseProvider().insertViralLoad(vl, createdDate: fetchedDate);
       }
-      final int oldEntries = _patient.viralLoads.length;
+      final int oldEntries = patient.viralLoads.length;
       patient.addViralLoads(viralLoadsFromDB);
-      final int newEntries = _patient.viralLoads.length - oldEntries;
+      final int newEntries = patient.viralLoads.length - oldEntries;
       if (newEntries > 0) {
         message = '$newEntries new viral load result${newEntries > 1 ? 's' : ''} found.';
       }
+      await storeLatestViralLoadFetchInSharedPrefs(patient.artNumber);
+      lastVLFetchDate = formatDateAndTime(DateTime.now());
+      final bool discrepancyFound = await checkForViralLoadDiscrepancies(patient);
+      // TODO: do we have to deal with a discrepancy in some way (show notification perhaps)?
     } catch (e, s) {
       error = true;
       title = 'Viral Load Fetch Failed';
