@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -18,6 +19,9 @@ import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
+import 'package:pebrapp/exceptions/MultiplePatientsException.dart';
+import 'package:pebrapp/exceptions/PatientNotFoundException.dart';
+import 'package:pebrapp/exceptions/VisibleImpactLoginFailedException.dart';
 import 'package:pebrapp/screens/ARTRefillScreen.dart';
 import 'package:pebrapp/screens/AddViralLoadScreen.dart';
 import 'package:pebrapp/screens/EditPatientScreen.dart';
@@ -44,6 +48,7 @@ class _PatientScreenState extends State<PatientScreen> {
   String _nextRefillText = '—';
   String _nextEndpointText = '—';
   double _screenWidth;
+  bool _isFetchingViralLoads = false;
 
   StreamSubscription<AppState> _appStateStream;
 
@@ -123,8 +128,19 @@ class _PatientScreenState extends State<PatientScreen> {
         _makeButton('Edit Characteristics', onPressed: () { _editCharacteristicsPressed(_patient); }, flat: true),
         SizedBox(height: _spacingBetweenCards),
         _buildViralLoadHistoryCard(),
-        _makeButton('fetch from database', onPressed: () { _fetchFromDatabasePressed(_context, _patient); }, flat: true),
-        _makeButton('add manual entry', onPressed: () { _addManualEntryPressed(_context, _patient); }, flat: true),
+        _makeButton(
+          'fetch from database',
+          onPressed: _isFetchingViralLoads ? null : () { _fetchFromDatabasePressed(_context, _patient); },
+          widget: _isFetchingViralLoads
+            ? SizedBox(height: 15.0, width: 15.0, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(SPINNER_PATIENT_SCREEN_FETCH_VIRAL_LOADS)))
+            : null,
+          flat: true,
+        ),
+        _makeButton(
+          'add manual entry',
+          onPressed: _isFetchingViralLoads ? null : () { _addManualEntryPressed(_context, _patient); },
+          flat: true,
+        ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.0),
           child: Text('Use this option to correct a wrong entry from the database.', textAlign: TextAlign.center),
@@ -953,25 +969,56 @@ class _PatientScreenState extends State<PatientScreen> {
     });
   }
 
-  // TODO: improve UI interactions (show loading indicator, show message when finished, show error when there's one, e.g. offline-error)
   Future<void> _fetchFromDatabasePressed(BuildContext context, Patient patient) async {
-    List<ViralLoad> viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient.artNumber);
-    if (viralLoadsFromDB == null) {
-      return;
+    setState(() { _isFetchingViralLoads = true; });
+    List<ViralLoad> viralLoadsFromDB;
+    String message = 'No new viral load results found';
+    String title = 'Viral Load Fetch Successful';
+    bool error = false;
+    VoidCallback onNotificationButtonPress;
+    try {
+      viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient.artNumber);
+      final DateTime fetchedDate = DateTime.now();
+      for (ViralLoad vl in viralLoadsFromDB) {
+        // TODO: check for discrepancy with baseline viral load (i.e. first manual
+        //  viral load entry for this patient) in each [vl] object, if there is a
+        //  discrepancy, set the [vl.discrepancy] variable to `true` before inser-
+        //  ting into DatabaseProvider
+        await DatabaseProvider().insertViralLoad(vl, createdDate: fetchedDate);
+      }
+      final int oldEntries = _patient.viralLoads.length;
+      patient.addViralLoads(viralLoadsFromDB);
+      final int newEntries = _patient.viralLoads.length - oldEntries;
+      if (newEntries > 0) {
+        message = '$newEntries new viral load result${newEntries > 1 ? 's' : ''} found.';
+      }
+    } catch (e, s) {
+      error = true;
+      title = 'Viral Load Fetch Failed';
+      switch (e.runtimeType) {
+        case VisibleImpactLoginFailedException:
+          message = 'Login to VisibleImpact failed. Contact the development team.';
+          break;
+        case PatientNotFoundException:
+          message = e.message;
+          break;
+        case MultiplePatientsException:
+          message = e.message;
+          break;
+        case SocketException:
+          message = 'Make sure you are connected to the internet.';
+          break;
+        default:
+          message = 'An unknown error occured. Contact the development team.';
+          print('${e.runtimeType}: $e');
+          print(s);
+          onNotificationButtonPress = () {
+            showErrorInPopup(e, s, context);
+          };
+      }
     }
-    final DateTime fetchedDate = DateTime.now();
-    for (ViralLoad vl in viralLoadsFromDB) {
-      // TODO: check for discrepancy with baseline viral load (i.e. first manual
-      //  viral load entry for this patient) in each [vl] object, if there is a
-      //  discrepancy, set the [vl.discrepancy] variable to `true` before inser-
-      //  ting into DatabaseProvider
-      await DatabaseProvider().insertViralLoad(vl, createdDate: fetchedDate);
-    }
-    patient.addViralLoads(viralLoadsFromDB);
-    // TODO: implement call to viral load database API
-    // calling setState to trigger a re-render of the page and display the new
-    // viral load history
-    setState(() {});
+    setState(() { _isFetchingViralLoads = false; });
+    showFlushbar(message, title: title, error: error, onButtonPress: onNotificationButtonPress);
   }
 
   void _addManualEntryPressed(BuildContext context, Patient patient) {
@@ -1011,13 +1058,13 @@ class _PatientScreenState extends State<PatientScreen> {
     }
   }
 
-  Widget _makeButton(String buttonText, {Function() onPressed, bool flat: false}) {
+  Widget _makeButton(String buttonText, {Function() onPressed, bool flat: false, Widget widget}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         flat
-            ? PEBRAButtonFlat(buttonText, onPressed: onPressed)
-            : PEBRAButtonRaised(buttonText, onPressed: onPressed),
+            ? PEBRAButtonFlat(buttonText, onPressed: onPressed, widget: widget)
+            : PEBRAButtonRaised(buttonText, onPressed: onPressed, widget: widget),
       ],
     );
   }
