@@ -285,7 +285,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           _consentGivenQuestion(),
           _noConsentReasonQuestion(),
           _noConsentReasonOtherQuestion(),
-          _stickerNumberQuestion(),
         ],
       ),
     );
@@ -293,11 +292,12 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
   Widget _additionalInformationCard() {
     if (_notEligibleAfterBirthdaySpecified || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
-      return Container();
+      return SizedBox();
     }
     return _buildCard('Additional Information',
       child: Column(
         children: [
+          _stickerNumberQuestion(),
           _genderQuestion(),
           _sexualOrientationQuestion(),
           _villageQuestion(),
@@ -354,9 +354,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _stickerNumberQuestion() {
-    if (_newPatient.consentGiven == null || !_newPatient.consentGiven) {
-      return SizedBox();
-    }
     return _makeQuestion('Sticker Number',
       answer: TextFormField(
         decoration: InputDecoration(
