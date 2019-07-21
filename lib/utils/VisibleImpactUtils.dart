@@ -8,6 +8,9 @@ import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
+import 'package:pebrapp/exceptions/MultiplePatientsException.dart';
+import 'package:pebrapp/exceptions/PatientNotFoundException.dart';
+import 'package:pebrapp/exceptions/VisibleImpactLoginFailedException.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:http/http.dart' as http;
@@ -132,64 +135,71 @@ Future<void> uploadPeerEducatorPhoneNumberForAllPatients(String peerEducatorPhon
   }
 }
 
+/// Throws [VisibleImpactLoginFailedException] if the authentication fails.
 Future<String> _getAPIToken() async {
   String basicAuth = 'Basic ' + base64Encode(utf8.encode('$VI_USERNAME:$VI_PASSWORD'));
   http.Response _resp = await http.post(
     'https://lstowards909090.org/db-test/apiv1/token',
     headers: {'authorization': basicAuth},
   );
+  if (_resp.body == '') {
+    throw VisibleImpactLoginFailedException();
+  }
   return jsonDecode(_resp.body)['token'];
 }
 
 /// Viral Load Measurements Download
+///
+/// Throws [VisibleImpactLoginFailedException] if the authentication fails.
+///
+/// Throws [PatientNotFoundException] if patient with given [patientART] number
+/// is not found on VisibleImpact database.
+///
+/// Throws [MultiplePatientsException] if VisibleImpact returns more than one
+/// patient ID for the given [patientART] number.
 Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART) async {
-  // TODO: handle errors in client
-  try {
-    final String _token = await _getAPIToken();
-    final List<int> patientIds = await _getPatientIdsVisibleImpact(patientART, _token);
-    if (patientIds.isEmpty) {
-      // TODO: write custom exception and handle in client
-      throw Exception('No patient with ART number $patientART found on VisibleImpact.');
-    }
-    if (patientIds.length > 1) {
-      // TODO: write custom exception and handle in client
-      throw Exception('Several matching patients with ART number $patientART found on VisibleImpact.');
-    }
-    final _resp = await http.get(
-      'https://lstowards909090.org/db-test/apiv1/labdata?patient_id=${patientIds.first}',
-      headers: {'Authorization' : 'Custom $_token'},
-    );
-    if (_resp.statusCode != 200) {
-      print('An error occurred while fetching viral loads from database, returning null...');
-      print(_resp.statusCode);
-      print(_resp.body);
-      return null;
-    }
-    final List<dynamic> list = jsonDecode(_resp.body);
-    List<ViralLoad> viralLoadsFromDB = list.map((dynamic vlLabResult) {
-      final ViralLoad vl = ViralLoad(
-        patientART: patientART,
-        dateOfBloodDraw: DateTime.parse(vlLabResult['date_sample']),
-        labNumber: vlLabResult['lab_number'],
-        viralLoad: vlLabResult['lab_hivvmnumerical'],
-        failed: vlLabResult['lab_hivvmnumerical'] == null,
-        source: ViralLoadSource.DATABASE(),
-      );
-      return vl;
-    }).toList();
-    viralLoadsFromDB.sort((ViralLoad a, ViralLoad b) => a.dateOfBloodDraw.isBefore(b.dateOfBloodDraw) ? -1 : 1);
-    if (viralLoadsFromDB.isNotEmpty && viralLoadsFromDB.last.failed) {
-      RequiredAction vlRequired = RequiredAction(patientART, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, DateTime.now());
-      DatabaseProvider().insertRequiredAction(vlRequired);
-      PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
-    }
-    return viralLoadsFromDB;
-  } catch (e, s) {
-    print('An error occurred while fetching viral loads from database, returning null...');
-    print(e);
-    print(s);
+  final String _token = await _getAPIToken();
+  final List<int> patientIds = await _getPatientIdsVisibleImpact(patientART, _token);
+  if (patientIds.isEmpty) {
+    throw PatientNotFoundException('No patient with ART number $patientART found on VisibleImpact.');
   }
-  return null;
+  if (patientIds.length > 1) {
+    // TODO: decide how to handle this case (i.e. when there are duplicates)
+    // -> a simple solution would be to just return all viral loads from all
+    // duplicates (the user can still add manual entries to override the last
+    // entry if it doesn't make sense)
+    throw MultiplePatientsException('Several matching patients with ART number $patientART found on VisibleImpact.');
+  }
+  final _resp = await http.get(
+    'https://lstowards909090.org/db-test/apiv1/labdata?patient_id=${patientIds.first}',
+    headers: {'Authorization' : 'Custom $_token'},
+  );
+  if (_resp.statusCode != 200) {
+    // TODO: think about how to handle this case (we should probably throw an exception)
+    print('An error occurred while fetching viral loads from database, returning null...');
+    print(_resp.statusCode);
+    print(_resp.body);
+    return null;
+  }
+  final List<dynamic> list = jsonDecode(_resp.body);
+  List<ViralLoad> viralLoadsFromDB = list.map((dynamic vlLabResult) {
+    final ViralLoad vl = ViralLoad(
+      patientART: patientART,
+      dateOfBloodDraw: DateTime.parse(vlLabResult['date_sample']),
+      labNumber: vlLabResult['lab_number'],
+      viralLoad: vlLabResult['lab_hivvmnumerical'],
+      failed: vlLabResult['lab_hivvmnumerical'] == null,
+      source: ViralLoadSource.DATABASE(),
+    );
+    return vl;
+  }).toList();
+  viralLoadsFromDB.sort((ViralLoad a, ViralLoad b) => a.dateOfBloodDraw.isBefore(b.dateOfBloodDraw) ? -1 : 1);
+  if (viralLoadsFromDB.isNotEmpty && viralLoadsFromDB.last.failed) {
+    RequiredAction vlRequired = RequiredAction(patientART, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, DateTime.now());
+    DatabaseProvider().insertRequiredAction(vlRequired);
+    PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
+  }
+  return viralLoadsFromDB;
 }
 
 

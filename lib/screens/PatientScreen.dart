@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -18,6 +19,9 @@ import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
+import 'package:pebrapp/exceptions/MultiplePatientsException.dart';
+import 'package:pebrapp/exceptions/PatientNotFoundException.dart';
+import 'package:pebrapp/exceptions/VisibleImpactLoginFailedException.dart';
 import 'package:pebrapp/screens/ARTRefillScreen.dart';
 import 'package:pebrapp/screens/AddViralLoadScreen.dart';
 import 'package:pebrapp/screens/EditPatientScreen.dart';
@@ -44,6 +48,7 @@ class _PatientScreenState extends State<PatientScreen> {
   String _nextRefillText = '—';
   String _nextEndpointText = '—';
   double _screenWidth;
+  bool _isFetchingViralLoads = false;
 
   StreamSubscription<AppState> _appStateStream;
 
@@ -123,8 +128,8 @@ class _PatientScreenState extends State<PatientScreen> {
         _makeButton('Edit Characteristics', onPressed: () { _editCharacteristicsPressed(_patient); }, flat: true),
         SizedBox(height: _spacingBetweenCards),
         _buildViralLoadHistoryCard(),
-        _makeButton('fetch from database', onPressed: () { _fetchFromDatabasePressed(_context, _patient); }, flat: true),
-        _makeButton('add manual entry', onPressed: () { _addManualEntryPressed(_context, _patient); }, flat: true),
+        _makeButton('fetch from database', onPressed: _isFetchingViralLoads ? null : () { _fetchFromDatabasePressed(_context, _patient); }, flat: true),
+        _makeButton('add manual entry', onPressed: _isFetchingViralLoads ? null : () { _addManualEntryPressed(_context, _patient); }, flat: true),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.0),
           child: Text('Use this option to correct a wrong entry from the database.', textAlign: TextAlign.center),
@@ -955,7 +960,42 @@ class _PatientScreenState extends State<PatientScreen> {
 
   // TODO: improve UI interactions (show loading indicator, show message when finished, show error when there's one, e.g. offline-error)
   Future<void> _fetchFromDatabasePressed(BuildContext context, Patient patient) async {
-    List<ViralLoad> viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient.artNumber);
+    setState(() { _isFetchingViralLoads = true; });
+    List<ViralLoad> viralLoadsFromDB;
+    String message = 'Viral Load Fetch Successful';
+    String title;
+    bool error = false;
+    VoidCallback onNotificationButtonPress;
+    try {
+      viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient.artNumber);
+    } catch (e, s) {
+      error = true;
+      title = 'Viral Load Fetch Failed';
+      switch (e.runtimeType) {
+        case VisibleImpactLoginFailedException:
+          message = 'Login to VisibleImpact failed. Contact the development team.';
+          break;
+        case PatientNotFoundException:
+          message = e.message;
+          break;
+        case MultiplePatientsException:
+          message = e.message;
+          break;
+        case SocketException:
+          message = 'Make sure you are connected to the internet.';
+          break;
+        default:
+          message = 'An unknown error occured. Contact the development team.';
+          print('${e.runtimeType}: $e');
+          print(s);
+          onNotificationButtonPress = () {
+            showErrorInPopup(e, s, context);
+          };
+      }
+    }
+    setState(() { _isFetchingViralLoads = false; });
+    showFlushbar(message, title: title, error: error, onButtonPress: onNotificationButtonPress);
+
     if (viralLoadsFromDB == null) {
       return;
     }
