@@ -128,8 +128,19 @@ class _PatientScreenState extends State<PatientScreen> {
         _makeButton('Edit Characteristics', onPressed: () { _editCharacteristicsPressed(_patient); }, flat: true),
         SizedBox(height: _spacingBetweenCards),
         _buildViralLoadHistoryCard(),
-        _makeButton('fetch from database', onPressed: _isFetchingViralLoads ? null : () { _fetchFromDatabasePressed(_context, _patient); }, flat: true),
-        _makeButton('add manual entry', onPressed: _isFetchingViralLoads ? null : () { _addManualEntryPressed(_context, _patient); }, flat: true),
+        _makeButton(
+          'fetch from database',
+          onPressed: _isFetchingViralLoads ? null : () { _fetchFromDatabasePressed(_context, _patient); },
+          widget: _isFetchingViralLoads
+            ? SizedBox(height: 15.0, width: 15.0, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
+            : null,
+          flat: true,
+        ),
+        _makeButton(
+          'add manual entry',
+          onPressed: _isFetchingViralLoads ? null : () { _addManualEntryPressed(_context, _patient); },
+          flat: true,
+        ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.0),
           child: Text('Use this option to correct a wrong entry from the database.', textAlign: TextAlign.center),
@@ -1051,13 +1062,13 @@ class _PatientScreenState extends State<PatientScreen> {
     }
   }
 
-  Widget _makeButton(String buttonText, {Function() onPressed, bool flat: false}) {
+  Widget _makeButton(String buttonText, {Function() onPressed, bool flat: false, Widget widget}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         flat
-            ? PEBRAButtonFlat(buttonText, onPressed: onPressed)
-            : PEBRAButtonRaised(buttonText, onPressed: onPressed),
+            ? PEBRAButtonFlat(buttonText, onPressed: onPressed, widget: widget)
+            : PEBRAButtonRaised(buttonText, onPressed: onPressed, widget: widget),
       ],
     );
   }
