@@ -49,6 +49,7 @@ class _PatientScreenState extends State<PatientScreen> {
   String _nextEndpointText = '—';
   double _screenWidth;
   bool _isFetchingViralLoads = false;
+  String lastVLFetchDate = 'loading...';
 
   StreamSubscription<AppState> _appStateStream;
 
@@ -61,6 +62,11 @@ class _PatientScreenState extends State<PatientScreen> {
   @override
   void initState() {
     super.initState();
+    getLatestViralLoadFetchFromSharedPrefs(_patient.artNumber).then((DateTime fetchDate) {
+      setState(() {
+        lastVLFetchDate = fetchDate == null ? 'never' : formatDateAndTime(fetchDate);
+      });
+    });
     _appStateStream = PatientBloc.instance.appState.listen( (streamEvent) {
       if (streamEvent is AppStatePatientData && streamEvent.patient.artNumber == _patient.artNumber) {
         // TODO: animate changes to the new patient data (e.g. insertions and removals of required action card) with an animation for visual fidelity
@@ -135,6 +141,10 @@ class _PatientScreenState extends State<PatientScreen> {
             ? SizedBox(height: 15.0, width: 15.0, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(SPINNER_PATIENT_SCREEN_FETCH_VIRAL_LOADS)))
             : null,
           flat: true,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.0),
+          child: Text('Last fetch: ${lastVLFetchDate ?? 'never'}', textAlign: TextAlign.center),
         ),
         _makeButton(
           'add manual entry',
@@ -992,6 +1002,8 @@ class _PatientScreenState extends State<PatientScreen> {
       if (newEntries > 0) {
         message = '$newEntries new viral load result${newEntries > 1 ? 's' : ''} found.';
       }
+      await storeLatestViralLoadFetchInSharedPrefs(_patient.artNumber);
+      lastVLFetchDate = formatDateAndTime(DateTime.now());
     } catch (e, s) {
       error = true;
       title = 'Viral Load Fetch Failed';

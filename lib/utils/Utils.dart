@@ -299,6 +299,24 @@ Future<void> storeLatestBackupInSharedPrefs() async {
   prefs.setString(LAST_SUCCESSFUL_BACKUP_KEY, DateTime.now().toIso8601String());
 }
 
+/// Updates the date of the last successful viral load fetch to now (local time).
+///
+/// @param [patientART] ART number of the patient for which to update the last
+/// fetch date.
+Future<void> storeLatestViralLoadFetchInSharedPrefs(String patientART) async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setString('${LAST_SUCCESSFUL_VL_FETCH_KEY}_$patientART', DateTime.now().toIso8601String());
+}
+
+/// Gets the date of the last successful viral load fetch for the patient with
+/// ART number [patientART]. Returns `null` if no date has been stored for this
+/// patient yet.
+Future<DateTime> getLatestViralLoadFetchFromSharedPrefs(String patientART) async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  final String dateTimeString = prefs.getString('${LAST_SUCCESSFUL_VL_FETCH_KEY}_$patientART');
+  return dateTimeString == null ? null : DateTime.parse(dateTimeString);
+}
+
 /// Updates the date and time when the app was last active (local time).
 Future<void> storeAppLastActiveInSharedPrefs() async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
