@@ -445,10 +445,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
         viralLoadsFromDB = await downloadViralLoadsFromDatabase(patientART);
         final DateTime fetchedDate = DateTime.now();
         for (ViralLoad vl in viralLoadsFromDB) {
-          // TODO: check for discrepancy with baseline viral load (i.e. first manual
-          //  viral load entry for this patient) in each [vl] object, if there is a
-          //  discrepancy, set the [vl.discrepancy] variable to `true` before inser-
-          //  ting into DatabaseProvider
           await DatabaseProvider().insertViralLoad(vl, createdDate: fetchedDate);
         }
         final Patient patientObj = _patients.firstWhere((Patient p) => p.artNumber == patientART, orElse: () => null);
@@ -461,6 +457,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
             updatedPatients[patientART] = newEntriesForPatient;
           }
           await storeLatestViralLoadFetchInSharedPrefs(patientART);
+          final bool discrepancyFound = await checkForViralLoadDiscrepancies(patientObj);
+          // TODO: do we have to deal with a discrepancy in some way (show notification perhaps)?
         }
       }
       if (newEntries > 0) {

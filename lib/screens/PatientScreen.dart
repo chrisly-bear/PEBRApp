@@ -990,10 +990,6 @@ class _PatientScreenState extends State<PatientScreen> {
       viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient.artNumber);
       final DateTime fetchedDate = DateTime.now();
       for (ViralLoad vl in viralLoadsFromDB) {
-        // TODO: check for discrepancy with baseline viral load (i.e. first manual
-        //  viral load entry for this patient) in each [vl] object, if there is a
-        //  discrepancy, set the [vl.discrepancy] variable to `true` before inser-
-        //  ting into DatabaseProvider
         await DatabaseProvider().insertViralLoad(vl, createdDate: fetchedDate);
       }
       final int oldEntries = patient.viralLoads.length;
@@ -1004,6 +1000,8 @@ class _PatientScreenState extends State<PatientScreen> {
       }
       await storeLatestViralLoadFetchInSharedPrefs(patient.artNumber);
       lastVLFetchDate = formatDateAndTime(DateTime.now());
+      final bool discrepancyFound = await checkForViralLoadDiscrepancies(patient);
+      // TODO: do we have to deal with a discrepancy in some way (show notification perhaps)?
     } catch (e, s) {
       error = true;
       title = 'Viral Load Fetch Failed';

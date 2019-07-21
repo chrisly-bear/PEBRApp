@@ -469,3 +469,14 @@ void sortViralLoads(List<ViralLoad> viralLoads) {
     return a.labNumber.compareTo(b.labNumber);
   });
 }
+
+/// Returns true if a discrepancy has been found for this patient.
+Future<bool> checkForViralLoadDiscrepancies(Patient patient) async {
+  // TODO: check for viral load discrepancies in this patient.
+  // Compare manual baseline and database baseline viral load. If there is a
+  // discrepancy between them, set their discrepancy variable to true and insert
+  // them into the SQLite database again, then return true. If no discrepancy
+  // has been found, do nothing and return false.
+  bool discrepancyFound = false;
+  return discrepancyFound;
+}
