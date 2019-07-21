@@ -174,12 +174,15 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART) async 
     'https://lstowards909090.org/db-test/apiv1/labdata?patient_id=${patientIds.first}',
     headers: {'Authorization' : 'Custom $_token'},
   );
-  if (_resp.statusCode != 200) {
-    // TODO: think about how to handle this case (we should probably throw an exception)
-    print('An error occurred while fetching viral loads from database, returning null...');
+  if (_resp.statusCode == 401) {
+    throw VisibleImpactLoginFailedException();
+  } else if (_resp.statusCode != 200) {
+    print('An unknown status code was returned while fetching viral loads from database.');
     print(_resp.statusCode);
     print(_resp.body);
-    return null;
+    throw Exception('An unknown status code was returned while fetching viral loads from database.\n'
+        'Status Code: ${_resp.statusCode}\n'
+        'Response Body:\n${_resp.body}');
   }
   final List<dynamic> list = jsonDecode(_resp.body);
   List<ViralLoad> viralLoadsFromDB = list.map((dynamic vlLabResult) {
