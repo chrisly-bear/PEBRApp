@@ -493,7 +493,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           };
       }
     }
-    showFlushbar(message, title: title, error: error, onButtonPress: onNotificationButtonPress, stay: newEntries > 0);
+    showFlushbar(message, title: title, error: error, onButtonPress: onNotificationButtonPress, duration: newEntries > 0 ? Duration(seconds: 10) : null);
     setState(() {}); // set state to update the viral load icons
     _vlFetchRunning = false;
   }

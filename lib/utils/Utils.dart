@@ -34,7 +34,9 @@ import 'package:flushbar/flushbar_route.dart' as route;
 /// @param [stay] Whether the notification should stay on screen. If false then
 /// it will disappear automatically after 5 seconds. If [error] is true, the
 /// notification will stay on screen, no matter what the value of [stay] is.
-Future<void> showFlushbar(String message, {String title, bool error=false, VoidCallback onButtonPress, String buttonText, bool stay: false}) {
+///
+/// @param [duration] How long the notification should stay before disappearing. Default is 5 seconds.
+Future<void> showFlushbar(String message, {String title, bool error=false, VoidCallback onButtonPress, String buttonText, bool stay: false, Duration duration}) {
 
   final context = PEBRAppState.rootContext;
 
@@ -76,7 +78,7 @@ Future<void> showFlushbar(String message, {String title, bool error=false, VoidC
     borderRadius: 5,
     backgroundColor: error ? NOTIFICATION_ERROR : NOTIFICATION_NORMAL,
     margin: EdgeInsets.symmetric(horizontal: padding),
-    duration: (error || stay) ? null : Duration(seconds: 5),
+    duration: (error || stay) ? null : duration ?? Duration(seconds: 5),
   );
 
   final _route = route.showFlushbar(
