@@ -132,7 +132,7 @@ class _PatientScreenState extends State<PatientScreen> {
           'fetch from database',
           onPressed: _isFetchingViralLoads ? null : () { _fetchFromDatabasePressed(_context, _patient); },
           widget: _isFetchingViralLoads
-            ? SizedBox(height: 15.0, width: 15.0, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
+            ? SizedBox(height: 15.0, width: 15.0, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(SPINNER_PATIENT_SCREEN_FETCH_VIRAL_LOADS)))
             : null,
           flat: true,
         ),

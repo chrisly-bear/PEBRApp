@@ -54,6 +54,7 @@ const Color URGENCY_LOW = Colors.yellow;
 const Color SPINNER_LOCK_SCREEN = Colors.white;
 const Color SPINNER_MAIN_SCREEN = Colors.white;
 const Color SPINNER_SETTINGS_SCREEN = Colors.white;
+const Color SPINNER_PATIENT_SCREEN_FETCH_VIRAL_LOADS = Colors.white;
 
 // flushbar notification
 final Color NOTIFICATION_NORMAL = Colors.black.withAlpha(200);
