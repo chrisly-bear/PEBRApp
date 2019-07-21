@@ -1019,7 +1019,6 @@ class _PatientScreenState extends State<PatientScreen> {
       await DatabaseProvider().insertViralLoad(vl, createdDate: fetchedDate);
     }
     patient.addViralLoads(viralLoadsFromDB);
-    // TODO: implement call to viral load database API
     // calling setState to trigger a re-render of the page and display the new
     // viral load history
     setState(() {});
