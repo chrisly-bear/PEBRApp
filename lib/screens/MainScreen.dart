@@ -464,7 +464,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
         }
       }
       if (newEntries > 0) {
-        message = '$newEntries new viral load result${newEntries > 1 ? 's' : ''} found for patients:${updatedPatients.map((String patientART, int newVLs) {
+        message = '$newEntries new viral load result${newEntries > 1 ? 's' : ''} found for patients:\n${updatedPatients.map((String patientART, int newVLs) {
           return MapEntry(patientART, '\n$patientART ($newVLs)');
         }).values.join('')}';
       }
@@ -493,7 +493,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           };
       }
     }
-    showFlushbar(message, title: title, error: error, onButtonPress: onNotificationButtonPress);
+    showFlushbar(message, title: title, error: error, onButtonPress: onNotificationButtonPress, stay: newEntries > 0);
     setState(() {}); // set state to update the viral load icons
     _vlFetchRunning = false;
   }

@@ -21,16 +21,20 @@ import 'package:flushbar/flushbar_route.dart' as route;
 
 /// Displays a notification over the given [context].
 ///
-/// @param [message]: The message to display.
+/// @param [message] The message to display.
 ///
-/// @param [title]: An optional title to display.
+/// @param [title] An optional title to display.
 ///
-/// @param [error]: If this is `true` then the notification will be displayed in red.
+/// @param [error] If this is `true` then the notification will be displayed in red and will stay on screen (see also [stay]).
 ///
-/// @param [onButtonPress]: Required if a button should be displayed. This function will be executed when the button is pressed.
+/// @param [onButtonPress] Required if a button should be displayed. This function will be executed when the button is pressed.
 ///
-/// @param [buttonText]: Optional button text to be displayed on the button. If this is null or the empty string an info icon will be displayed instead.
-Future<void> showFlushbar(String message, {String title, bool error=false, VoidCallback onButtonPress, String buttonText}) {
+/// @param [buttonText] Optional button text to be displayed on the button. If this is null or the empty string an info icon will be displayed instead.
+///
+/// @param [stay] Whether the notification should stay on screen. If false then
+/// it will disappear automatically after 5 seconds. If [error] is true, the
+/// notification will stay on screen, no matter what the value of [stay] is.
+Future<void> showFlushbar(String message, {String title, bool error=false, VoidCallback onButtonPress, String buttonText, bool stay: false}) {
 
   final context = PEBRAppState.rootContext;
 
@@ -72,7 +76,7 @@ Future<void> showFlushbar(String message, {String title, bool error=false, VoidC
     borderRadius: 5,
     backgroundColor: error ? NOTIFICATION_ERROR : NOTIFICATION_NORMAL,
     margin: EdgeInsets.symmetric(horizontal: padding),
-    duration: error ? null : Duration(seconds: 5),
+    duration: (error || stay) ? null : Duration(seconds: 5),
   );
 
   final _route = route.showFlushbar(
