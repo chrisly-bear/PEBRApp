@@ -1007,4 +1007,24 @@ class _PatientScreenState extends State<PatientScreen> {
     );
   }
 
+  void _showDialog(String title, String body) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(body),
+          actions: [
+            FlatButton(
+              child: Row(children: [Text('OK', textAlign: TextAlign.center)]),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 }
