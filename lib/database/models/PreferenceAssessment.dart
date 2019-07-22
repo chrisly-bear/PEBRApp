@@ -68,7 +68,6 @@ class PreferenceAssessment implements IExcelExportable {
   static final colMoreInfoVMMC = 'more_info_vmmc'; // nullable
   static final colYoungMothersAvailable = 'young_mothers_available'; // nullable
   static final colFemaleWorthAvailable = 'female_worth_available'; // nullable
-  static final colLegalAidSmartphoneAvailable = 'legal_aid_smartphone_available'; // nullable
   static final colPsychosocialShareSomethingAnswer = 'psychosocial_share_something';
   static final colPsychosocialShareSomethingContent = 'psychosocial_share_something_content'; // nullable
   static final colPsychosocialHowDoing = 'psychosocial_how_doing'; // nullable
@@ -120,7 +119,6 @@ class PreferenceAssessment implements IExcelExportable {
   String moreInfoVMMC;
   bool youngMothersAvailable;
   bool femaleWorthAvailable;
-  bool legalAidSmartphoneAvailable;
   YesNoRefused psychosocialShareSomethingAnswer;
   String psychosocialShareSomethingContent;
   String psychosocialHowDoing;
@@ -182,7 +180,6 @@ class PreferenceAssessment implements IExcelExportable {
         this.moreInfoVMMC,
         this.youngMothersAvailable,
         this.femaleWorthAvailable,
-        this.legalAidSmartphoneAvailable,
         this.psychosocialShareSomethingContent,
         this.psychosocialHowDoing,
         this.unsuppressedSafeEnvironmentAnswer,
@@ -243,7 +240,6 @@ class PreferenceAssessment implements IExcelExportable {
     this.moreInfoVMMC = map[colMoreInfoVMMC];
     this.youngMothersAvailable = map[colYoungMothersAvailable] == null ? null : map[colYoungMothersAvailable] == 1;
     this.femaleWorthAvailable = map[colFemaleWorthAvailable] == null ? null : map[colFemaleWorthAvailable] == 1;
-    this.legalAidSmartphoneAvailable = map[colLegalAidSmartphoneAvailable] == null ? null : map[colLegalAidSmartphoneAvailable] == 1;
     this.psychosocialShareSomethingAnswer = YesNoRefused.fromCode(map[colPsychosocialShareSomethingAnswer]);
     this.psychosocialShareSomethingContent = map[colPsychosocialShareSomethingContent];
     this.psychosocialHowDoing = map[colPsychosocialHowDoing];
@@ -301,7 +297,6 @@ class PreferenceAssessment implements IExcelExportable {
     map[colMoreInfoVMMC] = moreInfoVMMC;
     map[colYoungMothersAvailable] = youngMothersAvailable;
     map[colFemaleWorthAvailable] = femaleWorthAvailable;
-    map[colLegalAidSmartphoneAvailable] = legalAidSmartphoneAvailable;
     map[colPsychosocialShareSomethingAnswer] = psychosocialShareSomethingAnswer.code;
     map[colPsychosocialShareSomethingContent] = psychosocialShareSomethingContent;
     map[colPsychosocialHowDoing] = psychosocialHowDoing;
@@ -310,7 +305,7 @@ class PreferenceAssessment implements IExcelExportable {
     return map;
   }
 
-  static const int _numberOfColumns = 52;
+  static const int _numberOfColumns = 51;
 
   /// Column names for the header row in the excel sheet.
   // If we change the order here, make sure to change the order in the
@@ -363,12 +358,11 @@ class PreferenceAssessment implements IExcelExportable {
     row[43] = 'SUPPORT_VMMC';
     row[44] = 'SUPPORT_YM';
     row[45] = 'SUPPORT_W';
-    row[46] = 'SUPPORT_LA';
-    row[47] = 'PSYCH_SHARE';
-    row[48] = 'PSYCH_SHARE_NOTE';
-    row[49] = 'PSYCH_DOING_NOTE';
-    row[50] = 'UVL_ENV';
-    row[51] = 'UVL_ENV_NOTE';
+    row[46] = 'PSYCH_SHARE';
+    row[47] = 'PSYCH_SHARE_NOTE';
+    row[48] = 'PSYCH_DOING_NOTE';
+    row[49] = 'UVL_ENV';
+    row[50] = 'UVL_ENV_NOTE';
     return row;
   }
 
@@ -424,12 +418,11 @@ class PreferenceAssessment implements IExcelExportable {
     row[43] = moreInfoVMMC;
     row[44] = youngMothersAvailable;
     row[45] = femaleWorthAvailable;
-    row[46] = legalAidSmartphoneAvailable;
-    row[47] = psychosocialShareSomethingAnswer.code;
-    row[48] = psychosocialShareSomethingContent;
-    row[49] = psychosocialHowDoing;
-    row[50] = unsuppressedSafeEnvironmentAnswer?.code;
-    row[51] = unsuppressedWhyNotSafe;
+    row[46] = psychosocialShareSomethingAnswer.code;
+    row[47] = psychosocialShareSomethingContent;
+    row[48] = psychosocialHowDoing;
+    row[49] = unsuppressedSafeEnvironmentAnswer?.code;
+    row[50] = unsuppressedWhyNotSafe;
     return row;
   }
 

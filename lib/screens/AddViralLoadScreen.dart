@@ -6,6 +6,7 @@ import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
@@ -93,6 +94,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
         child: Column(
           children: [
             _viralLoadBaselineDateQuestion(),
+            _viralLoadBaselineFailedQuestion(),
             _viralLoadBaselineLowerThanDetectableQuestion(),
             _viralLoadBaselineResultQuestion(),
             _viralLoadBaselineLabNumberQuestion(),
@@ -146,7 +148,36 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
     );
   }
 
+  Widget _viralLoadBaselineFailedQuestion() {
+    return _makeQuestion('Did the viral load measurement fail?',
+      answer: DropdownButtonFormField<bool>(
+        value: _viralLoad.failed,
+        onChanged: (bool newValue) {
+          setState(() {
+            _viralLoad.failed = newValue;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+          return null;
+        },
+        items: [true, false].map<DropdownMenuItem<bool>>((bool value) {
+          String description = value ? 'Yes' : 'No';
+          return DropdownMenuItem<bool>(
+            value: value,
+            child: Text(description),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   Widget _viralLoadBaselineLowerThanDetectableQuestion() {
+    if (_viralLoad.failed == null || _viralLoad.failed) {
+      return SizedBox();
+    }
     return _makeQuestion('Was the viral load result lower than detectable limit (<20 copies/mL)?',
       answer: DropdownButtonFormField<bool>(
         value: _isLowerThanDetectable,
@@ -156,7 +187,10 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question.'; }
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+          return null;
         },
         items: [true, false].map<DropdownMenuItem<bool>>((bool value) {
           String description = value ? 'Yes' : 'No';
@@ -170,8 +204,8 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
   }
 
   Widget _viralLoadBaselineResultQuestion() {
-    if (_isLowerThanDetectable == null || _isLowerThanDetectable) {
-      return Container();
+    if (_viralLoad.failed == null || _viralLoad.failed || _isLowerThanDetectable == null || _isLowerThanDetectable) {
+      return SizedBox();
     }
     return _makeQuestion('Result of the viral load (in c/mL)',
       answer: TextFormField(
@@ -186,6 +220,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
           } else if (int.parse(value) < 20) {
             return 'Value must be ≥ 20 (otherwise it is lower than detectable limit)';
           }
+          return null;
         },
       ),
     );
@@ -261,8 +296,14 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
 
   _onSubmitForm(BuildContext context) async {
     if (_formKey.currentState.validate() & _validateViralLoadBaselineDate()) {
-      
-      _viralLoad.viralLoad = _isLowerThanDetectable ? 0 : int.parse(_viralLoadResultCtr.text);
+
+      if (_viralLoad.failed) {
+        RequiredAction vlRequired = RequiredAction(_patient.artNumber, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, DateTime.now());
+        DatabaseProvider().insertRequiredAction(vlRequired);
+        PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
+      } else {
+        _viralLoad.viralLoad = _isLowerThanDetectable ? 0 : int.parse(_viralLoadResultCtr.text);
+      }
       _viralLoad.labNumber = _viralLoadLabNumberCtr.text == '' ? null : _viralLoadLabNumberCtr.text;
       _viralLoad.checkLogicAndResetUnusedFields();
       await DatabaseProvider().insertViralLoad(_viralLoad);

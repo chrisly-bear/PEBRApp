@@ -56,7 +56,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   bool get _notEligibleAfterBirthdaySpecified => _newPatient.birthday != null && !_eligible;
 
   Patient _newPatient = Patient(isActivated: true);
-  ViralLoad _viralLoadBaseline = ViralLoad(source: ViralLoadSource.MANUAL_INPUT());
+  ViralLoad _viralLoadBaseline = ViralLoad(source: ViralLoadSource.MANUAL_INPUT(), failed: false);
   bool _isLowerThanDetectable;
 
   TextEditingController _artNumberCtr = TextEditingController();
@@ -285,7 +285,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           _consentGivenQuestion(),
           _noConsentReasonQuestion(),
           _noConsentReasonOtherQuestion(),
-          _stickerNumberQuestion(),
         ],
       ),
     );
@@ -293,11 +292,12 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
   Widget _additionalInformationCard() {
     if (_notEligibleAfterBirthdaySpecified || _newPatient.consentGiven == null || !_newPatient.consentGiven) {
-      return Container();
+      return SizedBox();
     }
     return _buildCard('Additional Information',
       child: Column(
         children: [
+          _stickerNumberQuestion(),
           _genderQuestion(),
           _sexualOrientationQuestion(),
           _villageQuestion(),
@@ -354,9 +354,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   }
 
   Widget _stickerNumberQuestion() {
-    if (_newPatient.consentGiven == null || !_newPatient.consentGiven) {
-      return SizedBox();
-    }
     return _makeQuestion('Sticker Number',
       answer: TextFormField(
         decoration: InputDecoration(
@@ -374,6 +371,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           } else if (value.length != 3) {
             return 'Exactly 3 digits required';
           }
+          return null;
         },
       ),
     );
@@ -438,7 +436,10 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question.'; }
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+          return null;
         },
         items: Gender.allValues.map<DropdownMenuItem<Gender>>((Gender value) {
           return DropdownMenuItem<Gender>(
@@ -461,7 +462,10 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question.'; }
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+          return null;
         },
         items: SexualOrientation.allValues.map<DropdownMenuItem<SexualOrientation>>((SexualOrientation value) {
           return DropdownMenuItem<SexualOrientation>(
@@ -482,6 +486,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
             if (value.isEmpty) {
               return 'Please enter a village';
             }
+            return null;
           },
         ),
       );
@@ -497,7 +502,10 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question.'; }
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+          return null;
         },
         items: PhoneAvailability.allValues.map<DropdownMenuItem<PhoneAvailability>>((PhoneAvailability value) {
           return DropdownMenuItem<PhoneAvailability>(
@@ -540,7 +548,10 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question.'; }
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+          return null;
         },
         items: [true, false].map<DropdownMenuItem<bool>>((bool value) {
           String description = value ? 'Yes' : 'No';
@@ -566,7 +577,10 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question.'; }
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+          return null;
         },
         items: NoConsentReason.allValues.map<DropdownMenuItem<NoConsentReason>>((NoConsentReason value) {
           return DropdownMenuItem<NoConsentReason>(
@@ -589,6 +603,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           if (value.isEmpty) {
             return 'Please specify the reasons';
           }
+          return null;
         },
       ),
     );
@@ -607,7 +622,10 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question.'; }
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+          return null;
         },
         items: [true, false].map<DropdownMenuItem<bool>>((bool value) {
           String description = value ? 'Yes' : 'No';
@@ -685,7 +703,10 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question.'; }
+          if (value == null) {
+            return 'Please answer this question.';
+          }
+          return null;
         },
         items: [true, false].map<DropdownMenuItem<bool>>((bool value) {
           String description = value ? 'Yes' : 'No';
@@ -715,6 +736,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           } else if (int.parse(value) < 20) {
             return 'Value must be ≥ 20 (otherwise it is lower than detectable limit)';
           }
+          return null;
         },
       ),
     );
@@ -831,13 +853,19 @@ class _NewPatientFormState extends State<_NewPatientForm> {
         await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.ENDPOINT_12M_SURVEY_REQUIRED, addMonths(now, 12)));
       }
 
-      if (_newPatient.isEligible && _newPatient.consentGiven && _newPatient.isVLBaselineAvailable != null && _newPatient.isVLBaselineAvailable) {
-        _viralLoadBaseline.patientART = _artNumberCtr.text;
-        _viralLoadBaseline.viralLoad = _isLowerThanDetectable ? 0 : int.parse(_viralLoadBaselineResultCtr.text);
-        _viralLoadBaseline.labNumber = _viralLoadBaselineLabNumberCtr.text == '' ? null : _viralLoadBaselineLabNumberCtr.text;
-        _viralLoadBaseline.checkLogicAndResetUnusedFields();
-        await DatabaseProvider().insertViralLoad(_viralLoadBaseline);
-        _newPatient.viralLoads = [_viralLoadBaseline];
+      if (_newPatient.isEligible && _newPatient.consentGiven){
+        if (_newPatient.isVLBaselineAvailable) {
+          _viralLoadBaseline.patientART = _artNumberCtr.text;
+          _viralLoadBaseline.viralLoad = _isLowerThanDetectable ? 0 : int.parse(_viralLoadBaselineResultCtr.text);
+          _viralLoadBaseline.labNumber = _viralLoadBaselineLabNumberCtr.text == '' ? null : _viralLoadBaselineLabNumberCtr.text;
+          _viralLoadBaseline.checkLogicAndResetUnusedFields();
+          await DatabaseProvider().insertViralLoad(_viralLoadBaseline);
+          _newPatient.viralLoads = [_viralLoadBaseline];
+        } else {
+          RequiredAction vlRequired = RequiredAction(_artNumberCtr.text, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, now);
+          DatabaseProvider().insertRequiredAction(vlRequired);
+          PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
+        }
       }
 
       await _newPatient.initializeRequiredActionsField();

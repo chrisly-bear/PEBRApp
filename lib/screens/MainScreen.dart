@@ -15,9 +15,13 @@ import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/UserData.dart';
+import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
+import 'package:pebrapp/exceptions/MultiplePatientsException.dart';
 import 'package:pebrapp/exceptions/NoLoginDataException.dart';
+import 'package:pebrapp/exceptions/PatientNotFoundException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
+import 'package:pebrapp/exceptions/VisibleImpactLoginFailedException.dart';
 import 'package:pebrapp/screens/DebugScreen.dart';
 import 'package:pebrapp/screens/NewPatientScreen.dart';
 import 'dart:ui';
@@ -30,6 +34,7 @@ import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
+import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -45,6 +50,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   StreamSubscription<AppState> _appStateStream;
   bool _loginLockCheckRunning = false;
   bool _backupRunning = false;
+  bool _vlFetchRunning = false;
 
   static const int _ANIMATION_TIME = 800; // in milliseconds
   static const double _cardHeight = 100.0;
@@ -247,8 +253,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   /// Gets called when the application is started cold, i.e., when the app was
   /// not open in the background already.
   Future<void> _onAppStart() async {
-    _checkLoggedInAndLockStatus();
-    _runBackupIfDue();
+    await _checkLoggedInAndLockStatus();
+    await _runVLFetchIfDue();
+    await _runBackupIfDue();
   }
 
   /// Runs checks whether user is logged in / whether the app should be locked,
@@ -259,9 +266,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   /// Gets called when the application was already open in the background and
   /// comes to the foreground again.
   Future<void> _onAppResume() async {
-    _checkLoggedInAndLockStatus();
-    _runBackupIfDue();
-    _recalculateRequiredActionsForAllPatients();
+    await _checkLoggedInAndLockStatus();
+    await _runVLFetchIfDue();
+    await _recalculateRequiredActionsForAllPatients();
+    await _runBackupIfDue();
   }
 
   /// Checks if an ART refill, preference assessment, or endpoint survey has
@@ -343,7 +351,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       }
     }
 
-    String resultMessage = 'Backup Successful';
+    String resultMessage = 'Upload Successful';
     String title;
     bool error = false;
     VoidCallback onNotificationButtonPress;
@@ -351,7 +359,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       await DatabaseProvider().createAdditionalBackupOnSWITCH(loginData);
     } catch (e, s) {
       error = true;
-      title = 'Backup Failed';
+      title = 'Upload Failed';
       switch (e.runtimeType) {
         case NoLoginDataException:
           // this case should never occur since we force the user to login when
@@ -377,11 +385,115 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       }
       // show additional warning if backup wasn't successful for a long time
       if (daysSinceLastBackup >= SHOW_WARNING_AFTER_X_DAYS) {
-        showFlushbar("Last backup was $daysSinceLastBackup days ago.\nPlease perform a manual backup from the settings screen.", title: "Warning", error: true);
+        showFlushbar("Last upload was $daysSinceLastBackup days ago.\nPlease perform a manual upload from the settings screen.", title: "Warning", error: true);
       }
     }
     showFlushbar(resultMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
     _backupRunning = false;
+  }
+
+  /// Checks if a viral load fetch is due and if so, starts fetching viral loads
+  /// from VisibleImpact.
+  Future<void> _runVLFetchIfDue() async {
+
+    // if fetch is running, do not start another fetch
+    if (_vlFetchRunning) {
+      return;
+    }
+    _vlFetchRunning = true;
+
+    // if user is not logged in, do not run a fetch
+    UserData loginData = await DatabaseProvider().retrieveLatestUserData();
+    if (loginData == null) {
+      _vlFetchRunning = false;
+      return;
+    }
+
+    final List<String> allPatientARTs = await DatabaseProvider().retrievePatientsART(retrieveNonEligibles: false, retrieveNonConsents: false);
+    final List<String> patientsToUpdate = [];
+    for (String patientART in allPatientARTs) {
+      // check if fetch is due
+      int daysSinceLastFetch = -1; // -1 means one day from today, i.e. tomorrow
+      final DateTime lastFetch = await getLatestViralLoadFetchFromSharedPrefs(patientART);
+      if (lastFetch != null) {
+        daysSinceLastFetch = differenceInDays(lastFetch, DateTime.now());
+        print('days since last vl fetch ($patientART): $daysSinceLastFetch');
+        if (daysSinceLastFetch < AUTO_VL_FETCH_EVERY_X_DAYS && daysSinceLastFetch >= 0) {
+          print("fetch not due yet (only due after $AUTO_VL_FETCH_EVERY_X_DAYS days)");
+        } else {
+          patientsToUpdate.add(patientART);
+        }
+      } else {
+        patientsToUpdate.add(patientART);
+      }
+    }
+
+    if (patientsToUpdate.isEmpty) {
+      _vlFetchRunning = false;
+      return; // don't run a fetch, no patients require a fetch
+    }
+
+    List<ViralLoad> viralLoadsFromDB;
+    String message = 'No new viral load results found.';
+    String title = 'Viral Load Fetch Successful';
+    bool error = false;
+    VoidCallback onNotificationButtonPress;
+    int newEntries = 0;
+    Map<String, int> updatedPatients = {};
+    try {
+      for (String patientART in patientsToUpdate) {
+        viralLoadsFromDB = await downloadViralLoadsFromDatabase(patientART);
+        final DateTime fetchedDate = DateTime.now();
+        for (ViralLoad vl in viralLoadsFromDB) {
+          await DatabaseProvider().insertViralLoad(vl, createdDate: fetchedDate);
+        }
+        final Patient patientObj = _patients.firstWhere((Patient p) => p.artNumber == patientART, orElse: () => null);
+        if (patientObj != null) {
+          final int oldEntries = patientObj.viralLoads.length;
+          patientObj.addViralLoads(viralLoadsFromDB);
+          final int newEntriesForPatient = patientObj.viralLoads.length - oldEntries;
+          newEntries += newEntriesForPatient;
+          if (newEntriesForPatient > 0) {
+            updatedPatients[patientART] = newEntriesForPatient;
+          }
+          await storeLatestViralLoadFetchInSharedPrefs(patientART);
+          final bool discrepancyFound = await checkForViralLoadDiscrepancies(patientObj);
+          // TODO: do we have to deal with a discrepancy in some way (show notification perhaps)?
+        }
+      }
+      if (newEntries > 0) {
+        message = '$newEntries new viral load result${newEntries > 1 ? 's' : ''} found for patients:\n${updatedPatients.map((String patientART, int newVLs) {
+          return MapEntry(patientART, '\n$patientART ($newVLs)');
+        }).values.join('')}';
+      }
+    } catch (e, s) {
+      error = true;
+      title = 'Viral Load Fetch Failed';
+      switch (e.runtimeType) {
+        case VisibleImpactLoginFailedException:
+          message = 'Login to VisibleImpact failed. Contact the development team.';
+          break;
+        case PatientNotFoundException:
+          message = e.message;
+          break;
+        case MultiplePatientsException:
+          message = e.message;
+          break;
+        case SocketException:
+          message = 'Make sure you are connected to the internet.';
+          break;
+        default:
+          message = 'An unknown error occured. Contact the development team.';
+          print('${e.runtimeType}: $e');
+          print(s);
+          onNotificationButtonPress = () {
+            showErrorInPopup(e, s, context);
+          };
+      }
+    }
+    showFlushbar(message, title: title, error: error, onButtonPress: onNotificationButtonPress, duration: newEntries > 0 ? Duration(seconds: 10) : null);
+    setState(() {}); // set state to update the viral load icons
+    _vlFetchRunning = false;
   }
 
   Widget _bodyToDisplayBasedOnState() {
@@ -629,7 +741,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
         Widget viralLoadIcon = Padding(padding: EdgeInsets.only(left: 8.0), child: _formatPatientRowText('—', isActivated: isActivated));
         Widget viralLoadBadge = _formatPatientRowText('—', isActivated: isActivated);
         Color iconColor = isActivated ? null : ICON_INACTIVE;
-        if (curPatient.mostRecentViralLoad?.isSuppressed != null && curPatient.mostRecentViralLoad.isSuppressed) {
+        if (curPatient.mostRecentViralLoad?.failed != null && curPatient.mostRecentViralLoad.failed) {
+          viralLoadIcon = _getPaddedIcon('assets/icons/viralload_failed.png', color: iconColor);
+        } else if (curPatient.mostRecentViralLoad?.isSuppressed != null && curPatient.mostRecentViralLoad.isSuppressed) {
           viralLoadIcon = _getPaddedIcon('assets/icons/viralload_suppressed.png', color: iconColor);
           viralLoadBadge = ViralLoadBadge(curPatient.mostRecentViralLoad, smallSize: true); // TODO: show greyed out version if isActivated is false
         } else if (curPatient.mostRecentViralLoad?.isSuppressed != null && !curPatient.mostRecentViralLoad.isSuppressed) {
@@ -851,10 +965,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     }
 
     final int daysUntilNextAction = differenceInDays(DateTime.now(), dateOfNextAction);
-    if (daysUntilNextAction <= 0) {
+    if (daysUntilNextAction <= 1) {
       return URGENCY_HIGH;
     }
-    if (daysUntilNextAction <= 2) {
+    if (daysUntilNextAction <= 3) {
       return URGENCY_MEDIUM;
     }
     if (daysUntilNextAction <= 7) {

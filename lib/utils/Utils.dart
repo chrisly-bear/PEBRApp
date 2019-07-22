@@ -21,16 +21,22 @@ import 'package:flushbar/flushbar_route.dart' as route;
 
 /// Displays a notification over the given [context].
 ///
-/// @param [message]: The message to display.
+/// @param [message] The message to display.
 ///
-/// @param [title]: An optional title to display.
+/// @param [title] An optional title to display.
 ///
-/// @param [error]: If this is `true` then the notification will be displayed in red.
+/// @param [error] If this is `true` then the notification will be displayed in red and will stay on screen (see also [stay]).
 ///
-/// @param [onButtonPress]: Required if a button should be displayed. This function will be executed when the button is pressed.
+/// @param [onButtonPress] Required if a button should be displayed. This function will be executed when the button is pressed.
 ///
-/// @param [buttonText]: Optional button text to be displayed on the button. If this is null or the empty string an info icon will be displayed instead.
-Future<void> showFlushbar(String message, {String title, bool error=false, VoidCallback onButtonPress, String buttonText}) {
+/// @param [buttonText] Optional button text to be displayed on the button. If this is null or the empty string an info icon will be displayed instead.
+///
+/// @param [stay] Whether the notification should stay on screen. If false then
+/// it will disappear automatically after 5 seconds. If [error] is true, the
+/// notification will stay on screen, no matter what the value of [stay] is.
+///
+/// @param [duration] How long the notification should stay before disappearing. Default is 5 seconds.
+Future<void> showFlushbar(String message, {String title, bool error=false, VoidCallback onButtonPress, String buttonText, bool stay: false, Duration duration}) {
 
   final context = PEBRAppState.rootContext;
 
@@ -72,7 +78,7 @@ Future<void> showFlushbar(String message, {String title, bool error=false, VoidC
     borderRadius: 5,
     backgroundColor: error ? NOTIFICATION_ERROR : NOTIFICATION_NORMAL,
     margin: EdgeInsets.symmetric(horizontal: padding),
-    duration: error ? null : Duration(seconds: 5),
+    duration: (error || stay) ? null : duration ?? Duration(seconds: 5),
   );
 
   final _route = route.showFlushbar(
@@ -299,6 +305,24 @@ Future<void> storeLatestBackupInSharedPrefs() async {
   prefs.setString(LAST_SUCCESSFUL_BACKUP_KEY, DateTime.now().toIso8601String());
 }
 
+/// Updates the date of the last successful viral load fetch to now (local time).
+///
+/// @param [patientART] ART number of the patient for which to update the last
+/// fetch date.
+Future<void> storeLatestViralLoadFetchInSharedPrefs(String patientART) async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setString('${LAST_SUCCESSFUL_VL_FETCH_KEY}_$patientART', DateTime.now().toIso8601String());
+}
+
+/// Gets the date of the last successful viral load fetch for the patient with
+/// ART number [patientART]. Returns `null` if no date has been stored for this
+/// patient yet.
+Future<DateTime> getLatestViralLoadFetchFromSharedPrefs(String patientART) async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  final String dateTimeString = prefs.getString('${LAST_SUCCESSFUL_VL_FETCH_KEY}_$patientART');
+  return dateTimeString == null ? null : DateTime.parse(dateTimeString);
+}
+
 /// Updates the date and time when the app was last active (local time).
 Future<void> storeAppLastActiveInSharedPrefs() async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -366,7 +390,7 @@ void showErrorInPopup(e, StackTrace s, BuildContext context) {
 /// this method. Otherwise the viral load will be `null` and this method will
 /// return false.
 bool isSuppressed(Patient patient) {
-  return patient.mostRecentViralLoad?.isSuppressed ?? false;
+  return patient.mostRecentViralLoad?.isSuppressed ?? true;
 }
 
 /// Shows the lock screen, where the user has to enter their PIN code to unlock.
@@ -444,4 +468,15 @@ void sortViralLoads(List<ViralLoad> viralLoads) {
     }
     return a.labNumber.compareTo(b.labNumber);
   });
+}
+
+/// Returns true if a discrepancy has been found for this patient.
+Future<bool> checkForViralLoadDiscrepancies(Patient patient) async {
+  // TODO: check for viral load discrepancies in this patient.
+  // Compare manual baseline and database baseline viral load. If there is a
+  // discrepancy between them, set their discrepancy variable to true and insert
+  // them into the SQLite database again, then return true. If no discrepancy
+  // has been found, do nothing and return false.
+  bool discrepancyFound = false;
+  return discrepancyFound;
 }
