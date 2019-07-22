@@ -142,7 +142,8 @@ Future<String> _getAPIToken() async {
     'https://lstowards909090.org/db-test/apiv1/token',
     headers: {'authorization': basicAuth},
   );
-  if (_resp.body == '') {
+  if (_resp.statusCode != 200 || _resp.body == '') {
+    print('_getAPIToken received:\n${_resp.statusCode}\n${_resp.body}');
     throw VisibleImpactLoginFailedException();
   }
   return jsonDecode(_resp.body)['token'];

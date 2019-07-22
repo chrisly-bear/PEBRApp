@@ -384,11 +384,14 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           };
       }
       // show additional warning if backup wasn't successful for a long time
-      if (daysSinceLastBackup >= SHOW_WARNING_AFTER_X_DAYS) {
+      if (daysSinceLastBackup >= SHOW_BACKUP_WARNING_AFTER_X_DAYS) {
         showFlushbar("Last upload was $daysSinceLastBackup days ago.\nPlease perform a manual upload from the settings screen.", title: "Warning", error: true);
       }
     }
-    showFlushbar(resultMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
+    if (!error) {
+      // do not show error notifications as they can become annoying when the app is used offline
+      showFlushbar(resultMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
+    }
     _backupRunning = false;
   }
 
@@ -411,6 +414,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
 
     final List<String> allPatientARTs = await DatabaseProvider().retrievePatientsART(retrieveNonEligibles: false, retrieveNonConsents: false);
     final List<String> patientsToUpdate = [];
+    final Map<String, int> patientsNotUpdatedForTooLong = {};
     for (String patientART in allPatientARTs) {
       // check if fetch is due
       int daysSinceLastFetch = -1; // -1 means one day from today, i.e. tomorrow
@@ -423,8 +427,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
         } else {
           patientsToUpdate.add(patientART);
         }
+        if (daysSinceLastFetch >= SHOW_VL_FETCH_WARNING_AFTER_X_DAYS) {
+          patientsNotUpdatedForTooLong[patientART] = daysSinceLastFetch;
+        }
       } else {
         patientsToUpdate.add(patientART);
+        patientsNotUpdatedForTooLong[patientART] = daysSinceLastFetch;
       }
     }
 
@@ -457,6 +465,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
             updatedPatients[patientART] = newEntriesForPatient;
           }
           await storeLatestViralLoadFetchInSharedPrefs(patientART);
+          patientsNotUpdatedForTooLong.remove(patientART); // update for this patient was successful, do not show it to be overdue
           final bool discrepancyFound = await checkForViralLoadDiscrepancies(patientObj);
           // TODO: do we have to deal with a discrepancy in some way (show notification perhaps)?
         }
@@ -490,8 +499,18 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
             showErrorInPopup(e, s, context);
           };
       }
+      // show additional warning if viral load fetch wasn't successful for a long time
+      if (patientsNotUpdatedForTooLong.isNotEmpty) {
+        final String vlFetchOverdueMessage = "The last viral load update for the following patient${patientsNotUpdatedForTooLong.length > 1 ? 's' : ''} goes back $SHOW_VL_FETCH_WARNING_AFTER_X_DAYS days or more:\n${patientsNotUpdatedForTooLong.map((String patientART, int lastFetch) {
+          return MapEntry(patientART, '\n$patientART (${lastFetch < 0 ? 'never' : '$lastFetch days ago'})');
+        }).values.join('')}\n\nYou can fetch the latest viral loads from ${patientsNotUpdatedForTooLong.length > 1 ? 'each' : 'the'} patient's detail page.";
+        showFlushbar(vlFetchOverdueMessage, title: "Warning", error: true);
+      }
     }
-    showFlushbar(message, title: title, error: error, onButtonPress: onNotificationButtonPress, duration: newEntries > 0 ? Duration(seconds: 10) : null);
+    if (!error) {
+      // do not show error notifications as they can become annoying when the app is used offline
+      showFlushbar(message, title: title, error: error, onButtonPress: onNotificationButtonPress, duration: newEntries > 0 ? Duration(seconds: 10) : null);
+    }
     setState(() {}); // set state to update the viral load icons
     _vlFetchRunning = false;
   }
