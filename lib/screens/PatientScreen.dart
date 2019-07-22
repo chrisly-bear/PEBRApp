@@ -940,7 +940,7 @@ class _PatientScreenState extends State<PatientScreen> {
 
   // TODO: improve UI interactions (show loading indicator, show message when finished, show error when there's one, e.g. offline-error)
   Future<void> _fetchFromDatabasePressed(BuildContext context, Patient patient) async {
-    List<ViralLoad> viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient.artNumber);
+    /*List<ViralLoad> viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient.artNumber);
     if (viralLoadsFromDB == null) {
       return;
     }
@@ -956,7 +956,19 @@ class _PatientScreenState extends State<PatientScreen> {
     // TODO: implement call to viral load database API
     // calling setState to trigger a re-render of the page and display the new
     // viral load history
-    setState(() {});
+    setState(() {});*/
+
+    int vlResultFrormDB = 500; // test data
+
+    //ViralLoad vlStoredInSQLite = await DatabaseProvider.retriveBaselineViralLoad(patient.artNumber);
+    int vlStoredInSQLite = 950; // test data
+
+    if (vlResultFrormDB != vlStoredInSQLite) {
+      // TODO: set the vlResultFromDB.discrepancy to true and save it
+
+      // Display warning to user
+      _showDialog("Viral Load Descrepancy!", "There is a viral load of the same date but with different result/lab-number.");
+    }
   }
 
   void _addManualEntryPressed(BuildContext context, Patient patient) {
