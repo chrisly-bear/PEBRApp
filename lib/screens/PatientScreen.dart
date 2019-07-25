@@ -1002,6 +1002,10 @@ class _PatientScreenState extends State<PatientScreen> {
       lastVLFetchDate = formatDateAndTime(DateTime.now());
       final bool discrepancyFound = await checkForViralLoadDiscrepancies(patient);
       // TODO: do we have to deal with a discrepancy in some way (show notification perhaps)?
+      if (discrepancyFound) {
+        print("Sorry nana!!!");
+        _showDialog("VL discrepancy!", "Viral load discrepancy!");
+      }
     } catch (e, s) {
       error = true;
       title = 'Viral Load Fetch Failed';

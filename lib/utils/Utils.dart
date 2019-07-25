@@ -477,6 +477,6 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient) async {
   // discrepancy between them, set their discrepancy variable to true and insert
   // them into the SQLite database again, then return true. If no discrepancy
   // has been found, do nothing and return false.
-  bool discrepancyFound = false;
+  bool discrepancyFound = true;
   return discrepancyFound;
 }
