@@ -89,6 +89,50 @@ Future<void> showFlushbar(String message, {String title, bool error=false, VoidC
   return Navigator.of(context, rootNavigator: true).push(_route);
 }
 
+Future<void> showTransferringDataFlushbar() {
+
+  final context = PEBRAppState.rootContext;
+
+  // define the maximum width of the notification
+  const double MAX_WIDTH = 160;
+  const double MIN_PADDING_HORIZONTAL = 10;
+  final double screenWidth = MediaQuery.of(context).size.width;
+  final double padding = max(MIN_PADDING_HORIZONTAL, (screenWidth - MAX_WIDTH)/2);
+
+  final Flushbar _flushbar = Flushbar(
+    flushbarPosition: FlushbarPosition.BOTTOM,
+    messageText: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        SizedBox(height: 2.0, width: 15.0, child: LinearProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(SPINNER_SETTINGS_SCREEN),
+          backgroundColor: Colors.transparent,
+        )),
+        SizedBox(width: 10.0),
+        Text('transferring data',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: NOTIFICATION_MESSAGE_TEXT,
+            fontSize: 12.0,
+          ),
+        ),
+      ],
+    ),
+    borderRadius: 20.0,
+    backgroundColor: NOTIFICATION_NORMAL,
+    padding: const EdgeInsets.symmetric(vertical: 10.0),
+    margin: EdgeInsets.only(bottom: 20.0, left: padding, right: padding),
+    duration: Duration(seconds: 10),
+  );
+
+  final _route = route.showFlushbar(
+    context: context,
+    flushbar: _flushbar,
+  );
+
+  return Navigator.of(context, rootNavigator: true).push(_route);
+}
+
 /// Takes a date and returns a date at the beginning (midnight) of the same day.
 DateTime _roundToDays(DateTime date) {
   final day = date.day;
