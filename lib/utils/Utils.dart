@@ -186,6 +186,16 @@ String formatDateIso(DateTime date) {
   return DateFormat("yyyy-MM-dd").format(date.toLocal());
 }
 
+/// Turns date into the format yyyy-MM-dd.
+///
+/// Returns null if [date] is null.
+String formatDateForVisibleImpact(DateTime date) {
+  if (date == null) {
+    return null;
+  }
+  return DateFormat("yyyy-MM-dd").format(date.toLocal());
+}
+
 /// Turns a date into a formatted String. If the date is
 ///
 /// * today it will return "Today"
@@ -258,6 +268,17 @@ String formatTimeIso(DateTime date) {
 ///
 /// Returns null if [time] is null.
 String formatTime(TimeOfDay time) {
+  if (time == null) {
+    return null;
+  }
+  final DateTime date = DateTime(1970, 1, 1, time.hour, time.minute);
+  return DateFormat("HH:mm").format(date.toLocal());
+}
+
+/// Formats a TimeOfDay object in the format HH:mm.
+///
+/// Returns null if [time] is null.
+String formatTimeForVisibleImpact(TimeOfDay time) {
   if (time == null) {
     return null;
   }

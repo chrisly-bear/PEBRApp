@@ -136,4 +136,6 @@ class ARTRefill implements IExcelExportable {
 
   DateTime get createdDate => this._createdDate;
 
+  RefillType get refillType => this._refillType;
+
 }

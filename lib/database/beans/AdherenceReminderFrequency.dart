@@ -21,6 +21,12 @@ class AdherenceReminderFrequency {
     _Frequency.MONTHLY: 'Monthly',
   };
 
+  static const Map<_Frequency, String> _apiString = {
+    _Frequency.DAILY: 'daily',
+    _Frequency.WEEKLY: 'weekly',
+    _Frequency.MONTHLY: 'monthly',
+  };
+
   _Frequency _frequency;
 
   // Constructors
@@ -72,6 +78,8 @@ class AdherenceReminderFrequency {
 
   /// Returns the text description of this frequency.
   String get description => _description[_frequency];
+
+  String get visibleImpactAPIString => _apiString[_frequency];
 
   /// Returns the code that represents this frequency.
   int get code => _encoding[_frequency];

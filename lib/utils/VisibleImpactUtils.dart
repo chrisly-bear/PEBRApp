@@ -2,7 +2,9 @@
 import 'dart:convert';
 import 'package:pebrapp/config/VisibleImpactConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
+import 'package:pebrapp/database/models/ARTRefill.dart';
 import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
@@ -15,125 +17,62 @@ import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:http/http.dart' as http;
 
-/// ART Refill Date Upload
-Future<void> uploadNextARTRefillDate(Patient patient, DateTime nextARTRefillDate) async {
-  // TODO: upload the new date to the visible impact database and if it didn't work show a message that the upload has to be retried manually
-  // TODO: if [nextARTRefillDate] is null then do nothing (which is the case if the patient has been deactivated/'refill not done' was selected by the user)
-  await Future.delayed(Duration(seconds: 3));
-  final bool success = false;
-  if (success) {
-    await _handleSuccess(patient, RequiredActionType.ART_REFILL_DATE_UPLOAD_REQUIRED);
-  } else {
-    await _handleFailure(patient, RequiredActionType.ART_REFILL_DATE_UPLOAD_REQUIRED);
-    showFlushbar('Please upload the next ART refill date manually.',
-      title: 'Upload of ART Refill Date Failed',
-      error: true,
-      buttonText: 'Retry\nNow',
-      onButtonPress: () {
-        uploadNextARTRefillDate(patient, nextARTRefillDate);
-      },
-    );
-  }
-}
 
-/// Notifications Upload
-Future<void> uploadNotificationsPreferences(Patient patient, PreferenceAssessment latestPreferenceAssessment) async {
-  // TODO: upload the notifications preferences from the assessment to the visible impact database and if it didn't work show a message that the upload has to be retried manually
-  print('...uploading notifications preferences\n'
-      'Adherence Reminder: ${latestPreferenceAssessment?.adherenceReminderEnabled}\n'
-      'ART Refill Reminder: ${latestPreferenceAssessment?.artRefillReminderEnabled}\n'
-      'Viral Load Notifications: ${latestPreferenceAssessment?.vlNotificationEnabled}');
-  await Future.delayed(Duration(seconds: 3));
-  final bool success = false;
-  if (success) {
-    await _handleSuccess(patient, RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED);
-  } else {
-    await _handleFailure(patient, RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED);
-    showFlushbar('Please upload the notifications preferences manually.',
-      title: 'Upload of Notifications Preferences Failed',
-      error: true,
-      buttonText: 'Retry\nNow',
-      onButtonPress: () {
-        uploadNotificationsPreferences(patient, latestPreferenceAssessment);
-      },
-    );
-  }
-}
-
-/// Patient Phone Number Update
-Future<void> uploadPatientPhoneNumber(Patient patient, String phoneNumber) async {
-  // TODO: upload the patient phone number to the visible impact database and if it didn't work show a message that the upload has to be retried manually
-  // NOTE: [phoneNumber] can be null
-  await Future.delayed(Duration(seconds: 3));
-  final bool success = false;
-  if (success) {
-    await _handleSuccess(patient, RequiredActionType.PATIENT_PHONE_UPLOAD_REQUIRED);
-  } else {
-    await _handleFailure(patient, RequiredActionType.PATIENT_PHONE_UPLOAD_REQUIRED);
-    showFlushbar('Please upload the patient phone number manually.',
-      title: 'Upload of Patient Phone Number Failed',
-      error: true,
-      buttonText: 'Retry\nNow',
-      onButtonPress: () {
-        uploadPatientPhoneNumber(patient, phoneNumber);
-      },
-    );
-  }
-}
-
-Future<bool> _uploadPeerEducatorPhoneNumber(List<String> patientARTs, String peerEducatorPhoneNumber) async {
-  // TODO: upload the peer educator phone number to the visible impact database
-  await Future.delayed(Duration(seconds: 3));
-  final bool success = false;
-  return success;
-}
-
-/// PE Phone Number Upload for single patient
+/// Adherence Reminder Upload
 ///
-/// Will be called during first preference assessment of a patient.
-Future<void> uploadPeerEducatorPhoneNumber(String patientART, String peerEducatorPhoneNumber) async {
-  final bool success = await _uploadPeerEducatorPhoneNumber([patientART], peerEducatorPhoneNumber);
-  if (success) {
-    final UserData user = await DatabaseProvider().retrieveLatestUserData();
-    user.phoneNumberUploadRequired = false;
-    await DatabaseProvider().insertUserData(user);
-  } else {
-    showFlushbar('Please upload your phone number manually.',
-      title: 'Upload of Peer Educator Phone Number Failed',
-      error: true,
-      buttonText: 'Retry\nNow',
-      onButtonPress: () {
-        uploadPeerEducatorPhoneNumber(patientART, peerEducatorPhoneNumber);
-      },
-    );
+/// Make sure that [patient.latestPreferenceAssessment] and
+/// [patient.latestARTRefill] are up to date.
+Future<void> uploadAdherenceReminder(Patient patient) async {
+  final PreferenceAssessment pa = patient.latestPreferenceAssessment;
+  final ARTRefill artRefill = patient.latestARTRefill;
+  if (artRefill == null || artRefill.refillType == RefillType.NOT_DONE()) {
+    // no next ART refill date yet or refill not done, do not upload
+    return;
   }
+  if (!(pa.adherenceReminderEnabled ?? false)) {
+    // adherence reminders disabled or null (patient has no phone), do not upload
+    return;
+  }
+  final String _token = await _getAPIToken();
+  final int patientId = await _getPatientIdVisibleImpact(patient.artNumber, _token);
+  final _resp = await http.put(
+    'https://lstowards909090.org/db-test/apiv1/pebramessage',
+    headers: {'Authorization' : 'Custom $_token'},
+    body: {
+      "message_type": "adherence_reminder",
+      "patient_id": patientId,
+      "mobile_phone": patient.phoneNumber,
+      "send_frequency": pa.adherenceReminderFrequency.visibleImpactAPIString,
+      "mobile_owner": "patient",
+      "send_time": formatTimeForVisibleImpact(pa.adherenceReminderTime),
+      "message": pa.adherenceReminderMessage.description,
+      "end_date": formatDateForVisibleImpact(artRefill.nextRefillDate),
+    }
+  );
+  // TODO: error handling
+  // TODO: what required action types will we need?
+  //   - just one general "notification upload required"
+  //   - seperate ones for "adherence reminder upload required", "refill reminder upload required", "vl notification upload required"
+  if (_resp.statusCode == 200) {
+    _handleSuccess(patient, RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED);
+  } else {
+    _handleFailure(patient, RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED);
+  }
+
 }
 
-/// PE Phone Number Upload for all patients
-///
-/// Will be called when the Peer Educator changes their phone number and all of
-/// their patients need to be updated on the VisibleImpact side.
-///
-/// Will also be called if a [uploadPeerEducatorPhoneNumber] for a single
-/// patient failed and the PE triggers a re-sync from the settings screen.
-Future<void> uploadPeerEducatorPhoneNumberForAllPatients(String peerEducatorPhoneNumber) async {
-  List<String> patientARTNumbers = await DatabaseProvider().retrievePatientsART(retrieveNonConsents: false, retrieveNonEligibles: false);
-  final bool success = await _uploadPeerEducatorPhoneNumber(patientARTNumbers, peerEducatorPhoneNumber);
-  if (success) {
-    final UserData user = await DatabaseProvider().retrieveLatestUserData();
-    user.phoneNumberUploadRequired = false;
-    await DatabaseProvider().insertUserData(user);
-  } else {
-    showFlushbar('Please upload your phone number manually.',
-      title: 'Upload of Peer Educator Phone Number Failed',
-      error: true,
-      buttonText: 'Retry\nNow',
-      onButtonPress: () {
-        uploadPeerEducatorPhoneNumberForAllPatients(peerEducatorPhoneNumber);
-      },
-    );
-  }
+
+/// Refill Reminder Upload
+Future<void> uploadRefillReminder(Patient patient, PreferenceAssessment latestPreferenceAssessment) async {
+  // TODO: implement refill reminder upload logic
 }
+
+
+/// Viral Load Notifications Upload
+Future<void> uploadViralLoadNotification(Patient patient, PreferenceAssessment latestPreferenceAssessment) async {
+  // TODO: implement vl notification upload logic
+}
+
 
 /// Throws [VisibleImpactLoginFailedException] if the authentication fails.
 Future<String> _getAPIToken() async {
@@ -160,19 +99,9 @@ Future<String> _getAPIToken() async {
 /// patient ID for the given [patientART] number.
 Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART) async {
   final String _token = await _getAPIToken();
-  final List<int> patientIds = await _getPatientIdsVisibleImpact(patientART, _token);
-  if (patientIds.isEmpty) {
-    throw PatientNotFoundException('No patient with ART number $patientART found on VisibleImpact.');
-  }
-  if (patientIds.length > 1) {
-    // TODO: decide how to handle this case (i.e. when there are duplicates)
-    // -> a simple solution would be to just return all viral loads from all
-    // duplicates (the user can still add manual entries to override the last
-    // entry if it doesn't make sense)
-    throw MultiplePatientsException('Several matching patients with ART number $patientART found on VisibleImpact.');
-  }
+  final int patientId = await _getPatientIdVisibleImpact(patientART, _token);
   final _resp = await http.get(
-    'https://lstowards909090.org/db-test/apiv1/labdata?patient_id=${patientIds.first}',
+    'https://lstowards909090.org/db-test/apiv1/labdata?patient_id=$patientId',
     headers: {'Authorization' : 'Custom $_token'},
   );
   if (_resp.statusCode == 401) {
@@ -212,7 +141,13 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART) async 
 /// @param [patientART] ART number to match. Can be a full ART number
 /// (e.g. B/01/11111) or a partial ART number (e.g. B/01). Using a partial ART
 /// number will find all patient IDs which partially match it.
-Future<List<int>> _getPatientIdsVisibleImpact(String patientART, String _apiAuthToken) async {
+///
+/// Throws [PatientNotFoundException] if patient with given [patientART] number
+/// is not found on VisibleImpact database.
+///
+/// Throws [MultiplePatientsException] if VisibleImpact returns more than one
+/// patient ID for the given [patientART] number.
+Future<int> _getPatientIdVisibleImpact(String patientART, String _apiAuthToken) async {
   final _resp = await http.get(
     'https://lstowards909090.org/db-test/apiv1/patient?art_number=$patientART',
     headers: {'Authorization' : 'Custom $_apiAuthToken'},
@@ -229,7 +164,17 @@ Future<List<int>> _getPatientIdsVisibleImpact(String patientART, String _apiAuth
   List<int> patientIds = list.map((dynamic patientMap) {
     return patientMap['patient_id'] as int;
   }).toList();
-  return patientIds;
+  if (patientIds.isEmpty) {
+    throw PatientNotFoundException('No patient with ART number $patientART found on VisibleImpact.');
+  }
+  if (patientIds.length > 1) {
+    // TODO: decide how to handle this case (i.e. when there are duplicates)
+    // -> a simple solution would be to just return all viral loads from all
+    // duplicates (the user can still add manual entries to override the last
+    // entry if it doesn't make sense)
+    throw MultiplePatientsException('Several matching patients with ART number $patientART found on VisibleImpact.');
+  }
+  return patientIds.first;
 }
 
 
