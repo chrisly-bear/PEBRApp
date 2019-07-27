@@ -20,9 +20,11 @@ import 'package:http/http.dart' as http;
 
 Future<void> uploadNotificationsPreferencesVI(Patient patient) async {
   try {
-    await _uploadAdherenceReminder(patient);
-    await _uploadRefillReminder(patient);
-    await _uploadViralLoadNotification(patient);
+    final String token = await _getAPIToken();
+    final int patientId = await _getPatientIdVisibleImpact(patient.artNumber, token);
+    await _uploadAdherenceReminder(patient, patientId, token);
+    await _uploadRefillReminder(patient, patientId, token);
+    await _uploadViralLoadNotification(patient, patientId, token);
     _handleSuccess(patient, RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED);
   } catch (e, s) {
     _handleFailure(patient, RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED);
@@ -54,7 +56,7 @@ Future<void> uploadNotificationsPreferencesVI(Patient patient) async {
 ///
 /// Throws [HTTPStatusNotOKException] if the VisibleImpact API returns anything
 /// else than 200 (OK).
-Future<void> _uploadAdherenceReminder(Patient patient) async {
+Future<void> _uploadAdherenceReminder(Patient patient, int patientId, String token) async {
   final PreferenceAssessment pa = patient.latestPreferenceAssessment;
   final ARTRefill artRefill = patient.latestARTRefill;
   if (artRefill == null || artRefill.refillType == RefillType.NOT_DONE()) {
@@ -65,11 +67,9 @@ Future<void> _uploadAdherenceReminder(Patient patient) async {
     // adherence reminders disabled or null (patient has no phone), do not upload
     return;
   }
-  final String _token = await _getAPIToken();
-  final int patientId = await _getPatientIdVisibleImpact(patient.artNumber, _token);
   final _resp = await http.put(
     'https://lstowards909090.org/db-test/apiv1/pebramessage',
-    headers: {'Authorization' : 'Custom $_token'},
+    headers: {'Authorization' : 'Custom $token'},
     body: {
       "message_type": "adherence_reminder",
       "patient_id": patientId,
@@ -99,7 +99,7 @@ Future<void> _uploadAdherenceReminder(Patient patient) async {
 ///
 /// Throws [HTTPStatusNotOKException] if the VisibleImpact API returns anything
 /// else than 200 (OK).
-Future<void> _uploadRefillReminder(Patient patient) async {
+Future<void> _uploadRefillReminder(Patient patient, int patientId, String token) async {
   // TODO: implement refill reminder upload logic
 }
 
@@ -119,7 +119,7 @@ Future<void> _uploadRefillReminder(Patient patient) async {
 ///
 /// Throws [HTTPStatusNotOKException] if the VisibleImpact API returns anything
 /// else than 200 (OK).
-Future<void> _uploadViralLoadNotification(Patient patient) async {
+Future<void> _uploadViralLoadNotification(Patient patient, int patientId, String token) async {
   // TODO: implement vl notification upload logic
 }
 
