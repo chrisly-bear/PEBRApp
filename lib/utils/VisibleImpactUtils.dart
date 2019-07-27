@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:pebrapp/config/VisibleImpactConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/database/beans/ARTRefillReminderDaysBeforeSelection.dart';
 import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
@@ -55,14 +56,12 @@ Future<void> uploadNotificationsPreferences(Patient patient) async {
 Future<void> _uploadAdherenceReminder(Patient patient, int patientId, String token) async {
   final PreferenceAssessment pa = patient.latestPreferenceAssessment;
   final ARTRefill artRefill = patient.latestARTRefill;
-  if (artRefill == null || artRefill.refillType == RefillType.NOT_DONE()) {
-    // no next ART refill date yet or refill not done, do not upload
-    return;
-  }
-  if (!(pa.adherenceReminderEnabled ?? false)) {
-    // adherence reminders disabled or null (patient has no phone), do not upload
-    return;
-  }
+  // no preference assessment yet, do not upload
+  if (pa == null) return;
+  // no next ART refill date yet or refill not done, do not upload
+  if (artRefill == null || artRefill.refillType == RefillType.NOT_DONE()) return;
+  // adherence reminders disabled or null (patient has no phone), do not upload
+  if (!(pa.adherenceReminderEnabled ?? false)) return;
   final _resp = await http.put(
     'https://lstowards909090.org/db-test/apiv1/pebramessage',
     headers: {'Authorization' : 'Custom $token'},
@@ -91,7 +90,28 @@ Future<void> _uploadAdherenceReminder(Patient patient, int patientId, String tok
 /// Throws [HTTPStatusNotOKException] if the VisibleImpact API returns anything
 /// else than 200 (OK).
 Future<void> _uploadRefillReminder(Patient patient, int patientId, String token) async {
-  // TODO: implement refill reminder upload logic
+  final PreferenceAssessment pa = patient.latestPreferenceAssessment;
+  final ARTRefill artRefill = patient.latestARTRefill;
+  // no preference assessment yet, do not upload
+  if (pa == null) return;
+  // no next ART refill date yet or refill not done, do not upload
+  if (artRefill == null || artRefill.refillType == RefillType.NOT_DONE()) return;
+  // refill reminders disabled or null (patient has no phone), do not upload
+  if (!(pa.artRefillReminderEnabled ?? false)) return;
+  List<String> sendDates = calculateRefillReminderSendDates(pa.artRefillReminderDaysBefore, artRefill.nextRefillDate);
+  final _resp = await http.put(
+      'https://lstowards909090.org/db-test/apiv1/pebramessage',
+      headers: {'Authorization' : 'Custom $token'},
+      body: {
+        "message_type": "refill_reminder",
+        "patient_id": patientId,
+        "mobile_phone": patient.phoneNumber,
+        "send_dates": sendDates,
+        "mobile_owner": "patient",
+        "message": pa.artRefillReminderMessage.description,
+      }
+  );
+  _checkStatusCode(_resp);
 }
 
 
@@ -148,6 +168,27 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART) async 
     PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
   }
   return viralLoadsFromDB;
+}
+
+
+List<String> calculateRefillReminderSendDates(ARTRefillReminderDaysBeforeSelection artRefillReminderDaysBefore, DateTime nextRefillDate) {
+  List<String> sendDates = [];
+  if (artRefillReminderDaysBefore.SEVEN_DAYS_BEFORE_selected) {
+    sendDates.add(formatDateForVisibleImpact(nextRefillDate.subtract(Duration(days: 7))));
+  }
+  if (artRefillReminderDaysBefore.THREE_DAYS_BEFORE_selected) {
+    sendDates.add(formatDateForVisibleImpact(nextRefillDate.subtract(Duration(days: 3))));
+  }
+  if (artRefillReminderDaysBefore.TWO_DAYS_BEFORE_selected) {
+    sendDates.add(formatDateForVisibleImpact(nextRefillDate.subtract(Duration(days: 2))));
+  }
+  if (artRefillReminderDaysBefore.ONE_DAY_BEFORE_selected) {
+    sendDates.add(formatDateForVisibleImpact(nextRefillDate.subtract(Duration(days: 1))));
+  }
+  if (artRefillReminderDaysBefore.ZERO_DAYS_BEFORE_selected) {
+    sendDates.add(formatDateForVisibleImpact(nextRefillDate));
+  }
+  return sendDates;
 }
 
 
