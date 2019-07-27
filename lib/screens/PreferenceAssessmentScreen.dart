@@ -1992,7 +1992,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         if (_patientPhoneNumberBeforeAssessment != newPatientPhoneNumber) {
           _patient.phoneNumber = newPatientPhoneNumber;
           _patientUpdated = true;
-          uploadPatientPhoneNumber(_patient, newPatientPhoneNumber);
+          uploadPatientPhoneNumber(_patient, reUploadNotifications: false);
         }
         if (!_pa.adherenceReminderEnabled) {
           _pa.adherenceReminderTime = null;
@@ -2004,7 +2004,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         if (_patientPhoneNumberBeforeAssessment != newPatientPhoneNumber) {
           _patient.phoneNumber = newPatientPhoneNumber;
           _patientUpdated = true;
-          uploadPatientPhoneNumber(_patient, newPatientPhoneNumber);
+          uploadPatientPhoneNumber(_patient, reUploadNotifications: false);
         }
         _pa.adherenceReminderEnabled = null;
         _pa.adherenceReminderFrequency = null;

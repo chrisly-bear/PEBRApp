@@ -21,10 +21,11 @@ import 'package:http/http.dart' as http;
 
 /// Updates the patient's phone number on the VisibleImpact database.
 ///
-/// Note: This does not affect the phone number to which the notifications will
-/// be sent. So make sure to also re-upload the notifications preferences for
-/// the new phone number (see [uploadNotificationsPreferences]).
-Future<void> uploadPatientPhoneNumberVI(Patient patient) async {
+/// @param [reUploadNotifications] The upload of the patient's phone number does
+/// not affect the phone number to which the (previously uploaded) notifications
+/// will be sent. If you want to update the notifications to be sent to the new
+/// phone number, set [reUploadNotifications] to true.
+Future<void> uploadPatientPhoneNumber(Patient patient, {bool reUploadNotifications: false}) async {
   try {
     final String token = await _getAPIToken();
     final int patientId = await _getPatientIdVisibleImpact(patient.artNumber, token);
@@ -38,11 +39,14 @@ Future<void> uploadPatientPhoneNumberVI(Patient patient) async {
       error: true,
       buttonText: 'Retry\nNow',
       onButtonPress: () {
-        uploadPatientPhoneNumberVI(patient);
+        uploadPatientPhoneNumber(patient, reUploadNotifications: false);
       },
     );
     print('Exception caught: $e');
     print('Stacktrace: $s');
+  }
+  if (reUploadNotifications) {
+    await uploadNotificationsPreferences(patient);
   }
 }
 

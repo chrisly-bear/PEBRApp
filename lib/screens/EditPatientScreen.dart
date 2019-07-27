@@ -230,13 +230,13 @@ class _EditPatientFormState extends State<_EditPatientForm> {
         final String newPatientPhoneNumber = '+266-${_phoneNumberCtr.text}';
         if (_existingPhoneNumber != newPatientPhoneNumber) {
           _existingPatient.phoneNumber = newPatientPhoneNumber;
-          uploadPatientPhoneNumber(_existingPatient, newPatientPhoneNumber);
+          uploadPatientPhoneNumber(_existingPatient, reUploadNotifications: true);
         }
       } else {
         final String newPatientPhoneNumber = null;
         if (_existingPhoneNumber != newPatientPhoneNumber) {
           _existingPatient.phoneNumber = newPatientPhoneNumber;
-          uploadPatientPhoneNumber(_existingPatient, newPatientPhoneNumber);
+          uploadPatientPhoneNumber(_existingPatient, reUploadNotifications: true);
         }
       }
       _existingPatient.village = _villageCtr.text;

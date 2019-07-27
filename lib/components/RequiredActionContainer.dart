@@ -139,7 +139,7 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
         actionText = "The automatic synchronization of the patient's phone number with the database failed. Please synchronize manually.";
         actionButton = FlatButton(
           onPressed: () async {
-            await uploadPatientPhoneNumber(widget.patient, widget.patient.phoneNumber);
+            await uploadPatientPhoneNumber(widget.patient, reUploadNotifications: false);
           },
           splashColor: NOTIFICATION_INFO_SPLASH,
           child: Text(
