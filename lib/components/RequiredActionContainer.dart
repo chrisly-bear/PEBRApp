@@ -135,22 +135,6 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
           ),
         );
         break;
-      case RequiredActionType.ART_REFILL_DATE_UPLOAD_REQUIRED:
-        actionText = "The automatic synchronization of the ART refill date with the database failed. Please synchronize manually.";
-        actionButton = FlatButton(
-          onPressed: () async {
-            await uploadNextARTRefillDate(widget.patient, widget.patient.latestARTRefill.nextRefillDate);
-          },
-          splashColor: NOTIFICATION_INFO_SPLASH,
-          child: Text(
-            "SYNCHRONIZE",
-            style: TextStyle(
-              color: NOTIFICATION_INFO_TEXT,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        );
-        break;
       case RequiredActionType.PATIENT_PHONE_UPLOAD_REQUIRED:
         actionText = "The automatic synchronization of the patient's phone number with the database failed. Please synchronize manually.";
         actionButton = FlatButton(
