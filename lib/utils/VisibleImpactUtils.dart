@@ -19,7 +19,38 @@ import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:http/http.dart' as http;
 
+/// Updates the patient's phone number on the VisibleImpact database.
+///
+/// Note: This does not affect the phone number to which the notifications will
+/// be sent. So make sure to also re-upload the notifications preferences for
+/// the new phone number (see [uploadNotificationsPreferences]).
+Future<void> uploadPatientPhoneNumberVI(Patient patient) async {
+  try {
+    final String token = await _getAPIToken();
+    final int patientId = await _getPatientIdVisibleImpact(patient.artNumber, token);
+    // TODO: implement updating of patient's phone number on VisibleImpact as soon as the API is ready
+    // ... (write upload code here)
+    _handleSuccess(patient, RequiredActionType.PATIENT_PHONE_UPLOAD_REQUIRED);
+  } catch (e, s) {
+    _handleFailure(patient, RequiredActionType.PATIENT_PHONE_UPLOAD_REQUIRED);
+    showFlushbar('Please upload the patient\'s phone number manually.',
+      title: 'Upload of Patient\'s Phone Number Failed',
+      error: true,
+      buttonText: 'Retry\nNow',
+      onButtonPress: () {
+        uploadPatientPhoneNumberVI(patient);
+      },
+    );
+    print('Exception caught: $e');
+    print('Stacktrace: $s');
+  }
+}
 
+
+/// Upload notifications preferences from latest preference assessment.
+///
+/// Make sure that [patient.latestPreferenceAssessment] and
+/// [patient.latestARTRefill] are up to date.
 Future<void> uploadNotificationsPreferences(Patient patient) async {
   try {
     final String token = await _getAPIToken();
@@ -117,8 +148,7 @@ Future<void> _uploadRefillReminder(Patient patient, int patientId, String token)
 
 /// Viral Load Notifications Upload
 ///
-/// Make sure that [patient.latestPreferenceAssessment] and
-/// [patient.latestARTRefill] are up to date.
+/// Make sure that [patient.latestPreferenceAssessment] is up to date.
 ///
 /// Throws [VisibleImpactLoginFailedException] if the authentication fails.
 ///
