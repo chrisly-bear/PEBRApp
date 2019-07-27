@@ -135,23 +135,27 @@ Future<void> _uploadAdherenceReminder(Patient patient, int patientId, String tok
   if (artRefill == null || artRefill.refillType == RefillType.NOT_DONE()) return;
   // adherence reminders disabled or null (patient has no phone), do not upload
   if (!(pa.adherenceReminderEnabled ?? false)) return;
+  Map<String, dynamic> body = {
+    "message_type": "adherence_reminder",
+    "patient_id": patientId,
+    "mobile_phone": patient.phoneNumber,
+    "send_frequency": pa.adherenceReminderFrequency.visibleImpactAPIString,
+    "mobile_owner": "patient",
+    "send_time": formatTimeForVisibleImpact(pa.adherenceReminderTime),
+    "message": composeSMS(
+      message: pa.adherenceReminderMessage.description,
+      peName: '${pe.firstName} ${pe.lastName}',
+      pePhone: pe.phoneNumber,
+    ),
+    "end_date": formatDateForVisibleImpact(artRefill.nextRefillDate),
+  };
   final _resp = await http.put(
     'https://lstowards909090.org/db-test/apiv1/pebramessage',
-    headers: {'Authorization' : 'Custom $token'},
-    body: {
-      "message_type": "adherence_reminder",
-      "patient_id": patientId,
-      "mobile_phone": patient.phoneNumber,
-      "send_frequency": pa.adherenceReminderFrequency.visibleImpactAPIString,
-      "mobile_owner": "patient",
-      "send_time": formatTimeForVisibleImpact(pa.adherenceReminderTime),
-      "message": composeSMS(
-        message: pa.adherenceReminderMessage.description,
-        peName: '${pe.firstName} ${pe.lastName}',
-        pePhone: pe.phoneNumber,
-      ),
-      "end_date": formatDateForVisibleImpact(artRefill.nextRefillDate),
-    }
+    headers: {
+      'Authorization' : 'Custom $token',
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode(body),
   );
   _checkStatusCode(_resp);
 }
@@ -181,21 +185,25 @@ Future<void> _uploadRefillReminder(Patient patient, int patientId, String token,
   // refill reminders disabled or null (patient has no phone), do not upload
   if (!(pa.artRefillReminderEnabled ?? false)) return;
   List<String> sendDates = calculateRefillReminderSendDates(pa.artRefillReminderDaysBefore, artRefill.nextRefillDate);
+  Map<String, dynamic> body = {
+    "message_type": "refill_reminder",
+    "patient_id": patientId,
+    "mobile_phone": patient.phoneNumber,
+    "send_dates": sendDates,
+    "mobile_owner": "patient",
+    "message": composeSMS(
+      message: pa.artRefillReminderMessage.description,
+      peName: '${pe.firstName} ${pe.lastName}',
+      pePhone: pe.phoneNumber,
+    ),
+  };
   final _resp = await http.put(
-      'https://lstowards909090.org/db-test/apiv1/pebramessage',
-      headers: {'Authorization' : 'Custom $token'},
-      body: {
-        "message_type": "refill_reminder",
-        "patient_id": patientId,
-        "mobile_phone": patient.phoneNumber,
-        "send_dates": sendDates,
-        "mobile_owner": "patient",
-        "message": composeSMS(
-          message: pa.artRefillReminderMessage.description,
-          peName: '${pe.firstName} ${pe.lastName}',
-          pePhone: pe.phoneNumber,
-        ),
-      }
+    'https://lstowards909090.org/db-test/apiv1/pebramessage',
+    headers: {
+      'Authorization' : 'Custom $token',
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode(body),
   );
   _checkStatusCode(_resp);
 }
@@ -220,27 +228,31 @@ Future<void> _uploadViralLoadNotification(Patient patient, int patientId, String
   if (pa == null) return;
   // viral load notifications disabled or null (patient has no phone), do not upload
   if (!(pa.vlNotificationEnabled ?? false)) return;
+  Map<String, dynamic> body = {
+    "message_type": "vl_notification",
+    "patient_id": patientId,
+    "mobile_phone": patient.phoneNumber,
+    "active": true,
+    "mobile_owner": "patient",
+    "message_suppressed": composeSMS(
+      message: pa.vlNotificationMessageSuppressed.description,
+      peName: '${pe.firstName} ${pe.lastName}',
+      pePhone: pe.phoneNumber,
+    ),
+    "message_unsuppressed": composeSMS(
+      message: pa.vlNotificationMessageUnsuppressed.description,
+      peName: '${pe.firstName} ${pe.lastName}',
+      pePhone: pe.phoneNumber,
+    ),
+    "message_failed": "Sephetho hasea sebetseha. Re kopa o itlalehe setsing sa bophelo mo o sebeletsoang teng hang hang, u hopotse mooki ka sephetho sa liteko!",
+  };
   final _resp = await http.put(
-      'https://lstowards909090.org/db-test/apiv1/pebramessage',
-      headers: {'Authorization' : 'Custom $token'},
-      body: {
-        "message_type": "vl_notification",
-        "patient_id": patientId,
-        "mobile_phone": patient.phoneNumber,
-        "active": true,
-        "mobile_owner": "patient",
-        "message_suppressed": composeSMS(
-          message: pa.vlNotificationMessageSuppressed.description,
-          peName: '${pe.firstName} ${pe.lastName}',
-          pePhone: pe.phoneNumber,
-        ),
-        "message_unsuppressed": composeSMS(
-          message: pa.vlNotificationMessageUnsuppressed.description,
-          peName: '${pe.firstName} ${pe.lastName}',
-          pePhone: pe.phoneNumber,
-        ),
-        "message_failed": "Sephetho hasea sebetseha. Re kopa o itlalehe setsing sa bophelo mo o sebeletsoang teng hang hang, u hopotse mooki ka sephetho sa liteko!",
-      }
+    'https://lstowards909090.org/db-test/apiv1/pebramessage',
+    headers: {
+      'Authorization' : 'Custom $token',
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode(body),
   );
   _checkStatusCode(_resp);
 }
