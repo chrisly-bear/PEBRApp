@@ -125,7 +125,26 @@ Future<void> _uploadRefillReminder(Patient patient, int patientId, String token)
 /// Throws [HTTPStatusNotOKException] if the VisibleImpact API returns anything
 /// else than 200 (OK).
 Future<void> _uploadViralLoadNotification(Patient patient, int patientId, String token) async {
-  // TODO: implement vl notification upload logic
+  final PreferenceAssessment pa = patient.latestPreferenceAssessment;
+  // no preference assessment yet, do not upload
+  if (pa == null) return;
+  // viral load notifications disabled or null (patient has no phone), do not upload
+  if (!(pa.vlNotificationEnabled ?? false)) return;
+  final _resp = await http.put(
+      'https://lstowards909090.org/db-test/apiv1/pebramessage',
+      headers: {'Authorization' : 'Custom $token'},
+      body: {
+        "message_type": "vl_notification",
+        "patient_id": patientId,
+        "mobile_phone": patient.phoneNumber,
+        "active": true,
+        "mobile_owner": "patient",
+        "message_suppressed": pa.vlNotificationMessageSuppressed,
+        "message_unsuppressed": pa.vlNotificationMessageUnsuppressed,
+        "message_failed": "Sephetho hasea sebetseha. Re kopa o itlalehe setsing sa bophelo mo o sebeletsoang teng hang hang, u hopotse mooki ka sephetho sa liteko!",
+      }
+  );
+  _checkStatusCode(_resp);
 }
 
 
