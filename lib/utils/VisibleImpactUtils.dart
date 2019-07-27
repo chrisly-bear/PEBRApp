@@ -51,17 +51,50 @@ Future<void> uploadPatientPhoneNumber(Patient patient, {bool reUploadNotificatio
 }
 
 
+/// Updates the peer educator's phone number by re-uploading all notifications
+/// preferences for all patients. If there are a lot of patients this might take
+/// a while.
+Future<void> uploadPeerEducatorPhoneNumber() async {
+  try {
+    final UserData user = await DatabaseProvider().retrieveLatestUserData();
+    final List<Patient> patients = await DatabaseProvider().retrieveLatestPatients();
+    patients.removeWhere((Patient p) => !(p.isEligible && (p.consentGiven ?? false) && (p.isActivated ?? false)));
+    final String token = await _getAPIToken();
+    for (Patient patient in patients) {
+      final int patientId = await _getPatientIdVisibleImpact(patient.artNumber, token);
+      await _uploadAdherenceReminder(patient, patientId, token, pe: user);
+      await _uploadRefillReminder(patient, patientId, token, pe: user);
+      await _uploadViralLoadNotification(patient, patientId, token, pe: user);
+    }
+    user.phoneNumberUploadRequired = false;
+    await DatabaseProvider().insertUserData(user);
+  } catch (e, s) {
+    showFlushbar('Please upload your phone number manually.',
+      title: 'Upload of Peer Educator Phone Number Failed',
+      error: true,
+      buttonText: 'Retry\nNow',
+      onButtonPress: () {
+        uploadPeerEducatorPhoneNumber();
+      },
+    );
+    print('Exception caught: $e');
+    print('Stacktrace: $s');
+  }
+}
+
+
 /// Upload notifications preferences from latest preference assessment.
 ///
 /// Make sure that [patient.latestPreferenceAssessment] and
 /// [patient.latestARTRefill] are up to date.
 Future<void> uploadNotificationsPreferences(Patient patient) async {
   try {
+    final UserData pe = await DatabaseProvider().retrieveLatestUserData();
     final String token = await _getAPIToken();
     final int patientId = await _getPatientIdVisibleImpact(patient.artNumber, token);
-    await _uploadAdherenceReminder(patient, patientId, token);
-    await _uploadRefillReminder(patient, patientId, token);
-    await _uploadViralLoadNotification(patient, patientId, token);
+    await _uploadAdherenceReminder(patient, patientId, token, pe: pe);
+    await _uploadRefillReminder(patient, patientId, token, pe: pe);
+    await _uploadViralLoadNotification(patient, patientId, token, pe: pe);
     _handleSuccess(patient, RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED);
   } catch (e, s) {
     _handleFailure(patient, RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED);
@@ -88,7 +121,10 @@ Future<void> uploadNotificationsPreferences(Patient patient) async {
 ///
 /// Throws [HTTPStatusNotOKException] if the VisibleImpact API returns anything
 /// else than 200 (OK).
-Future<void> _uploadAdherenceReminder(Patient patient, int patientId, String token) async {
+Future<void> _uploadAdherenceReminder(Patient patient, int patientId, String token, {UserData pe}) async {
+  if (pe == null) {
+    pe = await DatabaseProvider().retrieveLatestUserData();
+  }
   final PreferenceAssessment pa = patient.latestPreferenceAssessment;
   final ARTRefill artRefill = patient.latestARTRefill;
   // no preference assessment yet, do not upload
@@ -107,7 +143,11 @@ Future<void> _uploadAdherenceReminder(Patient patient, int patientId, String tok
       "send_frequency": pa.adherenceReminderFrequency.visibleImpactAPIString,
       "mobile_owner": "patient",
       "send_time": formatTimeForVisibleImpact(pa.adherenceReminderTime),
-      "message": pa.adherenceReminderMessage.description,
+      "message": composeSMS(
+        message: pa.adherenceReminderMessage.description,
+        peName: '${pe.firstName} ${pe.lastName}',
+        pePhone: pe.phoneNumber,
+      ),
       "end_date": formatDateForVisibleImpact(artRefill.nextRefillDate),
     }
   );
@@ -124,7 +164,10 @@ Future<void> _uploadAdherenceReminder(Patient patient, int patientId, String tok
 ///
 /// Throws [HTTPStatusNotOKException] if the VisibleImpact API returns anything
 /// else than 200 (OK).
-Future<void> _uploadRefillReminder(Patient patient, int patientId, String token) async {
+Future<void> _uploadRefillReminder(Patient patient, int patientId, String token, {UserData pe}) async {
+  if (pe == null) {
+    pe = await DatabaseProvider().retrieveLatestUserData();
+  }
   final PreferenceAssessment pa = patient.latestPreferenceAssessment;
   final ARTRefill artRefill = patient.latestARTRefill;
   // no preference assessment yet, do not upload
@@ -143,7 +186,11 @@ Future<void> _uploadRefillReminder(Patient patient, int patientId, String token)
         "mobile_phone": patient.phoneNumber,
         "send_dates": sendDates,
         "mobile_owner": "patient",
-        "message": pa.artRefillReminderMessage.description,
+        "message": composeSMS(
+          message: pa.artRefillReminderMessage.description,
+          peName: '${pe.firstName} ${pe.lastName}',
+          pePhone: pe.phoneNumber,
+        ),
       }
   );
   _checkStatusCode(_resp);
@@ -158,7 +205,10 @@ Future<void> _uploadRefillReminder(Patient patient, int patientId, String token)
 ///
 /// Throws [HTTPStatusNotOKException] if the VisibleImpact API returns anything
 /// else than 200 (OK).
-Future<void> _uploadViralLoadNotification(Patient patient, int patientId, String token) async {
+Future<void> _uploadViralLoadNotification(Patient patient, int patientId, String token, {UserData pe}) async {
+  if (pe == null) {
+    pe = await DatabaseProvider().retrieveLatestUserData();
+  }
   final PreferenceAssessment pa = patient.latestPreferenceAssessment;
   // no preference assessment yet, do not upload
   if (pa == null) return;
@@ -173,8 +223,16 @@ Future<void> _uploadViralLoadNotification(Patient patient, int patientId, String
         "mobile_phone": patient.phoneNumber,
         "active": true,
         "mobile_owner": "patient",
-        "message_suppressed": pa.vlNotificationMessageSuppressed,
-        "message_unsuppressed": pa.vlNotificationMessageUnsuppressed,
+        "message_suppressed": composeSMS(
+          message: pa.vlNotificationMessageSuppressed.description,
+          peName: '${pe.firstName} ${pe.lastName}',
+          pePhone: pe.phoneNumber,
+        ),
+        "message_unsuppressed": composeSMS(
+          message: pa.vlNotificationMessageUnsuppressed.description,
+          peName: '${pe.firstName} ${pe.lastName}',
+          pePhone: pe.phoneNumber,
+        ),
         "message_failed": "Sephetho hasea sebetseha. Re kopa o itlalehe setsing sa bophelo mo o sebeletsoang teng hang hang, u hopotse mooki ka sephetho sa liteko!",
       }
   );

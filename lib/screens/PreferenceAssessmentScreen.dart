@@ -2099,14 +2099,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         await DatabaseProvider().insertUserData(_user);
         // PE's phone number changed, this affects all patients so we do a sync
         // with VisibleImpact for all patients
-        uploadPeerEducatorPhoneNumberForAllPatients(newPEPhoneNumber);
-      } else if (_patient.latestPreferenceAssessment == null) {
-        // this is the first preference assessment, we have to upload the PE's
-        // phone number to VisibleImpact so that the callback can be set on all
-        // notification SMS
-        _user.phoneNumberUploadRequired = true;
-        await DatabaseProvider().insertUserData(_user);
-        uploadPeerEducatorPhoneNumber(_patient.artNumber, newPEPhoneNumber);
+        uploadPeerEducatorPhoneNumber();
       }
 
       _patient.latestPreferenceAssessment = _pa;
