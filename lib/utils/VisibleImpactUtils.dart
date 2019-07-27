@@ -127,6 +127,8 @@ Future<void> _uploadAdherenceReminder(Patient patient, int patientId, String tok
   }
   final PreferenceAssessment pa = patient.latestPreferenceAssessment;
   final ARTRefill artRefill = patient.latestARTRefill;
+  // patient is deactivated, do not upload
+  if (!(patient.isActivated ?? false)) return;
   // no preference assessment yet, do not upload
   if (pa == null) return;
   // no next ART refill date yet or refill not done, do not upload
@@ -170,6 +172,8 @@ Future<void> _uploadRefillReminder(Patient patient, int patientId, String token,
   }
   final PreferenceAssessment pa = patient.latestPreferenceAssessment;
   final ARTRefill artRefill = patient.latestARTRefill;
+  // patient is deactivated, do not upload
+  if (!(patient.isActivated ?? false)) return;
   // no preference assessment yet, do not upload
   if (pa == null) return;
   // no next ART refill date yet or refill not done, do not upload
@@ -210,6 +214,8 @@ Future<void> _uploadViralLoadNotification(Patient patient, int patientId, String
     pe = await DatabaseProvider().retrieveLatestUserData();
   }
   final PreferenceAssessment pa = patient.latestPreferenceAssessment;
+  // patient is deactivated, do not upload
+  if (!(patient.isActivated ?? false)) return;
   // no preference assessment yet, do not upload
   if (pa == null) return;
   // viral load notifications disabled or null (patient has no phone), do not upload
