@@ -18,6 +18,7 @@ import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:http/http.dart' as http;
 
+
 Future<void> uploadNotificationsPreferencesVI(Patient patient) async {
   try {
     final String token = await _getAPIToken();
@@ -41,18 +42,13 @@ Future<void> uploadNotificationsPreferencesVI(Patient patient) async {
   }
 }
 
+
 /// Adherence Reminder Upload
 ///
 /// Make sure that [patient.latestPreferenceAssessment] and
 /// [patient.latestARTRefill] are up to date.
 ///
 /// Throws [VisibleImpactLoginFailedException] if the authentication fails.
-///
-/// Throws [PatientNotFoundException] if patient's ART number
-/// is not found on VisibleImpact database.
-///
-/// Throws [MultiplePatientsException] if VisibleImpact returns more than one
-/// patient ID for the given ART number.
 ///
 /// Throws [HTTPStatusNotOKException] if the VisibleImpact API returns anything
 /// else than 200 (OK).
@@ -84,18 +80,13 @@ Future<void> _uploadAdherenceReminder(Patient patient, int patientId, String tok
   _checkStatusCode(_resp);
 }
 
+
 /// Refill Reminder Upload
 ///
 /// Make sure that [patient.latestPreferenceAssessment] and
 /// [patient.latestARTRefill] are up to date.
 ///
 /// Throws [VisibleImpactLoginFailedException] if the authentication fails.
-///
-/// Throws [PatientNotFoundException] if patient's ART number
-/// is not found on VisibleImpact database.
-///
-/// Throws [MultiplePatientsException] if VisibleImpact returns more than one
-/// patient ID for the given ART number.
 ///
 /// Throws [HTTPStatusNotOKException] if the VisibleImpact API returns anything
 /// else than 200 (OK).
@@ -111,32 +102,12 @@ Future<void> _uploadRefillReminder(Patient patient, int patientId, String token)
 ///
 /// Throws [VisibleImpactLoginFailedException] if the authentication fails.
 ///
-/// Throws [PatientNotFoundException] if patient's ART number
-/// is not found on VisibleImpact database.
-///
-/// Throws [MultiplePatientsException] if VisibleImpact returns more than one
-/// patient ID for the given ART number.
-///
 /// Throws [HTTPStatusNotOKException] if the VisibleImpact API returns anything
 /// else than 200 (OK).
 Future<void> _uploadViralLoadNotification(Patient patient, int patientId, String token) async {
   // TODO: implement vl notification upload logic
 }
 
-
-/// Throws [VisibleImpactLoginFailedException] if the authentication fails.
-Future<String> _getAPIToken() async {
-  String basicAuth = 'Basic ' + base64Encode(utf8.encode('$VI_USERNAME:$VI_PASSWORD'));
-  http.Response _resp = await http.post(
-    'https://lstowards909090.org/db-test/apiv1/token',
-    headers: {'authorization': basicAuth},
-  );
-  if (_resp.statusCode != 200 || _resp.body == '') {
-    print('_getAPIToken received:\n${_resp.statusCode}\n${_resp.body}');
-    throw VisibleImpactLoginFailedException();
-  }
-  return jsonDecode(_resp.body)['token'];
-}
 
 /// Viral Load Measurements Download
 ///
@@ -177,6 +148,21 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART) async 
     PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
   }
   return viralLoadsFromDB;
+}
+
+
+/// Throws [VisibleImpactLoginFailedException] if the authentication fails.
+Future<String> _getAPIToken() async {
+  String basicAuth = 'Basic ' + base64Encode(utf8.encode('$VI_USERNAME:$VI_PASSWORD'));
+  http.Response _resp = await http.post(
+    'https://lstowards909090.org/db-test/apiv1/token',
+    headers: {'authorization': basicAuth},
+  );
+  if (_resp.statusCode != 200 || _resp.body == '') {
+    print('_getAPIToken received:\n${_resp.statusCode}\n${_resp.body}');
+    throw VisibleImpactLoginFailedException();
+  }
+  return jsonDecode(_resp.body)['token'];
 }
 
 
