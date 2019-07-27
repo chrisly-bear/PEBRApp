@@ -10,6 +10,7 @@ import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
+import 'package:pebrapp/exceptions/HTTPStatusNotOKException.dart';
 import 'package:pebrapp/exceptions/MultiplePatientsException.dart';
 import 'package:pebrapp/exceptions/PatientNotFoundException.dart';
 import 'package:pebrapp/exceptions/VisibleImpactLoginFailedException.dart';
@@ -17,12 +18,43 @@ import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:http/http.dart' as http;
 
+Future<void> uploadNotificationsPreferencesVI(Patient patient) async {
+  try {
+    await _uploadAdherenceReminder(patient);
+    await _uploadRefillReminder(patient);
+    await _uploadViralLoadNotification(patient);
+    _handleSuccess(patient, RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED);
+  } catch (e, s) {
+    _handleFailure(patient, RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED);
+    showFlushbar('Please upload the notifications preferences manually.',
+      title: 'Upload of Notifications Preferences Failed',
+      error: true,
+      buttonText: 'Retry\nNow',
+      onButtonPress: () {
+        uploadNotificationsPreferencesVI(patient);
+      },
+    );
+    print('Exception caught: $e');
+    print('Stacktrace: $s');
+  }
+}
 
 /// Adherence Reminder Upload
 ///
 /// Make sure that [patient.latestPreferenceAssessment] and
 /// [patient.latestARTRefill] are up to date.
-Future<void> uploadAdherenceReminder(Patient patient) async {
+///
+/// Throws [VisibleImpactLoginFailedException] if the authentication fails.
+///
+/// Throws [PatientNotFoundException] if patient's ART number
+/// is not found on VisibleImpact database.
+///
+/// Throws [MultiplePatientsException] if VisibleImpact returns more than one
+/// patient ID for the given ART number.
+///
+/// Throws [HTTPStatusNotOKException] if the VisibleImpact API returns anything
+/// else than 200 (OK).
+Future<void> _uploadAdherenceReminder(Patient patient) async {
   final PreferenceAssessment pa = patient.latestPreferenceAssessment;
   final ARTRefill artRefill = patient.latestARTRefill;
   if (artRefill == null || artRefill.refillType == RefillType.NOT_DONE()) {
@@ -49,27 +81,45 @@ Future<void> uploadAdherenceReminder(Patient patient) async {
       "end_date": formatDateForVisibleImpact(artRefill.nextRefillDate),
     }
   );
-  // TODO: error handling
-  // TODO: what required action types will we need?
-  //   - just one general "notification upload required"
-  //   - seperate ones for "adherence reminder upload required", "refill reminder upload required", "vl notification upload required"
-  if (_resp.statusCode == 200) {
-    _handleSuccess(patient, RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED);
-  } else {
-    _handleFailure(patient, RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED);
-  }
-
+  _checkStatusCode(_resp);
 }
 
-
 /// Refill Reminder Upload
-Future<void> uploadRefillReminder(Patient patient, PreferenceAssessment latestPreferenceAssessment) async {
+///
+/// Make sure that [patient.latestPreferenceAssessment] and
+/// [patient.latestARTRefill] are up to date.
+///
+/// Throws [VisibleImpactLoginFailedException] if the authentication fails.
+///
+/// Throws [PatientNotFoundException] if patient's ART number
+/// is not found on VisibleImpact database.
+///
+/// Throws [MultiplePatientsException] if VisibleImpact returns more than one
+/// patient ID for the given ART number.
+///
+/// Throws [HTTPStatusNotOKException] if the VisibleImpact API returns anything
+/// else than 200 (OK).
+Future<void> _uploadRefillReminder(Patient patient) async {
   // TODO: implement refill reminder upload logic
 }
 
 
 /// Viral Load Notifications Upload
-Future<void> uploadViralLoadNotification(Patient patient, PreferenceAssessment latestPreferenceAssessment) async {
+///
+/// Make sure that [patient.latestPreferenceAssessment] and
+/// [patient.latestARTRefill] are up to date.
+///
+/// Throws [VisibleImpactLoginFailedException] if the authentication fails.
+///
+/// Throws [PatientNotFoundException] if patient's ART number
+/// is not found on VisibleImpact database.
+///
+/// Throws [MultiplePatientsException] if VisibleImpact returns more than one
+/// patient ID for the given ART number.
+///
+/// Throws [HTTPStatusNotOKException] if the VisibleImpact API returns anything
+/// else than 200 (OK).
+Future<void> _uploadViralLoadNotification(Patient patient) async {
   // TODO: implement vl notification upload logic
 }
 
@@ -97,6 +147,9 @@ Future<String> _getAPIToken() async {
 ///
 /// Throws [MultiplePatientsException] if VisibleImpact returns more than one
 /// patient ID for the given [patientART] number.
+///
+/// Throws [HTTPStatusNotOKException] if the VisibleImpact API returns anything
+/// else than 200 (OK).
 Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART) async {
   final String _token = await _getAPIToken();
   final int patientId = await _getPatientIdVisibleImpact(patientART, _token);
@@ -104,16 +157,7 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART) async 
     'https://lstowards909090.org/db-test/apiv1/labdata?patient_id=$patientId',
     headers: {'Authorization' : 'Custom $_token'},
   );
-  if (_resp.statusCode == 401) {
-    throw VisibleImpactLoginFailedException();
-  } else if (_resp.statusCode != 200) {
-    print('An unknown status code was returned while fetching viral loads from database.');
-    print(_resp.statusCode);
-    print(_resp.body);
-    throw Exception('An unknown status code was returned while fetching viral loads from database.\n'
-        'Status Code: ${_resp.statusCode}\n'
-        'Response Body:\n${_resp.body}');
-  }
+  _checkStatusCode(_resp);
   final List<dynamic> list = jsonDecode(_resp.body);
   List<ViralLoad> viralLoadsFromDB = list.map((dynamic vlLabResult) {
     final ViralLoad vl = ViralLoad(
@@ -184,8 +228,23 @@ Future<void> _handleSuccess(Patient patient, RequiredActionType actionType) asyn
   PatientBloc.instance.sinkRequiredActionData(RequiredAction(patient.artNumber, actionType, null), true);
 }
 
+
 Future<void> _handleFailure(Patient patient, RequiredActionType actionType) async {
   final newAction = RequiredAction(patient.artNumber, actionType, DateTime.now());
   await DatabaseProvider().insertRequiredAction(newAction);
   PatientBloc.instance.sinkRequiredActionData(newAction, false);
+}
+
+
+void _checkStatusCode(http.Response response) {
+  if (response.statusCode == 401) {
+    throw VisibleImpactLoginFailedException();
+  } else if (response.statusCode != 200) {
+    print('An unknown status code was returned while interacting with VisibleImpact.');
+    print(response.statusCode);
+    print(response.body);
+    throw HTTPStatusNotOKException('An unknown status code was returned while interacting with VisibleImpact.\n'
+        'Status Code: ${response.statusCode}\n'
+        'Response Body:\n${response.body}');
+  }
 }
