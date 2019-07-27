@@ -19,7 +19,7 @@ import 'package:pebrapp/utils/Utils.dart';
 import 'package:http/http.dart' as http;
 
 
-Future<void> uploadNotificationsPreferencesVI(Patient patient) async {
+Future<void> uploadNotificationsPreferences(Patient patient) async {
   try {
     final String token = await _getAPIToken();
     final int patientId = await _getPatientIdVisibleImpact(patient.artNumber, token);
@@ -34,7 +34,7 @@ Future<void> uploadNotificationsPreferencesVI(Patient patient) async {
       error: true,
       buttonText: 'Retry\nNow',
       onButtonPress: () {
-        uploadNotificationsPreferencesVI(patient);
+        uploadNotificationsPreferences(patient);
       },
     );
     print('Exception caught: $e');

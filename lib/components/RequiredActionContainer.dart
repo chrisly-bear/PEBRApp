@@ -123,7 +123,7 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
         actionText = "The automatic synchronization of the notifications preferences with the database failed. Please synchronize manually.";
         actionButton = FlatButton(
           onPressed: () async {
-            await uploadNotificationsPreferences(widget.patient, widget.patient.latestPreferenceAssessment);
+            await uploadNotificationsPreferences(widget.patient);
           },
           splashColor: NOTIFICATION_INFO_SPLASH,
           child: Text(
