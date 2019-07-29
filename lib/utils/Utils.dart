@@ -635,9 +635,10 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient) async {
 }
 
 String composeSMS({@required String message, @required String peName, @required String pePhone}) {
-  String pePhoneNoSpecialChars = pePhone.replaceAll(RegExp(r'[^0-9]'), '');
+  final String pePhoneNoSpecialChars = pePhone.replaceAll(RegExp(r'[^0-9]'), '');
+  final String pePhoneEightDigits = pePhoneNoSpecialChars.substring(pePhoneNoSpecialChars.length-8, pePhoneNoSpecialChars.length);
   return "PEBRA\n\n"
     "$message\n\n"
-    "Etsetsa call-back nomorong ena $peName, penya *140*$pePhoneNoSpecialChars#"
-    " (VCL) kapa *181*$pePhoneNoSpecialChars# (econet).";
+    "Etsetsa call-back nomorong ena $peName, penya *140*$pePhoneEightDigits#"
+    " (VCL) kapa *181*$pePhoneEightDigits# (econet).";
 }
