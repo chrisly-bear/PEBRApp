@@ -261,9 +261,12 @@ class _PatientScreenState extends State<PatientScreen> {
         ),
         SizedBox(height: _spacingBetweenCards),
         _buildNextActionRow(
-          title: 'Next Endpoint Survey',
+          title: 'Next Questionnaire',
           dueDate: _nextEndpointText,
-          explanation: 'Endpoint surveys are due 3, 6, and 12 months after patient enrollment.',
+          explanation: 'Adherence questionnaires are due 2.5, 5, and 9 months '
+              'after patient enrollment.\nSatisfaction questionnaires and Quality'
+              ' of Life questionnaires are due 5 and 9 months after patient '
+              'enrollment.',
           button: _makeButton('Open KoBoCollect', onPressed: _onOpenKoboCollectPressed),
         ),
         SizedBox(height: _spacingBetweenCards),
