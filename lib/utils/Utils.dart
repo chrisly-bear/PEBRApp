@@ -365,49 +365,77 @@ DateTime calculateNextAssessment(DateTime lastAssessment, bool suppressed) {
   return newDate;
 }
 
-/// Calculates the due date of the next endpoint survey based on the date of
-/// enrollment and the open endpoint survey actions in [requiredActions].
-/// Endpoint surveys are due 3, 6, and 12 months after the enrollment date.
+/// Calculates the due date of the next questionnaire based on the date of
+/// enrollment and the open questionnaire actions in [requiredActions].
+/// Questionnaires are due 2.5, 5, and 9 months after the enrollment date.
 ///
-/// Returns `null` if there are no ENDPOINT_xM_SURVEY_REQUIRED actions in
+/// Returns `null` if there are no x_QUESTIONNAIRE_xM_REQUIRED actions in
 /// [requiredActions].
-DateTime calculateNextEndpointSurvey(DateTime enrollmentDate, Set<RequiredAction> requiredActions) {
-  final bool _completed12M = !requiredActions.any((RequiredAction a) => a.type == RequiredActionType.ENDPOINT_12M_SURVEY_REQUIRED);
-  final bool _completed6M = !requiredActions.any((RequiredAction a) => a.type == RequiredActionType.ENDPOINT_6M_SURVEY_REQUIRED);
-  final bool _completed3M = !requiredActions.any((RequiredAction a) => a.type == RequiredActionType.ENDPOINT_3M_SURVEY_REQUIRED);
+DateTime calculateNextQuestionnaire(DateTime enrollmentDate, Set<RequiredAction> requiredActions) {
+  final bool _9MQuestionnairesCompleted = !requiredActions.any((RequiredAction a) =>
+    (a.type == RequiredActionType.ADHERENCE_QUESTIONNAIRE_9M_REQUIRED
+      || a.type == RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_9M_REQUIRED
+      || a.type == RequiredActionType.SATISFACTION_QUESTIONNAIRE_9M_REQUIRED
+      || a.type == RequiredActionType.VIRAL_LOAD_9M_REQUIRED
+    )
+  );
+  final bool _5MQuestionnairesCompleted = !requiredActions.any((RequiredAction a) =>
+    (a.type == RequiredActionType.ADHERENCE_QUESTIONNAIRE_5M_REQUIRED
+      || a.type == RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_5M_REQUIRED
+      || a.type == RequiredActionType.SATISFACTION_QUESTIONNAIRE_5M_REQUIRED
+    )
+  );
+  final bool _2P5MQuestionnairesCompleted = !requiredActions.any((RequiredAction a) =>
+    a.type == RequiredActionType.ADHERENCE_QUESTIONNAIRE_2P5M_REQUIRED
+  );
   DateTime nextDate;
-  if (!_completed12M) {
-    DateTime twelveMonthsAfter = addMonths(enrollmentDate, 12);
-    nextDate = twelveMonthsAfter;
+  if (!_9MQuestionnairesCompleted) {
+    DateTime nineMonthsAfter = addMonths(enrollmentDate, 9);
+    nextDate = nineMonthsAfter;
   }
-  if (!_completed6M) {
-    DateTime sixMonthsAfter = addMonths(enrollmentDate, 6);
-    nextDate = sixMonthsAfter;
+  if (!_5MQuestionnairesCompleted) {
+    DateTime fiveMonthsAfter = addMonths(enrollmentDate, 5);
+    nextDate = fiveMonthsAfter;
   }
-  if (!_completed3M) {
-    DateTime threeMonthsAfter = addMonths(enrollmentDate, 3);
-    nextDate = threeMonthsAfter;
+  if (!_2P5MQuestionnairesCompleted) {
+    DateTime twoAndAHalfMonthsAfter = addMonths(enrollmentDate, 2, addHalfMonth: true);
+    nextDate = twoAndAHalfMonthsAfter;
   }
   return nextDate;
 }
 
-/// Calculates if a given [endpointSurveyType] is due based on the date of
+/// Calculates if a given [questionnaireType] is due based on the date of
 /// enrollment and the current date.
 ///
-/// @param [endpointSurveyType] 3, 6, or 12 month survey type. If any other
+/// @param [questionnaireType] A questionnaire type. If any other
 /// type is passed (e.g. REFILL_REQUIRED) it will return null.
-bool isEndpointSurveyDue(DateTime enrollmentDate, RequiredActionType endpointSurveyType) {
+bool isQuestionnaireDue(DateTime enrollmentDate, RequiredActionType questionnaireType) {
   final DateTime now = DateTime.now();
-  switch (endpointSurveyType) {
-    case RequiredActionType.ENDPOINT_12M_SURVEY_REQUIRED:
-      final DateTime twelveMonthsAfter = addMonths(enrollmentDate, 12);
-      return now.isAfter(twelveMonthsAfter);
-    case RequiredActionType.ENDPOINT_6M_SURVEY_REQUIRED:
-      final DateTime sixMonthsAfter = addMonths(enrollmentDate, 6);
-      return now.isAfter(sixMonthsAfter);
-    case RequiredActionType.ENDPOINT_3M_SURVEY_REQUIRED:
-      final DateTime threeMonthsAfter = addMonths(enrollmentDate, 3);
-      return now.isAfter(threeMonthsAfter);
+  switch (questionnaireType) {
+    case RequiredActionType.ADHERENCE_QUESTIONNAIRE_2P5M_REQUIRED:
+      final DateTime twoAndAHalfMonthsAfter = addMonths(enrollmentDate, 2, addHalfMonth: true);
+      return now.isAfter(twoAndAHalfMonthsAfter);
+    case RequiredActionType.ADHERENCE_QUESTIONNAIRE_5M_REQUIRED:
+      final DateTime fiveMonthsAfter = addMonths(enrollmentDate, 5);
+      return now.isAfter(fiveMonthsAfter);
+    case RequiredActionType.ADHERENCE_QUESTIONNAIRE_9M_REQUIRED:
+      final DateTime nineMonthsAfter = addMonths(enrollmentDate, 9);
+      return now.isAfter(nineMonthsAfter);
+    case RequiredActionType.SATISFACTION_QUESTIONNAIRE_5M_REQUIRED:
+      final DateTime fiveMonthsAfter = addMonths(enrollmentDate, 5);
+      return now.isAfter(fiveMonthsAfter);
+    case RequiredActionType.SATISFACTION_QUESTIONNAIRE_9M_REQUIRED:
+      final DateTime nineMonthsAfter = addMonths(enrollmentDate, 9);
+      return now.isAfter(nineMonthsAfter);
+    case RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_5M_REQUIRED:
+      final DateTime fiveMonthsAfter = addMonths(enrollmentDate, 5);
+      return now.isAfter(fiveMonthsAfter);
+    case RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_9M_REQUIRED:
+      final DateTime nineMonthsAfter = addMonths(enrollmentDate, 9);
+      return now.isAfter(nineMonthsAfter);
+    case RequiredActionType.VIRAL_LOAD_9M_REQUIRED:
+      final DateTime nineMonthsAfter = addMonths(enrollmentDate, 9);
+      return now.isAfter(nineMonthsAfter);
     default:
       return null;
   }
@@ -416,8 +444,13 @@ bool isEndpointSurveyDue(DateTime enrollmentDate, RequiredActionType endpointSur
 /// Adds [monthsToAdd] to [date].
 ///
 /// Hour, minute, second, millisecond, microsecond will all be 0.
-DateTime addMonths(DateTime date, int monthsToAdd) {
-  return DateTime(date.year, date.month + monthsToAdd, date.day);
+///
+/// @param [monthsToAdd] How many months to add to [date].
+///
+/// @param [addHalfMonth] If true, 14 days (two weeks) will be added to the date
+/// additionally.
+DateTime addMonths(DateTime date, int monthsToAdd, {bool addHalfMonth: false}) {
+  return DateTime(date.year, date.month + monthsToAdd, addHalfMonth ? date.day + 14 : date.day);
 }
 
 /// Updates the date of the last successful backup to now (local time).

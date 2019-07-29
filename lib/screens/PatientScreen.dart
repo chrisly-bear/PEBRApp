@@ -119,7 +119,7 @@ class _PatientScreenState extends State<PatientScreen> {
     DateTime nextRefillDate = _patient.latestDoneARTRefill?.nextRefillDate ?? _patient.enrollmentDate;
     _nextRefillText = formatDate(nextRefillDate);
 
-    DateTime nextEndpointSurveyDate = calculateNextEndpointSurvey(_patient.enrollmentDate, _patient.requiredActions);
+    DateTime nextEndpointSurveyDate = calculateNextQuestionnaire(_patient.enrollmentDate, _patient.requiredActions);
     if (nextEndpointSurveyDate != null) {
       _nextEndpointText = formatDate(nextEndpointSurveyDate);
     } else {

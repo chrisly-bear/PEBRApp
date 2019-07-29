@@ -848,9 +848,14 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       _newPatient.checkLogicAndResetUnusedFields();
 
       if (_newPatient.isEligible && _newPatient.consentGiven) {
-        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.ENDPOINT_3M_SURVEY_REQUIRED, addMonths(now, 3)));
-        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.ENDPOINT_6M_SURVEY_REQUIRED, addMonths(now, 6)));
-        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.ENDPOINT_12M_SURVEY_REQUIRED, addMonths(now, 12)));
+        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.ADHERENCE_QUESTIONNAIRE_2P5M_REQUIRED, addMonths(now, 2, addHalfMonth: true)));
+        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.ADHERENCE_QUESTIONNAIRE_5M_REQUIRED, addMonths(now, 5)));
+        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.ADHERENCE_QUESTIONNAIRE_9M_REQUIRED, addMonths(now, 9)));
+        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.SATISFACTION_QUESTIONNAIRE_5M_REQUIRED, addMonths(now, 5)));
+        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.SATISFACTION_QUESTIONNAIRE_9M_REQUIRED, addMonths(now, 9)));
+        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_5M_REQUIRED, addMonths(now, 5)));
+        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_9M_REQUIRED, addMonths(now, 9)));
+        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.VIRAL_LOAD_9M_REQUIRED, addMonths(now, 9)));
       }
 
       if (_newPatient.isEligible && _newPatient.consentGiven){
