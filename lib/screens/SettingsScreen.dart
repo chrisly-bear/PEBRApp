@@ -153,6 +153,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       children: <Widget>[
         _buildRequiredActions(),
         _buildUserDataCard(),
+        PEBRAButtonFlat('Change Phone Number'),
         SizedBox(height: _spacing),
         PEBRAButtonRaised('Start Upload', onPressed: _isLoadingSettingsBody ? null : () {_onPressBackupButton(context);},),
         SizedBox(height: 10.0),
