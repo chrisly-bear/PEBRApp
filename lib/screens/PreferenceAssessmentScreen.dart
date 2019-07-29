@@ -1992,7 +1992,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         if (_patientPhoneNumberBeforeAssessment != newPatientPhoneNumber) {
           _patient.phoneNumber = newPatientPhoneNumber;
           _patientUpdated = true;
-          uploadPatientPhoneNumber(_patient, newPatientPhoneNumber);
+          uploadPatientPhoneNumber(_patient, reUploadNotifications: false);
         }
         if (!_pa.adherenceReminderEnabled) {
           _pa.adherenceReminderTime = null;
@@ -2004,7 +2004,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         if (_patientPhoneNumberBeforeAssessment != newPatientPhoneNumber) {
           _patient.phoneNumber = newPatientPhoneNumber;
           _patientUpdated = true;
-          uploadPatientPhoneNumber(_patient, newPatientPhoneNumber);
+          uploadPatientPhoneNumber(_patient, reUploadNotifications: false);
         }
         _pa.adherenceReminderEnabled = null;
         _pa.adherenceReminderFrequency = null;
@@ -2099,14 +2099,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         await DatabaseProvider().insertUserData(_user);
         // PE's phone number changed, this affects all patients so we do a sync
         // with VisibleImpact for all patients
-        uploadPeerEducatorPhoneNumberForAllPatients(newPEPhoneNumber);
-      } else if (_patient.latestPreferenceAssessment == null) {
-        // this is the first preference assessment, we have to upload the PE's
-        // phone number to VisibleImpact so that the callback can be set on all
-        // notification SMS
-        _user.phoneNumberUploadRequired = true;
-        await DatabaseProvider().insertUserData(_user);
-        uploadPeerEducatorPhoneNumber(_patient.artNumber, newPEPhoneNumber);
+        uploadPeerEducatorPhoneNumber();
       }
 
       _patient.latestPreferenceAssessment = _pa;
@@ -2116,7 +2109,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       }
       // send an event indicating that the preference assessment was done
       PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.ASSESSMENT_REQUIRED, null), true);
-      uploadNotificationsPreferences(_patient, _pa);
+      uploadNotificationsPreferences(_patient);
       Navigator.of(context).pop(); // close Preference Assessment screen
       showFlushbar('Preference Assessment saved');
     } else {

@@ -69,11 +69,27 @@ class _DebugScreenState extends State<DebugScreen> {
             },
           ),
           SizedBox(height: _spacing),
-          PEBRAButtonRaised('Show Notification',
+          PEBRAButtonRaised('Show Normal Notification',
+            onPressed: _isLoading
+                ? null
+                : () {
+              showFlushbar('test notification');
+            },
+          ),
+          SizedBox(height: _spacing),
+          PEBRAButtonRaised('Show Transfer Notification',
             onPressed: _isLoading
                 ? null
                 : () {
               showTransferringDataFlushbar();
+            },
+          ),
+          SizedBox(height: _spacing),
+          PEBRAButtonRaised('Dismiss Transfer Notification',
+            onPressed: _isLoading
+                ? null
+                : () {
+              dismissTransferringDataFlushbar();
             },
           ),
           SizedBox(height: _spacing),

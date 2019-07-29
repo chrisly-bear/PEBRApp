@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/AdherenceReminderFrequency.dart';
 import 'package:pebrapp/database/beans/SupportPreferencesSelection.dart';
-import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 
 void main() {
   group('SupportPreferencesSelection', () {

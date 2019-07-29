@@ -89,7 +89,10 @@ Future<void> showFlushbar(String message, {String title, bool error=false, VoidC
   return Navigator.of(context, rootNavigator: true).push(_route);
 }
 
-Future<void> showTransferringDataFlushbar() {
+int get _fbCount => _fbRoutes.length;
+List<route.FlushbarRoute<dynamic>> _fbRoutes = [];
+
+Flushbar _buildTransferringFlushbar({@required Widget child, double forwardAnimTime: 1.0, Duration duration}) {
 
   final context = PEBRAppState.rootContext;
 
@@ -99,9 +102,25 @@ Future<void> showTransferringDataFlushbar() {
   final double screenWidth = MediaQuery.of(context).size.width;
   final double padding = max(MIN_PADDING_HORIZONTAL, (screenWidth - MAX_WIDTH)/2);
 
-  final Flushbar _flushbar = Flushbar(
+  return Flushbar(
     flushbarPosition: FlushbarPosition.BOTTOM,
-    messageText: Row(
+    messageText: child,
+    borderRadius: 20.0,
+    backgroundColor: Colors.black,
+    padding: const EdgeInsets.symmetric(vertical: 10.0),
+    margin: EdgeInsets.only(bottom: 20.0, left: padding, right: padding),
+    duration: duration,
+    forwardAnimationCurve: Interval(0.0, forwardAnimTime),
+  );
+
+}
+
+void showTransferringDataFlushbar() {
+
+  final context = PEBRAppState.rootContext;
+
+  final Flushbar _flushbar = _buildTransferringFlushbar(
+    child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         SizedBox(height: 2.0, width: 15.0, child: LinearProgressIndicator(
@@ -118,11 +137,6 @@ Future<void> showTransferringDataFlushbar() {
         ),
       ],
     ),
-    borderRadius: 20.0,
-    backgroundColor: NOTIFICATION_NORMAL,
-    padding: const EdgeInsets.symmetric(vertical: 10.0),
-    margin: EdgeInsets.only(bottom: 20.0, left: padding, right: padding),
-    duration: Duration(seconds: 10),
   );
 
   final _route = route.showFlushbar(
@@ -130,7 +144,49 @@ Future<void> showTransferringDataFlushbar() {
     flushbar: _flushbar,
   );
 
-  return Navigator.of(context, rootNavigator: true).push(_route);
+  Navigator.of(context, rootNavigator: true).push(_route);
+  _fbRoutes.add(_route);
+}
+
+void dismissTransferringDataFlushbar() {
+
+  if (_fbCount < 1) {
+    print('$_fbCount notifications showing, doing nothing');
+    return;
+  }
+
+  final context = PEBRAppState.rootContext;
+
+  final _transferDoneFlushbar = _buildTransferringFlushbar(
+    child: Center(
+      child: Text(
+        'done',
+        style: TextStyle(
+          color: NOTIFICATION_MESSAGE_TEXT,
+          fontSize: 12.0,
+        ),
+      ),
+    ),
+    forwardAnimTime: 0.0,
+    duration: Duration(seconds: 2),
+  );
+  final _newRoute = route.showFlushbar(
+    context: context,
+    flushbar: _transferDoneFlushbar,
+  );
+
+  final navigator = Navigator.of(context, rootNavigator: true);
+  final toBeRemoved = _fbRoutes.removeAt(0);
+  navigator.push(_newRoute).then((dynamic _) {
+    // TODO: if a new notification is pushed until this then(...) clause is
+    // called the navigator.removeRoute will not work
+    // -> It might be easier to just write a custom component using overlays
+    // (see https://www.didierboelens.com/2018/06/how-to-create-a-toast-or-notifications-notion-of-overlay/)
+    // and setState to change the content to 'done' before dismissing it.
+    print('done pushed');
+    navigator.removeRoute(toBeRemoved);
+  });
+
 }
 
 /// Takes a date and returns a date at the beginning (midnight) of the same day.
@@ -180,6 +236,16 @@ String formatDateConsistent(DateTime date) {
 ///
 /// Returns null if [date] is null.
 String formatDateIso(DateTime date) {
+  if (date == null) {
+    return null;
+  }
+  return DateFormat("yyyy-MM-dd").format(date.toLocal());
+}
+
+/// Turns date into the format yyyy-MM-dd.
+///
+/// Returns null if [date] is null.
+String formatDateForVisibleImpact(DateTime date) {
   if (date == null) {
     return null;
   }
@@ -258,6 +324,17 @@ String formatTimeIso(DateTime date) {
 ///
 /// Returns null if [time] is null.
 String formatTime(TimeOfDay time) {
+  if (time == null) {
+    return null;
+  }
+  final DateTime date = DateTime(1970, 1, 1, time.hour, time.minute);
+  return DateFormat("HH:mm").format(date.toLocal());
+}
+
+/// Formats a TimeOfDay object in the format HH:mm.
+///
+/// Returns null if [time] is null.
+String formatTimeForVisibleImpact(TimeOfDay time) {
   if (time == null) {
     return null;
   }
@@ -523,4 +600,12 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient) async {
   // has been found, do nothing and return false.
   bool discrepancyFound = false;
   return discrepancyFound;
+}
+
+String composeSMS({@required String message, @required String peName, @required String pePhone}) {
+  String pePhoneNoSpecialChars = pePhone.replaceAll(RegExp(r'[^0-9]'), '');
+  return "PEBRA\n\n"
+    "$message\n\n"
+    "Etsetsa call-back nomorong ena $peName, penya *140*$pePhoneNoSpecialChars#"
+    " (VCL) kapa *181*$pePhoneNoSpecialChars# (econet).";
 }

@@ -55,7 +55,8 @@ class ARTRefillScreen extends StatelessWidget {
         // send an event indicating that the art refill is overdue and has to be done
         PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.REFILL_REQUIRED, nextRefillDate), false);
       }
-      uploadNextARTRefillDate(_patient, nextRefillDate);
+      // Adherence reminders and ART Refill reminders need to be updated
+      uploadNotificationsPreferences(_patient);
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return route.settings.name == '/patient';
       });
@@ -77,7 +78,8 @@ class ARTRefillScreen extends StatelessWidget {
         // send an event indicating that the art refill is overdue and has to be done
         PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.REFILL_REQUIRED, nextRefillDate), false);
       }
-      uploadNextARTRefillDate(_patient, nextRefillDate);
+      // Adherence reminders and ART Refill reminders need to be updated
+      uploadNotificationsPreferences(_patient);
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return route.settings.name == '/patient';
       });
