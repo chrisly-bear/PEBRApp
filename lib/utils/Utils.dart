@@ -376,7 +376,6 @@ DateTime calculateNextQuestionnaire(DateTime enrollmentDate, Set<RequiredAction>
     (a.type == RequiredActionType.ADHERENCE_QUESTIONNAIRE_9M_REQUIRED
       || a.type == RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_9M_REQUIRED
       || a.type == RequiredActionType.SATISFACTION_QUESTIONNAIRE_9M_REQUIRED
-      || a.type == RequiredActionType.VIRAL_LOAD_9M_REQUIRED
     )
   );
   final bool _5MQuestionnairesCompleted = !requiredActions.any((RequiredAction a) =>
