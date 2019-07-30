@@ -867,7 +867,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           await DatabaseProvider().insertViralLoad(_viralLoadBaseline);
           _newPatient.viralLoads = [_viralLoadBaseline];
         } else {
-          RequiredAction vlRequired = RequiredAction(_artNumberCtr.text, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, now);
+          RequiredAction vlRequired = RequiredAction(_artNumberCtr.text, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, DateTime.fromMillisecondsSinceEpoch(0));
           DatabaseProvider().insertRequiredAction(vlRequired);
           PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
         }

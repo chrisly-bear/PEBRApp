@@ -298,7 +298,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
     if (_formKey.currentState.validate() & _validateViralLoadBaselineDate()) {
 
       if (_viralLoad.failed) {
-        RequiredAction vlRequired = RequiredAction(_patient.artNumber, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, DateTime.now());
+        RequiredAction vlRequired = RequiredAction(_patient.artNumber, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, DateTime.fromMillisecondsSinceEpoch(0));
         DatabaseProvider().insertRequiredAction(vlRequired);
         PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
       } else {

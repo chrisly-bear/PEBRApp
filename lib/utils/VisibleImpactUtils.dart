@@ -292,7 +292,7 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART) async 
   }).toList();
   viralLoadsFromDB.sort((ViralLoad a, ViralLoad b) => a.dateOfBloodDraw.isBefore(b.dateOfBloodDraw) ? -1 : 1);
   if (viralLoadsFromDB.isNotEmpty && viralLoadsFromDB.last.failed) {
-    RequiredAction vlRequired = RequiredAction(patientART, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, DateTime.now());
+    RequiredAction vlRequired = RequiredAction(patientART, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, DateTime.fromMillisecondsSinceEpoch(0));
     DatabaseProvider().insertRequiredAction(vlRequired);
     PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
   }
@@ -386,7 +386,7 @@ Future<void> _handleSuccess(Patient patient, RequiredActionType actionType) asyn
 
 
 Future<void> _handleFailure(Patient patient, RequiredActionType actionType) async {
-  final newAction = RequiredAction(patient.artNumber, actionType, DateTime.now());
+  final newAction = RequiredAction(patient.artNumber, actionType, DateTime.fromMillisecondsSinceEpoch(0));
   await DatabaseProvider().insertRequiredAction(newAction);
   PatientBloc.instance.sinkRequiredActionData(newAction, false);
 }
