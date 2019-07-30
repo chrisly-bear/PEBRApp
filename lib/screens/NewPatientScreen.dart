@@ -237,7 +237,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
             children: <Widget>[
               Container(
                 decoration: BoxDecoration(
-                  color: onStepCancel == null ? BUTTON_INACTIVE : navigationButtonsColor,
+                  color: onStepCancel == null ? BUTTON_INACTIVE : (currentStep == 0 ? STEPPER_ABORT : navigationButtonsColor),
                   borderRadius: BorderRadius.circular(40.0),
                 ),
                 child: IconButton(
@@ -249,7 +249,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
               SizedBox(width: 20.0),
               Container(
                 decoration: BoxDecoration(
-                  color: onStepContinue == null ? BUTTON_INACTIVE : navigationButtonsColor,
+                  color: onStepContinue == null ? BUTTON_INACTIVE : (currentStep == 2 ? STEPPER_FINISH : navigationButtonsColor),
                   borderRadius: BorderRadius.circular(40.0),
                 ),
                 child: IconButton(

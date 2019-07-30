@@ -10,6 +10,8 @@ const Color RAISED_BUTTON = _CUSTOM_BLUE;
 const Color FLOATING_ACTION_BUTTON = _CUSTOM_BLUE;
 const Color RAISED_BUTTON_TEXT = Colors.white;
 const Color BUTTON_INACTIVE = Colors.grey;
+const Color STEPPER_ABORT = Color(0xffff7f7f);
+const Color STEPPER_FINISH = Color(0xff94be94);
 
 // text
 const Color TEXT_ACTIVE = Colors.black;
