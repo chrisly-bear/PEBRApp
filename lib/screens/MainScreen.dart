@@ -351,46 +351,16 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       }
     }
 
-    String resultMessage = 'Upload Successful';
-    String title;
-    bool error = false;
-    VoidCallback onNotificationButtonPress;
     try {
       await DatabaseProvider().createAdditionalBackupOnSWITCH(loginData);
+      showFlushbar('Upload Successful');
     } catch (e, s) {
-      error = true;
-      title = 'Upload Failed';
-      switch (e.runtimeType) {
-        case NoLoginDataException:
-          // this case should never occur since we force the user to login when
-          // resuming the app
-          resultMessage = 'Not logged in. Please log in first.';
-          break;
-        case SWITCHLoginFailedException:
-          resultMessage = 'Login to SWITCH failed. Contact the development team.';
-          break;
-        case DocumentNotFoundException:
-          resultMessage = 'No existing backup found for user \'${loginData.username}\'';
-          break;
-        case SocketException:
-          resultMessage = 'Make sure you are connected to the internet.';
-          break;
-        default:
-          resultMessage = 'An unknown error occured. Contact the development team.';
-          print('${e.runtimeType}: $e');
-          print(s);
-          onNotificationButtonPress = () {
-            showErrorInPopup(e, s, _context);
-          };
-      }
-      // show additional warning if backup wasn't successful for a long time
+      print('Caught exception during automated backup: $e');
+      print('Stacktrace: $s');
+      // show warning if backup wasn't successful for a long time
       if (daysSinceLastBackup >= SHOW_BACKUP_WARNING_AFTER_X_DAYS) {
         showFlushbar("Last upload was $daysSinceLastBackup days ago.\nPlease perform a manual upload from the settings screen.", title: "Warning", error: true);
       }
-    }
-    if (!error) {
-      // do not show error notifications as they can become annoying when the app is used offline
-      showFlushbar(resultMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
     }
     _backupRunning = false;
   }
