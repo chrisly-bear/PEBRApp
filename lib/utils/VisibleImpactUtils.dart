@@ -57,8 +57,8 @@ Future<void> uploadPatientPhoneNumber(Patient patient, {bool reUploadNotificatio
 Future<void> uploadPeerEducatorPhoneNumber() async {
   try {
     final UserData user = await DatabaseProvider().retrieveLatestUserData();
-    final List<Patient> patients = await DatabaseProvider().retrieveLatestPatients();
-    patients.removeWhere((Patient p) => !(p.isEligible && (p.consentGiven ?? false) && (p.isActivated ?? false)));
+    final List<Patient> patients = await DatabaseProvider().retrieveLatestPatients(retrieveNonEligibles: false, retrieveNonConsents: false);
+    patients.removeWhere((Patient p) => !(p.isActivated ?? false));
     final String token = await _getAPIToken();
     for (Patient patient in patients) {
       final int patientId = await _getPatientIdVisibleImpact(patient.artNumber, token);
