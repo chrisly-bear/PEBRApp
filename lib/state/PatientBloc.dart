@@ -35,7 +35,7 @@ class PatientBloc {
   Future<void> sinkAllPatientsFromDatabase() async {
     final random = Random();
     _appStateStreamController.sink.add(AppStateLoading());
-    final List<Patient> patientList = await DatabaseProvider().retrieveLatestPatients();
+    final List<Patient> patientList = await DatabaseProvider().retrieveLatestPatients(retrieveNonEligibles: false, retrieveNonConsents: false);
     if (patientList.isEmpty) {
       print('No patients in database. Putting AppStateNoData down the sink');
       _appStateStreamController.sink.add(AppStateNoData());

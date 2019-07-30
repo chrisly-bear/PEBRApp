@@ -14,24 +14,9 @@ import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/InputFormatters.dart';
 import 'package:pebrapp/utils/Utils.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:pebrapp/database/beans/NoConsentReason.dart';
 
-class NewPatientScreen extends StatelessWidget {
-
-  @override
-  Widget build(BuildContext context) {
-    return PopupScreen(
-      title: 'New Patient',
-      actions: [],
-      child: _NewPatientForm(),
-      scrollable: false,
-    );
-  }
-}
-
-// https://flutter.dev/docs/cookbook/forms/validation
-class _NewPatientForm extends StatefulWidget {
+class NewPatientScreen extends StatefulWidget {
 
   @override
   _NewPatientFormState createState() {
@@ -39,7 +24,7 @@ class _NewPatientForm extends StatefulWidget {
   }
 }
 
-class _NewPatientFormState extends State<_NewPatientForm> {
+class _NewPatientFormState extends State<NewPatientScreen> {
   // Create a global key that will uniquely identify the Form widget and allow
   // us to validate the form
   final _formKey = GlobalKey<FormState>();
@@ -73,6 +58,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   bool _patientBirthdayValid = true;
 
   List<String> _artNumbersInDB;
+  List<String> _stickerNumbersInDB;
   bool _isLoading = true;
 
   double _screenWidth;
@@ -86,9 +72,10 @@ class _NewPatientFormState extends State<_NewPatientForm> {
   @override
   initState() {
     super.initState();
-    DatabaseProvider().retrievePatientsART(retrieveNonEligibles: false, retrieveNonConsents: false).then((artNumbers) {
+    DatabaseProvider().retrieveLatestPatients(retrieveNonEligibles: false, retrieveNonConsents: false).then((List<Patient> patients) {
       setState(() {
-        _artNumbersInDB = artNumbers;
+        _artNumbersInDB = patients.map((Patient p) => p.artNumber).toList();
+        _stickerNumbersInDB = patients.map((Patient p) => p.stickerNumber).toList();
         _isLoading = false;
       });
     });
@@ -113,13 +100,20 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       ),
     );
 
+    final String bullet = '‣';
     final Widget baselineAssessmentStep = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Open the KoBoCollect app to fill in the baseline assessment form.'),
+        Text('Open the KoBoCollect app and fill in the following questionnaires:\n'
+            '$bullet  Enrollment questionnaire\n'
+            '$bullet  Satisfaction questionnaire\n'
+            '$bullet  Quality of Life questionnaire\n'
+            '$bullet  Adherence questionnaire',
+          style: TextStyle(height: 1.8),
+        ),
         SizedBox(height: 20.0),
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [PEBRAButtonRaised('Open KoBoCollect', onPressed: _onOpenKoboCollectPressed)],
         ),
         SizedBox(height: 20.0),
@@ -214,47 +208,75 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       }
     }
 
-    return Stepper(
-      steps: steps,
+    Widget stepper() {
+      return Stepper(
+        steps: steps,
 //      type: StepperType.horizontal,
-      currentStep: currentStep,
-      onStepTapped: goTo,
-      onStepContinue: (_isLoading || (currentStep == 2 && (!_patientSaved || (!_kobocollectOpened && (_newPatient.consentGiven ?? false))))) ? null : next,
-      onStepCancel: (currentStep == 1 && _patientSaved || (currentStep == 2 && !(_newPatient.consentGiven ?? true))) ? null : cancel,
-      controlsBuilder: (BuildContext context, {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
-        final Color navigationButtonsColor = Colors.blue;
-        return Padding(
-          padding: const EdgeInsets.only(top: 15.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              Container(
-                decoration: BoxDecoration(
-                  color: onStepCancel == null ? BUTTON_INACTIVE : navigationButtonsColor,
-                  borderRadius: BorderRadius.circular(40.0),
+        currentStep: currentStep,
+        onStepTapped: goTo,
+        onStepContinue: (_isLoading || (currentStep == 2 && (!_patientSaved ||
+            (!_kobocollectOpened && (_newPatient.consentGiven ?? false)))))
+            ? null
+            : next,
+        onStepCancel: (currentStep == 1 && _patientSaved ||
+            (currentStep == 2 && !(_newPatient.consentGiven ?? true)))
+            ? null
+            : cancel,
+        controlsBuilder: (BuildContext context,
+            {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
+          final Color navigationButtonsColor = Colors.blue;
+          return Padding(
+            padding: const EdgeInsets.only(top: 15.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                currentStep == 0 || currentStep == 1
+                ? SizedBox()
+                : Container(
+                  decoration: BoxDecoration(
+                    color: onStepCancel == null
+                        ? BUTTON_INACTIVE
+                        : (currentStep == 0
+                        ? STEPPER_ABORT
+                        : navigationButtonsColor),
+                    borderRadius: BorderRadius.circular(40.0),
+                  ),
+                  child: IconButton(
+                    color: Colors.white,
+                    onPressed: onStepCancel,
+                    icon: Icon(currentStep == 0 ? Icons.close : Icons
+                        .keyboard_arrow_up),
+                  ),
                 ),
-                child: IconButton(
-                  color: Colors.white,
-                  onPressed: onStepCancel,
-                  icon: Icon(currentStep == 0 ? Icons.close : Icons.keyboard_arrow_up),
+                SizedBox(width: 20.0),
+                Container(
+                  decoration: BoxDecoration(
+                    color: onStepContinue == null
+                        ? BUTTON_INACTIVE
+                        : (currentStep == 2
+                        ? STEPPER_FINISH
+                        : navigationButtonsColor),
+                    borderRadius: BorderRadius.circular(40.0),
+                  ),
+                  child: IconButton(
+                    color: Colors.white,
+                    onPressed: onStepContinue,
+                    icon: Icon(currentStep == 2 ? Icons.check : Icons
+                        .keyboard_arrow_down),
+                  ),
                 ),
-              ),
-              SizedBox(width: 20.0),
-              Container(
-                decoration: BoxDecoration(
-                  color: onStepContinue == null ? BUTTON_INACTIVE : navigationButtonsColor,
-                  borderRadius: BorderRadius.circular(40.0),
-                ),
-                child: IconButton(
-                  color: Colors.white,
-                  onPressed: onStepContinue,
-                  icon: Icon(currentStep == 2 ? Icons.check : Icons.keyboard_arrow_down),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+              ],
+            ),
+          );
+        },
+      );
+    }
+
+    return PopupScreen(
+      title: 'New Patient',
+      actions: _patientSaved ? [] : null,
+      child: stepper(),
+      scrollable: false,
     );
 
   }
@@ -357,6 +379,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     return _makeQuestion('Sticker Number',
       answer: TextFormField(
         decoration: InputDecoration(
+          errorMaxLines: 2,
           prefixText: 'P',
         ),
         keyboardType: TextInputType.number,
@@ -370,6 +393,8 @@ class _NewPatientFormState extends State<_NewPatientForm> {
             return 'Please enter the sticker number';
           } else if (value.length != 3) {
             return 'Exactly 3 digits required';
+          } else if (_stickerNumberExists('P$value')) {
+            return 'Patient with this sticker number already exists';
           }
           return null;
         },
@@ -749,6 +774,9 @@ class _NewPatientFormState extends State<_NewPatientForm> {
     return _makeQuestion('Lab number of that viral load',
       answer: TextFormField(
         controller: _viralLoadBaselineLabNumberCtr,
+        decoration: InputDecoration(
+          errorMaxLines: 2,
+        ),
         inputFormatters: [
           WhitelistingTextInputFormatter(RegExp(r'[a-zA-Z0-9]')),
           LengthLimitingTextInputFormatter(13),
@@ -838,7 +866,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       _newPatient.enrollmentDate = now;
       _newPatient.isEligible = _eligible;
       _newPatient.artNumber = _artNumberCtr.text;
-      _newPatient.stickerNumber = _newPatient.consentGiven ? 'P${_stickerNumberCtr.text}' : null;
+      _newPatient.stickerNumber = (_newPatient.consentGiven ?? false) ? 'P${_stickerNumberCtr.text}' : null;
       _newPatient.village = _villageCtr.text;
       _newPatient.phoneNumber = '+266-${_phoneNumberCtr.text}';
       _newPatient.noConsentReasonOther = _noConsentReasonOtherCtr.text;
@@ -848,9 +876,14 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       _newPatient.checkLogicAndResetUnusedFields();
 
       if (_newPatient.isEligible && _newPatient.consentGiven) {
-        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.ENDPOINT_3M_SURVEY_REQUIRED, addMonths(now, 3)));
-        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.ENDPOINT_6M_SURVEY_REQUIRED, addMonths(now, 6)));
-        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.ENDPOINT_12M_SURVEY_REQUIRED, addMonths(now, 12)));
+        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.ADHERENCE_QUESTIONNAIRE_2P5M_REQUIRED, addMonths(now, 2, addHalfMonth: true)));
+        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.ADHERENCE_QUESTIONNAIRE_5M_REQUIRED, addMonths(now, 5)));
+        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.ADHERENCE_QUESTIONNAIRE_9M_REQUIRED, addMonths(now, 9)));
+        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.SATISFACTION_QUESTIONNAIRE_5M_REQUIRED, addMonths(now, 5)));
+        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.SATISFACTION_QUESTIONNAIRE_9M_REQUIRED, addMonths(now, 9)));
+        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_5M_REQUIRED, addMonths(now, 5)));
+        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_9M_REQUIRED, addMonths(now, 9)));
+        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.VIRAL_LOAD_9M_REQUIRED, addMonths(now, 9)));
       }
 
       if (_newPatient.isEligible && _newPatient.consentGiven){
@@ -862,7 +895,8 @@ class _NewPatientFormState extends State<_NewPatientForm> {
           await DatabaseProvider().insertViralLoad(_viralLoadBaseline);
           _newPatient.viralLoads = [_viralLoadBaseline];
         } else {
-          RequiredAction vlRequired = RequiredAction(_artNumberCtr.text, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, now);
+          // if no baseline viral load is available, send the patient to blood draw
+          RequiredAction vlRequired = RequiredAction(_artNumberCtr.text, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, DateTime.fromMillisecondsSinceEpoch(0));
           DatabaseProvider().insertRequiredAction(vlRequired);
           PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
         }
@@ -871,8 +905,6 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       await _newPatient.initializeRequiredActionsField();
       await DatabaseProvider().insertPatient(_newPatient);
       await PatientBloc.instance.sinkNewPatientData(_newPatient);
-      final String finishNotification = 'New patient created successfully';
-      showFlushbar(finishNotification);
       setState(() {
         _isLoading = false;
       });
@@ -892,15 +924,7 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
   Future<void> _onOpenKoboCollectPressed() async {
     setState(() { _kobocollectOpened = true; });
-    const appUrl = 'android-app://org.koboc.collect.android';
-    const marketUrl = 'market://details?id=org.koboc.collect.android';
-    if (await canLaunch(appUrl)) {
-      await launch(appUrl);
-    } else if (await canLaunch(marketUrl)) {
-      await launch(marketUrl);
-    } else {
-      showFlushbar("Could not find KoBoCollect app. Make sure KoBoCollect is installed.");
-    }
+    await openKoboCollectApp();
   }
 
   Widget _buildCard(String title, {@required Widget child, bool withTopPadding: true}) {
@@ -965,6 +989,10 @@ class _NewPatientFormState extends State<_NewPatientForm> {
 
   bool _artNumberExists(artNumber) {
     return _artNumbersInDB.contains(artNumber);
+  }
+
+  bool _stickerNumberExists(stickerNumber) {
+    return _stickerNumbersInDB.contains(stickerNumber);
   }
 
   void _showDialog(String title, String body) {

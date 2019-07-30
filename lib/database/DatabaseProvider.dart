@@ -21,7 +21,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 52;
+  static const int _DB_VERSION = 53;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -589,6 +589,13 @@ class DatabaseProvider {
         WHERE action_type = 8;
       """);
     }
+    if (oldVersion < 53 && _DB_VERSION >= 53) {
+      print('Upgrading to database version 53...');
+      print('UPGRADE NOT IMPLEMENTED, PATIENT DATA AND REQUIRED ACTION DATA WILL BE RESET!');
+      await db.execute("DROP TABLE IF EXISTS Patient;");
+      await db.execute("DROP TABLE IF EXISTS RequiredAction;");
+      await _onCreate(db, 53);
+    }
   }
 
   FutureOr<void> _onDowngrade(Database db, int oldVersion, int newVersion) async {
@@ -727,11 +734,12 @@ class DatabaseProvider {
 
   /// Retrieves a list of all patient ART numbers in the database.
   ///
-  /// retrieveNonEligibles: whether patients that are marked as 'not eligible'
-  /// should also be retrieved (default: true).
+  /// @param [retrieveNonEligibles] Whether patients which are not eligible
+  /// should also be retrieved. If false, only eligible patients are retrieved.
   ///
-  /// retrieveNonConsents: whether patients that have not given consent should
-  /// also be retrieved (default: true).
+  /// @param [retrieveNonConsents] Whether patients which did not give consent
+  /// should also be retrieved. If false, only patients which gave their consent
+  /// are retrieved.
   Future<List<String>> retrievePatientsART({retrieveNonEligibles: true, retrieveNonConsents: true}) async {
     final Database db = await _databaseInstance;
     List<Map<String, dynamic>> res;
@@ -761,13 +769,45 @@ class DatabaseProvider {
   /// SELECT Patient.* FROM Patient INNER JOIN (
   ///	  SELECT id, MAX(created_date) FROM Patient GROUP BY art_number
   ///	) latest ON Patient.id == latest.id
-  Future<List<Patient>> retrieveLatestPatients() async {
+  /// WHERE Patient.is_eligible == x AND Patient.consent_given == x
+  ///
+  /// @param [retrieveNonEligibles] Whether patients which are not eligible
+  /// should also be retrieved. If false, only eligible patients are retrieved.
+  ///
+  /// @param [retrieveNonConsents] Whether patients which did not give consent
+  /// should also be retrieved. If false, only patients which gave their consent
+  /// are retrieved.
+  Future<List<Patient>> retrieveLatestPatients({retrieveNonEligibles: true, retrieveNonConsents: true}) async {
     final Database db = await _databaseInstance;
-    final res = await db.rawQuery("""
+    List<Map<String, dynamic>> res;
+    if (retrieveNonEligibles && retrieveNonConsents) {
+      res = await db.rawQuery("""
     SELECT ${Patient.tableName}.* FROM ${Patient.tableName} INNER JOIN (
 	    SELECT ${Patient.colId}, MAX(${Patient.colCreatedDate}) FROM ${Patient.tableName} GROUP BY ${Patient.colARTNumber}
 	  ) latest ON ${Patient.tableName}.${Patient.colId} == latest.${Patient.colId}
     """);
+    } else if (retrieveNonEligibles && !retrieveNonConsents) {
+      res = await db.rawQuery("""
+    SELECT ${Patient.tableName}.* FROM ${Patient.tableName} INNER JOIN (
+	    SELECT ${Patient.colId}, MAX(${Patient.colCreatedDate}) FROM ${Patient.tableName} GROUP BY ${Patient.colARTNumber}
+	  ) latest ON ${Patient.tableName}.${Patient.colId} == latest.${Patient.colId}
+	  WHERE ${Patient.colConsentGiven} == 1
+    """);
+    } else if (!retrieveNonEligibles && retrieveNonConsents) {
+      res = await db.rawQuery("""
+    SELECT ${Patient.tableName}.* FROM ${Patient.tableName} INNER JOIN (
+	    SELECT ${Patient.colId}, MAX(${Patient.colCreatedDate}) FROM ${Patient.tableName} GROUP BY ${Patient.colARTNumber}
+	  ) latest ON ${Patient.tableName}.${Patient.colId} == latest.${Patient.colId}
+	  WHERE ${Patient.colIsEligible} == 1
+    """);
+    } else if (!retrieveNonEligibles && !retrieveNonConsents) {
+      res = await db.rawQuery("""
+    SELECT ${Patient.tableName}.* FROM ${Patient.tableName} INNER JOIN (
+	    SELECT ${Patient.colId}, MAX(${Patient.colCreatedDate}) FROM ${Patient.tableName} GROUP BY ${Patient.colARTNumber}
+	  ) latest ON ${Patient.tableName}.${Patient.colId} == latest.${Patient.colId}
+	  WHERE ${Patient.colConsentGiven} == 1 AND ${Patient.colIsEligible} == 1
+    """);
+    }
     List<Patient> list = List<Patient>();
     if (res.isNotEmpty) {
       for (Map<String, dynamic> map in res) {

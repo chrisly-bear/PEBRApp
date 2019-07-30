@@ -34,8 +34,8 @@ Future<void> uploadPatientPhoneNumber(Patient patient, {bool reUploadNotificatio
     _handleSuccess(patient, RequiredActionType.PATIENT_PHONE_UPLOAD_REQUIRED);
   } catch (e, s) {
     _handleFailure(patient, RequiredActionType.PATIENT_PHONE_UPLOAD_REQUIRED);
-    showFlushbar('Please upload the patient\'s phone number manually.',
-      title: 'Upload of Patient\'s Phone Number Failed',
+    showFlushbar('The automatic upload of the patient\'s phone number failed. Please upload manually.',
+      title: 'Upload of Patient Phone Number Failed',
       error: true,
       buttonText: 'Retry\nNow',
       onButtonPress: () {
@@ -57,8 +57,8 @@ Future<void> uploadPatientPhoneNumber(Patient patient, {bool reUploadNotificatio
 Future<void> uploadPeerEducatorPhoneNumber() async {
   try {
     final UserData user = await DatabaseProvider().retrieveLatestUserData();
-    final List<Patient> patients = await DatabaseProvider().retrieveLatestPatients();
-    patients.removeWhere((Patient p) => !(p.isEligible && (p.consentGiven ?? false) && (p.isActivated ?? false)));
+    final List<Patient> patients = await DatabaseProvider().retrieveLatestPatients(retrieveNonEligibles: false, retrieveNonConsents: false);
+    patients.removeWhere((Patient p) => !(p.isActivated ?? false));
     final String token = await _getAPIToken();
     for (Patient patient in patients) {
       final int patientId = await _getPatientIdVisibleImpact(patient.artNumber, token);
@@ -69,7 +69,7 @@ Future<void> uploadPeerEducatorPhoneNumber() async {
     user.phoneNumberUploadRequired = false;
     await DatabaseProvider().insertUserData(user);
   } catch (e, s) {
-    showFlushbar('Please upload your phone number manually.',
+    showFlushbar('The automatic upload of your phone number failed. Please upload manually.',
       title: 'Upload of Peer Educator Phone Number Failed',
       error: true,
       buttonText: 'Retry\nNow',
@@ -98,8 +98,8 @@ Future<void> uploadNotificationsPreferences(Patient patient) async {
     _handleSuccess(patient, RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED);
   } catch (e, s) {
     _handleFailure(patient, RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED);
-    showFlushbar('Please upload the notifications preferences manually.',
-      title: 'Upload of Notifications Preferences Failed',
+    showFlushbar('The automatic upload of the notifications failed. Please upload manually.',
+      title: 'Upload of Notifications Failed',
       error: true,
       buttonText: 'Retry\nNow',
       onButtonPress: () {
@@ -150,7 +150,7 @@ Future<void> _uploadAdherenceReminder(Patient patient, int patientId, String tok
     "end_date": formatDateForVisibleImpact(artRefill.nextRefillDate),
   };
   final _resp = await http.put(
-    'https://lstowards909090.org/db-test/apiv1/pebramessage',
+    '$VI_API/pebramessage',
     headers: {
       'Authorization' : 'Custom $token',
       'Content-Type': 'application/json',
@@ -198,7 +198,7 @@ Future<void> _uploadRefillReminder(Patient patient, int patientId, String token,
     ),
   };
   final _resp = await http.put(
-    'https://lstowards909090.org/db-test/apiv1/pebramessage',
+    '$VI_API/pebramessage',
     headers: {
       'Authorization' : 'Custom $token',
       'Content-Type': 'application/json',
@@ -247,7 +247,7 @@ Future<void> _uploadViralLoadNotification(Patient patient, int patientId, String
     "message_failed": "Sephetho hasea sebetseha. Re kopa o itlalehe setsing sa bophelo mo o sebeletsoang teng hang hang, u hopotse mooki ka sephetho sa liteko!",
   };
   final _resp = await http.put(
-    'https://lstowards909090.org/db-test/apiv1/pebramessage',
+    '$VI_API/pebramessage',
     headers: {
       'Authorization' : 'Custom $token',
       'Content-Type': 'application/json',
@@ -274,7 +274,7 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART) async 
   final String _token = await _getAPIToken();
   final int patientId = await _getPatientIdVisibleImpact(patientART, _token);
   final _resp = await http.get(
-    'https://lstowards909090.org/db-test/apiv1/labdata?patient_id=$patientId',
+    '$VI_API/labdata?patient_id=$patientId',
     headers: {'Authorization' : 'Custom $_token'},
   );
   _checkStatusCode(_resp);
@@ -292,7 +292,8 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART) async 
   }).toList();
   viralLoadsFromDB.sort((ViralLoad a, ViralLoad b) => a.dateOfBloodDraw.isBefore(b.dateOfBloodDraw) ? -1 : 1);
   if (viralLoadsFromDB.isNotEmpty && viralLoadsFromDB.last.failed) {
-    RequiredAction vlRequired = RequiredAction(patientART, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, DateTime.now());
+    // if the last viral load has failed, send the patient to blood draw
+    RequiredAction vlRequired = RequiredAction(patientART, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, DateTime.fromMillisecondsSinceEpoch(0));
     DatabaseProvider().insertRequiredAction(vlRequired);
     PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
   }
@@ -325,7 +326,7 @@ List<String> calculateRefillReminderSendDates(ARTRefillReminderDaysBeforeSelecti
 Future<String> _getAPIToken() async {
   String basicAuth = 'Basic ' + base64Encode(utf8.encode('$VI_USERNAME:$VI_PASSWORD'));
   http.Response _resp = await http.post(
-    'https://lstowards909090.org/db-test/apiv1/token',
+    '$VI_API/token',
     headers: {'authorization': basicAuth},
   );
   if (_resp.statusCode != 200 || _resp.body == '') {
@@ -349,7 +350,7 @@ Future<String> _getAPIToken() async {
 /// patient ID for the given [patientART] number.
 Future<int> _getPatientIdVisibleImpact(String patientART, String _apiAuthToken) async {
   final _resp = await http.get(
-    'https://lstowards909090.org/db-test/apiv1/patient?art_number=$patientART',
+    '$VI_API/patient?art_number=$patientART',
     headers: {'Authorization' : 'Custom $_apiAuthToken'},
   );
   if (_resp.statusCode != 200) {
@@ -386,7 +387,7 @@ Future<void> _handleSuccess(Patient patient, RequiredActionType actionType) asyn
 
 
 Future<void> _handleFailure(Patient patient, RequiredActionType actionType) async {
-  final newAction = RequiredAction(patient.artNumber, actionType, DateTime.now());
+  final newAction = RequiredAction(patient.artNumber, actionType, DateTime.fromMillisecondsSinceEpoch(0));
   await DatabaseProvider().insertRequiredAction(newAction);
   PatientBloc.instance.sinkRequiredActionData(newAction, false);
 }

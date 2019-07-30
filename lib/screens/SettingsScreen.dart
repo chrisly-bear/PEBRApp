@@ -281,7 +281,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       setState(() {
         this._loginData = null;
       });
-      showFlushbar('Logged Out');
+      print('logged out');
     }
   }
 
@@ -301,7 +301,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         this._loginData = null;
         this._createAccountMode = true;
       });
-      showFlushbar('Logged out. Create a new account now.');
+      showFlushbar('Create a new account now.', title: 'Logged Out');
     }
   }
 
@@ -499,6 +499,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       String title;
       String notificationMessage = 'Login Successful';
       bool error = false;
+      bool showNotification = false;
       VoidCallback onNotificationButtonPress;
       setState(() { _isLoadingLoginBody = true; });
       final String username = _usernameCtr.text;
@@ -513,6 +514,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // restore was successful, go to home screen
           Navigator.of(context).popUntil(ModalRoute.withName('/'));
         } catch (e, s) {
+          showNotification = true;
           error = true;
           title = 'Login Failed';
           switch (e.runtimeType) {
@@ -534,6 +536,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               notificationMessage = 'Invalid PIN Code.';
               break;
             case NoPasswordFileException:
+              // the password file was removed from SWITCHtoolbox -> prompt user
+              // to set a new PIN
               final String newPINHash = await _setNewPIN(username, context);
               if (newPINHash != null) {
                 error = false;
@@ -542,7 +546,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 retry = true;
                 pinCodeHash = newPINHash;
               } else {
-                notificationMessage = 'New PIN required.';
+                showNotification = false;
               }
               break;
             default:
@@ -557,16 +561,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
         }
       }
       setState(() { _isLoadingLoginBody = false; });
-      showFlushbar(notificationMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
+      if (showNotification) {
+        showFlushbar(notificationMessage, title: title,
+            error: error,
+            onButtonPress: onNotificationButtonPress);
+      }
     }
   }
 
   _onSubmitCreateAccountForm() async {
     // Validate will return true if the form is valid, or false if the form is invalid.
     if (_createAccountFormKey.currentState.validate()) {
-      String notificationMessage = 'Account Created';
-      String title;
-      bool error = false;
+      String notificationMessage = '';
+      String title = 'Error Creating Account';
+      bool error = true;
       VoidCallback onNotificationButtonPress;
       setState(() { _isLoadingLoginBody = true; });
       _userData.username = _usernameCtr.text;
@@ -579,15 +587,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
       try {
         final bool userExists = await existsBackupForUser(_userData.username);
         if (userExists) {
-          error = true;
-          title = 'Account could not be created';
           notificationMessage = 'User \'${_userData.username}\' already exists.';
         } else {
           await DatabaseProvider().createFirstBackupOnSWITCH(_userData, pinCodeHash);
+          title = 'Account Created';
+          notificationMessage = 'You are logged in as \'${_userData.username}\.';
+          error = false;
         }
       } catch (e, s) {
-        error = true;
-        title = 'Account could not be created';
         switch (e.runtimeType) {
         // case NoLoginDataException should never occur because we create the
         // loginData object at the beginning of this method

@@ -30,7 +30,6 @@ import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:pebrapp/utils/VisibleImpactUtils.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class PatientScreen extends StatefulWidget {
   final Patient _patient;
@@ -71,7 +70,7 @@ class _PatientScreenState extends State<PatientScreen> {
       if (streamEvent is AppStatePatientData && streamEvent.patient.artNumber == _patient.artNumber) {
         // TODO: animate changes to the new patient data (e.g. insertions and removals of required action card) with an animation for visual fidelity
         print('*** PatientScreen received AppStatePatientData: ${streamEvent.patient.artNumber} ***');
-        final Set<RequiredAction> newVisibleRequiredActions = streamEvent.patient.visibleRequiredActions;
+        final Set<RequiredAction> newVisibleRequiredActions = streamEvent.patient.calculateDueRequiredActions();
         for (RequiredAction a in newVisibleRequiredActions) {
           if (streamEvent.oldRequiredActions != null && !streamEvent.oldRequiredActions.contains(a)) {
             shouldAnimateRequiredActionContainer[a.type] = AnimateDirection.FORWARD;
@@ -119,7 +118,7 @@ class _PatientScreenState extends State<PatientScreen> {
     DateTime nextRefillDate = _patient.latestDoneARTRefill?.nextRefillDate ?? _patient.enrollmentDate;
     _nextRefillText = formatDate(nextRefillDate);
 
-    DateTime nextEndpointSurveyDate = calculateNextEndpointSurvey(_patient.enrollmentDate, _patient.requiredActions);
+    DateTime nextEndpointSurveyDate = calculateNextQuestionnaire(_patient.enrollmentDate, _patient.requiredActions);
     if (nextEndpointSurveyDate != null) {
       _nextEndpointText = formatDate(nextEndpointSurveyDate);
     } else {
@@ -175,7 +174,7 @@ class _PatientScreenState extends State<PatientScreen> {
 
   Widget _buildRequiredActions() {
 
-    final List<RequiredAction> visibleRequiredActionsSorted =_patient.visibleRequiredActions.toList();
+    final List<RequiredAction> visibleRequiredActionsSorted =_patient.calculateDueRequiredActions().toList();
     visibleRequiredActionsSorted.sort((RequiredAction a, RequiredAction b) => a.dueDate.isBefore(b.dueDate) ? -1 : 1);
     final actions = visibleRequiredActionsSorted.asMap().map((int i, RequiredAction action) {
       final mapEntry = MapEntry(
@@ -261,9 +260,12 @@ class _PatientScreenState extends State<PatientScreen> {
         ),
         SizedBox(height: _spacingBetweenCards),
         _buildNextActionRow(
-          title: 'Next Endpoint Survey',
+          title: 'Next Questionnaire',
           dueDate: _nextEndpointText,
-          explanation: 'Endpoint surveys are due 3, 6, and 12 months after patient enrollment.',
+          explanation: 'Adherence questionnaires are due 2.5–3.5 months, 5–8 months, and 9–15 months '
+              'after patient enrollment.\nSatisfaction questionnaires and Quality'
+              ' of Life questionnaires are due 5–8 months and 9–15 months after patient '
+              'enrollment.',
           button: _makeButton('Open KoBoCollect', onPressed: _onOpenKoboCollectPressed),
         ),
         SizedBox(height: _spacingBetweenCards),
@@ -982,8 +984,8 @@ class _PatientScreenState extends State<PatientScreen> {
   Future<void> _fetchFromDatabasePressed(BuildContext context, Patient patient) async {
     setState(() { _isFetchingViralLoads = true; });
     List<ViralLoad> viralLoadsFromDB;
-    String message = 'No new viral load results found.';
-    String title = 'Viral Load Fetch Successful';
+    String message = 'No new viral loads found.';
+    String title = 'Viral Loads Fetched';
     bool error = false;
     VoidCallback onNotificationButtonPress;
     try {
@@ -1057,15 +1059,7 @@ class _PatientScreenState extends State<PatientScreen> {
   }
 
   Future<void> _onOpenKoboCollectPressed() async {
-    const appUrl = 'android-app://org.koboc.collect.android';
-    const marketUrl = 'market://details?id=org.koboc.collect.android';
-    if (await canLaunch(appUrl)) {
-      await launch(appUrl);
-    } else if (await canLaunch(marketUrl)) {
-      await launch(marketUrl);
-    } else {
-      showFlushbar("Could not find KoBoCollect app. Make sure KoBoCollect is installed.");
-    }
+    await openKoboCollectApp();
   }
 
   Widget _makeButton(String buttonText, {Function() onPressed, bool flat: false, Widget widget}) {

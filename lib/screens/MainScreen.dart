@@ -156,8 +156,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     patients.sort((Patient a, Patient b) {
       if (a.isActivated && !b.isActivated) { return -1; }
       if (!a.isActivated && b.isActivated) { return 1; } // do we need this rule or is it implied by the previous rule?
-      final int actionsRequiredForA = a.visibleRequiredActions.length;
-      final int actionsRequiredForB = b.visibleRequiredActions.length;
+      final int actionsRequiredForA = a.calculateDueRequiredActions().length;
+      final int actionsRequiredForB = b.calculateDueRequiredActions().length;
       if (actionsRequiredForA > actionsRequiredForB) { return -1; }
       if (actionsRequiredForA < actionsRequiredForB) { return 1; } // do we need this rule or is it implied by the previous rule?
       if (actionsRequiredForA == actionsRequiredForB) {
@@ -278,9 +278,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   /// inform all listeners of the new data.
   Future<void> _recalculateRequiredActionsForAllPatients() async {
     for (Patient p in _patients) {
-      final Set<RequiredAction> previousActions = p.visibleRequiredActionsAtInitialization;
+      final Set<RequiredAction> previousActions = p.dueRequiredActionsAtInitialization;
       await p.initializeRequiredActionsField();
-      final Set<RequiredAction> newActions = p.visibleRequiredActions;
+      final Set<RequiredAction> newActions = p.calculateDueRequiredActions();
       final bool shouldAnimate = previousActions.length != newActions.length;
       if (shouldAnimate) {
         shouldAnimateRequiredActionBadge[p.artNumber] = shouldAnimate;
@@ -351,46 +351,16 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       }
     }
 
-    String resultMessage = 'Upload Successful';
-    String title;
-    bool error = false;
-    VoidCallback onNotificationButtonPress;
     try {
       await DatabaseProvider().createAdditionalBackupOnSWITCH(loginData);
+      showFlushbar('Upload Successful');
     } catch (e, s) {
-      error = true;
-      title = 'Upload Failed';
-      switch (e.runtimeType) {
-        case NoLoginDataException:
-          // this case should never occur since we force the user to login when
-          // resuming the app
-          resultMessage = 'Not logged in. Please log in first.';
-          break;
-        case SWITCHLoginFailedException:
-          resultMessage = 'Login to SWITCH failed. Contact the development team.';
-          break;
-        case DocumentNotFoundException:
-          resultMessage = 'No existing backup found for user \'${loginData.username}\'';
-          break;
-        case SocketException:
-          resultMessage = 'Make sure you are connected to the internet.';
-          break;
-        default:
-          resultMessage = 'An unknown error occured. Contact the development team.';
-          print('${e.runtimeType}: $e');
-          print(s);
-          onNotificationButtonPress = () {
-            showErrorInPopup(e, s, _context);
-          };
-      }
-      // show additional warning if backup wasn't successful for a long time
+      print('Caught exception during automated backup: $e');
+      print('Stacktrace: $s');
+      // show warning if backup wasn't successful for a long time
       if (daysSinceLastBackup >= SHOW_BACKUP_WARNING_AFTER_X_DAYS) {
         showFlushbar("Last upload was $daysSinceLastBackup days ago.\nPlease perform a manual upload from the settings screen.", title: "Warning", error: true);
       }
-    }
-    if (!error) {
-      // do not show error notifications as they can become annoying when the app is used offline
-      showFlushbar(resultMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
     }
     _backupRunning = false;
   }
@@ -442,10 +412,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     }
 
     List<ViralLoad> viralLoadsFromDB;
-    String message = 'No new viral load results found.';
-    String title = 'Viral Load Fetch Successful';
-    bool error = false;
-    VoidCallback onNotificationButtonPress;
     int newEntries = 0;
     Map<String, int> updatedPatients = {};
     try {
@@ -470,46 +436,23 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           // TODO: do we have to deal with a discrepancy in some way (show notification perhaps)?
         }
       }
+      String message = 'No new viral loads found.';
       if (newEntries > 0) {
         message = '$newEntries new viral load result${newEntries > 1 ? 's' : ''} found for patients:\n${updatedPatients.map((String patientART, int newVLs) {
           return MapEntry(patientART, '\n$patientART ($newVLs)');
         }).values.join('')}';
       }
+      showFlushbar(message, title: 'Viral Loads Fetched', duration: newEntries > 0 ? Duration(seconds: 10) : null);
     } catch (e, s) {
-      error = true;
-      title = 'Viral Load Fetch Failed';
-      switch (e.runtimeType) {
-        case VisibleImpactLoginFailedException:
-          message = 'Login to VisibleImpact failed. Contact the development team.';
-          break;
-        case PatientNotFoundException:
-          message = e.message;
-          break;
-        case MultiplePatientsException:
-          message = e.message;
-          break;
-        case SocketException:
-          message = 'Make sure you are connected to the internet.';
-          break;
-        default:
-          message = 'An unknown error occured. Contact the development team.';
-          print('${e.runtimeType}: $e');
-          print(s);
-          onNotificationButtonPress = () {
-            showErrorInPopup(e, s, context);
-          };
-      }
-      // show additional warning if viral load fetch wasn't successful for a long time
+      print('Caught exception during automated viral load fetch: $e');
+      print('Stacktrace: $s');
+      // show warning if viral load fetch wasn't successful for a long time
       if (patientsNotUpdatedForTooLong.isNotEmpty) {
         final String vlFetchOverdueMessage = "The last viral load update for the following patient${patientsNotUpdatedForTooLong.length > 1 ? 's' : ''} goes back $SHOW_VL_FETCH_WARNING_AFTER_X_DAYS days or more:\n${patientsNotUpdatedForTooLong.map((String patientART, int lastFetch) {
           return MapEntry(patientART, '\n$patientART (${lastFetch < 0 ? 'never' : '$lastFetch days ago'})');
         }).values.join('')}\n\nYou can fetch the latest viral loads from ${patientsNotUpdatedForTooLong.length > 1 ? 'each' : 'the'} patient's detail page.";
         showFlushbar(vlFetchOverdueMessage, title: "Warning", error: true);
       }
-    }
-    if (!error) {
-      // do not show error notifications as they can become annoying when the app is used offline
-      showFlushbar(message, title: title, error: error, onButtonPress: onNotificationButtonPress, duration: newEntries > 0 ? Duration(seconds: 10) : null);
     }
     setState(() {}); // set state to update the viral load icons
     _vlFetchRunning = false;
@@ -926,7 +869,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       );
 
       // wrap in stack to display action required label
-      final int numOfActionsRequired = curPatient.visibleRequiredActions.length;
+      final int numOfActionsRequired = curPatient.calculateDueRequiredActions().length;
       if (curPatient.isActivated && numOfActionsRequired > 0) {
         final List<Widget> badges = [];
         for (int i = 0; i < numOfActionsRequired; i++) {
@@ -973,7 +916,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       return Colors.transparent;
     }
 
-    if (patient.visibleRequiredActions.length > 0) {
+    if (patient.calculateDueRequiredActions().length > 0) {
       return URGENCY_HIGH;
     }
 

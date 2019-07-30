@@ -79,7 +79,7 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
     super.dispose();
   }
 
-  FlatButton _endpointSurveyDoneButton(RequiredAction action) {
+  FlatButton _questionnaireDoneButton(RequiredAction action) {
     return FlatButton(
       onPressed: () async {
         DatabaseProvider().removeRequiredAction(widget.patient.artNumber, action.type);
@@ -87,7 +87,7 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
       },
       splashColor: NOTIFICATION_INFO_SPLASH,
       child: Text(
-        "ENDPOINT SURVEY COMPLETED",
+        "DONE",
         style: TextStyle(
           color: NOTIFICATION_INFO_TEXT,
           fontWeight: FontWeight.bold,
@@ -107,27 +107,15 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
       case RequiredActionType.REFILL_REQUIRED:
         actionText = "ART refill required. Start an ART refill by tapping 'Manage Refill' below.";
         break;
-      case RequiredActionType.ENDPOINT_3M_SURVEY_REQUIRED:
-        actionText = "3 month endpoint survey required. Start an endpoint survey by tapping 'Open KoBoCollect' below.";
-        actionButton = _endpointSurveyDoneButton(widget.action);
-        break;
-      case RequiredActionType.ENDPOINT_6M_SURVEY_REQUIRED:
-        actionText = "6 month endpoint survey required. Start an endpoint survey by tapping 'Open KoBoCollect' below.";
-        actionButton = _endpointSurveyDoneButton(widget.action);
-        break;
-      case RequiredActionType.ENDPOINT_12M_SURVEY_REQUIRED:
-        actionText = "12 month endpoint survey required. Start an endpoint survey by tapping 'Open KoBoCollect' below.";
-        actionButton = _endpointSurveyDoneButton(widget.action);
-        break;
       case RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED:
-        actionText = "The automatic synchronization of the notifications preferences with the database failed. Please synchronize manually.";
+        actionText = "The automatic upload of the notifications failed. Please upload manually.";
         actionButton = FlatButton(
           onPressed: () async {
             await uploadNotificationsPreferences(widget.patient);
           },
           splashColor: NOTIFICATION_INFO_SPLASH,
           child: Text(
-            "SYNCHRONIZE",
+            "UPLOAD",
             style: TextStyle(
               color: NOTIFICATION_INFO_TEXT,
               fontWeight: FontWeight.bold,
@@ -136,14 +124,14 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
         );
         break;
       case RequiredActionType.PATIENT_PHONE_UPLOAD_REQUIRED:
-        actionText = "The automatic synchronization of the patient's phone number with the database failed. Please synchronize manually.";
+        actionText = "The automatic upload of the patient's phone number failed. Please upload manually.";
         actionButton = FlatButton(
           onPressed: () async {
             await uploadPatientPhoneNumber(widget.patient, reUploadNotifications: false);
           },
           splashColor: NOTIFICATION_INFO_SPLASH,
           child: Text(
-            "SYNCHRONIZE",
+            "UPLOAD",
             style: TextStyle(
               color: NOTIFICATION_INFO_TEXT,
               fontWeight: FontWeight.bold,
@@ -152,7 +140,7 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
         );
         break;
       case RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED:
-        actionText = "Viral load measurement required. Please send the participant to the nurse for blood draw.";
+        actionText = "Viral load required. Please send the patient to the nurse for blood draw.";
         actionButton = FlatButton(
           onPressed: () async {
             DatabaseProvider().removeRequiredAction(widget.patient.artNumber, widget.action.type);
@@ -167,6 +155,38 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
             ),
           ),
         );
+        break;
+      case RequiredActionType.VIRAL_LOAD_9M_REQUIRED:
+        actionText = "The patient needs a viral load within the next few months. Please coordinate with the nurse for blood draw.";
+        actionButton = _questionnaireDoneButton(widget.action);
+        break;
+      case RequiredActionType.SATISFACTION_QUESTIONNAIRE_5M_REQUIRED:
+        actionText = "Fill in the Satisfaction questionnaire on KoBoCollect.";
+        actionButton = _questionnaireDoneButton(widget.action);
+        break;
+      case RequiredActionType.SATISFACTION_QUESTIONNAIRE_9M_REQUIRED:
+        actionText = "Fill in the Satisfaction questionnaire on KoBoCollect.";
+        actionButton = _questionnaireDoneButton(widget.action);
+        break;
+      case RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_5M_REQUIRED:
+        actionText = "Fill in the Quality of Life questionnaire on KoBoCollect.";
+        actionButton = _questionnaireDoneButton(widget.action);
+        break;
+      case RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_9M_REQUIRED:
+        actionText = "Fill in the Quality of Life questionnaire on KoBoCollect.";
+        actionButton = _questionnaireDoneButton(widget.action);
+        break;
+      case RequiredActionType.ADHERENCE_QUESTIONNAIRE_2P5M_REQUIRED:
+        actionText = "Fill in the Adherence questionnaire on KoBoCollect.";
+        actionButton = _questionnaireDoneButton(widget.action);
+        break;
+      case RequiredActionType.ADHERENCE_QUESTIONNAIRE_5M_REQUIRED:
+        actionText = "Fill in the Adherence questionnaire on KoBoCollect.";
+        actionButton = _questionnaireDoneButton(widget.action);
+        break;
+      case RequiredActionType.ADHERENCE_QUESTIONNAIRE_9M_REQUIRED:
+        actionText = "Fill in the Adherence questionnaire on KoBoCollect.";
+        actionButton = _questionnaireDoneButton(widget.action);
         break;
     }
 

@@ -79,14 +79,14 @@ class _RequiredActionContainerPEPhoneNumberUploadState extends State<RequiredAct
 
   @override
   Widget build(BuildContext context) {
-    String actionText = "The automatic synchronization of your phone number with the database failed. Please synchronize manually.";
+    String actionText = "The automatic upload of your phone number failed. Please upload manually.";
     Widget actionButton = FlatButton(
       onPressed: () async {
         await uploadPeerEducatorPhoneNumber();
       },
       splashColor: NOTIFICATION_INFO_SPLASH,
       child: Text(
-        "SYNCHRONIZE",
+        "UPLOAD",
         style: TextStyle(
           color: NOTIFICATION_INFO_TEXT,
           fontWeight: FontWeight.bold,

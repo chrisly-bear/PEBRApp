@@ -126,29 +126,25 @@ class _NewPINScreenState extends State<NewPINScreen> {
         await uploadFileToSWITCHtoolbox(file, filename: username, folderID: SWITCH_TOOLBOX_PASSWORD_FOLDER_ID);
         _closeScreen(pinCodeHash);
       } catch (e, s) {
+        final String title = 'PIN Update Failed';
+        String message = '';
+        VoidCallback onNotificationButtonPress;
         switch (e.runtimeType) {
           case SocketException:
-            showFlushbar(
-                'Make sure you are connected to the internet.',
-                title: 'PIN Update Failed', error: true);
+            message = 'Make sure you are connected to the internet.';
             break;
           case SWITCHLoginFailedException:
-            showFlushbar(
-                'Login to SWITCH failed. Contact the development team.',
-                title: 'PIN Update Failed', error: true);
+            message = 'Login to SWITCH failed. Contact the development team.';
             break;
           default:
             print('${e.runtimeType}: $e');
             print(s);
-            VoidCallback onNotificationButtonPress = () {
+            message = 'An unknown error occured. Contact the development team.';
+            onNotificationButtonPress = () {
               showErrorInPopup(e, s, context);
             };
-            showFlushbar(
-                'An unknown error occured. Contact the development team.',
-                title: 'PIN Update Failed',
-                error: true,
-                onButtonPress: onNotificationButtonPress);
         }
+        showFlushbar(message, title: title, error: true, onButtonPress: onNotificationButtonPress);
       }
     }
     setState(() {

@@ -60,7 +60,7 @@ class Patient implements IExcelExportable {
   ARTRefill latestARTRefill; // stores the latest ART refill (done or not done)
   ARTRefill latestDoneARTRefill; // stores the latest ART refill that was done
   Set<RequiredAction> requiredActions = {};
-  Set<RequiredAction> visibleRequiredActionsAtInitialization = {};
+  Set<RequiredAction> dueRequiredActionsAtInitialization = {};
 
 
   // Constructors
@@ -222,7 +222,7 @@ class Patient implements IExcelExportable {
       actions.add(assessmentRequired);
     }
     this.requiredActions = actions;
-    this.visibleRequiredActionsAtInitialization = visibleRequiredActions;
+    this.dueRequiredActionsAtInitialization = calculateDueRequiredActions();
   }
 
   /// Returns the viral load with the latest blood draw date.
@@ -282,18 +282,13 @@ class Patient implements IExcelExportable {
   // ignore: unnecessary_getters_setters
   DateTime get createdDate => _createdDate;
 
-  /// Filters out endpoint survey actions that are not due yet.
-  Set<RequiredAction> get visibleRequiredActions {
+  /// Calculates which required actions for this patient are due based on
+  /// today's date and the required actions' due date.
+  Set<RequiredAction> calculateDueRequiredActions() {
+    final DateTime now = DateTime.now();
     Set<RequiredAction> visibleRequiredActions = {};
     visibleRequiredActions.addAll(requiredActions);
-    visibleRequiredActions.removeWhere((RequiredAction a) {
-      final bool isEndpointSurveyAndDue = isEndpointSurveyDue(this.enrollmentDate, a.type);
-      if (isEndpointSurveyAndDue != null && !isEndpointSurveyAndDue) {
-        // endpoint survey not due yet, remove from visible required actions
-        return true;
-      }
-      return false;
-    });
+    visibleRequiredActions.removeWhere((RequiredAction a) => a.dueDate.isAfter(now));
     return visibleRequiredActions;
   }
 
