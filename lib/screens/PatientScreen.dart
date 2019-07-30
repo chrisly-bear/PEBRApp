@@ -852,6 +852,7 @@ class _PatientScreenState extends State<PatientScreen> {
 
     return _buildCard(
       title: 'Preferences',
+      explanationText: 'These are the patient\'s preferences as specified in the last preference assessment from ${formatDateAndTimeTodayYesterday(_patient.latestPreferenceAssessment.createdDate)}.',
       child: Container(
         width: double.infinity,
         child: _buildPreferencesCardContent(),
