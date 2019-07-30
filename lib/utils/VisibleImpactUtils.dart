@@ -34,8 +34,8 @@ Future<void> uploadPatientPhoneNumber(Patient patient, {bool reUploadNotificatio
     _handleSuccess(patient, RequiredActionType.PATIENT_PHONE_UPLOAD_REQUIRED);
   } catch (e, s) {
     _handleFailure(patient, RequiredActionType.PATIENT_PHONE_UPLOAD_REQUIRED);
-    showFlushbar('Please upload the patient\'s phone number manually.',
-      title: 'Upload of Patient\'s Phone Number Failed',
+    showFlushbar('The automatic upload of the patient\'s phone number failed. Please upload manually.',
+      title: 'Upload of Patient Phone Number Failed',
       error: true,
       buttonText: 'Retry\nNow',
       onButtonPress: () {
@@ -69,7 +69,7 @@ Future<void> uploadPeerEducatorPhoneNumber() async {
     user.phoneNumberUploadRequired = false;
     await DatabaseProvider().insertUserData(user);
   } catch (e, s) {
-    showFlushbar('Please upload your phone number manually.',
+    showFlushbar('The automatic upload of your phone number failed. Please upload manually.',
       title: 'Upload of Peer Educator Phone Number Failed',
       error: true,
       buttonText: 'Retry\nNow',
@@ -98,8 +98,8 @@ Future<void> uploadNotificationsPreferences(Patient patient) async {
     _handleSuccess(patient, RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED);
   } catch (e, s) {
     _handleFailure(patient, RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED);
-    showFlushbar('Please upload the notifications preferences manually.',
-      title: 'Upload of Notifications Preferences Failed',
+    showFlushbar('The automatic upload of the notifications failed. Please upload manually.',
+      title: 'Upload of Notifications Failed',
       error: true,
       buttonText: 'Retry\nNow',
       onButtonPress: () {
