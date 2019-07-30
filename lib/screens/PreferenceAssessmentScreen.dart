@@ -1963,6 +1963,8 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       _pa.artRefillOption4 = _artRefillOptionSelections[3];
       _pa.artRefillOption5 = _artRefillOptionSelections[4];
       _pa.patientPhoneAvailable = _phoneAvailability == PhoneAvailability.YES();
+      bool _uploadPatientPhoneNumber = false;
+      bool _uploadPEPhoneNumber = false;
 
       if (_artRefillOptionSelections.contains(ARTRefillOption.PE_HOME_DELIVERY())
           && !_artRefillOptionAvailable[_artRefillOptionSelections.indexOf(ARTRefillOption.PE_HOME_DELIVERY())]
@@ -1992,7 +1994,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         if (_patientPhoneNumberBeforeAssessment != newPatientPhoneNumber) {
           _patient.phoneNumber = newPatientPhoneNumber;
           _patientUpdated = true;
-          uploadPatientPhoneNumber(_patient, reUploadNotifications: false);
+          _uploadPatientPhoneNumber = true;
         }
         if (!_pa.adherenceReminderEnabled) {
           _pa.adherenceReminderTime = null;
@@ -2004,7 +2006,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         if (_patientPhoneNumberBeforeAssessment != newPatientPhoneNumber) {
           _patient.phoneNumber = newPatientPhoneNumber;
           _patientUpdated = true;
-          uploadPatientPhoneNumber(_patient, reUploadNotifications: false);
+          _uploadPatientPhoneNumber = true;
         }
         _pa.adherenceReminderEnabled = null;
         _pa.adherenceReminderFrequency = null;
@@ -2099,7 +2101,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
         await DatabaseProvider().insertUserData(_user);
         // PE's phone number changed, this affects all patients so we do a sync
         // with VisibleImpact for all patients
-        uploadPeerEducatorPhoneNumber();
+        _uploadPEPhoneNumber = true;
       }
 
       _patient.latestPreferenceAssessment = _pa;
@@ -2109,8 +2111,14 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       }
       // send an event indicating that the preference assessment was done
       PatientBloc.instance.sinkRequiredActionData(RequiredAction(_patient.artNumber, RequiredActionType.ASSESSMENT_REQUIRED, null), true);
-      uploadNotificationsPreferences(_patient);
       Navigator.of(context).pop(); // close Preference Assessment screen
+      uploadNotificationsPreferences(_patient);
+      if (_uploadPatientPhoneNumber) {
+        uploadPatientPhoneNumber(_patient, reUploadNotifications: false);
+      }
+      if(_uploadPEPhoneNumber) {
+        uploadPeerEducatorPhoneNumber();
+      }
       showFlushbar('Preference Assessment saved');
     } else {
       showFlushbar("Errors exist in the assessment form. Please check the form.");
