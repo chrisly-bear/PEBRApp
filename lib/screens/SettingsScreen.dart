@@ -498,6 +498,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       String title;
       String notificationMessage = 'Login Successful';
       bool error = false;
+      bool showNotification = false;
       VoidCallback onNotificationButtonPress;
       setState(() { _isLoadingLoginBody = true; });
       final String username = _usernameCtr.text;
@@ -512,6 +513,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // restore was successful, go to home screen
           Navigator.of(context).popUntil(ModalRoute.withName('/'));
         } catch (e, s) {
+          showNotification = true;
           error = true;
           title = 'Login Failed';
           switch (e.runtimeType) {
@@ -533,6 +535,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               notificationMessage = 'Invalid PIN Code.';
               break;
             case NoPasswordFileException:
+              // the password file was removed from SWITCHtoolbox -> prompt user
+              // to set a new PIN
               final String newPINHash = await _setNewPIN(username, context);
               if (newPINHash != null) {
                 error = false;
@@ -556,7 +560,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         }
       }
       setState(() { _isLoadingLoginBody = false; });
-      showFlushbar(notificationMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
+      if (showNotification) {
+        showFlushbar(notificationMessage, title: title,
+            error: error,
+            onButtonPress: onNotificationButtonPress);
+      }
     }
   }
 
