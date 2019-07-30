@@ -93,7 +93,7 @@ class ARTRefillScreen extends StatelessWidget {
 
   Future<DateTime> _showDatePickerWithTitle(BuildContext context, String title) async {
     final DateTime now = DateTime.now();
-    return showDatePicker(context: context, initialDate: now, firstDate: now.subtract(Duration(days: 1)), lastDate: DateTime(2050), builder: (BuildContext context, Widget widget) {
+    return showDatePicker(context: context, initialDate: _patient.latestARTRefill?.nextRefillDate ?? now, firstDate: now.subtract(Duration(days: 1)), lastDate: DateTime(2050), builder: (BuildContext context, Widget widget) {
       return PopupScreen(
         backgroundColor: Colors.transparent,
         actions: [],
