@@ -284,16 +284,10 @@ class Patient implements IExcelExportable {
 
   /// Filters out questionnaire actions that are not due yet.
   Set<RequiredAction> calculateVisibleRequiredActions() {
+    final DateTime now = DateTime.now();
     Set<RequiredAction> visibleRequiredActions = {};
     visibleRequiredActions.addAll(requiredActions);
-    visibleRequiredActions.removeWhere((RequiredAction a) {
-      final bool isQuestionnaireAndDue = isQuestionnaireDue(this.enrollmentDate, a.type);
-      if (isQuestionnaireAndDue != null && !isQuestionnaireAndDue) {
-        // questionnaire not due yet, remove from visible required actions
-        return true;
-      }
-      return false;
-    });
+    visibleRequiredActions.removeWhere((RequiredAction a) => a.dueDate.isAfter(now));
     return visibleRequiredActions;
   }
 

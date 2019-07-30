@@ -403,43 +403,6 @@ DateTime calculateNextQuestionnaire(DateTime enrollmentDate, Set<RequiredAction>
   return nextDate;
 }
 
-/// Calculates if a given [questionnaireType] is due based on the date of
-/// enrollment and the current date.
-///
-/// @param [questionnaireType] A questionnaire type. If any other
-/// type is passed (e.g. REFILL_REQUIRED) it will return null.
-bool isQuestionnaireDue(DateTime enrollmentDate, RequiredActionType questionnaireType) {
-  final DateTime now = DateTime.now();
-  switch (questionnaireType) {
-    case RequiredActionType.ADHERENCE_QUESTIONNAIRE_2P5M_REQUIRED:
-      final DateTime twoAndAHalfMonthsAfter = addMonths(enrollmentDate, 2, addHalfMonth: true);
-      return now.isAfter(twoAndAHalfMonthsAfter);
-    case RequiredActionType.ADHERENCE_QUESTIONNAIRE_5M_REQUIRED:
-      final DateTime fiveMonthsAfter = addMonths(enrollmentDate, 5);
-      return now.isAfter(fiveMonthsAfter);
-    case RequiredActionType.ADHERENCE_QUESTIONNAIRE_9M_REQUIRED:
-      final DateTime nineMonthsAfter = addMonths(enrollmentDate, 9);
-      return now.isAfter(nineMonthsAfter);
-    case RequiredActionType.SATISFACTION_QUESTIONNAIRE_5M_REQUIRED:
-      final DateTime fiveMonthsAfter = addMonths(enrollmentDate, 5);
-      return now.isAfter(fiveMonthsAfter);
-    case RequiredActionType.SATISFACTION_QUESTIONNAIRE_9M_REQUIRED:
-      final DateTime nineMonthsAfter = addMonths(enrollmentDate, 9);
-      return now.isAfter(nineMonthsAfter);
-    case RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_5M_REQUIRED:
-      final DateTime fiveMonthsAfter = addMonths(enrollmentDate, 5);
-      return now.isAfter(fiveMonthsAfter);
-    case RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_9M_REQUIRED:
-      final DateTime nineMonthsAfter = addMonths(enrollmentDate, 9);
-      return now.isAfter(nineMonthsAfter);
-    case RequiredActionType.VIRAL_LOAD_9M_REQUIRED:
-      final DateTime nineMonthsAfter = addMonths(enrollmentDate, 9);
-      return now.isAfter(nineMonthsAfter);
-    default:
-      return null;
-  }
-}
-
 /// Adds [monthsToAdd] to [date].
 ///
 /// Hour, minute, second, millisecond, microsecond will all be 0.
