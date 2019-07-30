@@ -71,6 +71,7 @@ class _LockScreenBodyState extends State<LockScreenBody> {
   final String _pinHashed;
   final _pinCodeFormKey = GlobalKey<FormState>();
   bool _isLoading = false;
+  String _errorMessage = '';
 
   _LockScreenBodyState(this._pinHashed);
 
@@ -99,11 +100,6 @@ class _LockScreenBodyState extends State<LockScreenBody> {
         obscureText: true,
         textAlign: TextAlign.center,
         controller: _pinCtr,
-        validator: (value) {
-          if (value.isEmpty) {
-            return 'Please enter your PIN code';
-          }
-        },
       );
     }
 
@@ -116,9 +112,16 @@ class _LockScreenBodyState extends State<LockScreenBody> {
         Card(
           margin: EdgeInsets.all(20.0),
           child: Padding(
-            padding: EdgeInsets.all(10.0),
+            padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 10.0),
             child: pinCodeField(),
           ),
+        ),
+        _errorMessage.isEmpty
+          ? SizedBox()
+          : Padding(
+              padding: const EdgeInsets.only(bottom: 15.0),
+              child: Text(_errorMessage, style: TextStyle(color: Colors.red, fontSize: 13.0, fontWeight: FontWeight.w400),
+              ),
         ),
         PEBRAButtonRaised(
           'Unlock',
@@ -130,6 +133,7 @@ class _LockScreenBodyState extends State<LockScreenBody> {
     );
   }
 
+  /// Returns true if the PIN was correct.
   Future<bool> get validatePIN async {
     return verifyHashAsync(_pinCtr.text, _pinHashed);
   }
@@ -138,17 +142,18 @@ class _LockScreenBodyState extends State<LockScreenBody> {
     setState(() {
       _isLoading = true;
     });
-    if (_pinCodeFormKey.currentState.validate()) {
-      if (await validatePIN) {
-        // pop all flushbar notifications
-        Navigator.of(context).popUntil((Route<dynamic> route) {
-          return route.settings.name == '/lock';
-        });
-        // pop the lock screen itself
-        Navigator.of(context).pop();
-      } else {
-        showFlushbar('Incorrect PIN Code', title: 'Error', error: true);
-      }
+    if (_pinCtr.text.isEmpty) {
+      _errorMessage = 'Please enter your PIN code.';
+    } else if (await validatePIN) {
+      _errorMessage = '';
+      // pop all flushbar notifications
+      Navigator.of(context).popUntil((Route<dynamic> route) {
+        return route.settings.name == '/lock';
+      });
+      // pop the lock screen itself
+      Navigator.of(context).pop();
+    } else {
+      _errorMessage = 'Incorrect PIN code.';
     }
     setState(() {
       _isLoading = false;
