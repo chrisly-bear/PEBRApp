@@ -17,21 +17,7 @@ import 'package:pebrapp/utils/Utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pebrapp/database/beans/NoConsentReason.dart';
 
-class NewPatientScreen extends StatelessWidget {
-
-  @override
-  Widget build(BuildContext context) {
-    return PopupScreen(
-      title: 'New Patient',
-      actions: [],
-      child: _NewPatientForm(),
-      scrollable: false,
-    );
-  }
-}
-
-// https://flutter.dev/docs/cookbook/forms/validation
-class _NewPatientForm extends StatefulWidget {
+class NewPatientScreen extends StatefulWidget {
 
   @override
   _NewPatientFormState createState() {
@@ -39,7 +25,7 @@ class _NewPatientForm extends StatefulWidget {
   }
 }
 
-class _NewPatientFormState extends State<_NewPatientForm> {
+class _NewPatientFormState extends State<NewPatientScreen> {
   // Create a global key that will uniquely identify the Form widget and allow
   // us to validate the form
   final _formKey = GlobalKey<FormState>();
@@ -221,47 +207,73 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       }
     }
 
-    return Stepper(
-      steps: steps,
+    Widget stepper() {
+      return Stepper(
+        steps: steps,
 //      type: StepperType.horizontal,
-      currentStep: currentStep,
-      onStepTapped: goTo,
-      onStepContinue: (_isLoading || (currentStep == 2 && (!_patientSaved || (!_kobocollectOpened && (_newPatient.consentGiven ?? false))))) ? null : next,
-      onStepCancel: (currentStep == 1 && _patientSaved || (currentStep == 2 && !(_newPatient.consentGiven ?? true))) ? null : cancel,
-      controlsBuilder: (BuildContext context, {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
-        final Color navigationButtonsColor = Colors.blue;
-        return Padding(
-          padding: const EdgeInsets.only(top: 15.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              Container(
-                decoration: BoxDecoration(
-                  color: onStepCancel == null ? BUTTON_INACTIVE : (currentStep == 0 ? STEPPER_ABORT : navigationButtonsColor),
-                  borderRadius: BorderRadius.circular(40.0),
+        currentStep: currentStep,
+        onStepTapped: goTo,
+        onStepContinue: (_isLoading || (currentStep == 2 && (!_patientSaved ||
+            (!_kobocollectOpened && (_newPatient.consentGiven ?? false)))))
+            ? null
+            : next,
+        onStepCancel: (currentStep == 1 && _patientSaved ||
+            (currentStep == 2 && !(_newPatient.consentGiven ?? true)))
+            ? null
+            : cancel,
+        controlsBuilder: (BuildContext context,
+            {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
+          final Color navigationButtonsColor = Colors.blue;
+          return Padding(
+            padding: const EdgeInsets.only(top: 15.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Container(
+                  decoration: BoxDecoration(
+                    color: onStepCancel == null
+                        ? BUTTON_INACTIVE
+                        : (currentStep == 0
+                        ? STEPPER_ABORT
+                        : navigationButtonsColor),
+                    borderRadius: BorderRadius.circular(40.0),
+                  ),
+                  child: IconButton(
+                    color: Colors.white,
+                    onPressed: onStepCancel,
+                    icon: Icon(currentStep == 0 ? Icons.close : Icons
+                        .keyboard_arrow_up),
+                  ),
                 ),
-                child: IconButton(
-                  color: Colors.white,
-                  onPressed: onStepCancel,
-                  icon: Icon(currentStep == 0 ? Icons.close : Icons.keyboard_arrow_up),
+                SizedBox(width: 20.0),
+                Container(
+                  decoration: BoxDecoration(
+                    color: onStepContinue == null
+                        ? BUTTON_INACTIVE
+                        : (currentStep == 2
+                        ? STEPPER_FINISH
+                        : navigationButtonsColor),
+                    borderRadius: BorderRadius.circular(40.0),
+                  ),
+                  child: IconButton(
+                    color: Colors.white,
+                    onPressed: onStepContinue,
+                    icon: Icon(currentStep == 2 ? Icons.check : Icons
+                        .keyboard_arrow_down),
+                  ),
                 ),
-              ),
-              SizedBox(width: 20.0),
-              Container(
-                decoration: BoxDecoration(
-                  color: onStepContinue == null ? BUTTON_INACTIVE : (currentStep == 2 ? STEPPER_FINISH : navigationButtonsColor),
-                  borderRadius: BorderRadius.circular(40.0),
-                ),
-                child: IconButton(
-                  color: Colors.white,
-                  onPressed: onStepContinue,
-                  icon: Icon(currentStep == 2 ? Icons.check : Icons.keyboard_arrow_down),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+              ],
+            ),
+          );
+        },
+      );
+    }
+
+    return PopupScreen(
+      title: 'New Patient',
+      actions: _patientSaved ? [] : null,
+      child: stepper(),
+      scrollable: false,
     );
 
   }
