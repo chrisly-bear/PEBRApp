@@ -59,6 +59,7 @@ class _NewPatientFormState extends State<NewPatientScreen> {
   bool _patientBirthdayValid = true;
 
   List<String> _artNumbersInDB;
+  List<String> _stickerNumbersInDB;
   bool _isLoading = true;
 
   double _screenWidth;
@@ -72,9 +73,10 @@ class _NewPatientFormState extends State<NewPatientScreen> {
   @override
   initState() {
     super.initState();
-    DatabaseProvider().retrievePatientsART(retrieveNonEligibles: false, retrieveNonConsents: false).then((artNumbers) {
+    DatabaseProvider().retrieveLatestPatients(retrieveNonEligibles: false, retrieveNonConsents: false).then((List<Patient> patients) {
       setState(() {
-        _artNumbersInDB = artNumbers;
+        _artNumbersInDB = patients.map((Patient p) => p.artNumber).toList();
+        _stickerNumbersInDB = patients.map((Patient p) => p.stickerNumber).toList();
         _isLoading = false;
       });
     });
@@ -391,6 +393,8 @@ class _NewPatientFormState extends State<NewPatientScreen> {
             return 'Please enter the sticker number';
           } else if (value.length != 3) {
             return 'Exactly 3 digits required';
+          } else if (_stickerNumberExists('P$value')) {
+            return 'Patient with this sticker number already exists';
           }
           return null;
         },
@@ -859,7 +863,7 @@ class _NewPatientFormState extends State<NewPatientScreen> {
       _newPatient.enrollmentDate = now;
       _newPatient.isEligible = _eligible;
       _newPatient.artNumber = _artNumberCtr.text;
-      _newPatient.stickerNumber = _newPatient.consentGiven ? 'P${_stickerNumberCtr.text}' : null;
+      _newPatient.stickerNumber = (_newPatient.consentGiven ?? false) ? 'P${_stickerNumberCtr.text}' : null;
       _newPatient.village = _villageCtr.text;
       _newPatient.phoneNumber = '+266-${_phoneNumberCtr.text}';
       _newPatient.noConsentReasonOther = _noConsentReasonOtherCtr.text;
@@ -991,6 +995,10 @@ class _NewPatientFormState extends State<NewPatientScreen> {
 
   bool _artNumberExists(artNumber) {
     return _artNumbersInDB.contains(artNumber);
+  }
+
+  bool _stickerNumberExists(stickerNumber) {
+    return _stickerNumbersInDB.contains(stickerNumber);
   }
 
   void _showDialog(String title, String body) {
