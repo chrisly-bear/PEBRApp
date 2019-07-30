@@ -14,7 +14,6 @@ import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/InputFormatters.dart';
 import 'package:pebrapp/utils/Utils.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:pebrapp/database/beans/NoConsentReason.dart';
 
 class NewPatientScreen extends StatefulWidget {
@@ -926,15 +925,7 @@ class _NewPatientFormState extends State<NewPatientScreen> {
 
   Future<void> _onOpenKoboCollectPressed() async {
     setState(() { _kobocollectOpened = true; });
-    const appUrl = 'android-app://org.koboc.collect.android';
-    const marketUrl = 'market://details?id=org.koboc.collect.android';
-    if (await canLaunch(appUrl)) {
-      await launch(appUrl);
-    } else if (await canLaunch(marketUrl)) {
-      await launch(marketUrl);
-    } else {
-      showFlushbar("Could not find KoBoCollect app. Make sure KoBoCollect is installed.");
-    }
+    await openKoboCollectApp();
   }
 
   Widget _buildCard(String title, {@required Widget child, bool withTopPadding: true}) {

@@ -30,7 +30,6 @@ import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:pebrapp/utils/VisibleImpactUtils.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class PatientScreen extends StatefulWidget {
   final Patient _patient;
@@ -1060,15 +1059,7 @@ class _PatientScreenState extends State<PatientScreen> {
   }
 
   Future<void> _onOpenKoboCollectPressed() async {
-    const appUrl = 'android-app://org.koboc.collect.android';
-    const marketUrl = 'market://details?id=org.koboc.collect.android';
-    if (await canLaunch(appUrl)) {
-      await launch(appUrl);
-    } else if (await canLaunch(marketUrl)) {
-      await launch(marketUrl);
-    } else {
-      showFlushbar("Could not find KoBoCollect app. Make sure KoBoCollect is installed.");
-    }
+    await openKoboCollectApp();
   }
 
   Widget _makeButton(String buttonText, {Function() onPressed, bool flat: false, Widget widget}) {

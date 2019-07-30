@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:device_apps/device_apps.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flushbar/flushbar.dart';
@@ -604,4 +605,17 @@ String composeSMS({@required String message, @required String peName, @required 
     "$message\n\n"
     "Etsetsa call-back nomorong ena $peName, penya *140*$pePhoneEightDigits#"
     " (VCL) kapa *181*$pePhoneEightDigits# (econet).";
+}
+
+Future<void> openKoboCollectApp() async {
+  const String packageName = 'org.koboc.collect.android';
+  const String appUrl = 'android-app://$packageName';
+  const String marketUrl = 'market://details?id=$packageName';
+  if (await DeviceApps.isAppInstalled(packageName)) {
+    await launch(appUrl);
+  } else if (await canLaunch(marketUrl)) {
+    await launch(marketUrl);
+  } else {
+    showFlushbar("Make sure KoBoCollect is installed.", title: "KoBoCollect not Found", error: true);
+  }
 }
