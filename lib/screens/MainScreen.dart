@@ -374,27 +374,27 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       return;
     }
 
-    final List<String> allPatientARTs = await DatabaseProvider().retrievePatientsART(retrieveNonEligibles: false, retrieveNonConsents: false);
-    final List<String> patientsToUpdate = [];
+    final List<Patient> allPatients = await DatabaseProvider().retrieveLatestPatients(retrieveNonEligibles: false, retrieveNonConsents: false);
+    final List<Patient> patientsToUpdate = [];
     final Map<String, int> patientsNotUpdatedForTooLong = {};
-    for (String patientART in allPatientARTs) {
+    for (Patient patient in allPatients) {
       // check if fetch is due
       int daysSinceLastFetch = -1; // -1 means one day from today, i.e. tomorrow
-      final DateTime lastFetch = await getLatestViralLoadFetchFromSharedPrefs(patientART);
+      final DateTime lastFetch = await getLatestViralLoadFetchFromSharedPrefs(patient.artNumber);
       if (lastFetch != null) {
         daysSinceLastFetch = differenceInDays(lastFetch, DateTime.now());
-        print('days since last vl fetch ($patientART): $daysSinceLastFetch');
+        print('days since last vl fetch (${patient.artNumber}): $daysSinceLastFetch');
         if (daysSinceLastFetch < AUTO_VL_FETCH_EVERY_X_DAYS && daysSinceLastFetch >= 0) {
           print("fetch not due yet (only due after $AUTO_VL_FETCH_EVERY_X_DAYS days)");
         } else {
-          patientsToUpdate.add(patientART);
+          patientsToUpdate.add(patient);
         }
         if (daysSinceLastFetch >= SHOW_VL_FETCH_WARNING_AFTER_X_DAYS) {
-          patientsNotUpdatedForTooLong[patientART] = daysSinceLastFetch;
+          patientsNotUpdatedForTooLong[patient.artNumber] = daysSinceLastFetch;
         }
       } else {
-        patientsToUpdate.add(patientART);
-        patientsNotUpdatedForTooLong[patientART] = daysSinceLastFetch;
+        patientsToUpdate.add(patient);
+        patientsNotUpdatedForTooLong[patient.artNumber] = daysSinceLastFetch;
       }
     }
 
@@ -407,23 +407,24 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     int newEntries = 0;
     Map<String, int> updatedPatients = {};
     try {
-      for (String patientART in patientsToUpdate) {
-        viralLoadsFromDB = await downloadViralLoadsFromDatabase(patientART);
+      for (Patient patient in patientsToUpdate) {
+        viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient.artNumber, patient.enrollmentDate);
         final DateTime fetchedDate = DateTime.now();
         for (ViralLoad vl in viralLoadsFromDB) {
           await DatabaseProvider().insertViralLoad(vl, createdDate: fetchedDate);
         }
-        final Patient patientObj = _patients.firstWhere((Patient p) => p.artNumber == patientART, orElse: () => null);
+        final Patient patientObj = _patients.firstWhere((Patient p) => p.artNumber == patient.artNumber, orElse: () => null);
         if (patientObj != null) {
+          // update the patient objects from the main screen
           final int oldEntries = patientObj.viralLoads.length;
           patientObj.addViralLoads(viralLoadsFromDB);
           final int newEntriesForPatient = patientObj.viralLoads.length - oldEntries;
           newEntries += newEntriesForPatient;
           if (newEntriesForPatient > 0) {
-            updatedPatients[patientART] = newEntriesForPatient;
+            updatedPatients[patient.artNumber] = newEntriesForPatient;
           }
-          await storeLatestViralLoadFetchInSharedPrefs(patientART);
-          patientsNotUpdatedForTooLong.remove(patientART); // update for this patient was successful, do not show it to be overdue
+          await storeLatestViralLoadFetchInSharedPrefs(patient.artNumber);
+          patientsNotUpdatedForTooLong.remove(patient); // update for this patient was successful, do not show it to be overdue
           final bool discrepancyFound = await checkForViralLoadDiscrepancies(patientObj);
           // TODO: do we have to deal with a discrepancy in some way (show notification perhaps)?
         }

@@ -850,9 +850,10 @@ class _PatientScreenState extends State<PatientScreen> {
       }
     }
 
+    final PreferenceAssessment lastestPA = _patient.latestPreferenceAssessment;
     return _buildCard(
       title: 'Preferences',
-      explanationText: 'These are the patient\'s preferences as specified in the last preference assessment from ${formatDateAndTimeTodayYesterday(_patient.latestPreferenceAssessment.createdDate)}.',
+      explanationText: lastestPA == null ? null : 'These are the patient\'s preferences as specified in the last preference assessment from ${formatDateAndTimeTodayYesterday(_patient.latestPreferenceAssessment.createdDate)}.',
       child: Container(
         width: double.infinity,
         child: _buildPreferencesCardContent(),
@@ -1018,7 +1019,7 @@ class _PatientScreenState extends State<PatientScreen> {
     bool error = false;
     VoidCallback onNotificationButtonPress;
     try {
-      viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient.artNumber);
+      viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient.artNumber, patient.enrollmentDate);
       final DateTime fetchedDate = DateTime.now();
       for (ViralLoad vl in viralLoadsFromDB) {
         await DatabaseProvider().insertViralLoad(vl, createdDate: fetchedDate);
