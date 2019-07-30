@@ -260,6 +260,15 @@ Future<void> _uploadViralLoadNotification(Patient patient, int patientId, String
 
 /// Viral Load Measurements Download
 ///
+/// Fetches viral loads from VisibleImpact that date back one year before the
+/// enrollmentDate or less. The resulting list will be sorted by date of blood
+/// draw (oldest first). If the latest viral load has status 'failed' a viral
+/// load required action will be created.
+///
+/// @param [enrollmentDate] The patient's enrollment date. This is used to
+/// filter out any viral loads that date back more than one year before the
+/// [enrollmentDate].
+///
 /// Throws [VisibleImpactLoginFailedException] if the authentication fails.
 ///
 /// Throws [PatientNotFoundException] if patient with given [patientART] number
@@ -270,7 +279,7 @@ Future<void> _uploadViralLoadNotification(Patient patient, int patientId, String
 ///
 /// Throws [HTTPStatusNotOKException] if the VisibleImpact API returns anything
 /// else than 200 (OK).
-Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART) async {
+Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART, DateTime enrollmentDate) async {
   final String _token = await _getAPIToken();
   final int patientId = await _getPatientIdVisibleImpact(patientART, _token);
   final _resp = await http.get(
@@ -290,6 +299,7 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART) async 
     );
     return vl;
   }).toList();
+  viralLoadsFromDB.removeWhere((ViralLoad vl) => vl.dateOfBloodDraw.isBefore(enrollmentDate));
   viralLoadsFromDB.sort((ViralLoad a, ViralLoad b) => a.dateOfBloodDraw.isBefore(b.dateOfBloodDraw) ? -1 : 1);
   if (viralLoadsFromDB.isNotEmpty && viralLoadsFromDB.last.failed) {
     // if the last viral load has failed, send the patient to blood draw

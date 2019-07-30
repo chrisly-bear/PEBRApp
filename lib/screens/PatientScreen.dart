@@ -392,9 +392,23 @@ class _PatientScreenState extends State<PatientScreen> {
       );
     } else {
       final int numOfVLs = _patient.viralLoads.length;
-      final viralLoads = _patient.viralLoads.asMap().map((int i, ViralLoad vl) {
-        return MapEntry(i, _buildViralLoadRow(vl, bold: numOfVLs > 1 && i == numOfVLs - 1));
-      }).values.toList();
+      final List<Map<String, dynamic>> vlsMarkedAsBold = [];
+      // determine which viral load should be marked as bold (namely the last one)
+      _patient.viralLoads.asMap().forEach((int i, ViralLoad vl) {
+        vlsMarkedAsBold.add({'vl': vl, 'bold': numOfVLs > 1 && i == numOfVLs - 1});
+      });
+      // sort according to date of blood draw
+      vlsMarkedAsBold.sort((Map<String, dynamic> a, Map<String, dynamic> b) {
+        ViralLoad a_vl = a['vl'];
+        ViralLoad b_vl = b['vl'];
+        return a_vl.dateOfBloodDraw.isBefore(b_vl.dateOfBloodDraw) ? -1 : 1;
+      });
+      // build widgets
+      final viralLoads = vlsMarkedAsBold.map((Map<String, dynamic> m) {
+        ViralLoad vl = m['vl'];
+        bool bold = m['bold'];
+        return _buildViralLoadRow(vl, bold: bold);
+      }).toList();
       content = Column(children: <Widget>[
         _buildViralLoadHeader(),
         ...viralLoads,
@@ -405,6 +419,10 @@ class _PatientScreenState extends State<PatientScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildTitle('Viral Load History'),
+        _buildExplanation('All available viral loads for this patient up to one '
+            'year before the enrollment. The viral loads are sorted by their '
+            'date of blood draw. The bold entry marks the currently active viral '
+            'load.'),
         Card(
           margin: const EdgeInsets.symmetric(horizontal: 15.0),
           child: SingleChildScrollView(
@@ -832,8 +850,10 @@ class _PatientScreenState extends State<PatientScreen> {
       }
     }
 
+    final PreferenceAssessment lastestPA = _patient.latestPreferenceAssessment;
     return _buildCard(
       title: 'Preferences',
+      explanationText: lastestPA == null ? null : 'These are the patient\'s preferences as specified in the last preference assessment from ${formatDateAndTimeTodayYesterday(_patient.latestPreferenceAssessment.createdDate)}.',
       child: Container(
         width: double.infinity,
         child: _buildPreferencesCardContent(),
@@ -847,11 +867,12 @@ class _PatientScreenState extends State<PatientScreen> {
    * Helper Functions
    */
 
-  Widget _buildCard({@required Widget child, String title}) {
+  Widget _buildCard({@required Widget child, String title, String explanationText}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         (title == null || title == '') ? Container() : _buildTitle(title),
+        (explanationText == null || explanationText == '') ? Container() : _buildExplanation(explanationText),
         Card(
           margin: EdgeInsets.symmetric(horizontal: 15),
           child: Padding(
@@ -900,6 +921,15 @@ class _PatientScreenState extends State<PatientScreen> {
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
+      ),
+    );
+  }
+
+  Widget _buildExplanation(String explanation) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 15.0),
+      child: Text(
+        explanation,
       ),
     );
   }
@@ -989,7 +1019,7 @@ class _PatientScreenState extends State<PatientScreen> {
     bool error = false;
     VoidCallback onNotificationButtonPress;
     try {
-      viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient.artNumber);
+      viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient.artNumber, patient.enrollmentDate);
       final DateTime fetchedDate = DateTime.now();
       for (ViralLoad vl in viralLoadsFromDB) {
         await DatabaseProvider().insertViralLoad(vl, createdDate: fetchedDate);

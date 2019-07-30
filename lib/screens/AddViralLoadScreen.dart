@@ -273,8 +273,8 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
     return showDatePicker(
         context: context,
         initialDate: initialDate ?? now,
-        firstDate: DateTime(now.year - 1, now.month, now.day),
-        lastDate: DateTime.now(),
+        firstDate: DateTime(_patient.enrollmentDate.year - 1, _patient.enrollmentDate.month, _patient.enrollmentDate.day),
+        lastDate: now,
     );
   }
 
