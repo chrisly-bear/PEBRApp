@@ -444,7 +444,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       }
       showFlushbar(message, title: 'Viral Loads Fetched', duration: newEntries > 0 ? Duration(seconds: 10) : null);
     } catch (e, s) {
-      print('Caught exception during automated backup: $e');
+      print('Caught exception during automated viral load fetch: $e');
       print('Stacktrace: $s');
       // show warning if viral load fetch wasn't successful for a long time
       if (patientsNotUpdatedForTooLong.isNotEmpty) {
