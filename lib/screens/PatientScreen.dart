@@ -419,6 +419,10 @@ class _PatientScreenState extends State<PatientScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildTitle('Viral Load History'),
+        _buildExplanation('All available viral loads for this patient up to one '
+            'year before the enrollment. The viral loads are sorted by their '
+            'date of blood draw. The bold entry marks the currently active viral '
+            'load.'),
         Card(
           margin: const EdgeInsets.symmetric(horizontal: 15.0),
           child: SingleChildScrollView(
@@ -861,11 +865,12 @@ class _PatientScreenState extends State<PatientScreen> {
    * Helper Functions
    */
 
-  Widget _buildCard({@required Widget child, String title}) {
+  Widget _buildCard({@required Widget child, String title, String explanationText}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         (title == null || title == '') ? Container() : _buildTitle(title),
+        (explanationText == null || explanationText == '') ? Container() : _buildExplanation(explanationText),
         Card(
           margin: EdgeInsets.symmetric(horizontal: 15),
           child: Padding(
@@ -914,6 +919,15 @@ class _PatientScreenState extends State<PatientScreen> {
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
+      ),
+    );
+  }
+
+  Widget _buildExplanation(String explanation) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 15.0),
+      child: Text(
+        explanation,
       ),
     );
   }
