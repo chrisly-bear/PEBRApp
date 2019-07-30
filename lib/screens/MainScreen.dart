@@ -412,10 +412,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     }
 
     List<ViralLoad> viralLoadsFromDB;
-    String message = 'No new viral load results found.';
-    String title = 'Viral Load Fetch Successful';
-    bool error = false;
-    VoidCallback onNotificationButtonPress;
     int newEntries = 0;
     Map<String, int> updatedPatients = {};
     try {
@@ -440,46 +436,23 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           // TODO: do we have to deal with a discrepancy in some way (show notification perhaps)?
         }
       }
+      String message = 'No new viral loads found.';
       if (newEntries > 0) {
         message = '$newEntries new viral load result${newEntries > 1 ? 's' : ''} found for patients:\n${updatedPatients.map((String patientART, int newVLs) {
           return MapEntry(patientART, '\n$patientART ($newVLs)');
         }).values.join('')}';
       }
+      showFlushbar(message, title: 'Viral Loads Fetched', duration: newEntries > 0 ? Duration(seconds: 10) : null);
     } catch (e, s) {
-      error = true;
-      title = 'Viral Load Fetch Failed';
-      switch (e.runtimeType) {
-        case VisibleImpactLoginFailedException:
-          message = 'Login to VisibleImpact failed. Contact the development team.';
-          break;
-        case PatientNotFoundException:
-          message = e.message;
-          break;
-        case MultiplePatientsException:
-          message = e.message;
-          break;
-        case SocketException:
-          message = 'Make sure you are connected to the internet.';
-          break;
-        default:
-          message = 'An unknown error occured. Contact the development team.';
-          print('${e.runtimeType}: $e');
-          print(s);
-          onNotificationButtonPress = () {
-            showErrorInPopup(e, s, context);
-          };
-      }
-      // show additional warning if viral load fetch wasn't successful for a long time
+      print('Caught exception during automated backup: $e');
+      print('Stacktrace: $s');
+      // show warning if viral load fetch wasn't successful for a long time
       if (patientsNotUpdatedForTooLong.isNotEmpty) {
         final String vlFetchOverdueMessage = "The last viral load update for the following patient${patientsNotUpdatedForTooLong.length > 1 ? 's' : ''} goes back $SHOW_VL_FETCH_WARNING_AFTER_X_DAYS days or more:\n${patientsNotUpdatedForTooLong.map((String patientART, int lastFetch) {
           return MapEntry(patientART, '\n$patientART (${lastFetch < 0 ? 'never' : '$lastFetch days ago'})');
         }).values.join('')}\n\nYou can fetch the latest viral loads from ${patientsNotUpdatedForTooLong.length > 1 ? 'each' : 'the'} patient's detail page.";
         showFlushbar(vlFetchOverdueMessage, title: "Warning", error: true);
       }
-    }
-    if (!error) {
-      // do not show error notifications as they can become annoying when the app is used offline
-      showFlushbar(message, title: title, error: error, onButtonPress: onNotificationButtonPress, duration: newEntries > 0 ? Duration(seconds: 10) : null);
     }
     setState(() {}); // set state to update the viral load icons
     _vlFetchRunning = false;
