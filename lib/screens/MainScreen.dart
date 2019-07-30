@@ -144,8 +144,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   /// Sorts patients in the following way:
   ///
   /// - activated patients before deactivated patients
-  /// - patients with more required actions before patients with less required
-  ///   actions
   /// - patients with missing ART refill or preference assessment before
   ///   patients with ART refill or preference assessment
   /// - patients with next action (ART refill / preference assessment) closer in
@@ -156,22 +154,16 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     patients.sort((Patient a, Patient b) {
       if (a.isActivated && !b.isActivated) { return -1; }
       if (!a.isActivated && b.isActivated) { return 1; } // do we need this rule or is it implied by the previous rule?
-      final int actionsRequiredForA = a.calculateDueRequiredActions().length;
-      final int actionsRequiredForB = b.calculateDueRequiredActions().length;
-      if (actionsRequiredForA > actionsRequiredForB) { return -1; }
-      if (actionsRequiredForA < actionsRequiredForB) { return 1; } // do we need this rule or is it implied by the previous rule?
-      if (actionsRequiredForA == actionsRequiredForB) {
-        final DateTime dateOfNextActionA = _getDateOfNextAction(a);
-        final DateTime dateOfNextActionB = _getDateOfNextAction(b);
-        if (dateOfNextActionA == null && dateOfNextActionB != null) {
-          return -1;
-        }
-        if (dateOfNextActionA != null && dateOfNextActionB == null) {
-          return 1;
-        }
-        if (dateOfNextActionA != null && dateOfNextActionB != null && !dateOfNextActionA.isAtSameMomentAs(dateOfNextActionB)) {
-          return dateOfNextActionA.isBefore(dateOfNextActionB) ? -1 : 1;
-        }
+      final DateTime dateOfNextActionA = _getDateOfNextAction(a);
+      final DateTime dateOfNextActionB = _getDateOfNextAction(b);
+      if (dateOfNextActionA == null && dateOfNextActionB != null) {
+        return -1;
+      }
+      if (dateOfNextActionA != null && dateOfNextActionB == null) {
+        return 1;
+      }
+      if (dateOfNextActionA != null && dateOfNextActionB != null && !dateOfNextActionA.isAtSameMomentAs(dateOfNextActionB)) {
+        return dateOfNextActionA.isBefore(dateOfNextActionB) ? -1 : 1;
       }
       return a.createdDate.isBefore(b.createdDate) ? 1 : -1;
     });
@@ -914,10 +906,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   Color _calculateCardColor(Patient patient) {
     if (!patient.isActivated) {
       return Colors.transparent;
-    }
-
-    if (patient.calculateDueRequiredActions().length > 0) {
-      return URGENCY_HIGH;
     }
 
     final DateTime dateOfNextAction = _getDateOfNextAction(patient);
