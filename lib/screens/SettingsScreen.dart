@@ -571,9 +571,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   _onSubmitCreateAccountForm() async {
     // Validate will return true if the form is valid, or false if the form is invalid.
     if (_createAccountFormKey.currentState.validate()) {
-      String notificationMessage = 'Account Created';
-      String title;
-      bool error = false;
+      String notificationMessage = '';
+      String title = 'Error Creating Account';
+      bool error = true;
       VoidCallback onNotificationButtonPress;
       setState(() { _isLoadingLoginBody = true; });
       _userData.username = _usernameCtr.text;
@@ -586,15 +586,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
       try {
         final bool userExists = await existsBackupForUser(_userData.username);
         if (userExists) {
-          error = true;
-          title = 'Account could not be created';
           notificationMessage = 'User \'${_userData.username}\' already exists.';
         } else {
           await DatabaseProvider().createFirstBackupOnSWITCH(_userData, pinCodeHash);
+          title = 'Account Created';
+          notificationMessage = 'You are logged in as \'${_userData.username}\.';
+          error = false;
         }
       } catch (e, s) {
-        error = true;
-        title = 'Account could not be created';
         switch (e.runtimeType) {
         // case NoLoginDataException should never occur because we create the
         // loginData object at the beginning of this method
