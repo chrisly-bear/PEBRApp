@@ -895,6 +895,7 @@ class _NewPatientFormState extends State<NewPatientScreen> {
           await DatabaseProvider().insertViralLoad(_viralLoadBaseline);
           _newPatient.viralLoads = [_viralLoadBaseline];
         } else {
+          // if no baseline viral load is available, send the patient to blood draw
           RequiredAction vlRequired = RequiredAction(_artNumberCtr.text, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, DateTime.fromMillisecondsSinceEpoch(0));
           DatabaseProvider().insertRequiredAction(vlRequired);
           PatientBloc.instance.sinkRequiredActionData(vlRequired, false);

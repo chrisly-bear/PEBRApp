@@ -292,6 +292,7 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART) async 
   }).toList();
   viralLoadsFromDB.sort((ViralLoad a, ViralLoad b) => a.dateOfBloodDraw.isBefore(b.dateOfBloodDraw) ? -1 : 1);
   if (viralLoadsFromDB.isNotEmpty && viralLoadsFromDB.last.failed) {
+    // if the last viral load has failed, send the patient to blood draw
     RequiredAction vlRequired = RequiredAction(patientART, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, DateTime.fromMillisecondsSinceEpoch(0));
     DatabaseProvider().insertRequiredAction(vlRequired);
     PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
