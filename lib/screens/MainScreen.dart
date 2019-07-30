@@ -156,8 +156,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     patients.sort((Patient a, Patient b) {
       if (a.isActivated && !b.isActivated) { return -1; }
       if (!a.isActivated && b.isActivated) { return 1; } // do we need this rule or is it implied by the previous rule?
-      final int actionsRequiredForA = a.calculateVisibleRequiredActions().length;
-      final int actionsRequiredForB = b.calculateVisibleRequiredActions().length;
+      final int actionsRequiredForA = a.calculateDueRequiredActions().length;
+      final int actionsRequiredForB = b.calculateDueRequiredActions().length;
       if (actionsRequiredForA > actionsRequiredForB) { return -1; }
       if (actionsRequiredForA < actionsRequiredForB) { return 1; } // do we need this rule or is it implied by the previous rule?
       if (actionsRequiredForA == actionsRequiredForB) {
@@ -278,9 +278,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   /// inform all listeners of the new data.
   Future<void> _recalculateRequiredActionsForAllPatients() async {
     for (Patient p in _patients) {
-      final Set<RequiredAction> previousActions = p.visibleRequiredActionsAtInitialization;
+      final Set<RequiredAction> previousActions = p.dueRequiredActionsAtInitialization;
       await p.initializeRequiredActionsField();
-      final Set<RequiredAction> newActions = p.calculateVisibleRequiredActions();
+      final Set<RequiredAction> newActions = p.calculateDueRequiredActions();
       final bool shouldAnimate = previousActions.length != newActions.length;
       if (shouldAnimate) {
         shouldAnimateRequiredActionBadge[p.artNumber] = shouldAnimate;
@@ -926,7 +926,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       );
 
       // wrap in stack to display action required label
-      final int numOfActionsRequired = curPatient.calculateVisibleRequiredActions().length;
+      final int numOfActionsRequired = curPatient.calculateDueRequiredActions().length;
       if (curPatient.isActivated && numOfActionsRequired > 0) {
         final List<Widget> badges = [];
         for (int i = 0; i < numOfActionsRequired; i++) {
@@ -973,7 +973,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       return Colors.transparent;
     }
 
-    if (patient.calculateVisibleRequiredActions().length > 0) {
+    if (patient.calculateDueRequiredActions().length > 0) {
       return URGENCY_HIGH;
     }
 
