@@ -280,7 +280,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       setState(() {
         this._loginData = null;
       });
-      showFlushbar('Logged Out');
+      print('logged out');
     }
   }
 
@@ -300,7 +300,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         this._loginData = null;
         this._createAccountMode = true;
       });
-      showFlushbar('Logged out. Create a new account now.');
+      showFlushbar('Create a new account now.', title: 'Logged Out');
     }
   }
 

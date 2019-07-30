@@ -984,8 +984,8 @@ class _PatientScreenState extends State<PatientScreen> {
   Future<void> _fetchFromDatabasePressed(BuildContext context, Patient patient) async {
     setState(() { _isFetchingViralLoads = true; });
     List<ViralLoad> viralLoadsFromDB;
-    String message = 'No new viral load results found.';
-    String title = 'Viral Load Fetch Successful';
+    String message = 'No new viral loads found.';
+    String title = 'Viral Loads Fetched';
     bool error = false;
     VoidCallback onNotificationButtonPress;
     try {

@@ -904,8 +904,6 @@ class _NewPatientFormState extends State<NewPatientScreen> {
       await _newPatient.initializeRequiredActionsField();
       await DatabaseProvider().insertPatient(_newPatient);
       await PatientBloc.instance.sinkNewPatientData(_newPatient);
-      final String finishNotification = 'New patient created successfully';
-      showFlushbar(finishNotification);
       setState(() {
         _isLoading = false;
       });

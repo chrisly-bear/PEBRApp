@@ -244,8 +244,6 @@ class _EditPatientFormState extends State<_EditPatientForm> {
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return (route.settings.name == '/patient' || route.settings.name == '/');
       });
-      final String finishNotification = 'Changes saved';
-      showFlushbar(finishNotification);
     }
   }
 

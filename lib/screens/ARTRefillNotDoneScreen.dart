@@ -277,7 +277,6 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return route.settings.name == '/patient';
       });
-      showFlushbar('ART Refill saved');
     }
   }
 

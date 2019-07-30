@@ -2119,7 +2119,6 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       if(_uploadPEPhoneNumber) {
         uploadPeerEducatorPhoneNumber();
       }
-      showFlushbar('Preference Assessment saved');
     } else {
       showFlushbar("Errors exist in the assessment form. Please check the form.");
     }
