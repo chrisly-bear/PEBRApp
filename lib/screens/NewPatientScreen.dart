@@ -113,13 +113,20 @@ class _NewPatientFormState extends State<_NewPatientForm> {
       ),
     );
 
+    final String bullet = '‣';
     final Widget baselineAssessmentStep = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Open the KoBoCollect app to fill in the baseline assessment form.'),
+        Text('Open the KoBoCollect app and fill in the following questionnaires:\n'
+            '$bullet  Enrollment questionnaire\n'
+            '$bullet  Satisfaction questionnaire\n'
+            '$bullet  Quality of Life questionnaire\n'
+            '$bullet  Adherence questionnaire',
+          style: TextStyle(height: 1.8),
+        ),
         SizedBox(height: 20.0),
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [PEBRAButtonRaised('Open KoBoCollect', onPressed: _onOpenKoboCollectPressed)],
         ),
         SizedBox(height: 20.0),
