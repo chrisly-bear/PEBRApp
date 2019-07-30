@@ -222,7 +222,7 @@ class Patient implements IExcelExportable {
       actions.add(assessmentRequired);
     }
     this.requiredActions = actions;
-    this.visibleRequiredActionsAtInitialization = visibleRequiredActions;
+    this.visibleRequiredActionsAtInitialization = calculateVisibleRequiredActions();
   }
 
   /// Returns the viral load with the latest blood draw date.
@@ -283,7 +283,7 @@ class Patient implements IExcelExportable {
   DateTime get createdDate => _createdDate;
 
   /// Filters out questionnaire actions that are not due yet.
-  Set<RequiredAction> get visibleRequiredActions {
+  Set<RequiredAction> calculateVisibleRequiredActions() {
     Set<RequiredAction> visibleRequiredActions = {};
     visibleRequiredActions.addAll(requiredActions);
     visibleRequiredActions.removeWhere((RequiredAction a) {

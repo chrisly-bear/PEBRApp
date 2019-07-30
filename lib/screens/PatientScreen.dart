@@ -71,7 +71,7 @@ class _PatientScreenState extends State<PatientScreen> {
       if (streamEvent is AppStatePatientData && streamEvent.patient.artNumber == _patient.artNumber) {
         // TODO: animate changes to the new patient data (e.g. insertions and removals of required action card) with an animation for visual fidelity
         print('*** PatientScreen received AppStatePatientData: ${streamEvent.patient.artNumber} ***');
-        final Set<RequiredAction> newVisibleRequiredActions = streamEvent.patient.visibleRequiredActions;
+        final Set<RequiredAction> newVisibleRequiredActions = streamEvent.patient.calculateVisibleRequiredActions();
         for (RequiredAction a in newVisibleRequiredActions) {
           if (streamEvent.oldRequiredActions != null && !streamEvent.oldRequiredActions.contains(a)) {
             shouldAnimateRequiredActionContainer[a.type] = AnimateDirection.FORWARD;
@@ -175,7 +175,7 @@ class _PatientScreenState extends State<PatientScreen> {
 
   Widget _buildRequiredActions() {
 
-    final List<RequiredAction> visibleRequiredActionsSorted =_patient.visibleRequiredActions.toList();
+    final List<RequiredAction> visibleRequiredActionsSorted =_patient.calculateVisibleRequiredActions().toList();
     visibleRequiredActionsSorted.sort((RequiredAction a, RequiredAction b) => a.dueDate.isBefore(b.dueDate) ? -1 : 1);
     final actions = visibleRequiredActionsSorted.asMap().map((int i, RequiredAction action) {
       final mapEntry = MapEntry(

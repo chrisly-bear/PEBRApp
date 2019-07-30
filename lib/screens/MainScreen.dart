@@ -156,8 +156,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     patients.sort((Patient a, Patient b) {
       if (a.isActivated && !b.isActivated) { return -1; }
       if (!a.isActivated && b.isActivated) { return 1; } // do we need this rule or is it implied by the previous rule?
-      final int actionsRequiredForA = a.visibleRequiredActions.length;
-      final int actionsRequiredForB = b.visibleRequiredActions.length;
+      final int actionsRequiredForA = a.calculateVisibleRequiredActions().length;
+      final int actionsRequiredForB = b.calculateVisibleRequiredActions().length;
       if (actionsRequiredForA > actionsRequiredForB) { return -1; }
       if (actionsRequiredForA < actionsRequiredForB) { return 1; } // do we need this rule or is it implied by the previous rule?
       if (actionsRequiredForA == actionsRequiredForB) {
@@ -280,7 +280,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     for (Patient p in _patients) {
       final Set<RequiredAction> previousActions = p.visibleRequiredActionsAtInitialization;
       await p.initializeRequiredActionsField();
-      final Set<RequiredAction> newActions = p.visibleRequiredActions;
+      final Set<RequiredAction> newActions = p.calculateVisibleRequiredActions();
       final bool shouldAnimate = previousActions.length != newActions.length;
       if (shouldAnimate) {
         shouldAnimateRequiredActionBadge[p.artNumber] = shouldAnimate;
@@ -926,7 +926,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       );
 
       // wrap in stack to display action required label
-      final int numOfActionsRequired = curPatient.visibleRequiredActions.length;
+      final int numOfActionsRequired = curPatient.calculateVisibleRequiredActions().length;
       if (curPatient.isActivated && numOfActionsRequired > 0) {
         final List<Widget> badges = [];
         for (int i = 0; i < numOfActionsRequired; i++) {
@@ -973,7 +973,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       return Colors.transparent;
     }
 
-    if (patient.visibleRequiredActions.length > 0) {
+    if (patient.calculateVisibleRequiredActions().length > 0) {
       return URGENCY_HIGH;
     }
 
