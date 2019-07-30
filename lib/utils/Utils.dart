@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:device_apps/device_apps.dart';
@@ -611,7 +612,7 @@ Future<void> openKoboCollectApp() async {
   const String packageName = 'org.koboc.collect.android';
   const String appUrl = 'android-app://$packageName';
   const String marketUrl = 'market://details?id=$packageName';
-  if (await DeviceApps.isAppInstalled(packageName)) {
+  if (Platform.isAndroid && await DeviceApps.isAppInstalled(packageName)) {
     await launch(appUrl);
   } else if (await canLaunch(marketUrl)) {
     await launch(marketUrl);
