@@ -409,10 +409,10 @@ DateTime calculateNextQuestionnaire(DateTime enrollmentDate, Set<RequiredAction>
 ///
 /// @param [monthsToAdd] How many months to add to [date].
 ///
-/// @param [addHalfMonth] If true, 14 days (two weeks) will be added to the date
+/// @param [addHalfMonth] If true, 15 days (two weeks) will be added to the date
 /// additionally.
 DateTime addMonths(DateTime date, int monthsToAdd, {bool addHalfMonth: false}) {
-  return DateTime(date.year, date.month + monthsToAdd, addHalfMonth ? date.day + 14 : date.day);
+  return DateTime(date.year, date.month + monthsToAdd, addHalfMonth ? date.day + 15 : date.day);
 }
 
 /// Updates the date of the last successful backup to now (local time).
