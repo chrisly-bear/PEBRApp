@@ -380,6 +380,7 @@ class _NewPatientFormState extends State<NewPatientScreen> {
     return _makeQuestion('Sticker Number',
       answer: TextFormField(
         decoration: InputDecoration(
+          errorMaxLines: 2,
           prefixText: 'P',
         ),
         keyboardType: TextInputType.number,
@@ -774,6 +775,9 @@ class _NewPatientFormState extends State<NewPatientScreen> {
     return _makeQuestion('Lab number of that viral load',
       answer: TextFormField(
         controller: _viralLoadBaselineLabNumberCtr,
+        decoration: InputDecoration(
+          errorMaxLines: 2,
+        ),
         inputFormatters: [
           WhitelistingTextInputFormatter(RegExp(r'[a-zA-Z0-9]')),
           LengthLimitingTextInputFormatter(13),
