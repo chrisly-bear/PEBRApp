@@ -229,7 +229,9 @@ class _NewPatientFormState extends State<NewPatientScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                Container(
+                currentStep == 0 || currentStep == 1
+                ? SizedBox()
+                : Container(
                   decoration: BoxDecoration(
                     color: onStepCancel == null
                         ? BUTTON_INACTIVE
