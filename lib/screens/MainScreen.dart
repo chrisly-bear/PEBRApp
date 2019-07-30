@@ -108,12 +108,14 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
             animationControllers[newPatient.artNumber].forward();
           } else {
             // add if not exists (new patient was added)
-            this._patients.add(newPatient);
-            // add animation controller for this patient card
-            final controller = AnimationController(duration: const Duration(milliseconds: _ANIMATION_TIME), vsync: this);
-            animationControllers[newPatient.artNumber] = controller;
-            // start animation
-            controller.forward();
+            if (newPatient.isEligible && newPatient.consentGiven) {
+              this._patients.add(newPatient);
+              // add animation controller for this patient card
+              final controller = AnimationController(duration: const Duration(milliseconds: _ANIMATION_TIME), vsync: this);
+              animationControllers[newPatient.artNumber] = controller;
+              // start animation
+              controller.forward();
+            }
           }
         });
       }
