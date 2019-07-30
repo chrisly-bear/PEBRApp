@@ -545,7 +545,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 retry = true;
                 pinCodeHash = newPINHash;
               } else {
-                notificationMessage = 'New PIN required.';
+                showNotification = false;
               }
               break;
             default:
