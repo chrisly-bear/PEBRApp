@@ -150,7 +150,7 @@ Future<void> _uploadAdherenceReminder(Patient patient, int patientId, String tok
     "end_date": formatDateForVisibleImpact(artRefill.nextRefillDate),
   };
   final _resp = await http.put(
-    'https://lstowards909090.org/db-test/apiv1/pebramessage',
+    '$VI_API/pebramessage',
     headers: {
       'Authorization' : 'Custom $token',
       'Content-Type': 'application/json',
@@ -198,7 +198,7 @@ Future<void> _uploadRefillReminder(Patient patient, int patientId, String token,
     ),
   };
   final _resp = await http.put(
-    'https://lstowards909090.org/db-test/apiv1/pebramessage',
+    '$VI_API/pebramessage',
     headers: {
       'Authorization' : 'Custom $token',
       'Content-Type': 'application/json',
@@ -247,7 +247,7 @@ Future<void> _uploadViralLoadNotification(Patient patient, int patientId, String
     "message_failed": "Sephetho hasea sebetseha. Re kopa o itlalehe setsing sa bophelo mo o sebeletsoang teng hang hang, u hopotse mooki ka sephetho sa liteko!",
   };
   final _resp = await http.put(
-    'https://lstowards909090.org/db-test/apiv1/pebramessage',
+    '$VI_API/pebramessage',
     headers: {
       'Authorization' : 'Custom $token',
       'Content-Type': 'application/json',
@@ -274,7 +274,7 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART) async 
   final String _token = await _getAPIToken();
   final int patientId = await _getPatientIdVisibleImpact(patientART, _token);
   final _resp = await http.get(
-    'https://lstowards909090.org/db-test/apiv1/labdata?patient_id=$patientId',
+    '$VI_API/labdata?patient_id=$patientId',
     headers: {'Authorization' : 'Custom $_token'},
   );
   _checkStatusCode(_resp);
@@ -326,7 +326,7 @@ List<String> calculateRefillReminderSendDates(ARTRefillReminderDaysBeforeSelecti
 Future<String> _getAPIToken() async {
   String basicAuth = 'Basic ' + base64Encode(utf8.encode('$VI_USERNAME:$VI_PASSWORD'));
   http.Response _resp = await http.post(
-    'https://lstowards909090.org/db-test/apiv1/token',
+    '$VI_API/token',
     headers: {'authorization': basicAuth},
   );
   if (_resp.statusCode != 200 || _resp.body == '') {
@@ -350,7 +350,7 @@ Future<String> _getAPIToken() async {
 /// patient ID for the given [patientART] number.
 Future<int> _getPatientIdVisibleImpact(String patientART, String _apiAuthToken) async {
   final _resp = await http.get(
-    'https://lstowards909090.org/db-test/apiv1/patient?art_number=$patientART',
+    '$VI_API/patient?art_number=$patientART',
     headers: {'Authorization' : 'Custom $_apiAuthToken'},
   );
   if (_resp.statusCode != 200) {
