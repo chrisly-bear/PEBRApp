@@ -392,9 +392,23 @@ class _PatientScreenState extends State<PatientScreen> {
       );
     } else {
       final int numOfVLs = _patient.viralLoads.length;
-      final viralLoads = _patient.viralLoads.asMap().map((int i, ViralLoad vl) {
-        return MapEntry(i, _buildViralLoadRow(vl, bold: numOfVLs > 1 && i == numOfVLs - 1));
-      }).values.toList();
+      final List<Map<String, dynamic>> vlsMarkedAsBold = [];
+      // determine which viral load should be marked as bold (namely the last one)
+      _patient.viralLoads.asMap().forEach((int i, ViralLoad vl) {
+        vlsMarkedAsBold.add({'vl': vl, 'bold': numOfVLs > 1 && i == numOfVLs - 1});
+      });
+      // sort according to date of blood draw
+      vlsMarkedAsBold.sort((Map<String, dynamic> a, Map<String, dynamic> b) {
+        ViralLoad a_vl = a['vl'];
+        ViralLoad b_vl = b['vl'];
+        return a_vl.dateOfBloodDraw.isBefore(b_vl.dateOfBloodDraw) ? -1 : 1;
+      });
+      // build widgets
+      final viralLoads = vlsMarkedAsBold.map((Map<String, dynamic> m) {
+        ViralLoad vl = m['vl'];
+        bool bold = m['bold'];
+        return _buildViralLoadRow(vl, bold: bold);
+      }).toList();
       content = Column(children: <Widget>[
         _buildViralLoadHeader(),
         ...viralLoads,
