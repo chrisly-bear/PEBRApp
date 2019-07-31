@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:pebrapp/config/VisibleImpactConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderDaysBeforeSelection.dart';
+import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/PhoneAvailability.dart';
 import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
@@ -20,20 +21,26 @@ import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:http/http.dart' as http;
 
-/// Updates the patient's phone number on the VisibleImpact database.
+/// Updates the patient's data on VisibleImpact.
 ///
 /// @param [reUploadNotifications] The upload of the patient's phone number does
 /// not affect the phone number to which the (previously uploaded) notifications
-/// will be sent. If you want to update the notifications to be sent to the new
-/// phone number, set [reUploadNotifications] to true.
-Future<void> uploadPatientPhoneNumber(Patient patient, {bool reUploadNotifications: false}) async {
+/// will be sent. If the patient's phone number changed and you want to update
+/// the notifications to be sent to the new phone number, set
+/// [reUploadNotifications] to true.
+Future<void> uploadPatientCharacteristics(Patient patient, {bool reUploadNotifications: false}) async {
   try {
     final String token = await _getAPIToken();
     final int patientId = await _getPatientIdVisibleImpact(patient.artNumber, token);
+    String gender;
+    if (patient.gender == Gender.MALE()) gender = "M";
+    if (patient.gender == Gender.FEMALE()) gender = "F";
     Map<String, dynamic> body = {
       "patient_id": patientId,
       "mobile_phone": patient.phoneAvailability == PhoneAvailability.YES() ? _formatPhoneNumberForVI(patient.phoneNumber) : null,
       "mobile_owner": patient.phoneAvailability == PhoneAvailability.YES() ? "patient" : null,
+      "birth_date": formatDateForVisibleImpact(patient.birthday),
+      "sex": gender,
     };
     final _resp = await http.put(
       '$VI_API/patient',
@@ -44,15 +51,15 @@ Future<void> uploadPatientPhoneNumber(Patient patient, {bool reUploadNotificatio
       body: jsonEncode(body),
     );
     _checkStatusCode(_resp);
-    _handleSuccess(patient, RequiredActionType.PATIENT_PHONE_UPLOAD_REQUIRED);
+    _handleSuccess(patient, RequiredActionType.PATIENT_CHARACTERISTICS_UPLOAD_REQUIRED);
   } catch (e, s) {
-    _handleFailure(patient, RequiredActionType.PATIENT_PHONE_UPLOAD_REQUIRED);
-    showFlushbar('The automatic upload of the patient\'s phone number failed. Please upload manually.',
+    _handleFailure(patient, RequiredActionType.PATIENT_CHARACTERISTICS_UPLOAD_REQUIRED);
+    showFlushbar('The automatic upload of the patient\'s characteristics failed. Please upload manually.',
       title: 'Upload of Patient Phone Number Failed',
       error: true,
       buttonText: 'Retry\nNow',
       onButtonPress: () {
-        uploadPatientPhoneNumber(patient, reUploadNotifications: false);
+        uploadPatientCharacteristics(patient, reUploadNotifications: false);
       },
     );
     print('Exception caught: $e');
