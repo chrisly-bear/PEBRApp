@@ -15,6 +15,7 @@ import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/InputFormatters.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:pebrapp/database/beans/NoConsentReason.dart';
+import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
 class NewPatientScreen extends StatefulWidget {
 
@@ -908,6 +909,7 @@ class _NewPatientFormState extends State<NewPatientScreen> {
       setState(() {
         _isLoading = false;
       });
+      uploadPatientCharacteristics(_newPatient);
       return true;
     }
     setState(() {
