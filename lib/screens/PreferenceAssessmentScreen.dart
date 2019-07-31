@@ -1991,8 +1991,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       }
       if (_phoneAvailability == PhoneAvailability.YES()) {
         final String newPatientPhoneNumber = '+266-${_patientPhoneNumberCtr.text}';
-        if (_patientPhoneNumberBeforeAssessment != newPatientPhoneNumber
-            || _phoneAvailabilityBeforeAssessment != _phoneAvailability) {
+        if (_patientPhoneNumberBeforeAssessment != newPatientPhoneNumber) {
           _patient.phoneNumber = newPatientPhoneNumber;
           _patientUpdated = true;
           _patientPhoneNumberChanged = true;
@@ -2004,8 +2003,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       if (_phoneAvailability != PhoneAvailability.YES()) {
         // reset all phone related fields
         final String newPatientPhoneNumber = null;
-        if (_patientPhoneNumberBeforeAssessment != newPatientPhoneNumber
-            || _phoneAvailabilityBeforeAssessment != _phoneAvailability) {
+        if (_patientPhoneNumberBeforeAssessment != newPatientPhoneNumber) {
           _patient.phoneNumber = newPatientPhoneNumber;
           _patientUpdated = true;
           _patientPhoneNumberChanged = true;

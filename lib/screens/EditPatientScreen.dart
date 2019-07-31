@@ -38,7 +38,9 @@ class _EditPatientFormState extends State<EditPatientScreen> {
   TextEditingController _phoneNumberCtr = TextEditingController();
 
   _EditPatientFormState(this._patientToBeEdited) {
-    _patientBeforeEditing = _patientToBeEdited;
+    // Note: toMap -> fromMap copy operation copies all boolean variables as
+    // false (isEligible, consentGiven, isActivated...)
+    _patientBeforeEditing = Patient.fromMap(_patientToBeEdited.toMap());
     _villageCtr.text = _patientToBeEdited.village;
     if (_patientToBeEdited.phoneNumber != null) {
       _phoneNumberCtr.text = _patientToBeEdited.phoneNumber.substring(5);
@@ -219,7 +221,6 @@ class _EditPatientFormState extends State<EditPatientScreen> {
       _patientToBeEdited.village = _villageCtr.text;
       await DatabaseProvider().insertPatient(_patientToBeEdited);
       if (_patientToBeEdited.gender != _patientBeforeEditing.gender
-          || _patientToBeEdited.phoneAvailability != _patientBeforeEditing.phoneAvailability
           || _patientToBeEdited.phoneNumber != _patientBeforeEditing.phoneNumber
           || _patientToBeEdited.birthday != _patientBeforeEditing.birthday) {
         // upload to VisibleImpact is required
