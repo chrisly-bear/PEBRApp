@@ -440,7 +440,7 @@ void main() {
       expect(discrepancy, true);
     });
 
-    test('different date of blood draw', () async {
+    test('different date of blood draw (manual before database)', () async {
       final List<ViralLoad> viralLoads = [
         ViralLoad( // manual baseline
           source: ViralLoadSource.MANUAL_INPUT(),
@@ -465,6 +465,43 @@ void main() {
         ),
         ViralLoad( // database additional 1
           source: ViralLoadSource.DATABASE(),
+          labNumber: 'ADDITIONAL1',
+          dateOfBloodDraw: DateTime(1999, 6, 1),
+          viralLoad: 0,
+          failed: false,
+        ),
+      ];
+      final Patient patient = Patient(enrollmentDate: DateTime(2000, 1, 1));
+      patient.viralLoads = viralLoads;
+      final bool discrepancy = await checkForViralLoadDiscrepancies(patient, testingEnabled: true);
+      expect(discrepancy, true);
+    });
+
+    test('different date of blood draw (database before manual)', () async {
+      final List<ViralLoad> viralLoads = [
+        ViralLoad( // database baseline
+          source: ViralLoadSource.DATABASE(),
+          labNumber: 'BASELINE',
+          dateOfBloodDraw: DateTime(1999, 7, 1),
+          viralLoad: 0,
+          failed: false,
+        ),
+        ViralLoad( // database additional 1
+          source: ViralLoadSource.DATABASE(),
+          labNumber: 'ADDITIONAL1',
+          dateOfBloodDraw: DateTime(1999, 6, 1),
+          viralLoad: 0,
+          failed: false,
+        ),
+        ViralLoad( // manual baseline
+          source: ViralLoadSource.MANUAL_INPUT(),
+          labNumber: 'BASELINE',
+          dateOfBloodDraw: DateTime(1999, 7, 2),
+          viralLoad: 0,
+          failed: false,
+        ),
+        ViralLoad( // manual additional 1
+          source: ViralLoadSource.MANUAL_INPUT(),
           labNumber: 'ADDITIONAL1',
           dateOfBloodDraw: DateTime(1999, 6, 1),
           viralLoad: 0,
