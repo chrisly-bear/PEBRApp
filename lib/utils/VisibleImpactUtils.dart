@@ -55,7 +55,7 @@ Future<void> uploadPatientCharacteristics(Patient patient, {bool reUploadNotific
   } catch (e, s) {
     _handleFailure(patient, RequiredActionType.PATIENT_CHARACTERISTICS_UPLOAD_REQUIRED);
     showFlushbar('The automatic upload of the patient\'s characteristics failed. Please upload manually.',
-      title: 'Upload of Patient Phone Number Failed',
+      title: 'Upload of Patient Characteristics Failed',
       error: true,
       buttonText: 'Retry\nNow',
       onButtonPress: () {
@@ -78,7 +78,16 @@ Future<void> uploadPeerEducatorPhoneNumber() async {
   try {
     final UserData user = await DatabaseProvider().retrieveLatestUserData();
     final List<Patient> patients = await DatabaseProvider().retrieveLatestPatients(retrieveNonEligibles: false, retrieveNonConsents: false);
-    patients.removeWhere((Patient p) => !(p.isActivated ?? false));
+    patients.removeWhere((Patient p) {
+      final bool isActivated = p.isActivated ?? false;
+      final PreferenceAssessment pa = p.latestPreferenceAssessment;
+      final bool notificationsEnabled = (pa?.adherenceReminderEnabled ?? false) || (pa?.artRefillReminderEnabled ?? false) || (pa?.vlNotificationEnabled ?? false);
+      return !isActivated || !notificationsEnabled;
+    });
+    if (patients.length <= 0) {
+      print('uploadPeerEducatorPhoneNumber: No activated patients with enabled notifications found. No notifications upload required.');
+      return;
+    }
     final String token = await _getAPIToken();
     for (Patient patient in patients) {
       final int patientId = await _getPatientIdVisibleImpact(patient.artNumber, token);
@@ -108,6 +117,11 @@ Future<void> uploadPeerEducatorPhoneNumber() async {
 /// Make sure that [patient.latestPreferenceAssessment] and
 /// [patient.latestARTRefill] are up to date.
 Future<void> uploadNotificationsPreferences(Patient patient) async {
+  final PreferenceAssessment _pa = patient.latestPreferenceAssessment;
+  if (!((_pa?.adherenceReminderEnabled ?? false) || (_pa?.artRefillReminderEnabled ?? false) || (_pa?.vlNotificationEnabled ?? false))) {
+    print('uploadNotificationsPreferences: No notifications enabled. No notifications upload required.');
+    return;
+  }
   try {
     final UserData pe = await DatabaseProvider().retrieveLatestUserData();
     final String token = await _getAPIToken();
