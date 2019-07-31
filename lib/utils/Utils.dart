@@ -510,7 +510,7 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient) async {
   // If there is no match
   if (vlBaseline2 == null) {
     vlBaseline.discrepancy = true;
-    DatabaseProvider().insertViralLoad(vlBaseline);
+    DatabaseProvider().setViralLoadDiscrepancy(vlBaseline);
     discrepancyFound = true;
   } else {
     print(vlBaseline2.dateOfBloodDraw.toString() + " : " + vlBaseline2.viralLoad.toString() + " : " + vlBaseline2.labNumber);
@@ -521,8 +521,8 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient) async {
     if (vlBaseline2.viralLoad != vlBaseline.viralLoad || vlBaseline2.dateOfBloodDraw.compareTo(vlBaseline2.dateOfBloodDraw) == -1 || vlBaseline2.labNumber != vlBaseline.labNumber) {
       vlBaseline.discrepancy = true;
       vlBaseline2.discrepancy = true;
-      DatabaseProvider().insertViralLoad(vlBaseline);
-      DatabaseProvider().insertViralLoad(vlBaseline2);
+      DatabaseProvider().setViralLoadDiscrepancy(vlBaseline);
+      DatabaseProvider().setViralLoadDiscrepancy(vlBaseline2);
       discrepancyFound = true;
     }
   }
