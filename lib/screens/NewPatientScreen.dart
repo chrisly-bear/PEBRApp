@@ -909,7 +909,7 @@ class _NewPatientFormState extends State<NewPatientScreen> {
       setState(() {
         _isLoading = false;
       });
-      uploadPatientCharacteristics(_newPatient);
+      uploadPatientCharacteristics(_newPatient, showNotification: false);
       return true;
     }
     setState(() {

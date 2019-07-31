@@ -28,7 +28,7 @@ import 'package:http/http.dart' as http;
 /// will be sent. If the patient's phone number changed and you want to update
 /// the notifications to be sent to the new phone number, set
 /// [reUploadNotifications] to true.
-Future<void> uploadPatientCharacteristics(Patient patient, {bool reUploadNotifications: false}) async {
+Future<void> uploadPatientCharacteristics(Patient patient, {bool reUploadNotifications: false, bool showNotification: true}) async {
   try {
     final String token = await _getAPIToken();
     final int patientId = await _getPatientIdVisibleImpact(patient.artNumber, token);
@@ -54,14 +54,17 @@ Future<void> uploadPatientCharacteristics(Patient patient, {bool reUploadNotific
     _handleSuccess(patient, RequiredActionType.PATIENT_CHARACTERISTICS_UPLOAD_REQUIRED);
   } catch (e, s) {
     _handleFailure(patient, RequiredActionType.PATIENT_CHARACTERISTICS_UPLOAD_REQUIRED);
-    showFlushbar('The automatic upload of the patient\'s characteristics failed. Please upload manually.',
-      title: 'Upload of Patient Characteristics Failed',
-      error: true,
-      buttonText: 'Retry\nNow',
-      onButtonPress: () {
-        uploadPatientCharacteristics(patient, reUploadNotifications: false);
-      },
-    );
+    if (showNotification) {
+      showFlushbar(
+        'The automatic upload of the patient\'s characteristics failed. Please upload manually.',
+        title: 'Upload of Patient Characteristics Failed',
+        error: true,
+        buttonText: 'Retry\nNow',
+        onButtonPress: () {
+          uploadPatientCharacteristics(patient, reUploadNotifications: false);
+        },
+      );
+    }
     print('Exception caught: $e');
     print('Stacktrace: $s');
   }
