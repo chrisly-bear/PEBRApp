@@ -487,7 +487,10 @@ ViralLoad getBaselineViralLoad(List<ViralLoad> viralLoads, ViralLoad viralLoad) 
 }
 
 /// Returns true if a discrepancy has been found for this patient.
-Future<bool> checkForViralLoadDiscrepancies(Patient patient) async {
+///
+/// @param [testingEnabled] If set to true, the discrepancy will not be inserted
+/// into the SQLite database. This is useful for unit testing.
+Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnabled: false}) async {
   bool discrepancyFound = false;
 
   List<ViralLoad> allViralLoadsForPatient = []; // List<ViralLoad>();
@@ -510,7 +513,7 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient) async {
   // If there is no match
   if (vlBaseline2 == null) {
     vlBaseline.discrepancy = true;
-    DatabaseProvider().setViralLoadDiscrepancy(vlBaseline);
+    if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline);
     discrepancyFound = true;
   } else {
     print(vlBaseline2.dateOfBloodDraw.toString() + " : " + vlBaseline2.viralLoad.toString() + " : " + vlBaseline2.labNumber);
@@ -521,8 +524,8 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient) async {
     if (vlBaseline2.viralLoad != vlBaseline.viralLoad || vlBaseline2.dateOfBloodDraw.compareTo(vlBaseline2.dateOfBloodDraw) == -1 || vlBaseline2.labNumber != vlBaseline.labNumber) {
       vlBaseline.discrepancy = true;
       vlBaseline2.discrepancy = true;
-      DatabaseProvider().setViralLoadDiscrepancy(vlBaseline);
-      DatabaseProvider().setViralLoadDiscrepancy(vlBaseline2);
+      if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline);
+      if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline2);
       discrepancyFound = true;
     }
   }
