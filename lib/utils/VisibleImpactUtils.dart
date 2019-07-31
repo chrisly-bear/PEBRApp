@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:pebrapp/config/VisibleImpactConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderDaysBeforeSelection.dart';
+import 'package:pebrapp/database/beans/PhoneAvailability.dart';
 import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
@@ -29,8 +30,20 @@ Future<void> uploadPatientPhoneNumber(Patient patient, {bool reUploadNotificatio
   try {
     final String token = await _getAPIToken();
     final int patientId = await _getPatientIdVisibleImpact(patient.artNumber, token);
-    // TODO: implement updating of patient's phone number on VisibleImpact as soon as the API is ready
-    // ... (write upload code here)
+    Map<String, dynamic> body = {
+      "patient_id": patientId,
+      "mobile_phone": patient.phoneAvailability == PhoneAvailability.YES() ? _formatPhoneNumberForVI(patient.phoneNumber) : null,
+      "mobile_owner": patient.phoneAvailability == PhoneAvailability.YES() ? "patient" : null,
+    };
+    final _resp = await http.put(
+      '$VI_API/patient',
+      headers: {
+        'Authorization' : 'Custom $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(body),
+    );
+    _checkStatusCode(_resp);
     _handleSuccess(patient, RequiredActionType.PATIENT_PHONE_UPLOAD_REQUIRED);
   } catch (e, s) {
     _handleFailure(patient, RequiredActionType.PATIENT_PHONE_UPLOAD_REQUIRED);
@@ -376,6 +389,8 @@ Future<int> _getPatientIdVisibleImpact(String patientART, String _apiAuthToken) 
     return patientMap['patient_id'] as int;
   }).toList();
   if (patientIds.isEmpty) {
+    // TODO: create patient with the given ART number instead of throwing this exception
+    // -> the VI API returns the patient json object with the newly created patient_id
     throw PatientNotFoundException('No patient with ART number $patientART found on VisibleImpact.');
   }
   if (patientIds.length > 1) {
@@ -414,4 +429,10 @@ void _checkStatusCode(http.Response response) {
         'Status Code: ${response.statusCode}\n'
         'Response Body:\n${response.body}');
   }
+}
+
+/// Removes all '-' from the [phoneNumber] string so that we get a phone number
+/// in the form '+26612345678' as expected by the VisibleImpact API.
+String _formatPhoneNumberForVI(String phoneNumber) {
+  return phoneNumber.replaceAll(RegExp(r'[-]'), '');
 }
