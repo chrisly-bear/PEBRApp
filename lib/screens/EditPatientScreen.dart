@@ -11,29 +11,11 @@ import 'package:pebrapp/utils/InputFormatters.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
-// TODO: implement this screen. Think about what fields have to be changeable for a patient.
-class EditPatientScreen extends StatelessWidget {
+class EditPatientScreen extends StatefulWidget {
 
   final Patient _existingPatient;
 
   EditPatientScreen(this._existingPatient);
-
-  @override
-  Widget build(BuildContext context) {
-    return PopupScreen(
-      title: 'Edit Patient',
-      subtitle: _existingPatient.artNumber,
-      child: _EditPatientForm(_existingPatient),
-    );
-  }
-}
-
-// https://flutter.dev/docs/cookbook/forms/validation
-class _EditPatientForm extends StatefulWidget {
-
-  final Patient _existingPatient;
-
-  _EditPatientForm(this._existingPatient);
 
   @override
   _EditPatientFormState createState() {
@@ -41,7 +23,7 @@ class _EditPatientForm extends StatefulWidget {
   }
 }
 
-class _EditPatientFormState extends State<_EditPatientForm> {
+class _EditPatientFormState extends State<EditPatientScreen> {
   // Create a global key that will uniquely identify the Form widget and allow
   // us to validate the form
   final _formKey = GlobalKey<FormState>();
@@ -68,9 +50,12 @@ class _EditPatientFormState extends State<_EditPatientForm> {
   @override
   Widget build(BuildContext context) {
     _screenWidth = MediaQuery.of(context).size.width;
-    return Form(
-      key: _formKey,
-      child: Column(
+    return PopupScreen(
+      title: 'Edit Patient',
+      subtitle: _patientToBeEdited.artNumber,
+      child: Form(
+        key: _formKey,
+        child: Column(
           children: [
             _personalInformationCard(),
             SizedBox(height: 16.0),
@@ -82,6 +67,7 @@ class _EditPatientFormState extends State<_EditPatientForm> {
             ]),
             SizedBox(height: 16.0),
           ],
+        ),
       ),
     );
   }
