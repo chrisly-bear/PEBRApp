@@ -89,14 +89,14 @@ Future<void> uploadPeerEducatorPhoneNumber() async {
     });
     if (patients.length <= 0) {
       print('uploadPeerEducatorPhoneNumber: No activated patients with enabled notifications found. No notifications upload required.');
-      return;
-    }
-    final String token = await _getAPIToken();
-    for (Patient patient in patients) {
-      final int patientId = await _getPatientIdVisibleImpact(patient, token);
-      await _uploadAdherenceReminder(patient, patientId, token, pe: user);
-      await _uploadRefillReminder(patient, patientId, token, pe: user);
-      await _uploadViralLoadNotification(patient, patientId, token, pe: user);
+    } else {
+      final String token = await _getAPIToken();
+      for (Patient patient in patients) {
+        final int patientId = await _getPatientIdVisibleImpact(patient, token);
+        await _uploadAdherenceReminder(patient, patientId, token, pe: user);
+        await _uploadRefillReminder(patient, patientId, token, pe: user);
+        await _uploadViralLoadNotification(patient, patientId, token, pe: user);
+      }
     }
     user.phoneNumberUploadRequired = false;
     await DatabaseProvider().insertUserData(user);
