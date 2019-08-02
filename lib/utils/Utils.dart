@@ -504,6 +504,11 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnable
   // sort the viral loads in descending order of date of blood draw
   viralLoads.sort((b, a) => a.dateOfBloodDraw.compareTo(b.dateOfBloodDraw));
 
+  // Check if there are any viral loads
+  if (viralLoads.length < 1) {
+    return false; // because there is nothing to check for descrepancies
+  }
+
   ViralLoad vlBaseline = viralLoads.first; // Get the baseline viral load
   print(vlBaseline.dateOfBloodDraw.toString() + " : " + vlBaseline.viralLoad.toString() + " : " + vlBaseline.labNumber);
 
@@ -521,7 +526,7 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnable
     //a) VL result (c/mL)
     //b) lab number
     //c) date of blood draw
-    if (vlBaseline2.viralLoad != vlBaseline.viralLoad || vlBaseline2.dateOfBloodDraw.compareTo(vlBaseline2.dateOfBloodDraw) == -1 || vlBaseline2.labNumber != vlBaseline.labNumber) {
+    if (vlBaseline2.viralLoad != vlBaseline.viralLoad || vlBaseline2.dateOfBloodDraw.compareTo(vlBaseline.dateOfBloodDraw) != 0 || vlBaseline2.labNumber != vlBaseline.labNumber) {
       vlBaseline.discrepancy = true;
       vlBaseline2.discrepancy = true;
       if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline);
