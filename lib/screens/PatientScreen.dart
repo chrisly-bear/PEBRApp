@@ -20,7 +20,6 @@ import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/exceptions/MultiplePatientsException.dart';
-import 'package:pebrapp/exceptions/PatientNotFoundException.dart';
 import 'package:pebrapp/exceptions/VisibleImpactLoginFailedException.dart';
 import 'package:pebrapp/screens/ARTRefillScreen.dart';
 import 'package:pebrapp/screens/AddViralLoadScreen.dart';
@@ -1019,7 +1018,7 @@ class _PatientScreenState extends State<PatientScreen> {
     bool error = false;
     VoidCallback onNotificationButtonPress;
     try {
-      viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient.artNumber, patient.enrollmentDate);
+      viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient);
       final DateTime fetchedDate = DateTime.now();
       for (ViralLoad vl in viralLoadsFromDB) {
         await DatabaseProvider().insertViralLoad(vl, createdDate: fetchedDate);
@@ -1040,9 +1039,6 @@ class _PatientScreenState extends State<PatientScreen> {
       switch (e.runtimeType) {
         case VisibleImpactLoginFailedException:
           message = 'Login to VisibleImpact failed. Contact the development team.';
-          break;
-        case PatientNotFoundException:
-          message = e.message;
           break;
         case MultiplePatientsException:
           message = e.message;
