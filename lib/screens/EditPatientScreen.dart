@@ -53,7 +53,7 @@ class _EditPatientFormState extends State<EditPatientScreen> {
   Widget build(BuildContext context) {
     _screenWidth = MediaQuery.of(context).size.width;
     return PopupScreen(
-      title: 'Edit Patient',
+      title: 'Edit Participant',
       subtitle: _patientToBeEdited.artNumber,
       child: Form(
         key: _formKey,

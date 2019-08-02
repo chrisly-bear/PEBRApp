@@ -22,7 +22,7 @@ class DatabaseExporter {
 
     // these are the name of the sheets in the template excel file
     const String userDataSheet = 'User Data';
-    const String patientSheet = 'Patient';
+    const String patientSheet = 'Participant';
     const String viralLoadSheet = 'Viral Load';
     const String preferenceAssessmentSheet = 'Preference Assessment';
     const String supportOptionDoneSheet = 'Support Option Done';

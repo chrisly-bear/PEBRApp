@@ -124,7 +124,7 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
         );
         break;
       case RequiredActionType.PATIENT_CHARACTERISTICS_UPLOAD_REQUIRED:
-        actionText = "The automatic upload of the patient's characteristics failed. Please upload manually.";
+        actionText = "The automatic upload of the participant's characteristics failed. Please upload manually.";
         actionButton = FlatButton(
           onPressed: () async {
             await uploadPatientCharacteristics(widget.patient, reUploadNotifications: false);
@@ -140,7 +140,7 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
         );
         break;
       case RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED:
-        actionText = "Viral load required. Please send the patient to the nurse for blood draw.";
+        actionText = "Viral load required. Please send the participant to the nurse for blood draw.";
         actionButton = FlatButton(
           onPressed: () async {
             DatabaseProvider().removeRequiredAction(widget.patient.artNumber, widget.action.type);
@@ -157,7 +157,7 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
         );
         break;
       case RequiredActionType.VIRAL_LOAD_9M_REQUIRED:
-        actionText = "The patient needs a viral load within the next few months. Please coordinate with the nurse for blood draw.";
+        actionText = "The participant needs a viral load within the next few months. Please coordinate with the nurse for blood draw.";
         actionButton = _questionnaireDoneButton(widget.action);
         break;
       case RequiredActionType.SATISFACTION_QUESTIONNAIRE_5M_REQUIRED:

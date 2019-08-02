@@ -631,7 +631,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
     if (_phoneAvailability == null || _phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
-    return _makeQuestion('Patient Phone Number',
+    return _makeQuestion('Participant Phone Number',
       answer: TextFormField(
         decoration: InputDecoration(
           prefixText: '+266-',
@@ -1207,7 +1207,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
             value: _pa.supportPreferences.LEGAL_AID_INFO_selected,
             onChanged: (bool newValue) => this.setState(() {
               if (newValue) {
-                _showDialog('${SupportOption.LEGAL_AID_INFO().description} selected', 'Give patient a legal aid leaflet.');
+                _showDialog('${SupportOption.LEGAL_AID_INFO().description} selected', 'Give participant a legal aid leaflet.');
               }
               _pa.supportPreferences.LEGAL_AID_INFO_selected = newValue;
             })),

@@ -70,7 +70,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
           child: Text(
             _artRefill.notDoneReason == null || _artRefill.notDoneReason == ARTRefillNotDoneReason.STOCK_OUT_OR_FAILED_DELIVERY()
               ? ''
-              : 'Patient will be deactivated and appear greyed out in the main screen.',
+              : 'Participant will be deactivated and appear greyed out in the main screen.',
             textAlign: TextAlign.center,
           ),
         ),
@@ -182,7 +182,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
     if (_artRefill.notDoneReason != ARTRefillNotDoneReason.PATIENT_HOSPITALIZED()) {
       return Container();
     }
-    return _makeQuestion('Where is the patient hospitalized?',
+    return _makeQuestion('Where is the participant hospitalized?',
       answer: TextFormField(
         controller: _hospitalizedClinicCtr,
         validator: (value) {

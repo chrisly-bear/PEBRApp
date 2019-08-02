@@ -56,8 +56,8 @@ Future<void> uploadPatientCharacteristics(Patient patient, {bool reUploadNotific
     _handleFailure(patient, RequiredActionType.PATIENT_CHARACTERISTICS_UPLOAD_REQUIRED);
     if (showNotification) {
       showFlushbar(
-        'The automatic upload of the patient\'s characteristics failed. Please upload manually.',
-        title: 'Upload of Patient Characteristics Failed',
+        'The automatic upload of the participant\'s characteristics failed. Please upload manually.',
+        title: 'Upload of Participant Characteristics Failed',
         error: true,
         buttonText: 'Retry\nNow',
         onButtonPress: () {

@@ -28,7 +28,7 @@ void main() {
       await driver.tap(buttonFinder);
 
       // Then, verify that the title has the expected text
-      expect(await driver.getText(titleFinder), "New Patient");
+      expect(await driver.getText(titleFinder), "New Participant");
     });
   });
 }

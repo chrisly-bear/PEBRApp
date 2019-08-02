@@ -173,7 +173,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         SizedBox(height: 5.0),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 25.0),
-          child: Text('Use this option if you want to keep the patient data on the device but change the user.', textAlign: TextAlign.center,),
+          child: Text('Use this option if you want to keep the participant data on the device but change the user.', textAlign: TextAlign.center,),
         ),
         SizedBox(height: _spacing),
       ],

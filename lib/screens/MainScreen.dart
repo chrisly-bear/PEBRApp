@@ -203,7 +203,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           backgroundColor: FLOATING_ACTION_BUTTON,
         ),
         body: TransparentHeaderPage(
-          title: 'Patients',
+          title: 'Participants',
           subtitle: 'Overview',
           child: Center(child: _bodyToDisplayBasedOnState()),
           actions: <Widget>[
@@ -424,7 +424,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       }
       String message = 'No new viral loads found.';
       if (newEntries > 0) {
-        message = '$newEntries new viral load result${newEntries > 1 ? 's' : ''} found for patients:\n${updatedPatients.map((String patientART, int newVLs) {
+        message = '$newEntries new viral load result${newEntries > 1 ? 's' : ''} found for participants:\n${updatedPatients.map((String patientART, int newVLs) {
           return MapEntry(patientART, '\n$patientART ($newVLs)');
         }).values.join('')}';
       }
@@ -434,9 +434,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       print('Stacktrace: $s');
       // show warning if viral load fetch wasn't successful for a long time
       if (patientsNotUpdatedForTooLong.isNotEmpty) {
-        final String vlFetchOverdueMessage = "The last viral load update for the following patient${patientsNotUpdatedForTooLong.length > 1 ? 's' : ''} goes back $SHOW_VL_FETCH_WARNING_AFTER_X_DAYS days or more:\n${patientsNotUpdatedForTooLong.map((String patientART, int lastFetch) {
+        final String vlFetchOverdueMessage = "The last viral load update for the following participant${patientsNotUpdatedForTooLong.length > 1 ? 's' : ''} dates back $SHOW_VL_FETCH_WARNING_AFTER_X_DAYS days or more:\n${patientsNotUpdatedForTooLong.map((String patientART, int lastFetch) {
           return MapEntry(patientART, '\n$patientART (${lastFetch < 0 ? 'never' : '$lastFetch days ago'})');
-        }).values.join('')}\n\nYou can fetch the latest viral loads from ${patientsNotUpdatedForTooLong.length > 1 ? 'each' : 'the'} patient's detail page.";
+        }).values.join('')}\n\nYou can fetch the latest viral loads from ${patientsNotUpdatedForTooLong.length > 1 ? 'each' : 'the'} participant's detail page.";
         showFlushbar(vlFetchOverdueMessage, title: "Warning", error: true);
       }
     }
@@ -516,7 +516,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       padding: EdgeInsets.all(25.0),
       child: Center(
         child: Text(
-          "No patients recorded yet.\nAdd new patient by pressing the + icon.",
+          "No participants recorded yet.\nAdd new participant by pressing the + icon.",
           textAlign: TextAlign.center,
         ),
       ),
@@ -749,7 +749,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
                   SizedBox(
                     width: 180.0,
                     child: PEBRAButtonRaised(
-                      curPatient.isActivated ? 'Deactivate Patient' : 'Activate Patient',
+                      curPatient.isActivated ? 'Deactivate Participant' : 'Activate Participant',
                       onPressed: () async {
                         Navigator.of(context).pop();
                         // *****************************
@@ -768,7 +768,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
                   kReleaseMode ? SizedBox() : SizedBox(
                     width: 180.0,
                     child: PEBRAButtonRaised(
-                      'Delete Patient',
+                      'Delete Participant',
                       onPressed: () async {
                         // **************
                         // delete patient

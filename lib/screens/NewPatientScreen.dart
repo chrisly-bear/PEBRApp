@@ -137,7 +137,7 @@ class _NewPatientFormState extends State<NewPatientScreen> {
         title: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text('Patient Characteristics', style: TextStyle(fontWeight: currentStep == 0 ? FontWeight.bold : FontWeight.normal)),
+            Text('Participant Characteristics', style: TextStyle(fontWeight: currentStep == 0 ? FontWeight.bold : FontWeight.normal)),
             SizedBox(width: 10.0),
             _isLoading ? SizedBox(height: 10.0, width: 10.0, child: CircularProgressIndicator()) : Container(),
           ],
@@ -274,7 +274,7 @@ class _NewPatientFormState extends State<NewPatientScreen> {
     }
 
     return PopupScreen(
-      title: 'New Patient',
+      title: 'New Participant',
       actions: _patientSaved ? [] : null,
       child: stepper(),
       scrollable: false,
@@ -368,7 +368,7 @@ class _NewPatientFormState extends State<NewPatientScreen> {
         ],
         validator: (String value) {
           if (_artNumberExists(value)) {
-            return 'Patient with this ART number already exists';
+            return 'Participant with this ART number already exists';
           }
           return validateARTNumber(value);
           },
@@ -395,7 +395,7 @@ class _NewPatientFormState extends State<NewPatientScreen> {
           } else if (value.length != 3) {
             return 'Exactly 3 digits required';
           } else if (_stickerNumberExists('P$value')) {
-            return 'Patient with this sticker number already exists';
+            return 'Participant with this sticker number already exists';
           }
           return null;
         },
@@ -565,7 +565,7 @@ class _NewPatientFormState extends State<NewPatientScreen> {
   }
 
   Widget _consentGivenQuestion() {
-    return _makeQuestion('Has the patient signed the consent form?',
+    return _makeQuestion('Has the participant signed the consent form?',
       answer: DropdownButtonFormField<bool>(
         value: _newPatient.consentGiven,
         onChanged: (bool newValue) {
@@ -800,7 +800,7 @@ class _NewPatientFormState extends State<NewPatientScreen> {
       Padding(
         padding: EdgeInsets.only(top: 15.0),
         child:
-        Text('Only patients between ages $minAgeForEligibility and $maxAgeForEligibility are eligible.',
+        Text('Only candidates between ages $minAgeForEligibility and $maxAgeForEligibility are eligible.',
           textAlign: TextAlign.left,
         ),
       );
@@ -814,10 +814,10 @@ class _NewPatientFormState extends State<NewPatientScreen> {
       Padding(
         padding: EdgeInsets.only(top: 15.0),
         child:
-        Text('This patient is not eligible for the study. Only patients born '
+        Text('This candidate is not eligible for the study. Only candidates born '
             'between ${formatDateConsistent(minBirthdayForEligibility)} and '
             '${formatDateConsistent(maxBirthdayForEligibility)} are '
-            'eligible. The patient will not appear in the PEBRApp.',
+            'eligible. The candidate will not appear in the PEBRApp.',
           textAlign: TextAlign.left,
         ),
       );

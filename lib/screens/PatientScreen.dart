@@ -162,7 +162,7 @@ class _PatientScreenState extends State<PatientScreen> {
     return Scaffold(
       backgroundColor: BACKGROUND_COLOR,
       body: TransparentHeaderPage(
-        title: 'Patient',
+        title: 'Participant',
         subtitle: _patient.artNumber,
         actions: <Widget>[IconButton(onPressed: () { Navigator.of(context).pop(); }, icon: Icon(Icons.close),)],
         child: content,
@@ -247,14 +247,14 @@ class _PatientScreenState extends State<PatientScreen> {
         _buildNextActionRow(
           title: 'Next Preference Assessment',
           dueDate: _nextAssessmentText,
-          explanation: 'Preference assessments are due every month for unsuppressed patients and every 3 months for suppressed patients.',
+          explanation: 'Preference assessments are due every month for unsuppressed participants and every 3 months for suppressed participants.',
           button: _makeButton('Start Assessment', onPressed: () { _startAssessmentPressed(_context, _patient); }),
         ),
         SizedBox(height: _spacingBetweenCards),
         _buildNextActionRow(
           title: 'Next ART Refill',
           dueDate: _nextRefillText,
-          explanation: 'The ART refill date is selected when the patient collects $pronoun ARTs or has them delivered.',
+          explanation: 'The ART refill date is selected when the participant collects $pronoun ARTs or has them delivered.',
           button: _makeButton('Manage Refill', onPressed: () { _manageRefillPressed(_context, _patient, _nextRefillText); }),
         ),
         SizedBox(height: _spacingBetweenCards),
@@ -262,8 +262,8 @@ class _PatientScreenState extends State<PatientScreen> {
           title: 'Next Questionnaire',
           dueDate: _nextEndpointText,
           explanation: 'Adherence questionnaires are due 2.5–3.5 months, 5–8 months, and 9–15 months '
-              'after patient enrollment.\nSatisfaction questionnaires and Quality'
-              ' of Life questionnaires are due 5–8 months and 9–15 months after patient '
+              'after participant enrollment. Satisfaction questionnaires and Quality'
+              ' of Life questionnaires are due 5–8 months and 9–15 months after participant '
               'enrollment.',
           button: _makeButton('Open KoBoCollect', onPressed: _onOpenKoboCollectPressed),
         ),
@@ -274,7 +274,7 @@ class _PatientScreenState extends State<PatientScreen> {
 
   _buildPatientCharacteristicsCard() {
     return _buildCard(
-      title: 'Patient Characterstics',
+      title: 'Characterstics',
       child: Column(
         children: [
           _buildRow('Enrollment Date', formatDateConsistent(_patient.enrollmentDate)),
@@ -385,7 +385,7 @@ class _PatientScreenState extends State<PatientScreen> {
     if (_patient.viralLoads.length == 0) {
       content = Center(
         child: Text(
-          "No viral load data available for this patient. Fetch data from the viral load database or add a new entry manually.",
+          "No viral load data available for this participant. Fetch data from the viral load database or add a new entry manually.",
           style: TextStyle(color: NO_DATA_TEXT),
         ),
       );
@@ -418,8 +418,8 @@ class _PatientScreenState extends State<PatientScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildTitle('Viral Load History'),
-        _buildExplanation('All available viral loads for this patient up to one '
-            'year before the enrollment. The viral loads are sorted by their '
+        _buildExplanation('All available viral loads for this participant up to one '
+            'year before the enrollment are listed here. The viral loads are sorted by their '
             'date of blood draw. The bold entry marks the currently active viral '
             'load.'),
         Card(
@@ -691,7 +691,7 @@ class _PatientScreenState extends State<PatientScreen> {
       if (_patient.latestPreferenceAssessment == null) {
         return Center(
           child: Text(
-            "No preferences available for this patient. Start a new preference assessment below.",
+            "No preferences available for this participant. Start a new preference assessment below.",
             style: TextStyle(
               color: NO_DATA_TEXT,
             ),
@@ -774,7 +774,7 @@ class _PatientScreenState extends State<PatientScreen> {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 5.0),
               child: Text(
-                'The patient did not have a phone with a Lesotho phone number at the time of the preference assessment. Thus, no notifications are sent to the patient.',
+                'The participant did not have a phone with a Lesotho phone number at the time of the preference assessment. Thus, no notifications are sent to the participant.',
                 style: TextStyle(color: TEXT_INACTIVE),
                 textAlign: TextAlign.center,
               ),
@@ -796,9 +796,9 @@ class _PatientScreenState extends State<PatientScreen> {
           final bool shareSomething = answer != null && answer == YesNoRefused.YES();
           return Column(
             children: [
-              _buildRow('Did the patient want to share something?', answer.description),
-              shareSomething ? _buildRow('The patient shared:', _patient.latestPreferenceAssessment.psychosocialShareSomethingContent) : Container(),
-              _buildRow('How was the patient doing?', _patient.latestPreferenceAssessment.psychosocialHowDoing),
+              _buildRow('Did the participant want to share something?', answer.description),
+              shareSomething ? _buildRow('The participant shared:', _patient.latestPreferenceAssessment.psychosocialShareSomethingContent) : Container(),
+              _buildRow('How was the participant doing?', _patient.latestPreferenceAssessment.psychosocialHowDoing),
             ],
           );
         }
@@ -809,7 +809,7 @@ class _PatientScreenState extends State<PatientScreen> {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 5.0),
               child: Text(
-                'The patient was suppressed at the time of the preference assessment. Thus, this section was not covered during the assessment.',
+                'The participant was suppressed at the time of the preference assessment. Thus, this section was not covered during the assessment.',
                 style: TextStyle(color: TEXT_INACTIVE),
                 textAlign: TextAlign.center,
               ),
@@ -818,7 +818,7 @@ class _PatientScreenState extends State<PatientScreen> {
           final bool notSafe = answer == YesNoRefused.NO();
           return Column(
             children: [
-              _buildRow('Does the patient have a safe environment to take the medication?', answer.description),
+              _buildRow('Does the participant have a safe environment to take the medication?', answer.description),
               notSafe ? _buildRow('Why is the environment not safe?', _patient.latestPreferenceAssessment.unsuppressedWhyNotSafe) : Container(),
             ],
           );
@@ -852,7 +852,7 @@ class _PatientScreenState extends State<PatientScreen> {
     final PreferenceAssessment lastestPA = _patient.latestPreferenceAssessment;
     return _buildCard(
       title: 'Preferences',
-      explanationText: lastestPA == null ? null : 'These are the patient\'s preferences as specified in the last preference assessment from ${formatDateAndTimeTodayYesterday(_patient.latestPreferenceAssessment.createdDate)}.',
+      explanationText: lastestPA == null ? null : 'These are the participant\'s preferences as specified in the last preference assessment from ${formatDateAndTimeTodayYesterday(_patient.latestPreferenceAssessment.createdDate)}.',
       child: Container(
         width: double.infinity,
         child: _buildPreferencesCardContent(),
