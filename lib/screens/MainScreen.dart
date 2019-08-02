@@ -140,6 +140,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       }
       if (streamEvent is AppStateSettingsRequiredActionData) {
         print('*** MainScreen received AppStateSettingsRequiredActionData: ${streamEvent.isDone} ***');
+        this.shouldAnimateSettingsActionRequired = true;
         setState(() {
           this._settingsActionRequired = !streamEvent.isDone;
         });
@@ -244,24 +245,18 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
                   alignment: AlignmentDirectional(2.2, 1.8),
                   children: [
                     Icon(Icons.settings),
-                    Container(
-                      decoration: BoxDecoration(
-                        boxShadow: [BoxShadow(
-                          color: BACKGROUND_COLOR,
-                          blurRadius: 0.0,
-                          spreadRadius: 1.0,
-                        )],
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      height: 16,
-                      width: 16,
-                      child: RequiredActionBadge(
-                        '1',
-                        animate: shouldAnimateSettingsActionRequired,
-                        onAnimateComplete: () {
-                          this.shouldAnimateSettingsActionRequired = false;
-                        },
-                      ),
+                    RequiredActionBadge(
+                      '1',
+                      animate: shouldAnimateSettingsActionRequired,
+                      badgeSize: 16.0,
+                      boxShadow: [BoxShadow(
+                        color: BACKGROUND_COLOR,
+                        blurRadius: 0.0,
+                        spreadRadius: 1.0,
+                      )],
+                      onAnimateComplete: () {
+                        this.shouldAnimateSettingsActionRequired = false;
+                      },
                     ),
                   ])
                   : Icon(Icons.settings),

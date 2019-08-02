@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 class RequiredActionBadge extends StatefulWidget {
 
   final String text;
-  final double badgeSize = 30.0;
+  final double badgeSize;
   final bool animate;
   final VoidCallback onAnimateComplete;
+  final List<BoxShadow> boxShadow;
 
-  RequiredActionBadge(this.text, {this.animate: false, this.onAnimateComplete});
+  RequiredActionBadge(this.text, { this.animate: false, this.badgeSize: 30.0, this.onAnimateComplete, this.boxShadow: const [] });
 
   @override
   State<StatefulWidget> createState() => _RequiredActionBadgeState();
@@ -88,6 +89,7 @@ class _RequiredActionBadgeState extends State<RequiredActionBadge> with SingleTi
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: Colors.black,
+          boxShadow: widget.boxShadow,
         ),
         child: Padding(
           padding: EdgeInsets.all(_containerAnimation.value / 10.0),
