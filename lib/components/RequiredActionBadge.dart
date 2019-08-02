@@ -4,10 +4,10 @@ class RequiredActionBadge extends StatefulWidget {
 
   final String text;
   final double badgeSize = 30.0;
-  final double textSize = 16.0;
   final bool animate;
+  final VoidCallback onAnimateComplete;
 
-  RequiredActionBadge(this.text, {this.animate: false});
+  RequiredActionBadge(this.text, {this.animate: false, this.onAnimateComplete});
 
   @override
   State<StatefulWidget> createState() => _RequiredActionBadgeState();
@@ -18,7 +18,6 @@ class _RequiredActionBadgeState extends State<RequiredActionBadge> with SingleTi
 
   AnimationController _controller;
   Animation<double> _containerAnimation;
-  Animation<double> _textAnimation;
   Curve _curve = Curves.elasticOut;
 
   @override
@@ -31,13 +30,6 @@ class _RequiredActionBadgeState extends State<RequiredActionBadge> with SingleTi
     _containerAnimation = Tween<double>(
       begin: 0.0,
       end: widget.badgeSize,
-    ).chain(
-        CurveTween(curve: _curve)
-    ).animate(_controller);
-
-    _textAnimation = Tween<double>(
-      begin: 0.0,
-      end: widget.textSize,
     ).chain(
         CurveTween(curve: _curve)
     ).animate(_controller);
@@ -59,7 +51,11 @@ class _RequiredActionBadgeState extends State<RequiredActionBadge> with SingleTi
   void _animateIfDemanded() {
     if (widget.animate) {
       _controller.reset();
-      _controller.forward();
+      _controller.forward().then((dynamic _) {
+        if (widget.onAnimateComplete != null) {
+          widget.onAnimateComplete();
+        }
+      });
     } else {
       // initialize animation to its end state
       _controller.value = _controller.upperBound;
@@ -69,6 +65,16 @@ class _RequiredActionBadgeState extends State<RequiredActionBadge> with SingleTi
   dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  Widget _surroundWithFittedBoxIfWidthGreaterThanZero({Widget child, double parentWidth}) {
+    if (parentWidth > 0.0) {
+      return FittedBox(
+        fit: BoxFit.fitWidth,
+        child: child,
+      );
+    }
+    return child;
   }
 
   @override
@@ -83,15 +89,20 @@ class _RequiredActionBadgeState extends State<RequiredActionBadge> with SingleTi
           shape: BoxShape.circle,
           color: Colors.black,
         ),
-        child: Center(
-          child: Text(
-            widget.text,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: _textAnimation.value,
-              fontWeight: FontWeight.normal,
-              fontFamily: 'Roboto',
-              decoration: TextDecoration.none,
+        child: Padding(
+          padding: EdgeInsets.all(_containerAnimation.value / 10.0),
+          child: Center(
+            child: _surroundWithFittedBoxIfWidthGreaterThanZero(
+              parentWidth: _containerAnimation.value,
+              child: Text(
+                widget.text,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.normal,
+                  fontFamily: 'Roboto',
+                  decoration: TextDecoration.none,
+                ),
+              ),
             ),
           ),
         ),

@@ -99,6 +99,7 @@ Future<void> uploadPeerEducatorPhoneNumber() async {
       }
     }
     user.phoneNumberUploadRequired = false;
+    await PatientBloc.instance.sinkSettingsRequiredActionData(true);
     await DatabaseProvider().insertUserData(user);
   } catch (e, s) {
     showFlushbar('The automatic upload of your phone number failed. Please upload manually.',

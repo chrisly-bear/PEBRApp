@@ -2098,6 +2098,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       if (newPEPhoneNumber != _user.phoneNumber) {
         _user.phoneNumber = newPEPhoneNumber;
         _user.phoneNumberUploadRequired = true;
+        await PatientBloc.instance.sinkSettingsRequiredActionData(false);
         await DatabaseProvider().insertUserData(_user);
         // PE's phone number changed, this affects all patients so we do a sync
         // with VisibleImpact for all patients
