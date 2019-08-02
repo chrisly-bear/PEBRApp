@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -33,6 +34,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // SETTINGS BODY fields
   String lastBackup = 'loading...';
   bool _isLoadingSettingsBody = false;
+  StreamSubscription<AppState> _appStateStream;
+  bool _phoneUploadRequired = false;
 
   // LOGIN BODY fields
   final _loginFormKey = GlobalKey<FormState>();
@@ -54,12 +57,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.initState();
     DatabaseProvider().retrieveLatestUserData().then((UserData loginData) {
       this._loginData = loginData;
+      this._phoneUploadRequired = loginData.phoneNumberUploadRequired;
       setState(() {this._isLoading = false;});
     });
     latestBackupFromSharedPrefs.then((DateTime value) {
       setState(() {
         lastBackup = value == null ? 'unknown' : formatDateAndTime(value);
       });
+    });
+
+    _appStateStream = PatientBloc.instance.appState.listen( (streamEvent) {
+      if (streamEvent is AppStateSettingsRequiredActionData) {
+        if (this._phoneUploadRequired == streamEvent.isDone) { // only do something if the state has changed
+          shouldAnimateRequiredActionContainer = streamEvent.isDone ? AnimateDirection.BACKWARD : AnimateDirection.FORWARD;
+          this._phoneUploadRequired = true; // set to true so that the required action is rendered
+          setState(() {}); // trigger the build and thus the animation
+        } else {
+          // nothing's changed, do not animate
+          shouldAnimateRequiredActionContainer = null;
+        }
+      }
     });
   }
 
@@ -99,6 +116,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   }
 
+  @override
+  void dispose() {
+    _appStateStream.cancel();
+    super.dispose();
+  }
 
 
   /*
@@ -135,16 +157,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildRequiredActions() {
-    if (_loginData.phoneNumberUploadRequired) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 20.0),
-        child: RequiredActionContainerPEPhoneNumberUpload(
-          _loginData.phoneNumber,
-          animateDirection: shouldAnimateRequiredActionContainer,
-        ),
-      );
-    }
-    return SizedBox();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: !_phoneUploadRequired ? null : RequiredActionContainerPEPhoneNumberUpload(
+        _loginData.phoneNumber,
+        animateDirection: shouldAnimateRequiredActionContainer,
+        onAnimated: () {
+            if (shouldAnimateRequiredActionContainer == AnimateDirection.BACKWARD) {
+              // if we animate the required action back make sure that it stays
+              // hidden after the animation
+              setState(() {
+                this._phoneUploadRequired = false;
+              });
+            }
+        },
+      ),
+    );
   }
 
   Widget get _settingsBody {

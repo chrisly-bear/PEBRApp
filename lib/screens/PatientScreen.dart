@@ -72,6 +72,7 @@ class _PatientScreenState extends State<PatientScreen> {
         final Set<RequiredAction> newVisibleRequiredActions = streamEvent.patient.calculateDueRequiredActions();
         for (RequiredAction a in newVisibleRequiredActions) {
           if (streamEvent.oldRequiredActions != null && !streamEvent.oldRequiredActions.contains(a)) {
+            // this required action is new, animate it forward
             shouldAnimateRequiredActionContainer[a.type] = AnimateDirection.FORWARD;
           }
         }
@@ -81,12 +82,14 @@ class _PatientScreenState extends State<PatientScreen> {
         print('*** PatientScreen received AppStateRequiredActionData: ${streamEvent.action.patientART} ***');
           // TODO: animate insertion and removal of required action card for visual fidelity
           if (streamEvent.isDone) {
+            // this required action is done, animate it back
             if (_patient.requiredActions.firstWhere((RequiredAction a) => a.type == streamEvent.action.type, orElse: () => null) != null) {
               setState(() {
                 shouldAnimateRequiredActionContainer[streamEvent.action.type] = AnimateDirection.BACKWARD;
               });
             }
           } else {
+            // this required action is new, animate it forward
             if (_patient.requiredActions.firstWhere((RequiredAction a) => a.type == streamEvent.action.type, orElse: () => null) == null) {
               setState(() {
                 shouldAnimateRequiredActionContainer[streamEvent.action.type] = AnimateDirection.FORWARD;
