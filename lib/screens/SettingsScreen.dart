@@ -340,6 +340,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             if (value.isEmpty) {
               return 'Please enter your first name';
             }
+            return null;
           },
         ),
         TextFormField(
@@ -352,6 +353,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             if (value.isEmpty) {
               return 'Please enter your last name';
             }
+            return null;
           },
         ),
         DropdownButtonFormField<HealthCenter>(
@@ -368,6 +370,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             if (value == null) {
               return 'Please select the health center at which you work';
             }
+            return null;
           },
           items: HealthCenter.allValues.map<DropdownMenuItem<HealthCenter>>((HealthCenter value) {
             return DropdownMenuItem<HealthCenter>(
@@ -422,6 +425,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     if (value.isEmpty) {
                       return 'Please enter a username';
                     }
+                    return null;
                   },
                 ),
                 createAccountFields(),
@@ -443,6 +447,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     } else if (value.length < 4) {
                       return 'At least 4 digits required';
                     }
+                    return null;
                   },
                 ),
               ],
