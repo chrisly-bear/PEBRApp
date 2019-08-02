@@ -437,9 +437,9 @@ Future<int> _getPatientIdVisibleImpact(Patient patient, String _apiAuthToken) as
   }
   if (patientIds.length > 1) {
     // TODO: decide how to handle this case (i.e. when there are duplicates)
-    // -> a simple solution would be to just return all viral loads from all
-    // duplicates (the user can still add manual entries to override the last
-    // entry if it doesn't make sense)
+    // Try to find the proper entry by matching birth_date, sex, mobile_phone.
+    // If the conflict can still not be resolved this way inform the user (make
+    // them pick the correct entry for example).
     throw MultiplePatientsException('Several matching patients with ART number ${patient.artNumber} found on VisibleImpact.');
   }
   return patientIds.first;
