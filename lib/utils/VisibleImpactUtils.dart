@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:pebrapp/config/VisibleImpactConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderDaysBeforeSelection.dart';
+import 'package:pebrapp/database/beans/Gender.dart';
+import 'package:pebrapp/database/beans/PhoneAvailability.dart';
 import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
@@ -13,35 +15,56 @@ import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/exceptions/HTTPStatusNotOKException.dart';
 import 'package:pebrapp/exceptions/MultiplePatientsException.dart';
-import 'package:pebrapp/exceptions/PatientNotFoundException.dart';
 import 'package:pebrapp/exceptions/VisibleImpactLoginFailedException.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:http/http.dart' as http;
 
-/// Updates the patient's phone number on the VisibleImpact database.
+/// Updates the patient's data on VisibleImpact.
 ///
 /// @param [reUploadNotifications] The upload of the patient's phone number does
 /// not affect the phone number to which the (previously uploaded) notifications
-/// will be sent. If you want to update the notifications to be sent to the new
-/// phone number, set [reUploadNotifications] to true.
-Future<void> uploadPatientPhoneNumber(Patient patient, {bool reUploadNotifications: false}) async {
+/// will be sent. If the patient's phone number changed and you want to update
+/// the notifications to be sent to the new phone number, set
+/// [reUploadNotifications] to true.
+Future<void> uploadPatientCharacteristics(Patient patient, {bool reUploadNotifications: false, bool showNotification: true}) async {
+  print('uploading patient characteristics to VisibleImpact...');
   try {
     final String token = await _getAPIToken();
-    final int patientId = await _getPatientIdVisibleImpact(patient.artNumber, token);
-    // TODO: implement updating of patient's phone number on VisibleImpact as soon as the API is ready
-    // ... (write upload code here)
-    _handleSuccess(patient, RequiredActionType.PATIENT_PHONE_UPLOAD_REQUIRED);
-  } catch (e, s) {
-    _handleFailure(patient, RequiredActionType.PATIENT_PHONE_UPLOAD_REQUIRED);
-    showFlushbar('The automatic upload of the patient\'s phone number failed. Please upload manually.',
-      title: 'Upload of Patient Phone Number Failed',
-      error: true,
-      buttonText: 'Retry\nNow',
-      onButtonPress: () {
-        uploadPatientPhoneNumber(patient, reUploadNotifications: false);
+    final int patientId = await _getPatientIdVisibleImpact(patient, token);
+    String gender;
+    if (patient.gender == Gender.MALE()) gender = "M";
+    if (patient.gender == Gender.FEMALE()) gender = "F";
+    Map<String, dynamic> body = {
+      "patient_id": patientId,
+      "mobile_phone": patient.phoneAvailability == PhoneAvailability.YES() ? _formatPhoneNumberForVI(patient.phoneNumber) : null,
+      "mobile_owner": patient.phoneAvailability == PhoneAvailability.YES() ? "patient" : null,
+      "birth_date": formatDateForVisibleImpact(patient.birthday),
+      "sex": gender,
+    };
+    final _resp = await http.put(
+      '$VI_API/patient',
+      headers: {
+        'Authorization' : 'Custom $token',
+        'Content-Type': 'application/json',
       },
+      body: jsonEncode(body),
     );
+    _checkStatusCode(_resp);
+    _handleSuccess(patient, RequiredActionType.PATIENT_CHARACTERISTICS_UPLOAD_REQUIRED);
+  } catch (e, s) {
+    _handleFailure(patient, RequiredActionType.PATIENT_CHARACTERISTICS_UPLOAD_REQUIRED);
+    if (showNotification) {
+      showFlushbar(
+        'The automatic upload of the patient\'s characteristics failed. Please upload manually.',
+        title: 'Upload of Patient Characteristics Failed',
+        error: true,
+        buttonText: 'Retry\nNow',
+        onButtonPress: () {
+          uploadPatientCharacteristics(patient, reUploadNotifications: false);
+        },
+      );
+    }
     print('Exception caught: $e');
     print('Stacktrace: $s');
   }
@@ -58,10 +81,19 @@ Future<void> uploadPeerEducatorPhoneNumber() async {
   try {
     final UserData user = await DatabaseProvider().retrieveLatestUserData();
     final List<Patient> patients = await DatabaseProvider().retrieveLatestPatients(retrieveNonEligibles: false, retrieveNonConsents: false);
-    patients.removeWhere((Patient p) => !(p.isActivated ?? false));
+    patients.removeWhere((Patient p) {
+      final bool isActivated = p.isActivated ?? false;
+      final PreferenceAssessment pa = p.latestPreferenceAssessment;
+      final bool notificationsEnabled = (pa?.adherenceReminderEnabled ?? false) || (pa?.artRefillReminderEnabled ?? false) || (pa?.vlNotificationEnabled ?? false);
+      return !isActivated || !notificationsEnabled;
+    });
+    if (patients.length <= 0) {
+      print('uploadPeerEducatorPhoneNumber: No activated patients with enabled notifications found. No notifications upload required.');
+      return;
+    }
     final String token = await _getAPIToken();
     for (Patient patient in patients) {
-      final int patientId = await _getPatientIdVisibleImpact(patient.artNumber, token);
+      final int patientId = await _getPatientIdVisibleImpact(patient, token);
       await _uploadAdherenceReminder(patient, patientId, token, pe: user);
       await _uploadRefillReminder(patient, patientId, token, pe: user);
       await _uploadViralLoadNotification(patient, patientId, token, pe: user);
@@ -88,10 +120,15 @@ Future<void> uploadPeerEducatorPhoneNumber() async {
 /// Make sure that [patient.latestPreferenceAssessment] and
 /// [patient.latestARTRefill] are up to date.
 Future<void> uploadNotificationsPreferences(Patient patient) async {
+  final PreferenceAssessment _pa = patient.latestPreferenceAssessment;
+  if (!((_pa?.adherenceReminderEnabled ?? false) || (_pa?.artRefillReminderEnabled ?? false) || (_pa?.vlNotificationEnabled ?? false))) {
+    print('uploadNotificationsPreferences: No notifications enabled. No notifications upload required.');
+    return;
+  }
   try {
     final UserData pe = await DatabaseProvider().retrieveLatestUserData();
     final String token = await _getAPIToken();
-    final int patientId = await _getPatientIdVisibleImpact(patient.artNumber, token);
+    final int patientId = await _getPatientIdVisibleImpact(patient, token);
     await _uploadAdherenceReminder(patient, patientId, token, pe: pe);
     await _uploadRefillReminder(patient, patientId, token, pe: pe);
     await _uploadViralLoadNotification(patient, patientId, token, pe: pe);
@@ -265,23 +302,16 @@ Future<void> _uploadViralLoadNotification(Patient patient, int patientId, String
 /// draw (oldest first). If the latest viral load has status 'failed' a viral
 /// load required action will be created.
 ///
-/// @param [enrollmentDate] The patient's enrollment date. This is used to
-/// filter out any viral loads that date back more than one year before the
-/// [enrollmentDate].
-///
 /// Throws [VisibleImpactLoginFailedException] if the authentication fails.
-///
-/// Throws [PatientNotFoundException] if patient with given [patientART] number
-/// is not found on VisibleImpact database.
 ///
 /// Throws [MultiplePatientsException] if VisibleImpact returns more than one
 /// patient ID for the given [patientART] number.
 ///
 /// Throws [HTTPStatusNotOKException] if the VisibleImpact API returns anything
 /// else than 200 (OK).
-Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART, DateTime enrollmentDate) async {
+Future<List<ViralLoad>> downloadViralLoadsFromDatabase(Patient patient) async {
   final String _token = await _getAPIToken();
-  final int patientId = await _getPatientIdVisibleImpact(patientART, _token);
+  final int patientId = await _getPatientIdVisibleImpact(patient, _token);
   final _resp = await http.get(
     '$VI_API/labdata?patient_id=$patientId',
     headers: {'Authorization' : 'Custom $_token'},
@@ -290,7 +320,7 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART, DateTi
   final List<dynamic> list = jsonDecode(_resp.body);
   List<ViralLoad> viralLoadsFromDB = list.map((dynamic vlLabResult) {
     final ViralLoad vl = ViralLoad(
-      patientART: patientART,
+      patientART: patient.artNumber,
       dateOfBloodDraw: DateTime.parse(vlLabResult['date_sample']),
       labNumber: vlLabResult['lab_number'],
       viralLoad: vlLabResult['lab_hivvmnumerical'],
@@ -299,11 +329,11 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(String patientART, DateTi
     );
     return vl;
   }).toList();
-  viralLoadsFromDB.removeWhere((ViralLoad vl) => vl.dateOfBloodDraw.isBefore(enrollmentDate));
+  viralLoadsFromDB.removeWhere((ViralLoad vl) => vl.dateOfBloodDraw.isBefore(patient.enrollmentDate));
   viralLoadsFromDB.sort((ViralLoad a, ViralLoad b) => a.dateOfBloodDraw.isBefore(b.dateOfBloodDraw) ? -1 : 1);
   if (viralLoadsFromDB.isNotEmpty && viralLoadsFromDB.last.failed) {
     // if the last viral load has failed, send the patient to blood draw
-    RequiredAction vlRequired = RequiredAction(patientART, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, DateTime.fromMillisecondsSinceEpoch(0));
+    RequiredAction vlRequired = RequiredAction(patient.artNumber, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, DateTime.fromMillisecondsSinceEpoch(0));
     DatabaseProvider().insertRequiredAction(vlRequired);
     PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
   }
@@ -346,44 +376,71 @@ Future<String> _getAPIToken() async {
   return jsonDecode(_resp.body)['token'];
 }
 
+/// Creates a new patient on VisibleImpact.
+///
+/// Returns the patient id created for this new patient by VisibleImpact.
+///
+/// Throws [SocketException] if there is no connection to VisibleImpact.
+///
+/// Throws [VisibleImpactLoginFailedException] if status code is 401.
+///
+/// Throws [HTTPStatusNotOKException] if status code is not 200.
+Future<int> _createPatient(Patient patient, String apiToken, {VIPatientStatus status: VIPatientStatus.ACTIVE}) async {
+  print('🌟 creating new patient on VisibleImpact...');
+  String gender;
+  if (patient.gender == Gender.MALE()) gender = "M";
+  if (patient.gender == Gender.FEMALE()) gender = "F";
+  Map<String, dynamic> body = {
+    "art_number": patient.artNumber,
+    "mobile_phone": patient.phoneAvailability == PhoneAvailability.YES() ? _formatPhoneNumberForVI(patient.phoneNumber) : null,
+    "mobile_owner": patient.phoneAvailability == PhoneAvailability.YES() ? "patient" : null,
+    "birth_date": formatDateForVisibleImpact(patient.birthday),
+    "sex": gender,
+    "patient_status": toStringVIPatientStatus(status),
+  };
+  final _resp = await http.post(
+    '$VI_API/patient',
+    headers: {
+      'Authorization' : 'Custom $apiToken',
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode(body),
+  );
+  _checkStatusCode(_resp);
+  return jsonDecode(_resp.body)['patient_id'];
+}
 
-/// Matches ART number to IDs on the VisibleImpact database.
+/// Matches ART number to IDs on the VisibleImpact database. If the ART number
+/// is not found on VisibleImpact, a new patient is created on VisibleImpact.
 ///
-/// @param [patientART] ART number to match. Can be a full ART number
-/// (e.g. B/01/11111) or a partial ART number (e.g. B/01). Using a partial ART
-/// number will find all patient IDs which partially match it.
-///
-/// Throws [PatientNotFoundException] if patient with given [patientART] number
-/// is not found on VisibleImpact database.
+/// @param [patient] to look for on VisibleImpact (ART number is used for
+/// lookup).
 ///
 /// Throws [MultiplePatientsException] if VisibleImpact returns more than one
 /// patient ID for the given [patientART] number.
-Future<int> _getPatientIdVisibleImpact(String patientART, String _apiAuthToken) async {
+///
+/// Throws [VisibleImpactLoginFailedException] if status code is 401.
+///
+/// Throws [HTTPStatusNotOKException] if status code is not 200.
+Future<int> _getPatientIdVisibleImpact(Patient patient, String _apiAuthToken) async {
   final _resp = await http.get(
-    '$VI_API/patient?art_number=$patientART',
+    '$VI_API/patient?art_number=${patient.artNumber}',
     headers: {'Authorization' : 'Custom $_apiAuthToken'},
   );
-  if (_resp.statusCode != 200) {
-    print(
-        'An error occurred while fetching viral loads from database, returning null...');
-    print(_resp.statusCode);
-    print(_resp.body);
-    // TODO: maybe return exception (this will most likely fail because of wrong authentication/invalid token)
-    return null;
-  }
+  _checkStatusCode(_resp);
   final List<dynamic> list = jsonDecode(_resp.body);
   List<int> patientIds = list.map((dynamic patientMap) {
     return patientMap['patient_id'] as int;
   }).toList();
   if (patientIds.isEmpty) {
-    throw PatientNotFoundException('No patient with ART number $patientART found on VisibleImpact.');
+    return _createPatient(patient, _apiAuthToken);
   }
   if (patientIds.length > 1) {
     // TODO: decide how to handle this case (i.e. when there are duplicates)
-    // -> a simple solution would be to just return all viral loads from all
-    // duplicates (the user can still add manual entries to override the last
-    // entry if it doesn't make sense)
-    throw MultiplePatientsException('Several matching patients with ART number $patientART found on VisibleImpact.');
+    // Try to find the proper entry by matching birth_date, sex, mobile_phone.
+    // If the conflict can still not be resolved this way inform the user (make
+    // them pick the correct entry for example).
+    throw MultiplePatientsException('Several matching patients with ART number ${patient.artNumber} found on VisibleImpact.');
   }
   return patientIds.first;
 }
@@ -402,7 +459,9 @@ Future<void> _handleFailure(Patient patient, RequiredActionType actionType) asyn
   PatientBloc.instance.sinkRequiredActionData(newAction, false);
 }
 
-
+/// Checks whether the status code of [response] is 200. If it is not it either
+/// throws a [VisibleImpactLoginFailedException] (if status code is 401) or a
+/// [HTTPStatusNotOKException].
 void _checkStatusCode(http.Response response) {
   if (response.statusCode == 401) {
     throw VisibleImpactLoginFailedException();
@@ -414,4 +473,30 @@ void _checkStatusCode(http.Response response) {
         'Status Code: ${response.statusCode}\n'
         'Response Body:\n${response.body}');
   }
+}
+
+/// Removes all '-' from the [phoneNumber] string so that we get a phone number
+/// in the form '+26612345678' as expected by the VisibleImpact API.
+String _formatPhoneNumberForVI(String phoneNumber) {
+  return phoneNumber.replaceAll(RegExp(r'[-]'), '');
+}
+
+enum VIPatientStatus { ACTIVE, DEAD, LTFU, TRANSFEROUT }
+
+String toStringVIPatientStatus(VIPatientStatus status) {
+  String statusString;
+  switch (status) {
+    case VIPatientStatus.ACTIVE:
+      statusString = 'active';
+      break;
+    case VIPatientStatus.DEAD:
+      statusString = 'dead';
+      break;
+    case VIPatientStatus.LTFU:
+      statusString = 'ltfu';
+      break;
+    case VIPatientStatus.TRANSFEROUT:
+      statusString = 'transferout';
+  }
+  return statusString;
 }

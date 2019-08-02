@@ -11,29 +11,11 @@ import 'package:pebrapp/utils/InputFormatters.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
-// TODO: implement this screen. Think about what fields have to be changeable for a patient.
-class EditPatientScreen extends StatelessWidget {
+class EditPatientScreen extends StatefulWidget {
 
   final Patient _existingPatient;
 
   EditPatientScreen(this._existingPatient);
-
-  @override
-  Widget build(BuildContext context) {
-    return PopupScreen(
-      title: 'Edit Patient',
-      subtitle: _existingPatient.artNumber,
-      child: _EditPatientForm(_existingPatient),
-    );
-  }
-}
-
-// https://flutter.dev/docs/cookbook/forms/validation
-class _EditPatientForm extends StatefulWidget {
-
-  final Patient _existingPatient;
-
-  _EditPatientForm(this._existingPatient);
 
   @override
   _EditPatientFormState createState() {
@@ -41,25 +23,27 @@ class _EditPatientForm extends StatefulWidget {
   }
 }
 
-class _EditPatientFormState extends State<_EditPatientForm> {
+class _EditPatientFormState extends State<EditPatientScreen> {
   // Create a global key that will uniquely identify the Form widget and allow
   // us to validate the form
   final _formKey = GlobalKey<FormState>();
 
   final _questionsFlex = 1;
   final _answersFlex = 1;
+  Patient _patientBeforeEditing;
   double _screenWidth = double.infinity;
-  String _existingPhoneNumber;
 
-  final Patient _existingPatient;
+  final Patient _patientToBeEdited;
   TextEditingController _villageCtr = TextEditingController();
   TextEditingController _phoneNumberCtr = TextEditingController();
 
-  _EditPatientFormState(this._existingPatient) {
-    _villageCtr.text = _existingPatient.village;
-    _existingPhoneNumber = _existingPatient.phoneNumber;
-    if (_existingPhoneNumber != null) {
-      _phoneNumberCtr.text = _existingPhoneNumber.substring(5);
+  _EditPatientFormState(this._patientToBeEdited) {
+    // Note: toMap -> fromMap copy operation copies all boolean variables as
+    // false (isEligible, consentGiven, isActivated...)
+    _patientBeforeEditing = Patient.fromMap(_patientToBeEdited.toMap());
+    _villageCtr.text = _patientToBeEdited.village;
+    if (_patientToBeEdited.phoneNumber != null) {
+      _phoneNumberCtr.text = _patientToBeEdited.phoneNumber.substring(5);
     }
   }
 
@@ -68,9 +52,12 @@ class _EditPatientFormState extends State<_EditPatientForm> {
   @override
   Widget build(BuildContext context) {
     _screenWidth = MediaQuery.of(context).size.width;
-    return Form(
-      key: _formKey,
-      child: Column(
+    return PopupScreen(
+      title: 'Edit Patient',
+      subtitle: _patientToBeEdited.artNumber,
+      child: Form(
+        key: _formKey,
+        child: Column(
           children: [
             _personalInformationCard(),
             SizedBox(height: 16.0),
@@ -82,6 +69,7 @@ class _EditPatientFormState extends State<_EditPatientForm> {
             ]),
             SizedBox(height: 16.0),
           ],
+        ),
       ),
     );
   }
@@ -121,10 +109,10 @@ class _EditPatientFormState extends State<_EditPatientForm> {
   Widget _genderQuestion() {
     return _makeQuestion('Gender',
       answer: DropdownButtonFormField<Gender>(
-        value: _existingPatient.gender,
+        value: _patientToBeEdited.gender,
         onChanged: (Gender newValue) {
           setState(() {
-            _existingPatient.gender = newValue;
+            _patientToBeEdited.gender = newValue;
           });
         },
         validator: (value) {
@@ -143,10 +131,10 @@ class _EditPatientFormState extends State<_EditPatientForm> {
   Widget _sexualOrientationQuestion() {
     return _makeQuestion('Sexual Orientation',
       answer: DropdownButtonFormField<SexualOrientation>(
-        value: _existingPatient.sexualOrientation,
+        value: _patientToBeEdited.sexualOrientation,
         onChanged: (SexualOrientation newValue) {
           setState(() {
-            _existingPatient.sexualOrientation = newValue;
+            _patientToBeEdited.sexualOrientation = newValue;
           });
         },
         validator: (value) {
@@ -178,10 +166,10 @@ class _EditPatientFormState extends State<_EditPatientForm> {
   Widget _phoneAvailabilityQuestion() {
     return _makeQuestion('Do you have regular access to a phone (with Lesotho number) where you can receive confidential information?',
       answer: DropdownButtonFormField<PhoneAvailability>(
-        value: _existingPatient.phoneAvailability,
+        value: _patientToBeEdited.phoneAvailability,
         onChanged: (PhoneAvailability newValue) {
           setState(() {
-            _existingPatient.phoneAvailability = newValue;
+            _patientToBeEdited.phoneAvailability = newValue;
           });
         },
         validator: (value) {
@@ -198,7 +186,7 @@ class _EditPatientFormState extends State<_EditPatientForm> {
   }
 
   Widget _phoneNumberQuestion() {
-    if (_existingPatient.phoneAvailability == null || _existingPatient.phoneAvailability != PhoneAvailability.YES()) {
+    if (_patientToBeEdited.phoneAvailability == null || _patientToBeEdited.phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
     return _makeQuestion('Phone Number',
@@ -225,22 +213,20 @@ class _EditPatientFormState extends State<_EditPatientForm> {
   _onSubmitForm() async {
     // Validate will return true if the form is valid, or false if the form is invalid.
     if (_formKey.currentState.validate()) {
-      // TODO: check that all fields are updated
-      if (_existingPatient.phoneAvailability == PhoneAvailability.YES()) {
-        final String newPatientPhoneNumber = '+266-${_phoneNumberCtr.text}';
-        if (_existingPhoneNumber != newPatientPhoneNumber) {
-          _existingPatient.phoneNumber = newPatientPhoneNumber;
-          uploadPatientPhoneNumber(_existingPatient, reUploadNotifications: true);
-        }
+      if (_patientToBeEdited.phoneAvailability == PhoneAvailability.YES()) {
+        _patientToBeEdited.phoneNumber = '+266-${_phoneNumberCtr.text}';
       } else {
-        final String newPatientPhoneNumber = null;
-        if (_existingPhoneNumber != newPatientPhoneNumber) {
-          _existingPatient.phoneNumber = newPatientPhoneNumber;
-          uploadPatientPhoneNumber(_existingPatient, reUploadNotifications: true);
-        }
+        _patientToBeEdited.phoneNumber = null;
       }
-      _existingPatient.village = _villageCtr.text;
-      await DatabaseProvider().insertPatient(_existingPatient);
+      _patientToBeEdited.village = _villageCtr.text;
+      await DatabaseProvider().insertPatient(_patientToBeEdited);
+      if (_patientToBeEdited.gender != _patientBeforeEditing.gender
+          || _patientToBeEdited.phoneNumber != _patientBeforeEditing.phoneNumber
+          || _patientToBeEdited.birthday != _patientBeforeEditing.birthday) {
+        // upload to VisibleImpact is required
+        final bool phoneNumberChanged = _patientToBeEdited.phoneAvailability != _patientBeforeEditing.phoneAvailability || _patientToBeEdited.phoneNumber != _patientBeforeEditing.phoneNumber;
+        uploadPatientCharacteristics(_patientToBeEdited, reUploadNotifications: phoneNumberChanged);
+      }
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return (route.settings.name == '/patient' || route.settings.name == '/');
       });

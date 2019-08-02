@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -16,12 +15,6 @@ import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
-import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
-import 'package:pebrapp/exceptions/MultiplePatientsException.dart';
-import 'package:pebrapp/exceptions/NoLoginDataException.dart';
-import 'package:pebrapp/exceptions/PatientNotFoundException.dart';
-import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
-import 'package:pebrapp/exceptions/VisibleImpactLoginFailedException.dart';
 import 'package:pebrapp/screens/DebugScreen.dart';
 import 'package:pebrapp/screens/NewPatientScreen.dart';
 import 'dart:ui';
@@ -408,7 +401,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     Map<String, int> updatedPatients = {};
     try {
       for (Patient patient in patientsToUpdate) {
-        viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient.artNumber, patient.enrollmentDate);
+        viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient);
         final DateTime fetchedDate = DateTime.now();
         for (ViralLoad vl in viralLoadsFromDB) {
           await DatabaseProvider().insertViralLoad(vl, createdDate: fetchedDate);

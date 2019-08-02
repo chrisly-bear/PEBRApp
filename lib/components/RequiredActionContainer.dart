@@ -123,11 +123,11 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
           ),
         );
         break;
-      case RequiredActionType.PATIENT_PHONE_UPLOAD_REQUIRED:
-        actionText = "The automatic upload of the patient's phone number failed. Please upload manually.";
+      case RequiredActionType.PATIENT_CHARACTERISTICS_UPLOAD_REQUIRED:
+        actionText = "The automatic upload of the patient's characteristics failed. Please upload manually.";
         actionButton = FlatButton(
           onPressed: () async {
-            await uploadPatientPhoneNumber(widget.patient, reUploadNotifications: false);
+            await uploadPatientCharacteristics(widget.patient, reUploadNotifications: false);
           },
           splashColor: NOTIFICATION_INFO_SPLASH,
           child: Text(
