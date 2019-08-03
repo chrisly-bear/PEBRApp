@@ -13,12 +13,14 @@ import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/InvalidPINException.dart';
 import 'package:pebrapp/exceptions/NoPasswordFileException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
+import 'package:pebrapp/screens/ChangePhoneNumberScreen.dart';
 import 'package:pebrapp/screens/NewPINScreen.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/InputFormatters.dart';
 import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 import 'package:pebrapp/utils/Utils.dart';
+import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pebrapp/config/SharedPreferencesConfig.dart';
 
@@ -181,7 +183,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       children: <Widget>[
         _buildRequiredActions(),
         _buildUserDataCard(),
-        PEBRAButtonFlat('Change Phone Number'),
+        PEBRAButtonFlat('Change Phone Number', onPressed: _isLoadingSettingsBody ? null : () { _onPressChangePhoneNumberButton(context); },),
         SizedBox(height: _spacing),
         PEBRAButtonRaised('Start Upload', onPressed: _isLoadingSettingsBody ? null : () {_onPressBackupButton(context);},),
         SizedBox(height: 10.0),
@@ -206,6 +208,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
         SizedBox(height: _spacing),
       ],
     );
+  }
+
+  _onPressChangePhoneNumberButton(BuildContext context) async {
+    final String newNumber = await showDialog(context: context, builder: ((BuildContext context) {
+      return ChangePhoneNumberScreen();
+    }));
+    if (newNumber != null) {
+      setState(() {
+        _loginData.phoneNumber = newNumber;
+      });
+      _loginData.phoneNumberUploadRequired = true;
+      await DatabaseProvider().insertUserData(_loginData);
+      final bool uploadSuccessful = await uploadPeerEducatorPhoneNumber();
+      if (!uploadSuccessful) {
+        // only show required action on settings screen if upload failed
+        PatientBloc.instance.sinkSettingsRequiredActionData(false);
+      }
+    }
   }
 
   _onPressBackupButton(BuildContext context) async {

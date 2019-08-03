@@ -77,7 +77,13 @@ Future<void> uploadPatientCharacteristics(Patient patient, {bool reUploadNotific
 /// Updates the peer educator's phone number by re-uploading all notifications
 /// preferences for all patients. If there are a lot of patients this might take
 /// a while.
-Future<void> uploadPeerEducatorPhoneNumber() async {
+///
+/// If the upload is successful, the phoneNumberUploadRequired variable on the
+/// UserData object is set to false and a AppStateSettingsRequiredActionData
+/// event with isDone = true is sent.
+///
+/// Returns true if the upload was successful, false otherwise.
+Future<bool> uploadPeerEducatorPhoneNumber() async {
   try {
     final UserData user = await DatabaseProvider().retrieveLatestUserData();
     final List<Patient> patients = await DatabaseProvider().retrieveLatestPatients(retrieveNonEligibles: false, retrieveNonConsents: false);
@@ -101,6 +107,7 @@ Future<void> uploadPeerEducatorPhoneNumber() async {
     user.phoneNumberUploadRequired = false;
     await PatientBloc.instance.sinkSettingsRequiredActionData(true);
     await DatabaseProvider().insertUserData(user);
+    return true;
   } catch (e, s) {
     showFlushbar('The automatic upload of your phone number failed. Please upload manually.',
       title: 'Upload of Peer Educator Phone Number Failed',
@@ -112,6 +119,7 @@ Future<void> uploadPeerEducatorPhoneNumber() async {
     );
     print('Exception caught: $e');
     print('Stacktrace: $s');
+    return false;
   }
 }
 
