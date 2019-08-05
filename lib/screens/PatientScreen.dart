@@ -264,10 +264,10 @@ class _PatientScreenState extends State<PatientScreen> {
         _buildNextActionRow(
           title: 'Next Questionnaire',
           dueDate: _nextEndpointText,
-          explanation: 'Adherence questionnaires are due 2.5–3.5 months, 5–8 months, and 9–15 months '
-              'after participant enrollment. Satisfaction questionnaires and Quality'
-              ' of Life questionnaires are due 5–8 months and 9–15 months after participant '
-              'enrollment.',
+          explanation: 'Adherence questionnaires are due 2.5–3.5 months, 5–8 '
+              'months, and 9–15 months after participant enrollment. Quality of'
+              ' Life questionnaires are due 5–8 months and 9–15 months after '
+              'participant enrollment.',
           button: _makeButton('Open KoBoCollect', onPressed: _onOpenKoboCollectPressed),
         ),
         SizedBox(height: _spacingBetweenCards),
