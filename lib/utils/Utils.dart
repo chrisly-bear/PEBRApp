@@ -502,15 +502,22 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnable
   bool newDiscrepancyFound = false;
 
   List<ViralLoad> allViralLoadsForPatient = []; // List<ViralLoad>();
-  List viralLoads = [];
+  List<ViralLoad> viralLoads = [];
 
   allViralLoadsForPatient.addAll(patient.viralLoads);
 
   // filter out failed viral loads and viral loads created after patient enrollment date
   viralLoads = allViralLoadsForPatient.where((a) => a.dateOfBloodDraw.isBefore(patient.enrollmentDate) && a.failed == false).toList();
 
-  // sort the viral loads in descending order of date of blood draw
-  viralLoads.sort((b, a) => a.dateOfBloodDraw.compareTo(b.dateOfBloodDraw));
+  // sort the viral loads in descending order of date of blood draw (newest first)
+  viralLoads.sort((ViralLoad a, ViralLoad b) {
+    int result = b.dateOfBloodDraw.compareTo(a.dateOfBloodDraw);
+    if (result == 0) {
+      // if date of blood draw is the same sort according to created date (newest first)
+      result = b.createdDate.compareTo(a.createdDate);
+    }
+    return result;
+  });
 
   // check if there are any viral loads
   if (viralLoads.length < 1) {
