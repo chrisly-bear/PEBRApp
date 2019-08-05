@@ -486,12 +486,14 @@ ViralLoad getBaselineViralLoad(List<ViralLoad> viralLoads, ViralLoad viralLoad) 
   return result;
 }
 
-/// Returns true if a discrepancy has been found for this patient.
+/// Returns true if a new discrepancy has been found for this patient.
+/// Discrepancies that have already been discovered (discrepancy variable is
+/// true) will not trigger another discrepancy (will return false).
 ///
 /// @param [testingEnabled] If set to true, the discrepancy will not be inserted
 /// into the SQLite database. This is useful for unit testing.
 Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnabled: false}) async {
-  bool discrepancyFound = false;
+  bool newDiscrepancyFound = false;
 
   List<ViralLoad> allViralLoadsForPatient = []; // List<ViralLoad>();
   List viralLoads = [];
@@ -517,9 +519,11 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnable
 
   // If there is no match
   if (vlBaseline2 == null) {
+    if (!(vlBaseline1.discrepancy ?? false)) {
+      newDiscrepancyFound = true;
+    }
     vlBaseline1.discrepancy = true;
     if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline1);
-    discrepancyFound = true;
   } else {
     print(vlBaseline2.dateOfBloodDraw.toString() + " : " + vlBaseline2.viralLoad.toString() + " : " + vlBaseline2.labNumber);
     // Check if the viral loads differ in at least one of the following:
@@ -527,12 +531,14 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnable
     // b) lab number
     // c) date of blood draw
     if (vlBaseline2.viralLoad != vlBaseline1.viralLoad || vlBaseline2.dateOfBloodDraw.compareTo(vlBaseline1.dateOfBloodDraw) != 0 || vlBaseline2.labNumber != vlBaseline1.labNumber) {
+      if (!(vlBaseline1.discrepancy ?? false) || !(vlBaseline2.discrepancy ?? false)) {
+        newDiscrepancyFound = true;
+      }
       vlBaseline1.discrepancy = true;
       vlBaseline2.discrepancy = true;
       if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline1);
       if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline2);
-      discrepancyFound = true;
     }
   }
-  return discrepancyFound;
+  return newDiscrepancyFound;
 }
