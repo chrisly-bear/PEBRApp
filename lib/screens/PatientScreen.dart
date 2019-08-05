@@ -293,6 +293,7 @@ class _PatientScreenState extends State<PatientScreen> {
 
     final double _spaceBetweenColumns = 10.0;
     final double _sourceColumnWidth = 70.0;
+    final double _warningColumnWidth = 25.0;
 
     Widget _buildViralLoadHeader() {
       Widget row = Padding(
@@ -316,6 +317,8 @@ class _PatientScreenState extends State<PatientScreen> {
               width: _sourceColumnWidth,
               child: _formatHeaderRowText('Source'),
             ),
+            SizedBox(width: _spaceBetweenColumns),
+            SizedBox(width: _warningColumnWidth),
           ],
         ),
       );
@@ -373,6 +376,11 @@ class _PatientScreenState extends State<PatientScreen> {
             SizedBox(
               width: _sourceColumnWidth,
               child: Text(vl.source == ViralLoadSource.MANUAL_INPUT() ? 'manual' : 'database', style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
+            ),
+            SizedBox(width: _spaceBetweenColumns),
+            SizedBox(
+              width: _warningColumnWidth,
+              child: (vl.discrepancy ?? false) ? Icon(Icons.warning) : null,
             ),
           ],
         ),
