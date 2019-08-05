@@ -69,6 +69,19 @@ class ViralLoad implements IExcelExportable {
       ^viralLoad.hashCode
       ^labNumber.hashCode;
 
+  @override
+  String toString() {
+    return 'Viral Load\n----------\n'
+        'patient:     $patientART\n'
+        'lab nr:      $labNumber\n'
+        'source:      ${source.description}\n'
+        'blood draw:  $dateOfBloodDraw\n'
+        'created:     $createdDate\n'
+        'failed:      $failed\n'
+        'viral laod:  $viralLoad\n'
+        'discrepancy: $discrepancy';
+  }
+
   toMap() {
     var map = Map<String, dynamic>();
     map[colPatientART] = patientART;
