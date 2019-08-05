@@ -473,7 +473,12 @@ void sortViralLoads(List<ViralLoad> viralLoads) {
 
 /// Get a corresponding or matching baseline viral load (manual or database)
 /// given a list of viral loads and another viral load.
+///
 /// Returns null if there is no matching viral load.
+///
+/// @param [viralLoads] The viral loads in which to look for a match.
+///
+/// @param [baselineVL] The baseline viral load for which to find a match.
 ViralLoad getMatchingBaselineViralLoad(List<ViralLoad> viralLoads, ViralLoad baselineVL) {
   ViralLoad result; // initialize the matching viral load
   for (ViralLoad vl in viralLoads) {
