@@ -298,7 +298,9 @@ class _PatientScreenState extends State<PatientScreen> {
     final double _spaceBetweenColumns = 10.0;
     final double _sourceColumnWidth = 70.0;
     bool _hasAnyDiscrepancies() => _patient.viralLoads.any((ViralLoad vl) => vl.discrepancy ?? false);
-    final double _warningColumnWidth = _hasAnyDiscrepancies() ? 25.0 : 0.0;
+    bool _vlWarningRequiredActionShowing() => _patient.requiredActions.any((RequiredAction a) => a.type == RequiredActionType.VIRAL_LOAD_DISCREPANCY_WARNING);
+    bool _shouldDisplayWarningColumn() => _hasAnyDiscrepancies() && _vlWarningRequiredActionShowing();
+    final double _warningColumnWidth = 25.0;
 
     Widget _buildViralLoadHeader() {
       Widget row = Padding(
@@ -322,8 +324,8 @@ class _PatientScreenState extends State<PatientScreen> {
               width: _sourceColumnWidth,
               child: _formatHeaderRowText('Source'),
             ),
-            SizedBox(width: _spaceBetweenColumns),
-            SizedBox(width: _warningColumnWidth),
+            _shouldDisplayWarningColumn() ? SizedBox(width: _spaceBetweenColumns) : SizedBox(),
+            _shouldDisplayWarningColumn() ? SizedBox(width: _warningColumnWidth) : SizedBox(),
           ],
         ),
       );
@@ -382,11 +384,11 @@ class _PatientScreenState extends State<PatientScreen> {
               width: _sourceColumnWidth,
               child: Text(vl.source == ViralLoadSource.MANUAL_INPUT() ? 'manual' : 'database', style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
             ),
-            SizedBox(width: _spaceBetweenColumns),
-            SizedBox(
+            _shouldDisplayWarningColumn() ? SizedBox(width: _spaceBetweenColumns) : SizedBox(),
+            _shouldDisplayWarningColumn() ? SizedBox(
               width: _warningColumnWidth,
               child: (vl.discrepancy ?? false) ? Icon(Icons.warning) : null,
-            ),
+            ) : SizedBox(),
           ],
         ),
       );
