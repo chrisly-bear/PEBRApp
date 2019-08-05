@@ -523,9 +523,9 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnable
   } else {
     print(vlBaseline2.dateOfBloodDraw.toString() + " : " + vlBaseline2.viralLoad.toString() + " : " + vlBaseline2.labNumber);
     // Check if the viral loads differ in at least one of the following:
-    //a) VL result (c/mL)
-    //b) lab number
-    //c) date of blood draw
+    // a) VL result (c/mL)
+    // b) lab number
+    // c) date of blood draw
     if (vlBaseline2.viralLoad != vlBaseline1.viralLoad || vlBaseline2.dateOfBloodDraw.compareTo(vlBaseline1.dateOfBloodDraw) != 0 || vlBaseline2.labNumber != vlBaseline1.labNumber) {
       vlBaseline1.discrepancy = true;
       vlBaseline2.discrepancy = true;
