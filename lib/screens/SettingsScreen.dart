@@ -59,7 +59,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.initState();
     DatabaseProvider().retrieveLatestUserData().then((UserData loginData) {
       this._loginData = loginData;
-      this._phoneUploadRequired = loginData.phoneNumberUploadRequired;
+      this._phoneUploadRequired = loginData?.phoneNumberUploadRequired ?? false;
       setState(() {this._isLoading = false;});
     });
     latestBackupFromSharedPrefs.then((DateTime value) {
