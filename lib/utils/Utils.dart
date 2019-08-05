@@ -484,8 +484,9 @@ ViralLoad getMatchingBaselineViralLoad(List<ViralLoad> viralLoads, ViralLoad bas
   for (ViralLoad vl in viralLoads) {
     // Check for a corresponding viral load with a different source
     if ((vl.dateOfBloodDraw.compareTo(baselineVL.dateOfBloodDraw) == 0 || vl.labNumber == baselineVL.labNumber) && vl.source.code != baselineVL.source.code) {
-      result = vl;
-      break;
+      if (result == null || result.createdDate.isBefore(vl.createdDate)) {
+        result = vl;
+      }
     }
   }
   return result;
