@@ -674,6 +674,7 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnable
     RequiredAction vlRequired = RequiredAction(patient.artNumber, RequiredActionType.VIRAL_LOAD_DISCREPANCY_WARNING, DateTime.fromMillisecondsSinceEpoch(0));
     DatabaseProvider().insertRequiredAction(vlRequired);
     PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
+    showFlushbar('Please inform the study supervisor.', title: 'Viral Load Discrepancy Found', error: true);
   }
   return newDiscrepancyFound;
 }
