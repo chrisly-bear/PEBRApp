@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/components/PEBRAppBottomSheet.dart';
 import 'package:pebrapp/components/RequiredActionBadge.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
 import 'package:pebrapp/components/animations/GrowTransition.dart';
@@ -211,6 +212,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     print('~~~ MainScreenState.build ~~~');
     _context = context;
     return Scaffold(
+        bottomSheet: PEBRAppBottomSheet(),
         backgroundColor: BACKGROUND_COLOR,
         floatingActionButton: FloatingActionButton(
           key: Key('addPatient'), // key can be used to find the button in integration testing
@@ -454,7 +456,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           await storeLatestViralLoadFetchInSharedPrefs(patient.artNumber);
           patientsNotUpdatedForTooLong.remove(patient); // update for this patient was successful, do not show it to be overdue
           final bool discrepancyFound = await checkForViralLoadDiscrepancies(patientObj);
-          // TODO: do we have to deal with a discrepancy in some way (show notification perhaps)?
         }
       }
       String message = 'No new viral loads found.';

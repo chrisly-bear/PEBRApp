@@ -1,3 +1,4 @@
+/// Configuration of how the PEBRApp operates
 
 // how often (in days) automated backups should happen
 const int AUTO_BACKUP_EVERY_X_DAYS = 1;
@@ -16,3 +17,6 @@ const int VL_SUPPRESSED_THRESHOLD = 1000;
 
 // how long after the app has been unused should the app be locked with a PIN
 const int SECONDS_UNTIL_APP_LOCK = 60;
+
+// if the device width is below this value use the narrow design
+const double NARROW_DESIGN_WIDTH = 500.0;

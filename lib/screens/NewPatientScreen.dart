@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
+import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/Gender.dart';
 import 'package:pebrapp/database/beans/PhoneAvailability.dart';
@@ -880,8 +881,6 @@ class _NewPatientFormState extends State<NewPatientScreen> {
         await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.ADHERENCE_QUESTIONNAIRE_2P5M_REQUIRED, addMonths(now, 2, addHalfMonth: true)));
         await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.ADHERENCE_QUESTIONNAIRE_5M_REQUIRED, addMonths(now, 5)));
         await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.ADHERENCE_QUESTIONNAIRE_9M_REQUIRED, addMonths(now, 9)));
-        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.SATISFACTION_QUESTIONNAIRE_5M_REQUIRED, addMonths(now, 5)));
-        await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.SATISFACTION_QUESTIONNAIRE_9M_REQUIRED, addMonths(now, 9)));
         await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_5M_REQUIRED, addMonths(now, 5)));
         await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_9M_REQUIRED, addMonths(now, 9)));
         await DatabaseProvider().insertRequiredAction(RequiredAction(_newPatient.artNumber, RequiredActionType.VIRAL_LOAD_9M_REQUIRED, addMonths(now, 9)));
@@ -959,7 +958,7 @@ class _NewPatientFormState extends State<NewPatientScreen> {
 
   Widget _makeQuestion(String question, {@required Widget answer}) {
 
-    if (_screenWidth < 400.0) {
+    if (_screenWidth < NARROW_DESIGN_WIDTH) {
       final double _spacingBetweenQuestions = 8.0;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/components/PEBRAppBottomSheet.dart';
 import 'package:pebrapp/components/RequiredActionContainer.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
@@ -163,6 +164,7 @@ class _PatientScreenState extends State<PatientScreen> {
     );
 
     return Scaffold(
+      bottomSheet: PEBRAppBottomSheet(),
       backgroundColor: BACKGROUND_COLOR,
       body: TransparentHeaderPage(
         title: 'Participant',
@@ -264,10 +266,10 @@ class _PatientScreenState extends State<PatientScreen> {
         _buildNextActionRow(
           title: 'Next Questionnaire',
           dueDate: _nextEndpointText,
-          explanation: 'Adherence questionnaires are due 2.5–3.5 months, 5–8 months, and 9–15 months '
-              'after participant enrollment. Satisfaction questionnaires and Quality'
-              ' of Life questionnaires are due 5–8 months and 9–15 months after participant '
-              'enrollment.',
+          explanation: 'Adherence questionnaires are due 2.5–3.5 months, 5–8 '
+              'months, and 9–15 months after participant enrollment. Quality of'
+              ' Life questionnaires are due 5–8 months and 9–15 months after '
+              'participant enrollment.',
           button: _makeButton('Open KoBoCollect', onPressed: _onOpenKoboCollectPressed),
         ),
         SizedBox(height: _spacingBetweenCards),
@@ -298,7 +300,9 @@ class _PatientScreenState extends State<PatientScreen> {
     final double _spaceBetweenColumns = 10.0;
     final double _sourceColumnWidth = 70.0;
     bool _hasAnyDiscrepancies() => _patient.viralLoads.any((ViralLoad vl) => vl.discrepancy ?? false);
-    final double _warningColumnWidth = _hasAnyDiscrepancies() ? 25.0 : 0.0;
+    bool _vlWarningRequiredActionShowing() => _patient.requiredActions.any((RequiredAction a) => a.type == RequiredActionType.VIRAL_LOAD_DISCREPANCY_WARNING);
+    bool _shouldDisplayWarningColumn() => _hasAnyDiscrepancies() && _vlWarningRequiredActionShowing();
+    final double _warningColumnWidth = 25.0;
 
     Widget _buildViralLoadHeader() {
       Widget row = Padding(
@@ -322,8 +326,8 @@ class _PatientScreenState extends State<PatientScreen> {
               width: _sourceColumnWidth,
               child: _formatHeaderRowText('Source'),
             ),
-            SizedBox(width: _spaceBetweenColumns),
-            SizedBox(width: _warningColumnWidth),
+            _shouldDisplayWarningColumn() ? SizedBox(width: _spaceBetweenColumns) : SizedBox(),
+            _shouldDisplayWarningColumn() ? SizedBox(width: _warningColumnWidth) : SizedBox(),
           ],
         ),
       );
@@ -382,11 +386,11 @@ class _PatientScreenState extends State<PatientScreen> {
               width: _sourceColumnWidth,
               child: Text(vl.source == ViralLoadSource.MANUAL_INPUT() ? 'manual' : 'database', style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
             ),
-            SizedBox(width: _spaceBetweenColumns),
-            SizedBox(
+            _shouldDisplayWarningColumn() ? SizedBox(width: _spaceBetweenColumns) : SizedBox(),
+            _shouldDisplayWarningColumn() ? SizedBox(
               width: _warningColumnWidth,
               child: (vl.discrepancy ?? false) ? Icon(Icons.warning) : null,
-            ),
+            ) : SizedBox(),
           ],
         ),
       );
@@ -1044,7 +1048,6 @@ class _PatientScreenState extends State<PatientScreen> {
       await storeLatestViralLoadFetchInSharedPrefs(patient.artNumber);
       lastVLFetchDate = formatDateAndTime(DateTime.now());
       final bool discrepancyFound = await checkForViralLoadDiscrepancies(patient);
-      // TODO: do we have to deal with a discrepancy in some way (show notification perhaps)?
       if (discrepancyFound) {
       }
     } catch (e, s) {

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/components/PEBRAppBottomSheet.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
+import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
 import 'package:pebrapp/database/beans/ARTRefillReminderDaysBeforeSelection.dart';
@@ -38,6 +40,7 @@ class PreferenceAssessmentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        bottomSheet: PEBRAppBottomSheet(),
         backgroundColor: BACKGROUND_COLOR,
         body: TransparentHeaderPage(
           title: 'Preference Assessment',
@@ -1893,7 +1896,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _makeQuestionCustom({@required Widget question, @required Widget answer}) {
 
-    if (_screenWidth < 400.0) {
+    if (_screenWidth < NARROW_DESIGN_WIDTH) {
       final double _spacingBetweenQuestions = 8.0;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,

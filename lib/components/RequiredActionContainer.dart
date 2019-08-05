@@ -79,7 +79,7 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
     super.dispose();
   }
 
-  FlatButton _questionnaireDoneButton(RequiredAction action) {
+  FlatButton _doneButton(RequiredAction action) {
     return FlatButton(
       onPressed: () async {
         DatabaseProvider().removeRequiredAction(widget.patient.artNumber, action.type);
@@ -141,52 +141,35 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
         break;
       case RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED:
         actionText = "Viral load required. Please send the participant to the nurse for blood draw.";
-        actionButton = FlatButton(
-          onPressed: () async {
-            DatabaseProvider().removeRequiredAction(widget.patient.artNumber, widget.action.type);
-            PatientBloc.instance.sinkRequiredActionData(widget.action, true);
-          },
-          splashColor: NOTIFICATION_INFO_SPLASH,
-          child: Text(
-            "DONE",
-            style: TextStyle(
-              color: NOTIFICATION_INFO_TEXT,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        );
+        actionButton = _doneButton(widget.action);
+        break;
+      case RequiredActionType.VIRAL_LOAD_DISCREPANCY_WARNING:
+        actionText = "Viral load discrepancy found. Please inform the study supervisor.";
+        actionButton = _doneButton(widget.action);
         break;
       case RequiredActionType.VIRAL_LOAD_9M_REQUIRED:
         actionText = "The participant needs a viral load within the next few months. Please coordinate with the nurse for blood draw.";
-        actionButton = _questionnaireDoneButton(widget.action);
-        break;
-      case RequiredActionType.SATISFACTION_QUESTIONNAIRE_5M_REQUIRED:
-        actionText = "Fill in the Satisfaction questionnaire on KoBoCollect.";
-        actionButton = _questionnaireDoneButton(widget.action);
-        break;
-      case RequiredActionType.SATISFACTION_QUESTIONNAIRE_9M_REQUIRED:
-        actionText = "Fill in the Satisfaction questionnaire on KoBoCollect.";
-        actionButton = _questionnaireDoneButton(widget.action);
+        actionButton = _doneButton(widget.action);
         break;
       case RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_5M_REQUIRED:
         actionText = "Fill in the Quality of Life questionnaire on KoBoCollect.";
-        actionButton = _questionnaireDoneButton(widget.action);
+        actionButton = _doneButton(widget.action);
         break;
       case RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_9M_REQUIRED:
         actionText = "Fill in the Quality of Life questionnaire on KoBoCollect.";
-        actionButton = _questionnaireDoneButton(widget.action);
+        actionButton = _doneButton(widget.action);
         break;
       case RequiredActionType.ADHERENCE_QUESTIONNAIRE_2P5M_REQUIRED:
         actionText = "Fill in the Adherence questionnaire on KoBoCollect.";
-        actionButton = _questionnaireDoneButton(widget.action);
+        actionButton = _doneButton(widget.action);
         break;
       case RequiredActionType.ADHERENCE_QUESTIONNAIRE_5M_REQUIRED:
         actionText = "Fill in the Adherence questionnaire on KoBoCollect.";
-        actionButton = _questionnaireDoneButton(widget.action);
+        actionButton = _doneButton(widget.action);
         break;
       case RequiredActionType.ADHERENCE_QUESTIONNAIRE_9M_REQUIRED:
         actionText = "Fill in the Adherence questionnaire on KoBoCollect.";
-        actionButton = _questionnaireDoneButton(widget.action);
+        actionButton = _doneButton(widget.action);
         break;
     }
 

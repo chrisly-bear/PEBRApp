@@ -8,6 +8,7 @@ const Color _CUSTOM_BLUE = Color.fromRGBO(37, 55, 208, 1.0);
 const Color FLAT_BUTTON = _CUSTOM_BLUE;
 const Color RAISED_BUTTON = _CUSTOM_BLUE;
 const Color FLOATING_ACTION_BUTTON = _CUSTOM_BLUE;
+const Color BOTTOM_SHEET = Colors.lightBlue;
 const Color RAISED_BUTTON_TEXT = Colors.white;
 const Color BUTTON_INACTIVE = Colors.grey;
 const Color STEPPER_ABORT = Color(0xffff7f7f);

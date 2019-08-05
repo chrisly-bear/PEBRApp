@@ -21,7 +21,7 @@ import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 class DatabaseProvider {
   // Increase the _DB_VERSION number if you made changes to the database schema.
   // An increase will call the [_onUpgrade] method.
-  static const int _DB_VERSION = 53;
+  static const int _DB_VERSION = 54;
   // Do not access the _database directly (it might be null), instead use the
   // _databaseInstance getter which will initialize the database if it is
   // uninitialized
@@ -596,16 +596,28 @@ class DatabaseProvider {
       await db.execute("DROP TABLE IF EXISTS RequiredAction;");
       await _onCreate(db, 53);
     }
+    if (oldVersion < 54 && _DB_VERSION >= 54) {
+      print('Upgrading to database version 54...');
+      print('ALL DATA WILL BE RESET!');
+      await db.execute("DROP TABLE IF EXISTS ARTRefill;");
+      await db.execute("DROP TABLE IF EXISTS Patient;");
+      await db.execute("DROP TABLE IF EXISTS PreferenceAssessment;");
+      await db.execute("DROP TABLE IF EXISTS RequiredAction;");
+      await db.execute("DROP TABLE IF EXISTS SupportOptionDone;");
+      await db.execute("DROP TABLE IF EXISTS ViralLoad;");
+      await _onCreate(db, 54);
+    }
   }
 
   FutureOr<void> _onDowngrade(Database db, int oldVersion, int newVersion) async {
     print('Downgrading database from version $oldVersion to version $newVersion');
     print('NOT IMPLEMENTED, DATA WILL BE RESET!');
+    await db.execute("DROP TABLE IF EXISTS ARTRefill;");
     await db.execute("DROP TABLE IF EXISTS Patient;");
     await db.execute("DROP TABLE IF EXISTS PreferenceAssessment;");
-    await db.execute("DROP TABLE IF EXISTS ARTRefill;");
-    await db.execute("DROP TABLE IF EXISTS ViralLoad;");
     await db.execute("DROP TABLE IF EXISTS RequiredAction;");
+    await db.execute("DROP TABLE IF EXISTS SupportOptionDone;");
+    await db.execute("DROP TABLE IF EXISTS ViralLoad;");
     await db.execute("DROP TABLE IF EXISTS UserData;"); // Removing the UserData table will result in a login loop -> user has to create a new account
     await _onCreate(db, newVersion);
     showFlushbar('Please create a new account to continue using the app.', title: 'App Downgraded', error: true);

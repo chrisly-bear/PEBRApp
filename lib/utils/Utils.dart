@@ -15,6 +15,7 @@ import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/main.dart';
 import 'package:pebrapp/screens/LockScreen.dart';
+import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -378,13 +379,11 @@ DateTime calculateNextQuestionnaire(DateTime enrollmentDate, Set<RequiredAction>
   final bool _9MQuestionnairesCompleted = !requiredActions.any((RequiredAction a) =>
     (a.type == RequiredActionType.ADHERENCE_QUESTIONNAIRE_9M_REQUIRED
       || a.type == RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_9M_REQUIRED
-      || a.type == RequiredActionType.SATISFACTION_QUESTIONNAIRE_9M_REQUIRED
     )
   );
   final bool _5MQuestionnairesCompleted = !requiredActions.any((RequiredAction a) =>
     (a.type == RequiredActionType.ADHERENCE_QUESTIONNAIRE_5M_REQUIRED
       || a.type == RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_5M_REQUIRED
-      || a.type == RequiredActionType.SATISFACTION_QUESTIONNAIRE_5M_REQUIRED
     )
   );
   final bool _2P5MQuestionnairesCompleted = !requiredActions.any((RequiredAction a) =>
@@ -670,6 +669,12 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnable
       if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline1);
       if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline2);
     }
+  }
+  if (newDiscrepancyFound && !testingEnabled) {
+    RequiredAction vlRequired = RequiredAction(patient.artNumber, RequiredActionType.VIRAL_LOAD_DISCREPANCY_WARNING, DateTime.fromMillisecondsSinceEpoch(0));
+    DatabaseProvider().insertRequiredAction(vlRequired);
+    PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
+    showFlushbar('Please inform the study supervisor.', title: 'Viral Load Discrepancy Found', error: true);
   }
   return newDiscrepancyFound;
 }
