@@ -471,10 +471,10 @@ void sortViralLoads(List<ViralLoad> viralLoads) {
   });
 }
 
-/// Get a corresponding or matching baseline viral load (Manual or Database)
-/// given a list of viral loads and another viral load
-/// Return null if there is no matching viral load
-ViralLoad getBaselineViralLoad(List<ViralLoad> viralLoads, ViralLoad viralLoad) {
+/// Get a corresponding or matching baseline viral load (manual or database)
+/// given a list of viral loads and another viral load.
+/// Returns null if there is no matching viral load.
+ViralLoad getMatchingBaselineViralLoad(List<ViralLoad> viralLoads, ViralLoad viralLoad) {
   ViralLoad result; // initialize the matching viral load
   for (ViralLoad vl in viralLoads) {
     // Check for a corresponding viral load with a different source
@@ -500,22 +500,22 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnable
 
   allViralLoadsForPatient.addAll(patient.viralLoads);
 
-  // Filter out failed viral loads and viral loads created after patient enrollment date
+  // filter out failed viral loads and viral loads created after patient enrollment date
   viralLoads = allViralLoadsForPatient.where((a) => a.dateOfBloodDraw.isBefore(patient.enrollmentDate) && a.failed == false).toList();
 
   // sort the viral loads in descending order of date of blood draw
   viralLoads.sort((b, a) => a.dateOfBloodDraw.compareTo(b.dateOfBloodDraw));
 
-  // Check if there are any viral loads
+  // check if there are any viral loads
   if (viralLoads.length < 1) {
-    return false; // because there is nothing to check for descrepancies
+    return false; // because there is nothing to check for discrepancies
   }
 
   ViralLoad vlBaseline1 = viralLoads.first; // Get the baseline viral load
   print(vlBaseline1.dateOfBloodDraw.toString() + " : " + vlBaseline1.viralLoad.toString() + " : " + vlBaseline1.labNumber);
 
-  // Get the corresponding baseline viral load (Manual or Database)
-  ViralLoad vlBaseline2 = getBaselineViralLoad(viralLoads, vlBaseline1);
+  // get the corresponding baseline viral load (manual or database)
+  ViralLoad vlBaseline2 = getMatchingBaselineViralLoad(viralLoads, vlBaseline1);
 
   // If there is no match
   if (vlBaseline2 == null) {
@@ -526,7 +526,7 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnable
     if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline1);
   } else {
     print(vlBaseline2.dateOfBloodDraw.toString() + " : " + vlBaseline2.viralLoad.toString() + " : " + vlBaseline2.labNumber);
-    // Check if the viral loads differ in at least one of the following:
+    // check if the viral loads differ in at least one of the following:
     // a) VL result (c/mL)
     // b) lab number
     // c) date of blood draw
