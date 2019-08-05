@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/components/PEBRAppBottomSheet.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillOption.dart';
@@ -38,6 +39,7 @@ class PreferenceAssessmentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        bottomSheet: PEBRAppBottomSheet(),
         backgroundColor: BACKGROUND_COLOR,
         body: TransparentHeaderPage(
           title: 'Preference Assessment',

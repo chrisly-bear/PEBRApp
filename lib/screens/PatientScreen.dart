@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/components/PEBRAppBottomSheet.dart';
 import 'package:pebrapp/components/RequiredActionContainer.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
 import 'package:pebrapp/components/ViralLoadBadge.dart';
@@ -163,6 +164,7 @@ class _PatientScreenState extends State<PatientScreen> {
     );
 
     return Scaffold(
+      bottomSheet: PEBRAppBottomSheet(),
       backgroundColor: BACKGROUND_COLOR,
       body: TransparentHeaderPage(
         title: 'Participant',
