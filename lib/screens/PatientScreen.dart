@@ -293,7 +293,8 @@ class _PatientScreenState extends State<PatientScreen> {
 
     final double _spaceBetweenColumns = 10.0;
     final double _sourceColumnWidth = 70.0;
-    final double _warningColumnWidth = 25.0;
+    bool _hasAnyDiscrepancies() => _patient.viralLoads.any((ViralLoad vl) => vl.discrepancy ?? false);
+    final double _warningColumnWidth = _hasAnyDiscrepancies() ? 25.0 : 0.0;
 
     Widget _buildViralLoadHeader() {
       Widget row = Padding(
