@@ -722,7 +722,7 @@ class DatabaseProvider {
       where: '${ViralLoad.colPatientART} = ? AND ${ViralLoad.colViralLoadSource} = ? AND ${ViralLoad.colCreatedDate} = ? AND ${ViralLoad.colDateOfBloodDraw} = ? AND ${ViralLoad.colLabNumber} = ? AND ${ViralLoad.colFailed} = ?',
       whereArgs: [vl.patientART, vl.source.code, vl.createdDate.toIso8601String(), vl.dateOfBloodDraw.toIso8601String(), vl.labNumber, vl.failed],
     );
-    assert(res == 1);
+    assert(res <= 1);
     return res;
   }
 
