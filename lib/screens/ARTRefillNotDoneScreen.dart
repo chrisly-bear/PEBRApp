@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
+import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/ARTRefillNotDoneReason.dart';
 import 'package:pebrapp/database/beans/RefillType.dart';
@@ -281,7 +282,7 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
   }
 
   Widget _makeQuestion(String question, {@required Widget answer}) {
-    if (_screenWidth < 400.0) {
+    if (_screenWidth < NARROW_DESIGN_WIDTH) {
       final double _spacingBetweenQuestions = 8.0;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
