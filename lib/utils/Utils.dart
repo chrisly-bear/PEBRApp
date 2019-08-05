@@ -512,7 +512,7 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnable
   // sort the viral loads in descending order of date of blood draw (newest first)
   viralLoads.sort((ViralLoad a, ViralLoad b) {
     int result = b.dateOfBloodDraw.compareTo(a.dateOfBloodDraw);
-    if (result == 0) {
+    if (result == 0 && a.createdDate != null && b.createdDate != null) {
       // if date of blood draw is the same sort according to created date (newest first)
       result = b.createdDate.compareTo(a.createdDate);
     }
