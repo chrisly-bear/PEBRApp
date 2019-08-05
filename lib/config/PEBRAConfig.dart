@@ -1,3 +1,4 @@
+/// Configuration of how the PEBRApp operates
 
 // how often (in days) automated backups should happen
 const int AUTO_BACKUP_EVERY_X_DAYS = 1;
