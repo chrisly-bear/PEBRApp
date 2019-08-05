@@ -62,6 +62,14 @@ class PatientBloc {
     _appStateStreamController.sink.add(AppStateRequiredActionData(action, isDone));
   }
 
+  /// Trigger an [AppStateSettingsRequiredActionData] stream event.
+  ///
+  /// @param isDone: if the action is done (true) or still has to be done (false)
+  Future<void> sinkSettingsRequiredActionData(bool isDone) async {
+    print('Putting settings required action done down the sink: $isDone');
+    _appStateStreamController.sink.add(AppStateSettingsRequiredActionData(isDone));
+  }
+
   void dispose() {
     _appStateStreamController.close();
   }
@@ -83,4 +91,9 @@ class AppStateRequiredActionData extends AppState {
   final bool isDone;
   final RequiredAction action;
   AppStateRequiredActionData(this.action, this.isDone);
+}
+
+class AppStateSettingsRequiredActionData extends AppState {
+  final bool isDone;
+  AppStateSettingsRequiredActionData(this.isDone);
 }

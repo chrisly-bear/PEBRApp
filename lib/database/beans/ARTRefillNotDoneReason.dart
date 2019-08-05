@@ -20,12 +20,12 @@ class ARTRefillNotDoneReason {
 
   // These are the descriptions that will be displayed in the UI.
   static const Map<_Reason, String> _description = {
-    _Reason.PATIENT_DIED: "Patient Died",
-    _Reason.PATIENT_HOSPITALIZED: "Patient is Hospitalized",
-    _Reason.ART_FROM_OTHER_CLINIC_LESOTHO: "Patient gets ART from another clinic in Lesotho",
-    _Reason.ART_FROM_OTHER_CLINIC_SA: "Patient gets ART from another clinic in South Africa",
-    _Reason.NOT_TAKING_ART_ANYMORE: "Patient does not take ART anymore",
-    _Reason.STOCK_OUT_OR_FAILED_DELIVERY: "ART stock out or PE or VHW failed to deliver ART to patient",
+    _Reason.PATIENT_DIED: "Participant Died",
+    _Reason.PATIENT_HOSPITALIZED: "Participant is Hospitalized",
+    _Reason.ART_FROM_OTHER_CLINIC_LESOTHO: "Participant gets ART from another clinic in Lesotho",
+    _Reason.ART_FROM_OTHER_CLINIC_SA: "Participant gets ART from another clinic in South Africa",
+    _Reason.NOT_TAKING_ART_ANYMORE: "Participant does not take ART anymore",
+    _Reason.STOCK_OUT_OR_FAILED_DELIVERY: "ART stock out or PE or VHW failed to deliver ART to participant",
     _Reason.NO_INFORMATION: "No information found about the participant at all",
   };
 

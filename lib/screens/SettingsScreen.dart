@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,12 +13,14 @@ import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
 import 'package:pebrapp/exceptions/InvalidPINException.dart';
 import 'package:pebrapp/exceptions/NoPasswordFileException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
+import 'package:pebrapp/screens/ChangePhoneNumberScreen.dart';
 import 'package:pebrapp/screens/NewPINScreen.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/InputFormatters.dart';
 import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
 import 'package:pebrapp/utils/Utils.dart';
+import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pebrapp/config/SharedPreferencesConfig.dart';
 
@@ -33,6 +36,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // SETTINGS BODY fields
   String lastBackup = 'loading...';
   bool _isLoadingSettingsBody = false;
+  StreamSubscription<AppState> _appStateStream;
+  bool _phoneUploadRequired = false;
 
   // LOGIN BODY fields
   final _loginFormKey = GlobalKey<FormState>();
@@ -54,12 +59,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.initState();
     DatabaseProvider().retrieveLatestUserData().then((UserData loginData) {
       this._loginData = loginData;
+      this._phoneUploadRequired = loginData.phoneNumberUploadRequired;
       setState(() {this._isLoading = false;});
     });
     latestBackupFromSharedPrefs.then((DateTime value) {
       setState(() {
         lastBackup = value == null ? 'unknown' : formatDateAndTime(value);
       });
+    });
+
+    _appStateStream = PatientBloc.instance.appState.listen( (streamEvent) {
+      if (streamEvent is AppStateSettingsRequiredActionData) {
+        if (this._phoneUploadRequired == streamEvent.isDone) { // only do something if the state has changed
+          shouldAnimateRequiredActionContainer = streamEvent.isDone ? AnimateDirection.BACKWARD : AnimateDirection.FORWARD;
+          this._phoneUploadRequired = true; // set to true so that the required action is rendered
+          setState(() {}); // trigger the build and thus the animation
+        } else {
+          // nothing's changed, do not animate
+          shouldAnimateRequiredActionContainer = null;
+        }
+      }
     });
   }
 
@@ -99,6 +118,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   }
 
+  @override
+  void dispose() {
+    _appStateStream.cancel();
+    super.dispose();
+  }
 
 
   /*
@@ -135,16 +159,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildRequiredActions() {
-    if (_loginData.phoneNumberUploadRequired) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 20.0),
-        child: RequiredActionContainerPEPhoneNumberUpload(
-          _loginData.phoneNumber,
-          animateDirection: shouldAnimateRequiredActionContainer,
-        ),
-      );
-    }
-    return SizedBox();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: !_phoneUploadRequired ? null : RequiredActionContainerPEPhoneNumberUpload(
+        _loginData.phoneNumber,
+        animateDirection: shouldAnimateRequiredActionContainer,
+        onAnimated: () {
+            if (shouldAnimateRequiredActionContainer == AnimateDirection.BACKWARD) {
+              // if we animate the required action back make sure that it stays
+              // hidden after the animation
+              setState(() {
+                this._phoneUploadRequired = false;
+              });
+            }
+        },
+      ),
+    );
   }
 
   Widget get _settingsBody {
@@ -153,7 +183,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       children: <Widget>[
         _buildRequiredActions(),
         _buildUserDataCard(),
-        PEBRAButtonFlat('Change Phone Number'),
+        PEBRAButtonFlat('Change Phone Number', onPressed: _isLoadingSettingsBody ? null : () { _onPressChangePhoneNumberButton(context); },),
         SizedBox(height: _spacing),
         PEBRAButtonRaised('Start Upload', onPressed: _isLoadingSettingsBody ? null : () {_onPressBackupButton(context);},),
         SizedBox(height: 10.0),
@@ -173,11 +203,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
         SizedBox(height: 5.0),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 25.0),
-          child: Text('Use this option if you want to keep the patient data on the device but change the user.', textAlign: TextAlign.center,),
+          child: Text('Use this option if you want to keep the participant data on the device but change the user.', textAlign: TextAlign.center,),
         ),
         SizedBox(height: _spacing),
       ],
     );
+  }
+
+  _onPressChangePhoneNumberButton(BuildContext context) async {
+    final String newNumber = await showDialog(context: context, builder: ((BuildContext context) {
+      return ChangePhoneNumberScreen();
+    }));
+    if (newNumber != null) {
+      setState(() {
+        _loginData.phoneNumber = newNumber;
+      });
+      _loginData.phoneNumberUploadRequired = true;
+      await DatabaseProvider().insertUserData(_loginData);
+      final bool uploadSuccessful = await uploadPeerEducatorPhoneNumber();
+      if (!uploadSuccessful) {
+        // only show required action on settings screen if upload failed
+        PatientBloc.instance.sinkSettingsRequiredActionData(false);
+      }
+    }
   }
 
   _onPressBackupButton(BuildContext context) async {
@@ -340,6 +388,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             if (value.isEmpty) {
               return 'Please enter your first name';
             }
+            return null;
           },
         ),
         TextFormField(
@@ -352,6 +401,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             if (value.isEmpty) {
               return 'Please enter your last name';
             }
+            return null;
           },
         ),
         DropdownButtonFormField<HealthCenter>(
@@ -368,6 +418,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             if (value == null) {
               return 'Please select the health center at which you work';
             }
+            return null;
           },
           items: HealthCenter.allValues.map<DropdownMenuItem<HealthCenter>>((HealthCenter value) {
             return DropdownMenuItem<HealthCenter>(
@@ -422,6 +473,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     if (value.isEmpty) {
                       return 'Please enter a username';
                     }
+                    return null;
                   },
                 ),
                 createAccountFields(),
@@ -443,6 +495,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     } else if (value.length < 4) {
                       return 'At least 4 digits required';
                     }
+                    return null;
                   },
                 ),
               ],
