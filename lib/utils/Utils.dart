@@ -474,11 +474,11 @@ void sortViralLoads(List<ViralLoad> viralLoads) {
 /// Get a corresponding or matching baseline viral load (manual or database)
 /// given a list of viral loads and another viral load.
 /// Returns null if there is no matching viral load.
-ViralLoad getMatchingBaselineViralLoad(List<ViralLoad> viralLoads, ViralLoad viralLoad) {
+ViralLoad getMatchingBaselineViralLoad(List<ViralLoad> viralLoads, ViralLoad baselineVL) {
   ViralLoad result; // initialize the matching viral load
   for (ViralLoad vl in viralLoads) {
     // Check for a corresponding viral load with a different source
-    if ((vl.dateOfBloodDraw.compareTo(viralLoad.dateOfBloodDraw) == 0 || vl.labNumber == viralLoad.labNumber) && vl.source.code != viralLoad.source.code) {
+    if ((vl.dateOfBloodDraw.compareTo(baselineVL.dateOfBloodDraw) == 0 || vl.labNumber == baselineVL.labNumber) && vl.source.code != baselineVL.source.code) {
       result = vl;
       break;
     }
