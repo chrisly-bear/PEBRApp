@@ -1895,7 +1895,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
 
   Widget _makeQuestionCustom({@required Widget question, @required Widget answer}) {
 
-    if (_screenWidth < 400.0) {
+    if (_screenWidth < 500.0) {
       final double _spacingBetweenQuestions = 8.0;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
