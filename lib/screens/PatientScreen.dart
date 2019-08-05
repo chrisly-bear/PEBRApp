@@ -1011,7 +1011,6 @@ class _PatientScreenState extends State<PatientScreen> {
       final bool discrepancyFound = await checkForViralLoadDiscrepancies(patient);
       // TODO: do we have to deal with a discrepancy in some way (show notification perhaps)?
       if (discrepancyFound) {
-        _showDialog("VL discrepancy!", "Viral load discrepancy!");
       }
     } catch (e, s) {
       error = true;
@@ -1087,26 +1086,6 @@ class _PatientScreenState extends State<PatientScreen> {
             ? PEBRAButtonFlat(buttonText, onPressed: onPressed, widget: widget)
             : PEBRAButtonRaised(buttonText, onPressed: onPressed, widget: widget),
       ],
-    );
-  }
-
-  void _showDialog(String title, String body) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(body),
-          actions: [
-            FlatButton(
-              child: Row(children: [Text('OK', textAlign: TextAlign.center)]),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
     );
   }
 
