@@ -454,7 +454,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           await storeLatestViralLoadFetchInSharedPrefs(patient.artNumber);
           patientsNotUpdatedForTooLong.remove(patient); // update for this patient was successful, do not show it to be overdue
           final bool discrepancyFound = await checkForViralLoadDiscrepancies(patientObj);
-          // TODO: do we have to deal with a discrepancy in some way (show notification perhaps)?
         }
       }
       String message = 'No new viral loads found.';

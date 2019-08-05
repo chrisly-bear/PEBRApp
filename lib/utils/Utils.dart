@@ -15,6 +15,7 @@ import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/main.dart';
 import 'package:pebrapp/screens/LockScreen.dart';
+import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -668,6 +669,11 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnable
       if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline1);
       if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline2);
     }
+  }
+  if (newDiscrepancyFound && !testingEnabled) {
+    RequiredAction vlRequired = RequiredAction(patient.artNumber, RequiredActionType.VIRAL_LOAD_DISCREPANCY_WARNING, DateTime.fromMillisecondsSinceEpoch(0));
+    DatabaseProvider().insertRequiredAction(vlRequired);
+    PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
   }
   return newDiscrepancyFound;
 }

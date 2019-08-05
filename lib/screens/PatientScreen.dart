@@ -1044,7 +1044,6 @@ class _PatientScreenState extends State<PatientScreen> {
       await storeLatestViralLoadFetchInSharedPrefs(patient.artNumber);
       lastVLFetchDate = formatDateAndTime(DateTime.now());
       final bool discrepancyFound = await checkForViralLoadDiscrepancies(patient);
-      // TODO: do we have to deal with a discrepancy in some way (show notification perhaps)?
       if (discrepancyFound) {
       }
     } catch (e, s) {
