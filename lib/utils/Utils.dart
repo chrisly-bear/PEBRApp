@@ -6,6 +6,7 @@ import 'package:device_apps/device_apps.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flushbar/flushbar.dart';
+import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/config/SharedPreferencesConfig.dart';
 import 'package:intl/intl.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
@@ -588,15 +589,89 @@ void sortViralLoads(List<ViralLoad> viralLoads) {
   });
 }
 
-/// Returns true if a discrepancy has been found for this patient.
-Future<bool> checkForViralLoadDiscrepancies(Patient patient) async {
-  // TODO: check for viral load discrepancies in this patient.
-  // Compare manual baseline and database baseline viral load. If there is a
-  // discrepancy between them, set their discrepancy variable to true and insert
-  // them into the SQLite database again, then return true. If no discrepancy
-  // has been found, do nothing and return false.
-  bool discrepancyFound = false;
-  return discrepancyFound;
+/// Get a corresponding or matching baseline viral load (manual or database)
+/// given a list of viral loads and another viral load.
+///
+/// Returns null if there is no matching viral load.
+///
+/// @param [viralLoads] The viral loads in which to look for a match.
+///
+/// @param [baselineVL] The baseline viral load for which to find a match.
+ViralLoad getMatchingBaselineViralLoad(List<ViralLoad> viralLoads, ViralLoad baselineVL) {
+  ViralLoad result; // initialize the matching viral load
+  for (ViralLoad vl in viralLoads) {
+    // Check for a corresponding viral load with a different source
+    if ((vl.dateOfBloodDraw.compareTo(baselineVL.dateOfBloodDraw) == 0 || vl.labNumber == baselineVL.labNumber) && vl.source.code != baselineVL.source.code) {
+      if (result == null || result.createdDate.isBefore(vl.createdDate)) {
+        result = vl;
+      }
+    }
+  }
+  return result;
+}
+
+/// Returns true if a new discrepancy has been found for this patient.
+/// Discrepancies that have already been discovered (discrepancy variable is
+/// true) will not trigger another discrepancy (will return false).
+///
+/// @param [testingEnabled] If set to true, the discrepancy will not be inserted
+/// into the SQLite database. This is useful for unit testing.
+Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnabled: false}) async {
+  bool newDiscrepancyFound = false;
+
+  List<ViralLoad> allViralLoadsForPatient = []; // List<ViralLoad>();
+  List<ViralLoad> viralLoads = [];
+
+  allViralLoadsForPatient.addAll(patient.viralLoads);
+
+  // filter out failed viral loads and viral loads created after patient enrollment date
+  viralLoads = allViralLoadsForPatient.where((a) => a.dateOfBloodDraw.isBefore(patient.enrollmentDate) && a.failed == false).toList();
+
+  // sort the viral loads in descending order of date of blood draw (newest first)
+  viralLoads.sort((ViralLoad a, ViralLoad b) {
+    int result = b.dateOfBloodDraw.compareTo(a.dateOfBloodDraw);
+    if (result == 0 && a.createdDate != null && b.createdDate != null) {
+      // if date of blood draw is the same sort according to created date (newest first)
+      result = b.createdDate.compareTo(a.createdDate);
+    }
+    return result;
+  });
+
+  // check if there are any viral loads
+  if (viralLoads.length < 1) {
+    return false; // because there is nothing to check for discrepancies
+  }
+
+  ViralLoad vlBaseline1 = viralLoads.first; // Get the baseline viral load
+  print(vlBaseline1.dateOfBloodDraw.toString() + " : " + vlBaseline1.viralLoad.toString() + " : " + vlBaseline1.labNumber);
+
+  // get the corresponding baseline viral load (manual or database)
+  ViralLoad vlBaseline2 = getMatchingBaselineViralLoad(viralLoads, vlBaseline1);
+
+  // If there is no match
+  if (vlBaseline2 == null) {
+    if (!(vlBaseline1.discrepancy ?? false)) {
+      newDiscrepancyFound = true;
+    }
+    vlBaseline1.discrepancy = true;
+    if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline1);
+  } else {
+    print(vlBaseline2.dateOfBloodDraw.toString() + " : " + vlBaseline2.viralLoad.toString() + " : " + vlBaseline2.labNumber);
+    // check if the viral loads differ in at least one of the following:
+    // a) VL result (c/mL)
+    // b) lab number
+    // c) date of blood draw
+    if (vlBaseline2.viralLoad != vlBaseline1.viralLoad || vlBaseline2.dateOfBloodDraw.compareTo(vlBaseline1.dateOfBloodDraw) != 0 || vlBaseline2.labNumber != vlBaseline1.labNumber) {
+      if (!(vlBaseline1.discrepancy ?? false) || !(vlBaseline2.discrepancy ?? false)) {
+        newDiscrepancyFound = true;
+      }
+      vlBaseline1.discrepancy = true;
+      vlBaseline2.discrepancy = true;
+      if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline1);
+      if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline2);
+    }
+  }
+  return newDiscrepancyFound;
 }
 
 String composeSMS({@required String message, @required String peName, @required String pePhone}) {

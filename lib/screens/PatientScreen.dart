@@ -294,6 +294,8 @@ class _PatientScreenState extends State<PatientScreen> {
 
     final double _spaceBetweenColumns = 10.0;
     final double _sourceColumnWidth = 70.0;
+    bool _hasAnyDiscrepancies() => _patient.viralLoads.any((ViralLoad vl) => vl.discrepancy ?? false);
+    final double _warningColumnWidth = _hasAnyDiscrepancies() ? 25.0 : 0.0;
 
     Widget _buildViralLoadHeader() {
       Widget row = Padding(
@@ -317,6 +319,8 @@ class _PatientScreenState extends State<PatientScreen> {
               width: _sourceColumnWidth,
               child: _formatHeaderRowText('Source'),
             ),
+            SizedBox(width: _spaceBetweenColumns),
+            SizedBox(width: _warningColumnWidth),
           ],
         ),
       );
@@ -374,6 +378,11 @@ class _PatientScreenState extends State<PatientScreen> {
             SizedBox(
               width: _sourceColumnWidth,
               child: Text(vl.source == ViralLoadSource.MANUAL_INPUT() ? 'manual' : 'database', style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
+            ),
+            SizedBox(width: _spaceBetweenColumns),
+            SizedBox(
+              width: _warningColumnWidth,
+              child: (vl.discrepancy ?? false) ? Icon(Icons.warning) : null,
             ),
           ],
         ),
@@ -1033,6 +1042,8 @@ class _PatientScreenState extends State<PatientScreen> {
       lastVLFetchDate = formatDateAndTime(DateTime.now());
       final bool discrepancyFound = await checkForViralLoadDiscrepancies(patient);
       // TODO: do we have to deal with a discrepancy in some way (show notification perhaps)?
+      if (discrepancyFound) {
+      }
     } catch (e, s) {
       error = true;
       title = 'Viral Load Fetch Failed';

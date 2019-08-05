@@ -732,6 +732,20 @@ class DatabaseProvider {
     return res;
   }
 
+  /// Sets the discrepancy attribute to true by updating row for the given [vl].
+  Future<void> setViralLoadDiscrepancy(ViralLoad vl) async {
+    vl.discrepancy = true;
+    final Database db = await _databaseInstance;
+    final res = await db.update(
+      ViralLoad.tableName,
+      vl.toMap(),
+      where: '${ViralLoad.colPatientART} = ? AND ${ViralLoad.colViralLoadSource} = ? AND ${ViralLoad.colCreatedDate} = ? AND ${ViralLoad.colDateOfBloodDraw} = ? AND ${ViralLoad.colLabNumber} = ? AND ${ViralLoad.colFailed} = ?',
+      whereArgs: [vl.patientART, vl.source.code, vl.createdDate.toIso8601String(), vl.dateOfBloodDraw.toIso8601String(), vl.labNumber, vl.failed],
+    );
+    assert(res <= 1);
+    return res;
+  }
+
   /// Retrieves a list of all patient ART numbers in the database.
   ///
   /// @param [retrieveNonEligibles] Whether patients which are not eligible

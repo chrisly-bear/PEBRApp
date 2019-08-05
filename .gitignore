@@ -76,3 +76,4 @@ android/app/.project
 android/app/.settings/org.eclipse.buildship.core.prefs
 IDEWorkspaceChecks.plist
 lcov.info
+flutter_export_environment.sh
