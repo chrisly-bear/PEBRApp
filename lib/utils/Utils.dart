@@ -509,16 +509,16 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnable
     return false; // because there is nothing to check for descrepancies
   }
 
-  ViralLoad vlBaseline = viralLoads.first; // Get the baseline viral load
-  print(vlBaseline.dateOfBloodDraw.toString() + " : " + vlBaseline.viralLoad.toString() + " : " + vlBaseline.labNumber);
+  ViralLoad vlBaseline1 = viralLoads.first; // Get the baseline viral load
+  print(vlBaseline1.dateOfBloodDraw.toString() + " : " + vlBaseline1.viralLoad.toString() + " : " + vlBaseline1.labNumber);
 
   // Get the corresponding baseline viral load (Manual or Database)
-  ViralLoad vlBaseline2 = getBaselineViralLoad(viralLoads, vlBaseline);
+  ViralLoad vlBaseline2 = getBaselineViralLoad(viralLoads, vlBaseline1);
 
   // If there is no match
   if (vlBaseline2 == null) {
-    vlBaseline.discrepancy = true;
-    if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline);
+    vlBaseline1.discrepancy = true;
+    if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline1);
     discrepancyFound = true;
   } else {
     print(vlBaseline2.dateOfBloodDraw.toString() + " : " + vlBaseline2.viralLoad.toString() + " : " + vlBaseline2.labNumber);
@@ -526,10 +526,10 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnable
     //a) VL result (c/mL)
     //b) lab number
     //c) date of blood draw
-    if (vlBaseline2.viralLoad != vlBaseline.viralLoad || vlBaseline2.dateOfBloodDraw.compareTo(vlBaseline.dateOfBloodDraw) != 0 || vlBaseline2.labNumber != vlBaseline.labNumber) {
-      vlBaseline.discrepancy = true;
+    if (vlBaseline2.viralLoad != vlBaseline1.viralLoad || vlBaseline2.dateOfBloodDraw.compareTo(vlBaseline1.dateOfBloodDraw) != 0 || vlBaseline2.labNumber != vlBaseline1.labNumber) {
+      vlBaseline1.discrepancy = true;
       vlBaseline2.discrepancy = true;
-      if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline);
+      if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline1);
       if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline2);
       discrepancyFound = true;
     }
