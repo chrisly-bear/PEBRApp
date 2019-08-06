@@ -184,7 +184,7 @@ Future<void> _uploadAdherenceReminder(Patient patient, int patientId, String tok
   Map<String, dynamic> body = {
     "message_type": "adherence_reminder",
     "patient_id": patientId,
-    "mobile_phone": patient.phoneNumber,
+    "mobile_phone": _formatPhoneNumberForVI(patient.phoneNumber),
     "send_frequency": pa.adherenceReminderFrequency.visibleImpactAPIString,
     "mobile_owner": "patient",
     "send_time": formatTimeForVisibleImpact(pa.adherenceReminderTime),
@@ -234,7 +234,7 @@ Future<void> _uploadRefillReminder(Patient patient, int patientId, String token,
   Map<String, dynamic> body = {
     "message_type": "refill_reminder",
     "patient_id": patientId,
-    "mobile_phone": patient.phoneNumber,
+    "mobile_phone": _formatPhoneNumberForVI(patient.phoneNumber),
     "send_dates": sendDates,
     "mobile_owner": "patient",
     "message": composeSMS(
@@ -277,7 +277,7 @@ Future<void> _uploadViralLoadNotification(Patient patient, int patientId, String
   Map<String, dynamic> body = {
     "message_type": "vl_notification",
     "patient_id": patientId,
-    "mobile_phone": patient.phoneNumber,
+    "mobile_phone": _formatPhoneNumberForVI(patient.phoneNumber),
     "active": true,
     "mobile_owner": "patient",
     "message_suppressed": composeSMS(
