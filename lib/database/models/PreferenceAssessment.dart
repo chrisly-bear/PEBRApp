@@ -469,7 +469,7 @@ class PreferenceAssessment implements IExcelExportable {
 
   set_NURSE_CLINIC_done(bool done) async {
     SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.NURSE_CLINIC(), done: done);
-    DateTime now = DateTime.now().toUtc();
+    DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
     _supportOptionDones.add(s);
@@ -478,7 +478,7 @@ class PreferenceAssessment implements IExcelExportable {
 
   set_SATURDAY_CLINIC_CLUB_done(bool done) async {
     SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.SATURDAY_CLINIC_CLUB(), done: done);
-    DateTime now = DateTime.now().toUtc();
+    DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
     _supportOptionDones.add(s);
@@ -487,7 +487,7 @@ class PreferenceAssessment implements IExcelExportable {
 
   set_COMMUNITY_YOUTH_CLUB_done(bool done) async {
     SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.COMMUNITY_YOUTH_CLUB(), done: done);
-    DateTime now = DateTime.now().toUtc();
+    DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
     _supportOptionDones.add(s);
@@ -496,7 +496,7 @@ class PreferenceAssessment implements IExcelExportable {
 
   set_PHONE_CALL_PE_done(bool done) async {
     SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.PHONE_CALL_PE(), done: done);
-    DateTime now = DateTime.now().toUtc();
+    DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
     _supportOptionDones.add(s);
@@ -505,7 +505,7 @@ class PreferenceAssessment implements IExcelExportable {
 
   set_HOME_VISIT_PE_done(bool done) async {
     SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.HOME_VISIT_PE(), done: done);
-    DateTime now = DateTime.now().toUtc();
+    DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
     _supportOptionDones.add(s);
@@ -514,7 +514,7 @@ class PreferenceAssessment implements IExcelExportable {
 
   set_SCHOOL_VISIT_PE_done(bool done) async {
     SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.SCHOOL_VISIT_PE(), done: done);
-    DateTime now = DateTime.now().toUtc();
+    DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
     _supportOptionDones.add(s);
@@ -523,7 +523,7 @@ class PreferenceAssessment implements IExcelExportable {
 
   set_PITSO_VISIT_PE_done(bool done) async {
     SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.PITSO_VISIT_PE(), done: done);
-    DateTime now = DateTime.now().toUtc();
+    DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
     _supportOptionDones.add(s);
@@ -532,7 +532,7 @@ class PreferenceAssessment implements IExcelExportable {
 
   set_CONDOM_DEMO_done(bool done) async {
     SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.CONDOM_DEMO(), done: done);
-    DateTime now = DateTime.now().toUtc();
+    DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
     _supportOptionDones.add(s);
@@ -541,7 +541,7 @@ class PreferenceAssessment implements IExcelExportable {
 
   set_CONTRACEPTIVES_INFO_done(bool done) async {
     SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.CONTRACEPTIVES_INFO(), done: done);
-    DateTime now = DateTime.now().toUtc();
+    DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
     _supportOptionDones.add(s);
@@ -550,7 +550,7 @@ class PreferenceAssessment implements IExcelExportable {
 
   set_VMMC_INFO_done(bool done) async {
     SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.VMMC_INFO(), done: done);
-    DateTime now = DateTime.now().toUtc();
+    DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
     _supportOptionDones.add(s);
@@ -559,7 +559,7 @@ class PreferenceAssessment implements IExcelExportable {
 
   set_YOUNG_MOTHERS_GROUP_done(bool done) async {
     SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.YOUNG_MOTHERS_GROUP(), done: done);
-    DateTime now = DateTime.now().toUtc();
+    DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
     _supportOptionDones.add(s);
@@ -568,7 +568,7 @@ class PreferenceAssessment implements IExcelExportable {
 
   set_FEMALE_WORTH_GROUP_done(bool done) async {
     SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.FEMALE_WORTH_GROUP(), done: done);
-    DateTime now = DateTime.now().toUtc();
+    DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
     _supportOptionDones.add(s);
@@ -577,7 +577,7 @@ class PreferenceAssessment implements IExcelExportable {
 
   set_LEGAL_AID_INFO_done(bool done) async {
     SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.LEGAL_AID_INFO(), done: done);
-    DateTime now = DateTime.now().toUtc();
+    DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
     _supportOptionDones.add(s);

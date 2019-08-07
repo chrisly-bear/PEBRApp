@@ -194,21 +194,48 @@ void dismissTransferringDataFlushbar() {
 }
 
 /// Takes a date and returns a date at the beginning (midnight) of the same day.
+///
+/// Note that it matters whether the date is UTC or local. For example, assume
+/// our time zone is UTC+2 (e.g. South Africa Standard Time) and our [date]
+/// is 2000-01-01 01:00:00.000 (local time). If the [date] object is set to
+/// local, then it will be rounded to 2000-01-01 00:00:00.000. However, if the
+/// [date] object is set to UTC, it will be rounded to 1999-12-31 00:00:00.000Z.
 DateTime _roundToDays(DateTime date) {
   final day = date.day;
   final month = date.month;
   final year = date.year;
-  return DateTime(year, month, day);
+  return date.isUtc
+    ? DateTime.utc(year, month, day)
+    : DateTime(year, month, day);
 }
 
-/// Returns the difference in days between date1 and date2.
+
+/// Returns the difference in days between [date1] and [date2]. The difference
+/// is measured at midnight, i.e., how many "midnights" lie between [date1] and
+/// [date2].
 ///
-/// - E.g. 1: if date1 is 2019-12-30 23:55:00.000 and date2 is
+/// - E.g. 1: if [date1] is 2019-12-30 23:55:00.000 and [date2] is
 /// 2019-12-31 00:05:00.000 the difference will be 1 (day).
 ///
-/// - E.g. 2: if date1 is 2019-12-30 00:05:00.000 and date2 is
+/// - E.g. 2: if [date1] is 2019-12-30 00:05:00.000 and [date2] is
 /// 2019-12-31 23:55:00.000 the difference will be 1 (day).
+///
+/// Make sure to pass both dates either in UTC or local time. If one is UTC and
+/// the other is local this might lead to unexpected difference in days. E.g.
+/// if the local time zone is UTC+2 and we pass in 2000-01-01 23:30:00.000 as
+/// [date1] in local time and 2000-01-02 00:30:00.000 as [date2] in UTC we would
+/// expect a difference in days of 1 but 0 is returned. In code:
+///
+/// ```
+/// final date1 = DateTime.parse('2000-01-01 23:30:00.000');
+/// final date2 = DateTime.parse('2000-01-02 00:30:00.000').toUtc();
+/// final diff = differenceInDays(date1, date2); // <- returns 0, we expect 1
+/// ```
 int differenceInDays(DateTime date1, DateTime date2) {
+  assert(date1.isUtc == date2.isUtc, 'Comparing UTC and local dates leads to '
+      'unpredictable difference in days.\n'
+      'date1 (isUtc: ${date1.isUtc}) = $date1\n'
+      'date2 (isUtc: ${date2.isUtc}) = $date2');
   date1 = _roundToDays(date1);
   date2 = _roundToDays(date2);
   return date2.difference(date1).inDays;

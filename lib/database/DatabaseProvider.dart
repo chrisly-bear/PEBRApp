@@ -732,14 +732,14 @@ class DatabaseProvider {
 
   Future<void> insertPatient(Patient newPatient) async {
     final Database db = await _databaseInstance;
-    newPatient.createdDate = DateTime.now().toUtc();
+    newPatient.createdDate = DateTime.now();
     final res = await db.insert(Patient.tableName, newPatient.toMap());
     return res;
   }
   
   Future<void> insertViralLoad(ViralLoad viralLoad, {DateTime createdDate}) async {
     final Database db = await _databaseInstance;
-    viralLoad.createdDate = createdDate ?? DateTime.now().toUtc();
+    viralLoad.createdDate = createdDate ?? DateTime.now();
     final res = await db.insert(ViralLoad.tableName, viralLoad.toMap());
     return res;
   }
@@ -852,20 +852,20 @@ class DatabaseProvider {
   /// given by the database.
   Future<int> insertPreferenceAssessment(PreferenceAssessment newPreferenceAssessment) async {
     final Database db = await _databaseInstance;
-    newPreferenceAssessment.createdDate = DateTime.now().toUtc();
+    newPreferenceAssessment.createdDate = DateTime.now();
     return db.insert(PreferenceAssessment.tableName, newPreferenceAssessment.toMap());
   }
 
   Future<void> insertUserData(UserData userData) async {
     final Database db = await _databaseInstance;
-    userData.createdDate = DateTime.now().toUtc();
+    userData.createdDate = DateTime.now();
     final res = await db.insert(UserData.tableName, userData.toMap());
     return res;
   }
 
   Future<void> insertRequiredAction(RequiredAction action) async {
     final Database db = await _databaseInstance;
-    action.createdDate = DateTime.now().toUtc();
+    action.createdDate = DateTime.now();
     final res = await db.insert(RequiredAction.tableName, action.toMap());
     return res;
   }
@@ -886,7 +886,7 @@ class DatabaseProvider {
     if (latestUser != null) {
       final map = {
         UserData.colIsActive: 0,
-        UserData.colDeactivatedDate: DateTime.now().toUtc().toIso8601String(),
+        UserData.colDeactivatedDate: DateTime.now().toIso8601String(),
       };
       db.update(
         UserData.tableName,
@@ -944,14 +944,14 @@ class DatabaseProvider {
 
   Future<void> insertARTRefill(ARTRefill newARTRefill) async {
     final Database db = await _databaseInstance;
-    newARTRefill.createdDate = DateTime.now().toUtc();
+    newARTRefill.createdDate = DateTime.now();
     final res = await db.insert(ARTRefill.tableName, newARTRefill.toMap());
     return res;
   }
 
   Future<void> insertSupportOptionDone(SupportOptionDone supportOptionDone, {DateTime createdDate}) async {
     final Database db = await _databaseInstance;
-    supportOptionDone.createdDate = createdDate ?? DateTime.now().toUtc();
+    supportOptionDone.createdDate = createdDate ?? DateTime.now();
     final res = await db.insert(SupportOptionDone.tableName, supportOptionDone.toMap());
     return res;
   }

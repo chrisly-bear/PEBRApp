@@ -15,19 +15,84 @@ void main() {
   });
 
   group('Date Calculation', () {
-    test('today', () {
-      final result = differenceInDays(DateTime(2000, 12, 31, 23, 55), DateTime(2000, 12, 31, 0, 5));
-      expect(result, 0);
+    group('Date Calculation (local time)', () {
+      test('today local-local', () {
+        final result = differenceInDays(DateTime(2000, 12, 31, 0, 5), DateTime(2000, 12, 31, 23, 55));
+        expect(result, 0);
+      });
+      test('yesterday local-local', () {
+        final result = differenceInDays(DateTime(2000, 12, 31, 0, 5), DateTime(2000, 12, 30, 23, 55));
+        expect(result, -1);
+      });
+      test('tomorrow local-local', () {
+        final result = differenceInDays(DateTime(2000, 12, 31, 23, 55), DateTime(2001, 1, 1, 0, 5));
+        expect(result, 1);
+      });
+      test('today utc-local', () {
+        final operation = () { differenceInDays(DateTime(2000, 12, 31, 0, 5).toUtc(), DateTime(2000, 12, 31, 23, 55)); };
+        expect(() => operation(), throwsAssertionError);
+      });
+      test('yesterday utc-local', () {
+        final operation = () { differenceInDays(DateTime(2000, 12, 31, 0, 5).toUtc(), DateTime(2000, 12, 30, 23, 55)); };
+        expect(() => operation(), throwsAssertionError);
+      });
+      test('tomorrow utc-local', () {
+        final operation = () { differenceInDays(DateTime(2000, 12, 31, 23, 55).toUtc(), DateTime(2001, 1, 1, 0, 5)); };
+        expect(() => operation(), throwsAssertionError);
+      });
+      test('today local-utc', () {
+        final operation = () { differenceInDays(DateTime(2000, 12, 31, 0, 5), DateTime(2000, 12, 31, 23, 55).toUtc()); };
+        expect(() => operation(), throwsAssertionError);
+      });
+      test('yesterday local-utc', () {
+        final operation = () { differenceInDays(DateTime(2000, 12, 31, 0, 5), DateTime(2000, 12, 30, 23, 55).toUtc()); };
+        expect(() => operation(), throwsAssertionError);
+      });
+      test('tomorrow local-utc', () {
+        final operation = () { differenceInDays(DateTime(2000, 12, 31, 23, 55), DateTime(2001, 1, 1, 0, 5).toUtc()); };
+        expect(() => operation(), throwsAssertionError);
+      });
     });
-    test('yesterday', () {
-      final result = differenceInDays(DateTime(2000, 12, 31, 23, 55), DateTime(2000, 12, 30, 0, 5));
-      expect(result, -1);
+
+    group('Date Calculation (UTC)', () {
+      test('today utc-utc', () {
+        final result = differenceInDays(DateTime.utc(2000, 12, 31, 0, 5), DateTime.utc(2000, 12, 31, 23, 55));
+        expect(result, 0);
+      });
+      test('yesterday utc-utc', () {
+        final result = differenceInDays(DateTime.utc(2000, 12, 31, 0, 5), DateTime.utc(2000, 12, 30, 23, 55));
+        expect(result, -1);
+      });
+      test('tomorrow utc-utc', () {
+        final result = differenceInDays(DateTime.utc(2000, 12, 31, 23, 55), DateTime.utc(2001, 1, 1, 0, 5));
+        expect(result, 1);
+      });
+      test('today utc-local', () {
+        final operation = () { differenceInDays(DateTime.utc(2000, 12, 31, 0, 5), DateTime.utc(2000, 12, 31, 23, 55).toLocal()); };
+        expect(() => operation(), throwsAssertionError);
+      });
+      test('yesterday utc-local', () {
+        final operation = () { differenceInDays(DateTime.utc(2000, 12, 31, 0, 5), DateTime.utc(2000, 12, 30, 23, 55).toLocal()); };
+        expect(() => operation(), throwsAssertionError);
+      });
+      test('tomorrow utc-local', () {
+        final operation = () { differenceInDays(DateTime.utc(2000, 12, 31, 23, 55), DateTime.utc(2001, 1, 1, 0, 5).toLocal()); };
+        expect(() => operation(), throwsAssertionError);
+      });
+      test('today local-utc', () {
+        final operation = () { differenceInDays(DateTime.utc(2000, 12, 31, 0, 5).toLocal(), DateTime.utc(2000, 12, 31, 23, 55)); };
+        expect(() => operation(), throwsAssertionError);
+      });
+      test('yesterday local-utc', () {
+        final operation = () { differenceInDays(DateTime.utc(2000, 12, 31, 0, 5).toLocal(), DateTime.utc(2000, 12, 30, 23, 55)); };
+        expect(() => operation(), throwsAssertionError);
+      });
+      test('tomorrow local-utc', () {
+        final operation = () { differenceInDays(DateTime.utc(2000, 12, 31, 23, 55).toLocal(), DateTime.utc(2001, 1, 1, 0, 5)); };
+        expect(() => operation(), throwsAssertionError);
+      });
     });
-    test('tomorrow', () {
-      final result = differenceInDays(DateTime(2000, 12, 31, 23, 55), DateTime(2001, 1, 1, 0, 5));
-      expect(result, 1);
-    });
-  });  
+  });
 
   group('SMS', () {
 
