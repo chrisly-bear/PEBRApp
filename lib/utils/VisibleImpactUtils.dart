@@ -98,6 +98,9 @@ Future<bool> uploadPeerEducatorPhoneNumber() async {
     } else {
       final String token = await _getAPIToken();
       for (Patient patient in patients) {
+        // TODO: move the try-catch block inside this for loop so that if the
+        //  upload fails for one patient the loop continues and the notification
+        //  preferences for the remaining patients can still be uploaded
         final int patientId = await _getPatientIdVisibleImpact(patient, token);
         await _uploadAdherenceReminder(patient, patientId, token, pe: user);
         await _uploadRefillReminder(patient, patientId, token, pe: user);

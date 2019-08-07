@@ -438,6 +438,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     Map<String, int> updatedPatients = {};
     try {
       for (Patient patient in patientsToUpdate) {
+        // TODO: move the try-catch block inside this for loop so that if the
+        //  download fails for one patient the loop continues and viral loads
+        //  for the remaining patients can still be downloaded
         viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient);
         final DateTime fetchedDate = DateTime.now();
         for (ViralLoad vl in viralLoadsFromDB) {
