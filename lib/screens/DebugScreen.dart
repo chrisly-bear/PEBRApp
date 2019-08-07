@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
+import 'package:pebrapp/database/models/Patient.dart';
+import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
@@ -40,60 +42,108 @@ class _DebugScreenState extends State<DebugScreen> {
   }
 
   Widget get _body {
-    const double _spacing = 20.0;
-    return Center(
-      child: _isLoading
-          ? SizedBox(
-        height: 15.0,
-        width: 15.0,
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(SPINNER_SETTINGS_SCREEN),
-        ),
-      )
-          : Column(
+    const double _spacing = 15.0;
+
+    Widget _buttonRow({ @required String description, @required String buttonLabel, @required VoidCallback onPressed }) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          SizedBox(height: _spacing),
-          PEBRAButtonRaised('Restore',
+          Text(description),
+          PEBRAButtonRaised(buttonLabel,
             onPressed: _isLoading
                 ? null
                 : () {
-              _onPressRestoreButton(context);
+              onPressed();
             },
           ),
-          SizedBox(height: _spacing),
-          PEBRAButtonRaised('Drop Viral Load Table',
-            onPressed: _isLoading
-                ? null
-                : () {
-              _onPressDropTableButton(context, ViralLoad.tableName);
-            },
-          ),
-          SizedBox(height: _spacing),
-          PEBRAButtonRaised('Show Normal Notification',
-            onPressed: _isLoading
-                ? null
-                : () {
-              showFlushbar('test notification');
-            },
-          ),
-          SizedBox(height: _spacing),
-          PEBRAButtonRaised('Show Transfer Notification',
-            onPressed: _isLoading
-                ? null
-                : () {
-              showTransferringDataFlushbar();
-            },
-          ),
-          SizedBox(height: _spacing),
-          PEBRAButtonRaised('Dismiss Transfer Notification',
-            onPressed: _isLoading
-                ? null
-                : () {
-              dismissTransferringDataFlushbar();
-            },
-          ),
-          SizedBox(height: _spacing),
         ],
+      );
+    }
+
+    Widget _dropTabelRow(String tableName) {
+      return _buttonRow(
+          description: 'Drop $tableName table',
+          buttonLabel: 'Drop',
+          onPressed: () {
+            _onPressDropTableButton(context, tableName);
+          },
+      );
+    }
+
+    Widget _card(String title, List<Widget> children) {
+      return Card(
+        margin: const EdgeInsets.symmetric(vertical: _spacing),
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(title, style: TextStyle(fontSize: 15.0, fontStyle: FontStyle.italic, color: DATA_SUBTITLE_TEXT)),
+              Divider(),
+              SizedBox(height: 5.0),
+              ...children,
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: _isLoading
+            ? SizedBox(
+                height: 15.0,
+                width: 15.0,
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(SPINNER_SETTINGS_SCREEN),
+                ),
+              )
+            : Column(
+          children: <Widget>[
+            _card('Misc.', [
+              _buttonRow(
+                description: 'Restore data from SWITCHtoolbox',
+                buttonLabel: 'Restore',
+                onPressed: () {
+                  _onPressRestoreButton(context);
+                },
+              ),
+            ]),
+            _card('Database Operations', [
+              _dropTabelRow(ViralLoad.tableName),
+              SizedBox(height: _spacing),
+              _dropTabelRow(PreferenceAssessment.tableName),
+              SizedBox(height: _spacing),
+              _dropTabelRow(Patient.tableName),
+            ]),
+            _card('Notifications', [
+              _buttonRow(
+                description: 'Show Normal Notification',
+                buttonLabel: 'Show',
+                onPressed: () {
+                  showFlushbar('test notification');
+                },
+              ),
+              SizedBox(height: _spacing),
+              _buttonRow(
+                description: 'Show Transfer Notification',
+                buttonLabel: 'Show',
+                onPressed: () {
+                  showTransferringDataFlushbar();
+                },
+              ),
+              SizedBox(height: _spacing),
+              _buttonRow(
+                description: 'Dismiss Transfer Notification',
+                buttonLabel: 'Show',
+                onPressed: () {
+                  dismissTransferringDataFlushbar();
+                },
+              ),
+            ]),
+          ],
+        ),
       ),
     );
   }
