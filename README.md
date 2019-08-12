@@ -3,17 +3,44 @@
 
 # PEBRApp
 
-PEBRApp - Help Peer Educators manage their interactions with patients.
+![logo](logo.png) 
 
-## Getting Started
+Mobile application for the PEBRA trial. The PEBRA ("Peer-Educator Based Refill of ART") trial is part of the GET ON IT research project of the [Swiss Tropical and Public Health Institute](https://www.swisstph.ch/) and tries to work towards the [UNAIDS 90-90-90](https://www.unaids.org/en/resources/909090) targets among adolescents and young adults with HIV in rural Lesotho. The app helps peer educators keep track of their interactions with study participants and acts as a data gathering tool for the study. The user interface is designed specifically for the Huawei MediaPad T5, the device used in the study. Deploying to devices with other screen sizes might work but is not officially supported at this point.
 
-This project is a starting point for a Flutter application.
+![PEBRApp](screenshot.png)
 
-A few resources to get you started if this is your first Flutter project:
+## Configure
 
-- [Lab: Write your first Flutter app](https://flutter.io/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.io/docs/cookbook)
+The app interacts with two online services: (1) [VisibleImpact](https://visibleimpact.org) for fetching and uploading patient-related data and (2) [SWITCHtoolbox](https://toolbox.switch.ch) for user account management and backups. You need to configure these two services in `lib/config/VisibleImpactConfig.dart` and `lib/config/SwitchConfig.dart`, respectively.
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.io/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+## Build and Run
+
+The app is built with Flutter, Google's cross-platform UI toolkit. To build and run the app, you need to have the Flutter SDK installed (see https://flutter.dev/docs/get-started/install). Then run the app with:
+
+```bash
+flutter run
+```
+
+If you want to specify a device to run the app on (check devices with `flutter devices`) use the `-d` argument:
+
+```bash
+# runs the app on the Android emulator with ID 5554
+flutter run -d emulator-5554
+```
+
+## Release
+
+To make a deployable apk file, simply run:
+
+```bash
+flutter build apk
+```
+
+You may want to follow the steps at https://flutter.dev/docs/deployment/android#signing-the-app to create a signed apk. Also, to reduce the size of the apk, you can build it specifically for one architecture (such as ARM) by running:
+
+```bash
+# creates a smaller apk which runs on ARM devices only
+flutter build apk --target-platform android-arm --split-per-abi
+```
+
+You can build for other target platforms by using one (or several) of `android-arm64`, `android-x86`, `android-x64` as the `--target-platform` parameter.
