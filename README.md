@@ -44,3 +44,9 @@ flutter build apk --target-platform android-arm --split-per-abi
 ```
 
 You can build for other target platforms by using one (or several) of `android-arm64`, `android-x86`, `android-x64` as the `--target-platform` parameter.
+
+## License
+
+This project is licensed under the MIT license (see the [LICENSE](LICENSE) file for more information).
+
+The app logo and some of the icons used in the app (icons for support options and viral load status) are exempt from this license and are **under copyright by their creators**. See the respective COPYRIGHT notice under [assets/logo/COPYRIGHT](assets/logo/COPYRIGHT) and [assets/icons/COPYRIGHT](assets/icons/COPYRIGHT).
