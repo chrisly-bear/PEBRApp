@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/chrisly-bear/PEBRApp.svg?branch=master)](https://travis-ci.org/chrisly-bear/PEBRApp)
 [![codecov](https://codecov.io/gh/chrisly-bear/PEBRApp/branch/master/graph/badge.svg)](https://codecov.io/gh/chrisly-bear/PEBRApp)
+[![license](https://img.shields.io/github/license/chrisly-bear/PEBRApp)](https://github.com/chrisly-bear/PEBRApp/blob/master/LICENSE)
 
 # PEBRApp
 
