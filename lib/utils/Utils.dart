@@ -735,7 +735,7 @@ String getPatientStatus(int code) {
       return 'dead';
     }
     case 2: {
-      return null;
+      return "";
     }
     case 3: {
       return 'transferout';
@@ -744,16 +744,16 @@ String getPatientStatus(int code) {
       return 'transferout';
     }
     case 5: {
-      return null;
+      return "";
     }
     case 6: {
-      return null;
+      return "";
     }
     case 7: {
       return 'itfu';
     }
     default: {
-      return null;
+      return "";
     }
   }
 }
