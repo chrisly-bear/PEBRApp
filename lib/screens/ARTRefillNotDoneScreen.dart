@@ -273,7 +273,11 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
       if (_patient.isActivated && _artRefill.notDoneReason != ARTRefillNotDoneReason.STOCK_OUT_OR_FAILED_DELIVERY()) {
         _patient.isActivated = false;
         String status = getPatientStatus(_artRefill.notDoneReason.code);
-        var uploadPatientStatus = await uploadPatientStatusVisibleImpact(_patient, status);
+        // Update the status only when necessary
+        if (status != "") {
+          var uploadPatientStatus = await uploadPatientStatusVisibleImpact(_patient, status);
+          print(uploadPatientStatus);
+        }
         // the isActivated field changed on the patient object, we have to store
         // this change in the Patient table of the SQLite database
         await DatabaseProvider().insertPatient(_patient);

@@ -75,6 +75,10 @@ Future<void> uploadPatientCharacteristics(Patient patient, {bool reUploadNotific
 
 /// Update the patient_status on Visible Impact database
 Future<bool> uploadPatientStatusVisibleImpact(Patient patient, String status) async {
+  // Make sure the patient status is not empty
+  if (status == "") {
+    return false;
+  }
   final String token = await _getAPIToken();
   final int patientId = await _getPatientIdVisibleImpact(patient, token);
   Map<String, dynamic> body = {
