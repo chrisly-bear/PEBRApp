@@ -794,6 +794,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
                         // *****************************
                         // activate / deactivate patient
                         // *****************************
+                        if (!curPatient.isActivated) {
+                          var uploadPatientStatus = await uploadPatientStatusVisibleImpact(curPatient, 'active');
+                          print(uploadPatientStatus);
+                        }
                         curPatient.isActivated = !curPatient.isActivated;
                         DatabaseProvider().insertPatient(curPatient);
                         await controller.animateBack(0.0, duration: _quickAnimationDuration, curve: Curves.ease); // fold patient card up

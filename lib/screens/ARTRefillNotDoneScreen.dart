@@ -10,6 +10,7 @@ import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
+import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
 class ARTRefillNotDoneScreen extends StatelessWidget {
   final Patient _patient;
@@ -271,6 +272,12 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
       _patient.latestARTRefill = _artRefill;
       if (_patient.isActivated && _artRefill.notDoneReason != ARTRefillNotDoneReason.STOCK_OUT_OR_FAILED_DELIVERY()) {
         _patient.isActivated = false;
+        String status = getPatientStatus(_artRefill.notDoneReason.code);
+        // Update the status only when necessary
+        if (status != "") {
+          var uploadPatientStatus = await uploadPatientStatusVisibleImpact(_patient, status);
+          print(uploadPatientStatus);
+        }
         // the isActivated field changed on the patient object, we have to store
         // this change in the Patient table of the SQLite database
         await DatabaseProvider().insertPatient(_patient);

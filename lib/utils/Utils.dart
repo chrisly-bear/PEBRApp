@@ -727,3 +727,33 @@ Future<void> openKoboCollectApp() async {
     showFlushbar("Make sure KoBoCollect is installed.", title: "KoBoCollect not Found", error: true);
   }
 }
+
+/// Get patient_status from ARTRefillNotDoneReason code
+String getPatientStatus(int code) {
+  switch (code) {
+    case 1: {
+      return 'dead';
+    }
+    case 2: {
+      return "";
+    }
+    case 3: {
+      return 'transferout';
+    }
+    case 4: {
+      return 'transferout';
+    }
+    case 5: {
+      return "";
+    }
+    case 6: {
+      return "";
+    }
+    case 7: {
+      return 'itfu';
+    }
+    default: {
+      return "";
+    }
+  }
+}

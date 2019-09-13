@@ -73,6 +73,33 @@ Future<void> uploadPatientCharacteristics(Patient patient, {bool reUploadNotific
   }
 }
 
+/// Update the patient_status on Visible Impact database
+Future<bool> uploadPatientStatusVisibleImpact(Patient patient, String status) async {
+  // Make sure the patient status is not empty
+  if (status == "") {
+    return false;
+  }
+  final String token = await _getAPIToken();
+  final int patientId = await _getPatientIdVisibleImpact(patient, token);
+  Map<String, dynamic> body = {
+    "patient_id": patientId,
+    "patient_status": status
+  };
+  final _resp = await http.put(
+    '$VI_API/patient',
+    headers: {
+      'Authorization' : 'Custom $token',
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode(body),
+  );
+  _checkStatusCode(_resp);
+  if (_resp.statusCode == 200) {
+    return true;
+  }
+  return false;
+}
+
 
 /// Updates the peer educator's phone number by re-uploading all notifications
 /// preferences for all patients. If there are a lot of patients this might take
