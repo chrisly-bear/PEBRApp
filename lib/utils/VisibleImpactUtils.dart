@@ -484,6 +484,35 @@ Future<int> _getPatientIdVisibleImpact(Patient patient, String _apiAuthToken) as
   return patientIds.first;
 }
 
+/// Format a patient's gender to a string (character) that can easily be stored in
+/// the Visible Impact Database
+/// 
+/// if (patient.gender == Gender.MALE()) gender = "M";
+///  if (patient.gender == Gender.FEMALE()) gender = "F";
+String _formatGenderForVisibleImpact(Patient patient) {
+  if (patient.gender == Gender.MALE()) {
+    return "M";
+  } else if (patient.gender == Gender.FEMALE()) {
+    return "F";
+  }
+  return "";
+}
+
+/// Get a matching patient in a list of objects from the Visible Impact Database
+/// Search through the list by matching the 'birth_date', 'sex' and 'mobile_phone'
+/// of a patient.
+///
+/// Return a null object if there is no match
+dynamic _getMatchingPatient(List<dynamic> patients, Patient patient) {
+  for (dynamic p in patients) {
+    if (p['birth_date'] == formatDateForVisibleImpact(patient.birthday) && p['sex'] == _formatGenderForVisibleImpact(patient)
+    && p['mobile_phone'] == _formatPhoneNumberForVI(patient.phoneNumber)) {
+      return p;
+    }
+  }
+  return null;
+}
+
 
 Future<void> _handleSuccess(Patient patient, RequiredActionType actionType) async {
   print('$actionType uploaded to visible impact database successfully.');
