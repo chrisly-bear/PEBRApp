@@ -479,6 +479,14 @@ Future<int> _getPatientIdVisibleImpact(Patient patient, String _apiAuthToken) as
     // Try to find the proper entry by matching birth_date, sex, mobile_phone.
     // If the conflict can still not be resolved this way inform the user (make
     // them pick the correct entry for example).
+
+    // Search for a matching patient object by comparing birth_date, sex and mobile_phone.
+    var match = _getMatchingPatient(list, patient);
+    // If there is a match
+    if (match != null) {
+      // Assign the first element in the patientIds list to the patient_id of the match
+      patientIds[0] = match['patient_id'];
+    }
     throw MultiplePatientsException('Several matching patients with ART number ${patient.artNumber} found on VisibleImpact.');
   }
   return patientIds.first;
