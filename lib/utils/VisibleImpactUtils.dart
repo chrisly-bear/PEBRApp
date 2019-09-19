@@ -481,7 +481,7 @@ Future<int> _getPatientIdVisibleImpact(Patient patient, String _apiAuthToken) as
     // them pick the correct entry for example).
 
     // Search for a matching patient object by comparing birth_date, sex and mobile_phone.
-    var match = _getMatchingPatient(list, patient);
+    var match = getMatchingPatient(list, patient);
     // If there is a match
     if (match != null) {
       // Assign the first element in the patientIds list to the patient_id of the match
@@ -511,7 +511,7 @@ String _formatGenderForVisibleImpact(Patient patient) {
 /// of a patient.
 ///
 /// Return a null object if there is no match
-dynamic _getMatchingPatient(List<dynamic> patients, Patient patient) {
+dynamic getMatchingPatient(List<dynamic> patients, Patient patient) {
   for (dynamic p in patients) {
     if (p['birth_date'] == formatDateForVisibleImpact(patient.birthday) && p['sex'] == _formatGenderForVisibleImpact(patient)
     && p['mobile_phone'] == _formatPhoneNumberForVI(patient.phoneNumber)) {
