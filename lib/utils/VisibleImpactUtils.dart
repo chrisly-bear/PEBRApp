@@ -510,13 +510,18 @@ String _formatGenderForVisibleImpact(Patient patient) {
 /// Search through the list by matching the 'birth_date', 'sex' and 'mobile_phone'
 /// of a patient.
 ///
-/// Return a null object if there is no match
+/// Return a null object if there is no match and if there are multiple matches that
+/// can not be resolved to one match
 dynamic getMatchingPatient(List<dynamic> patients, Patient patient) {
+  List<dynamic> matches = [];
   for (dynamic p in patients) {
     if (p['birth_date'] == formatDateForVisibleImpact(patient.birthday) && p['sex'] == _formatGenderForVisibleImpact(patient)
     && p['mobile_phone'] == _formatPhoneNumberForVI(patient.phoneNumber)) {
-      return p;
+      matches.add(p);
     }
+  }
+  if (matches.length == 1) {
+    return matches.first;
   }
   return null;
 }
