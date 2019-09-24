@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
+import 'package:pebrapp/components/PEBRAButtonInactive.dart';
 import 'package:pebrapp/components/PEBRAppBottomSheet.dart';
 import 'package:pebrapp/components/RequiredActionContainer.dart';
 import 'package:pebrapp/components/TransparentHeaderPage.dart';
@@ -253,14 +254,14 @@ class _PatientScreenState extends State<PatientScreen> {
           title: 'Next Preference Assessment',
           dueDate: _nextAssessmentText,
           explanation: 'Preference assessments are due every month for unsuppressed participants and every 3 months for suppressed participants.',
-          button: _makeButton('Start Assessment', onPressed: () { _startAssessmentPressed(_context, _patient); }),
+          button: !_patient.isActivated ? _makeInactiveButton('Start Assessment') : _makeButton('Start Assessment', onPressed: () { _startAssessmentPressed(_context, _patient); }),
         ),
         SizedBox(height: _spacingBetweenCards),
         _buildNextActionRow(
           title: 'Next ART Refill',
           dueDate: _nextRefillText,
           explanation: 'The ART refill date is selected when the participant collects $pronoun ARTs or has them delivered.',
-          button: _makeButton('Manage Refill', onPressed: () { _manageRefillPressed(_context, _patient, _nextRefillText); }),
+          button: !_patient.isActivated ? _makeInactiveButton('Manage Refill') : _makeButton('Manage Refill', onPressed: () { _manageRefillPressed(_context, _patient, _nextRefillText); }),
         ),
         SizedBox(height: _spacingBetweenCards),
         _buildNextActionRow(
@@ -270,7 +271,7 @@ class _PatientScreenState extends State<PatientScreen> {
               'months, and 9–15 months after participant enrollment. Quality of'
               ' Life questionnaires are due 5–8 months and 9–15 months after '
               'participant enrollment.',
-          button: _makeButton('Open KoBoCollect', onPressed: _onOpenKoboCollectPressed),
+          button: !_patient.isActivated ? _makeInactiveButton('Open KoboCollect') : _makeButton('Open KoBoCollect', onPressed: _onOpenKoboCollectPressed),
         ),
         SizedBox(height: _spacingBetweenCards),
       ],
@@ -1112,6 +1113,15 @@ class _PatientScreenState extends State<PatientScreen> {
         flat
             ? PEBRAButtonFlat(buttonText, onPressed: onPressed, widget: widget)
             : PEBRAButtonRaised(buttonText, onPressed: onPressed, widget: widget),
+      ],
+    );
+  }
+
+  Widget _makeInactiveButton(String buttonText, {Function() onPressed, bool flat: false, Widget widget}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        PEBRAButtonInactive(buttonText, onPressed: onPressed, widget: widget)
       ],
     );
   }
