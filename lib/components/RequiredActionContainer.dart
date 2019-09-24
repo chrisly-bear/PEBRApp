@@ -139,6 +139,22 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
           ),
         );
         break;
+      case RequiredActionType.PATIENT_STATUS_UPLOAD_REQUIRED:
+        actionText = "The automatic upload of the participant's status failed. Please upload manually.";
+        actionButton = FlatButton(
+          onPressed: () async {
+            await uploadPatientCharacteristics(widget.patient, reUploadNotifications: false);
+          },
+          splashColor: NOTIFICATION_INFO_SPLASH,
+          child: Text(
+            "UPLOAD",
+            style: TextStyle(
+              color: NOTIFICATION_INFO_TEXT,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        );
+        break;
       case RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED:
         actionText = "Viral load required. Please send the participant to the nurse for blood draw.";
         actionButton = _doneButton(widget.action);
