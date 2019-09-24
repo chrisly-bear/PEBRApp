@@ -133,10 +133,10 @@ class _PatientScreenState extends State<PatientScreen> {
         _buildRequiredActions(),
         _buildNextActions(),
         _buildPatientCharacteristicsCard(),
-        _makeButton('Edit Characteristics', onPressed: () { _editCharacteristicsPressed(_patient); }, flat: true),
+        !_patient.isActivated ? _makeButton('Edit Characteristics', flat: true) : _makeButton('Edit Characteristics', onPressed: () { _editCharacteristicsPressed(_patient); }, flat: true),
         SizedBox(height: _spacingBetweenCards),
         _buildViralLoadHistoryCard(),
-        _makeButton(
+        !_patient.isActivated ? _makeButton('fetch from database', flat: true) : _makeButton(
           'fetch from database',
           onPressed: _isFetchingViralLoads ? null : () { _fetchFromDatabasePressed(_context, _patient); },
           widget: _isFetchingViralLoads
@@ -148,7 +148,7 @@ class _PatientScreenState extends State<PatientScreen> {
           padding: EdgeInsets.symmetric(horizontal: 20.0),
           child: Text('Last fetch: ${lastVLFetchDate ?? 'never'}', textAlign: TextAlign.center),
         ),
-        _makeButton(
+        !_patient.isActivated ? _makeButton('add manual entry', flat: true) : _makeButton(
           'add manual entry',
           onPressed: _isFetchingViralLoads ? null : () { _addManualEntryPressed(_context, _patient); },
           flat: true,
@@ -253,14 +253,14 @@ class _PatientScreenState extends State<PatientScreen> {
           title: 'Next Preference Assessment',
           dueDate: _nextAssessmentText,
           explanation: 'Preference assessments are due every month for unsuppressed participants and every 3 months for suppressed participants.',
-          button: _makeButton('Start Assessment', onPressed: () { _startAssessmentPressed(_context, _patient); }),
+          button: !_patient.isActivated ? _makeButton('Start Assessment') : _makeButton('Start Assessment', onPressed: () { _startAssessmentPressed(_context, _patient); }),
         ),
         SizedBox(height: _spacingBetweenCards),
         _buildNextActionRow(
           title: 'Next ART Refill',
           dueDate: _nextRefillText,
           explanation: 'The ART refill date is selected when the participant collects $pronoun ARTs or has them delivered.',
-          button: _makeButton('Manage Refill', onPressed: () { _manageRefillPressed(_context, _patient, _nextRefillText); }),
+          button: !_patient.isActivated ? _makeButton('Manage Refill') : _makeButton('Manage Refill', onPressed: () { _manageRefillPressed(_context, _patient, _nextRefillText); }),
         ),
         SizedBox(height: _spacingBetweenCards),
         _buildNextActionRow(
@@ -270,7 +270,7 @@ class _PatientScreenState extends State<PatientScreen> {
               'months, and 9–15 months after participant enrollment. Quality of'
               ' Life questionnaires are due 5–8 months and 9–15 months after '
               'participant enrollment.',
-          button: _makeButton('Open KoBoCollect', onPressed: _onOpenKoboCollectPressed),
+          button: !_patient.isActivated ? _makeButton('Open KoboCollect') : _makeButton('Open KoBoCollect', onPressed: _onOpenKoboCollectPressed),
         ),
         SizedBox(height: _spacingBetweenCards),
       ],
@@ -1115,5 +1115,4 @@ class _PatientScreenState extends State<PatientScreen> {
       ],
     );
   }
-
 }

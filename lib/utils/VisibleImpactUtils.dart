@@ -74,28 +74,50 @@ Future<void> uploadPatientCharacteristics(Patient patient, {bool reUploadNotific
 }
 
 /// Update the patient_status on Visible Impact database
-Future<bool> uploadPatientStatusVisibleImpact(Patient patient, String status) async {
+Future<bool> uploadPatientStatusVisibleImpact(Patient patient, String status, {bool reUploadNotifications: false, bool showNotification: true}) async {
+  print('uploading patient status to VisibleImpact...');
   // Make sure the patient status is not empty
   if (status == "") {
     return false;
   }
-  final String token = await _getAPIToken();
-  final int patientId = await _getPatientIdVisibleImpact(patient, token);
-  Map<String, dynamic> body = {
-    "patient_id": patientId,
-    "patient_status": status
-  };
-  final _resp = await http.put(
-    '$VI_API/patient',
-    headers: {
-      'Authorization' : 'Custom $token',
-      'Content-Type': 'application/json',
-    },
-    body: jsonEncode(body),
-  );
-  _checkStatusCode(_resp);
-  if (_resp.statusCode == 200) {
-    return true;
+  try {
+    final String token = await _getAPIToken();
+    final int patientId = await _getPatientIdVisibleImpact(patient, token);
+    Map<String, dynamic> body = {
+      "patient_id": patientId,
+      "patient_status": status
+    };
+    final _resp = await http.put(
+      '$VI_API/patient',
+      headers: {
+        'Authorization': 'Custom $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(body),
+    );
+    _checkStatusCode(_resp);
+    _handleSuccess(patient, RequiredActionType.PATIENT_STATUS_UPLOAD_REQUIRED);
+    if (_resp.statusCode == 200) {
+      return true;
+    }
+  } catch(e, s) {
+    _handleFailure(patient, RequiredActionType.PATIENT_STATUS_UPLOAD_REQUIRED);
+    if (showNotification) {
+      showFlushbar(
+        'The automatic upload of the participant\'s status failed. Please upload manually.',
+        title: 'Upload of Participant Status Failed',
+        error: true,
+        buttonText: 'Retry\nNow',
+        onButtonPress: () {
+          uploadPatientStatusVisibleImpact(patient, status, reUploadNotifications: false);
+        },
+      );
+    }
+    print('Exception caught: $e');
+    print('Stacktrace: $s');
+  }
+  if (reUploadNotifications) {
+    await uploadPatientStatusVisibleImpact(patient, status);
   }
   return false;
 }
