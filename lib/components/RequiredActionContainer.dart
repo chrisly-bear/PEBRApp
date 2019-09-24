@@ -5,6 +5,7 @@ import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/VisibleImpactUtils.dart';
+import 'package:pebrapp/utils/Utils.dart';
 
 enum AnimateDirection { FORWARD, BACKWARD }
 
@@ -128,6 +129,23 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
         actionButton = FlatButton(
           onPressed: () async {
             await uploadPatientCharacteristics(widget.patient, reUploadNotifications: false);
+          },
+          splashColor: NOTIFICATION_INFO_SPLASH,
+          child: Text(
+            "UPLOAD",
+            style: TextStyle(
+              color: NOTIFICATION_INFO_TEXT,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        );
+        break;
+      case RequiredActionType.PATIENT_STATUS_UPLOAD_REQUIRED:
+        actionText = "The automatic upload of the participant's status failed. Please upload manually.";
+        actionButton = FlatButton(
+          onPressed: () async {
+            String status = getPatientStatus(widget.patient.latestARTRefill.notDoneReason.code);
+            await uploadPatientStatusVisibleImpact(widget.patient, status, reUploadNotifications: false);
           },
           splashColor: NOTIFICATION_INFO_SPLASH,
           child: Text(
