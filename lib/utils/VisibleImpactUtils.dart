@@ -508,6 +508,16 @@ Future<int> _getPatientIdVisibleImpact(Patient patient, String _apiAuthToken) as
     if (match != null) {
       // Assign the first element in the patientIds list to the patient_id of the match
       patientIds[0] = match['patient_id'];
+    } else {
+      showFlushbar(
+        'Several matching patients with ART number ${patient.artNumber}\ found on VisibleImpact.',
+        title: 'Resolve the issue',
+        error: true,
+        /*buttonText: 'Retry\nNow',
+        onButtonPress: () {
+          uploadPatientCharacteristics(patient, reUploadNotifications: false);
+        },*/
+      );
     }
     throw MultiplePatientsException('Several matching patients with ART number ${patient.artNumber} found on VisibleImpact.');
   }
