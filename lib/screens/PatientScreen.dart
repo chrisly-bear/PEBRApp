@@ -30,12 +30,14 @@ import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:pebrapp/utils/VisibleImpactUtils.dart';
+import 'package:pebrapp/database/models/UserData.dart';
 
 class PatientScreen extends StatefulWidget {
   final Patient _patient;
-  PatientScreen(this._patient);
+  final UserData _userData;
+  PatientScreen(this._patient, this._userData);
   @override
-  createState() => _PatientScreenState(_patient);
+  createState() => _PatientScreenState(_patient, _userData);
 }
 
 class _PatientScreenState extends State<PatientScreen> {
@@ -43,6 +45,7 @@ class _PatientScreenState extends State<PatientScreen> {
   final int _contentFlex = 1;
   BuildContext _context;
   Patient _patient;
+  UserData _userData;
   String _nextAssessmentText = '—';
   String _nextRefillText = '—';
   String _nextEndpointText = '—';
@@ -56,7 +59,7 @@ class _PatientScreenState extends State<PatientScreen> {
   final Map<RequiredActionType, AnimateDirection> shouldAnimateRequiredActionContainer = {};
 
   // constructor
-  _PatientScreenState(this._patient);
+  _PatientScreenState(this._patient, this._userData);
 
   @override
   void initState() {
