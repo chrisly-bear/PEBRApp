@@ -501,9 +501,61 @@ Future<int> _getPatientIdVisibleImpact(Patient patient, String _apiAuthToken) as
     // Try to find the proper entry by matching birth_date, sex, mobile_phone.
     // If the conflict can still not be resolved this way inform the user (make
     // them pick the correct entry for example).
+
+    // Search for a matching patient object by comparing birth_date, sex and mobile_phone.
+    var match = getMatchingPatient(list, patient);
+    // If there is a match
+    if (match != null) {
+      // Assign the first element in the patientIds list to the patient_id of the match
+      patientIds[0] = match['patient_id'];
+    } else {
+      showFlushbar(
+        'Several matching patients with ART number ${patient.artNumber}\ found on VisibleImpact.',
+        title: 'Resolve the issue',
+        error: true,
+        /*buttonText: 'Retry\nNow',
+        onButtonPress: () {
+          uploadPatientCharacteristics(patient, reUploadNotifications: false);
+        },*/
+      );
+    }
     throw MultiplePatientsException('Several matching patients with ART number ${patient.artNumber} found on VisibleImpact.');
   }
   return patientIds.first;
+}
+
+/// Format a patient's gender to a string (character) that can easily be stored in
+/// the Visible Impact Database
+/// 
+/// if (patient.gender == Gender.MALE()) gender = "M";
+///  if (patient.gender == Gender.FEMALE()) gender = "F";
+String _formatGenderForVisibleImpact(Patient patient) {
+  if (patient.gender == Gender.MALE()) {
+    return "M";
+  } else if (patient.gender == Gender.FEMALE()) {
+    return "F";
+  }
+  return "";
+}
+
+/// Get a matching patient in a list of objects from the Visible Impact Database
+/// Search through the list by matching the 'birth_date', 'sex' and 'mobile_phone'
+/// of a patient.
+///
+/// Return a null object if there is no match and if there are multiple matches that
+/// can not be resolved to one match
+dynamic getMatchingPatient(List<dynamic> patients, Patient patient) {
+  List<dynamic> matches = [];
+  for (dynamic p in patients) {
+    if (p['birth_date'] == formatDateForVisibleImpact(patient.birthday) && p['sex'] == _formatGenderForVisibleImpact(patient)
+    && p['mobile_phone'] == _formatPhoneNumberForVI(patient.phoneNumber)) {
+      matches.add(p);
+    }
+  }
+  if (matches.length == 1) {
+    return matches.first;
+  }
+  return null;
 }
 
 
