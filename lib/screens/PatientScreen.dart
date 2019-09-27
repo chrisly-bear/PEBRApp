@@ -258,7 +258,7 @@ class _PatientScreenState extends State<PatientScreen> {
     }
     return Column(
       children: <Widget>[
-        _buildNextActionRow(
+        _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : _buildNextActionRow(
           title: 'Next Preference Assessment',
           dueDate: _nextAssessmentText,
           explanation: 'Preference assessments are due every month for unsuppressed participants and every 3 months for suppressed participants.',
@@ -267,7 +267,7 @@ class _PatientScreenState extends State<PatientScreen> {
         SizedBox(height: _spacingBetweenCards),
         _buildNextActionRow(
           title: 'Next ART Refill',
-          dueDate: _nextRefillText,
+          dueDate: _userData.healthCenter.studyArm == 2 ? '' : _nextRefillText,
           explanation: 'The ART refill date is selected when the participant collects $pronoun ARTs or has them delivered.',
           button: !_patient.isActivated ? _makeButton('Manage Refill') : _makeButton('Manage Refill', onPressed: () { _manageRefillPressed(_context, _patient, _nextRefillText); }),
         ),
