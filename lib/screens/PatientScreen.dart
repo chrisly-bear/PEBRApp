@@ -188,8 +188,16 @@ class _PatientScreenState extends State<PatientScreen> {
   Widget _buildRequiredActions() {
 
     final List<RequiredAction> visibleRequiredActionsSorted =_patient.calculateDueRequiredActions().toList();
-    visibleRequiredActionsSorted.sort((RequiredAction a, RequiredAction b) => a.dueDate.isBefore(b.dueDate) ? -1 : 1);
-    final actions = visibleRequiredActionsSorted.asMap().map((int i, RequiredAction action) {
+    List<RequiredAction> _visibleRequiredActionsSorted = visibleRequiredActionsSorted;
+
+    // Filter out REFILL_REQUIRED and ASSESSMENT_REQUIRED for clinics in the control cluster
+    if (_userData.healthCenter.studyArm == 2) {
+      _visibleRequiredActionsSorted = visibleRequiredActionsSorted
+          .where((i) => i.type != RequiredActionType.REFILL_REQUIRED && i.type != RequiredActionType.ASSESSMENT_REQUIRED).toList();
+    }
+
+    _visibleRequiredActionsSorted.sort((RequiredAction a, RequiredAction b) => a.dueDate.isBefore(b.dueDate) ? -1 : 1);
+    final actions = _visibleRequiredActionsSorted.asMap().map((int i, RequiredAction action) {
       final mapEntry = MapEntry(
         i,
         RequiredActionContainer(
