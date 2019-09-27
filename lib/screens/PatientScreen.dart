@@ -34,10 +34,9 @@ import 'package:pebrapp/database/models/UserData.dart';
 
 class PatientScreen extends StatefulWidget {
   final Patient _patient;
-  final UserData _userData;
-  PatientScreen(this._patient, this._userData);
+  PatientScreen(this._patient);
   @override
-  createState() => _PatientScreenState(_patient, _userData);
+  createState() => _PatientScreenState(_patient);
 }
 
 class _PatientScreenState extends State<PatientScreen> {
@@ -58,12 +57,15 @@ class _PatientScreenState extends State<PatientScreen> {
   final double _spacingBetweenCards = 40.0;
   final Map<RequiredActionType, AnimateDirection> shouldAnimateRequiredActionContainer = {};
 
-  // constructor
-  _PatientScreenState(this._patient, this._userData);
+  // constructor 2
+  _PatientScreenState(this._patient);
 
   @override
   void initState() {
     super.initState();
+    DatabaseProvider().retrieveLatestUserData().then((UserData userData) {
+      this._userData = userData;
+    });
     getLatestViralLoadFetchFromSharedPrefs(_patient.artNumber).then((DateTime fetchDate) {
       setState(() {
         lastVLFetchDate = fetchDate == null ? 'never' : formatDateAndTime(fetchDate);
@@ -177,6 +179,10 @@ class _PatientScreenState extends State<PatientScreen> {
       ),
     );
 
+  }
+
+  Widget _buildEmptyBox() {
+    return SizedBox.shrink();
   }
 
   Widget _buildRequiredActions() {
