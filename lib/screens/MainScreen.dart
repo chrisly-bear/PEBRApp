@@ -566,6 +566,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     );
   }
 
+  Widget _buildEmptyBox() {
+    return SizedBox.shrink();
+  }
+
   Widget _bodyPatientTable() {
     final double _paddingHorizontal = 10.0;
     return SingleChildScrollView(
@@ -685,6 +689,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       return Row(children: icons);
     }
 
+    Widget _buildEmptyBox() {
+      return SizedBox.shrink();
+    }
+
     final Widget _headerRow = Padding(
       padding: EdgeInsets.symmetric(horizontal: _cardMarginHorizontal + _rowPaddingHorizontal),
       child: Row(
@@ -694,7 +702,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
             width: _artNumberWidth,
             child: _formatHeaderRowText('ART NR.'),
           ),
-          Container(
+          _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(
             width: _nextRefillWidth,
             child: _formatHeaderRowText('NEXT REFILL'),
           ),
@@ -710,7 +718,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
             width: _viralLoadWidth,
             child: _formatHeaderRowText('VIRAL LOAD'),
           ),
-          Container(
+          _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(
             width: _nextAssessmentWidth,
             child: _formatHeaderRowText('NEXT ASSESSMENT'),
           ),
@@ -851,7 +859,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           child: Row(
             children: [
               // color bar
-              Container(width: _colorBarWidth, color: _calculateCardColor(curPatient)),
+              _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(width: _colorBarWidth, color: _calculateCardColor(curPatient)),
               // patient info
               Container(
                 child: Padding(
@@ -867,7 +875,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
                         child: _formatPatientRowText(patientART, isActivated: curPatient.isActivated),
                       ),
                       // Next Refill
-                      Container(
+                      _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(
                         width: _nextRefillWidth,
                         child: _formatPatientRowText(nextRefillText, isActivated: curPatient.isActivated, highlight: nextRefillTextHighlighted),
                       ),
@@ -887,7 +895,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
                         child: Container(alignment: Alignment.centerLeft, child: _getViralLoadIndicator(isActivated: curPatient.isActivated)),
                       ),
                       // Next Assessment
-                      Container(
+                      _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(
                         width: _nextAssessmentWidth,
                         child: _formatPatientRowText(nextAssessmentText, isActivated: curPatient.isActivated, highlight: nextAssessmentTextHighlighted),
                       ),
