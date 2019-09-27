@@ -41,6 +41,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   bool _isLoading = true;
   bool _patientScreenPushed = false;
   List<Patient> _patients = [];
+  UserData _userData;
   StreamSubscription<AppState> _appStateStream;
   bool _loginLockCheckRunning = false;
   bool _backupRunning = false;
@@ -60,6 +61,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   void initState() {
     super.initState();
     print('~~~ MainScreenState.initState ~~~');
+    DatabaseProvider().retrieveLatestUserData().then((UserData userData) {
+      this._userData = userData;
+    });
     // listen to changes in the app lifecycle
     WidgetsBinding.instance.addObserver(this);
     DatabaseProvider().retrieveLatestUserData().then((UserData user) {
