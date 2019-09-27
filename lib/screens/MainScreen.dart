@@ -525,13 +525,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     await _fadeInScreen(NewPatientScreen(), routeName: '/new-patient');
   }
 
-  Future<void> _pushPatientScreen(Patient patient, {UserData userData}) async {
+  Future<void> _pushPatientScreen(Patient patient) async {
     _patientScreenPushed = true;
     await Navigator.of(_context, rootNavigator: true).push(
       new MaterialPageRoute<void>(
         settings: RouteSettings(name: '/patient'),
         builder: (BuildContext context) {
-          return PatientScreen(patient, userData);
+          return PatientScreen(patient);
         },
       ),
     );
