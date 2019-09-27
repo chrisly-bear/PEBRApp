@@ -910,7 +910,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       );
 
       // wrap in stack to display action required label
-      final int numOfActionsRequired = curPatient.calculateDueRequiredActions().length;
+      final int numOfActionsRequired = curPatient.calculateDueRequiredActions(userData : _userData).length;
       if (curPatient.isActivated && numOfActionsRequired > 0) {
         final List<Widget> badges = [];
         for (int i = 0; i < numOfActionsRequired; i++) {
