@@ -30,6 +30,7 @@ import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:pebrapp/utils/VisibleImpactUtils.dart';
+import 'package:pebrapp/database/models/UserData.dart';
 
 class PatientScreen extends StatefulWidget {
   final Patient _patient;
@@ -43,6 +44,7 @@ class _PatientScreenState extends State<PatientScreen> {
   final int _contentFlex = 1;
   BuildContext _context;
   Patient _patient;
+  UserData _userData;
   String _nextAssessmentText = '—';
   String _nextRefillText = '—';
   String _nextEndpointText = '—';
@@ -55,12 +57,15 @@ class _PatientScreenState extends State<PatientScreen> {
   final double _spacingBetweenCards = 40.0;
   final Map<RequiredActionType, AnimateDirection> shouldAnimateRequiredActionContainer = {};
 
-  // constructor
+  // constructor 2
   _PatientScreenState(this._patient);
 
   @override
   void initState() {
     super.initState();
+    DatabaseProvider().retrieveLatestUserData().then((UserData userData) {
+      this._userData = userData;
+    });
     getLatestViralLoadFetchFromSharedPrefs(_patient.artNumber).then((DateTime fetchDate) {
       setState(() {
         lastVLFetchDate = fetchDate == null ? 'never' : formatDateAndTime(fetchDate);
@@ -176,11 +181,23 @@ class _PatientScreenState extends State<PatientScreen> {
 
   }
 
+  Widget _buildEmptyBox() {
+    return SizedBox.shrink();
+  }
+
   Widget _buildRequiredActions() {
 
     final List<RequiredAction> visibleRequiredActionsSorted =_patient.calculateDueRequiredActions().toList();
-    visibleRequiredActionsSorted.sort((RequiredAction a, RequiredAction b) => a.dueDate.isBefore(b.dueDate) ? -1 : 1);
-    final actions = visibleRequiredActionsSorted.asMap().map((int i, RequiredAction action) {
+    List<RequiredAction> _visibleRequiredActionsSorted = visibleRequiredActionsSorted;
+
+    // Filter out REFILL_REQUIRED and ASSESSMENT_REQUIRED for clinics in the control cluster
+    if (_userData.healthCenter.studyArm == 2) {
+      _visibleRequiredActionsSorted = visibleRequiredActionsSorted
+          .where((i) => i.type != RequiredActionType.REFILL_REQUIRED && i.type != RequiredActionType.ASSESSMENT_REQUIRED).toList();
+    }
+
+    _visibleRequiredActionsSorted.sort((RequiredAction a, RequiredAction b) => a.dueDate.isBefore(b.dueDate) ? -1 : 1);
+    final actions = _visibleRequiredActionsSorted.asMap().map((int i, RequiredAction action) {
       final mapEntry = MapEntry(
         i,
         RequiredActionContainer(
@@ -249,7 +266,7 @@ class _PatientScreenState extends State<PatientScreen> {
     }
     return Column(
       children: <Widget>[
-        _buildNextActionRow(
+        _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : _buildNextActionRow(
           title: 'Next Preference Assessment',
           dueDate: _nextAssessmentText,
           explanation: 'Preference assessments are due every month for unsuppressed participants and every 3 months for suppressed participants.',
@@ -258,7 +275,7 @@ class _PatientScreenState extends State<PatientScreen> {
         SizedBox(height: _spacingBetweenCards),
         _buildNextActionRow(
           title: 'Next ART Refill',
-          dueDate: _nextRefillText,
+          dueDate: _userData.healthCenter.studyArm == 2 ? '' : _nextRefillText,
           explanation: 'The ART refill date is selected when the participant collects $pronoun ARTs or has them delivered.',
           button: !_patient.isActivated ? _makeButton('Manage Refill') : _makeButton('Manage Refill', onPressed: () { _manageRefillPressed(_context, _patient, _nextRefillText); }),
         ),

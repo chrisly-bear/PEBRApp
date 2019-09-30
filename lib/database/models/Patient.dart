@@ -9,6 +9,7 @@ import 'package:pebrapp/database/beans/SexualOrientation.dart';
 import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
+import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
@@ -284,11 +285,15 @@ class Patient implements IExcelExportable {
 
   /// Calculates which required actions for this patient are due based on
   /// today's date and the required actions' due date.
-  Set<RequiredAction> calculateDueRequiredActions() {
+  Set<RequiredAction> calculateDueRequiredActions({UserData userData}) {
     final DateTime now = DateTime.now();
     Set<RequiredAction> visibleRequiredActions = {};
     visibleRequiredActions.addAll(requiredActions);
     visibleRequiredActions.removeWhere((RequiredAction a) => a.dueDate.isAfter(now));
+    if (userData != null && userData.healthCenter.studyArm == 2) {
+      visibleRequiredActions.removeWhere((RequiredAction a) => a.type == RequiredActionType.REFILL_REQUIRED);
+      visibleRequiredActions.removeWhere((RequiredAction a) => a.type == RequiredActionType.ASSESSMENT_REQUIRED);
+    }
     return visibleRequiredActions;
   }
 
