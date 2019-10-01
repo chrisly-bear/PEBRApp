@@ -73,6 +73,55 @@ Future<void> uploadPatientCharacteristics(Patient patient, {bool reUploadNotific
   }
 }
 
+/// Update the patient_status on Visible Impact database
+Future<bool> uploadPatientStatusVisibleImpact(Patient patient, String status, {bool reUploadNotifications: false, bool showNotification: true}) async {
+  print('uploading patient status to VisibleImpact...');
+  // Make sure the patient status is not empty
+  if (status == "") {
+    return false;
+  }
+  try {
+    final String token = await _getAPIToken();
+    final int patientId = await _getPatientIdVisibleImpact(patient, token);
+    Map<String, dynamic> body = {
+      "patient_id": patientId,
+      "patient_status": status
+    };
+    final _resp = await http.put(
+      '$VI_API/patient',
+      headers: {
+        'Authorization': 'Custom $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(body),
+    );
+    _checkStatusCode(_resp);
+    _handleSuccess(patient, RequiredActionType.PATIENT_STATUS_UPLOAD_REQUIRED);
+    if (_resp.statusCode == 200) {
+      return true;
+    }
+  } catch(e, s) {
+    _handleFailure(patient, RequiredActionType.PATIENT_STATUS_UPLOAD_REQUIRED);
+    if (showNotification) {
+      showFlushbar(
+        'The automatic upload of the participant\'s status failed. Please upload manually.',
+        title: 'Upload of Participant Status Failed',
+        error: true,
+        buttonText: 'Retry\nNow',
+        onButtonPress: () {
+          uploadPatientStatusVisibleImpact(patient, status, reUploadNotifications: false);
+        },
+      );
+    }
+    print('Exception caught: $e');
+    print('Stacktrace: $s');
+  }
+  if (reUploadNotifications) {
+    await uploadPatientStatusVisibleImpact(patient, status);
+  }
+  return false;
+}
+
 
 /// Updates the peer educator's phone number by re-uploading all notifications
 /// preferences for all patients. If there are a lot of patients this might take
@@ -452,9 +501,61 @@ Future<int> _getPatientIdVisibleImpact(Patient patient, String _apiAuthToken) as
     // Try to find the proper entry by matching birth_date, sex, mobile_phone.
     // If the conflict can still not be resolved this way inform the user (make
     // them pick the correct entry for example).
+
+    // Search for a matching patient object by comparing birth_date, sex and mobile_phone.
+    var match = getMatchingPatient(list, patient);
+    // If there is a match
+    if (match != null) {
+      // Assign the first element in the patientIds list to the patient_id of the match
+      patientIds[0] = match['patient_id'];
+    } else {
+      showFlushbar(
+        'Several matching patients with ART number ${patient.artNumber}\ found on VisibleImpact.',
+        title: 'Resolve the issue',
+        error: true,
+        /*buttonText: 'Retry\nNow',
+        onButtonPress: () {
+          uploadPatientCharacteristics(patient, reUploadNotifications: false);
+        },*/
+      );
+    }
     throw MultiplePatientsException('Several matching patients with ART number ${patient.artNumber} found on VisibleImpact.');
   }
   return patientIds.first;
+}
+
+/// Format a patient's gender to a string (character) that can easily be stored in
+/// the Visible Impact Database
+/// 
+/// if (patient.gender == Gender.MALE()) gender = "M";
+///  if (patient.gender == Gender.FEMALE()) gender = "F";
+String _formatGenderForVisibleImpact(Patient patient) {
+  if (patient.gender == Gender.MALE()) {
+    return "M";
+  } else if (patient.gender == Gender.FEMALE()) {
+    return "F";
+  }
+  return "";
+}
+
+/// Get a matching patient in a list of objects from the Visible Impact Database
+/// Search through the list by matching the 'birth_date', 'sex' and 'mobile_phone'
+/// of a patient.
+///
+/// Return a null object if there is no match and if there are multiple matches that
+/// can not be resolved to one match
+dynamic getMatchingPatient(List<dynamic> patients, Patient patient) {
+  List<dynamic> matches = [];
+  for (dynamic p in patients) {
+    if (p['birth_date'] == formatDateForVisibleImpact(patient.birthday) && p['sex'] == _formatGenderForVisibleImpact(patient)
+    && p['mobile_phone'] == _formatPhoneNumberForVI(patient.phoneNumber)) {
+      matches.add(p);
+    }
+  }
+  if (matches.length == 1) {
+    return matches.first;
+  }
+  return null;
 }
 
 

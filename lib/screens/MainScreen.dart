@@ -41,6 +41,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   bool _isLoading = true;
   bool _patientScreenPushed = false;
   List<Patient> _patients = [];
+  UserData _userData;
   StreamSubscription<AppState> _appStateStream;
   bool _loginLockCheckRunning = false;
   bool _backupRunning = false;
@@ -60,6 +61,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   void initState() {
     super.initState();
     print('~~~ MainScreenState.initState ~~~');
+    DatabaseProvider().retrieveLatestUserData().then((UserData userData) {
+      this._userData = userData;
+    });
     // listen to changes in the app lifecycle
     WidgetsBinding.instance.addObserver(this);
     DatabaseProvider().retrieveLatestUserData().then((UserData user) {
@@ -562,6 +566,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     );
   }
 
+  Widget _buildEmptyBox() {
+    return SizedBox.shrink();
+  }
+
   Widget _bodyPatientTable() {
     final double _paddingHorizontal = 10.0;
     return SingleChildScrollView(
@@ -681,6 +689,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       return Row(children: icons);
     }
 
+    Widget _buildEmptyBox() {
+      return SizedBox.shrink();
+    }
+
     final Widget _headerRow = Padding(
       padding: EdgeInsets.symmetric(horizontal: _cardMarginHorizontal + _rowPaddingHorizontal),
       child: Row(
@@ -690,7 +702,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
             width: _artNumberWidth,
             child: _formatHeaderRowText('ART NR.'),
           ),
-          Container(
+          _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(
             width: _nextRefillWidth,
             child: _formatHeaderRowText('NEXT REFILL'),
           ),
@@ -706,7 +718,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
             width: _viralLoadWidth,
             child: _formatHeaderRowText('VIRAL LOAD'),
           ),
-          Container(
+          _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(
             width: _nextAssessmentWidth,
             child: _formatHeaderRowText('NEXT ASSESSMENT'),
           ),
@@ -794,6 +806,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
                         // *****************************
                         // activate / deactivate patient
                         // *****************************
+                        if (!curPatient.isActivated) {
+                          var uploadPatientStatus = await uploadPatientStatusVisibleImpact(curPatient, 'active');
+                          print(uploadPatientStatus);
+                        }
                         curPatient.isActivated = !curPatient.isActivated;
                         DatabaseProvider().insertPatient(curPatient);
                         await controller.animateBack(0.0, duration: _quickAnimationDuration, curve: Curves.ease); // fold patient card up
@@ -843,7 +859,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           child: Row(
             children: [
               // color bar
-              Container(width: _colorBarWidth, color: _calculateCardColor(curPatient)),
+              _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(width: _colorBarWidth, color: _calculateCardColor(curPatient)),
               // patient info
               Container(
                 child: Padding(
@@ -859,7 +875,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
                         child: _formatPatientRowText(patientART, isActivated: curPatient.isActivated),
                       ),
                       // Next Refill
-                      Container(
+                      _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(
                         width: _nextRefillWidth,
                         child: _formatPatientRowText(nextRefillText, isActivated: curPatient.isActivated, highlight: nextRefillTextHighlighted),
                       ),
@@ -879,7 +895,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
                         child: Container(alignment: Alignment.centerLeft, child: _getViralLoadIndicator(isActivated: curPatient.isActivated)),
                       ),
                       // Next Assessment
-                      Container(
+                      _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(
                         width: _nextAssessmentWidth,
                         child: _formatPatientRowText(nextAssessmentText, isActivated: curPatient.isActivated, highlight: nextAssessmentTextHighlighted),
                       ),
@@ -894,7 +910,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       );
 
       // wrap in stack to display action required label
-      final int numOfActionsRequired = curPatient.calculateDueRequiredActions().length;
+      final int numOfActionsRequired = curPatient.calculateDueRequiredActions(userData : _userData).length;
       if (curPatient.isActivated && numOfActionsRequired > 0) {
         final List<Widget> badges = [];
         for (int i = 0; i < numOfActionsRequired; i++) {
