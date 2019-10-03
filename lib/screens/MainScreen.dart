@@ -31,8 +31,10 @@ import 'package:pebrapp/utils/Utils.dart';
 import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
 class MainScreen extends StatefulWidget {
+  bool _isScreenLogged = false;
+  MainScreen(this._isScreenLogged);
   @override
-  State<StatefulWidget> createState() => _MainScreenState();
+  State<StatefulWidget> createState() => _MainScreenState(_isScreenLogged);
 }
 
 class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, TickerProviderStateMixin {
@@ -41,7 +43,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   bool _isLoading = true;
   bool _patientScreenPushed = false;
   List<Patient> _patients = [];
-  UserData _userData;
+  UserData _userData = UserData();
+  bool _isLoadingUserData = true;
   StreamSubscription<AppState> _appStateStream;
   bool _loginLockCheckRunning = false;
   bool _backupRunning = false;
@@ -57,19 +60,26 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   Map<String, bool> shouldAnimateRequiredActionBadge = {};
   bool shouldAnimateSettingsActionRequired = true;
 
+  // constructor 2
+  _MainScreenState(this._loginLockCheckRunning);
+
   @override
   void initState() {
     super.initState();
     print('~~~ MainScreenState.initState ~~~');
-    DatabaseProvider().retrieveLatestUserData().then((UserData userData) {
-      this._userData = userData;
-    });
     // listen to changes in the app lifecycle
     WidgetsBinding.instance.addObserver(this);
+    DatabaseProvider().retrieveLatestUserData().then((UserData userData) {
+      this._userData = userData;
+      setState(() {
+        this._isLoadingUserData = false;
+      });
+    });
     DatabaseProvider().retrieveLatestUserData().then((UserData user) {
       if (user != null) {
         setState(() {
           this._settingsActionRequired = user.phoneNumberUploadRequired;
+          this._isLoadingUserData = false;
         });
       }
     });
@@ -488,7 +498,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   }
 
   Widget _bodyToDisplayBasedOnState() {
-    if (_isLoading) {
+    if (_isLoadingUserData) {
+      return _bodyLoading();
+    } else if (_isLoading) {
       return _bodyLoading();
     } else if (_patients.isEmpty) {
       return _bodyNoData();

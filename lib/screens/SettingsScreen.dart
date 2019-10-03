@@ -15,6 +15,7 @@ import 'package:pebrapp/exceptions/NoPasswordFileException.dart';
 import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
 import 'package:pebrapp/screens/ChangePhoneNumberScreen.dart';
 import 'package:pebrapp/screens/NewPINScreen.dart';
+import 'package:pebrapp/screens/MainScreen.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/InputFormatters.dart';
@@ -565,7 +566,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         try {
           await restoreFromSWITCHtoolbox(username, pinCodeHash);
           // restore was successful, go to home screen
-          Navigator.of(context).popUntil(ModalRoute.withName('/'));
+          //Navigator.of(context).popUntil(ModalRoute.withName('/'));
+          Navigator.of(context, rootNavigator: true).push(
+            new MaterialPageRoute<void>(
+              settings: RouteSettings(name: '/'),
+              builder: (BuildContext context) {
+                return MainScreen(true);
+              },
+            ),
+          );
         } catch (e, s) {
           showNotification = true;
           error = true;
