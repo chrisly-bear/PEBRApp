@@ -390,7 +390,8 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(Patient patient) async {
     );
     return vl;
   }).toList();
-  viralLoadsFromDB.removeWhere((ViralLoad vl) => vl.dateOfBloodDraw.isBefore(patient.enrollmentDate));
+  // ignore viral loads which date back more than one year before patient's enrollment date
+  viralLoadsFromDB.removeWhere((ViralLoad vl) => vl.dateOfBloodDraw.isBefore(DateTime(patient.enrollmentDate.year - 1, patient.enrollmentDate.month, patient.enrollmentDate.day)));
   viralLoadsFromDB.sort((ViralLoad a, ViralLoad b) => a.dateOfBloodDraw.isBefore(b.dateOfBloodDraw) ? -1 : 1);
   if (viralLoadsFromDB.isNotEmpty && viralLoadsFromDB.last.failed) {
     // if the last viral load has failed, send the patient to blood draw
