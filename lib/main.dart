@@ -24,7 +24,7 @@ class PEBRAppState extends State<PEBRApp> {
         onGenerateRoute: (_) => MaterialPageRoute(
           builder: (BuildContext context) {
             _rootContext = context;
-            return MainScreen();
+            return MainScreen(false);
           },
           settings: RouteSettings(
             name: '/',

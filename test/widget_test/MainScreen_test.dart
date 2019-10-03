@@ -15,7 +15,7 @@ void main() {
     // wrap MainScreen in a MediaQuery
     Widget testWidget = new MediaQuery(
         data: new MediaQueryData(),
-        child: new MaterialApp(home: MainScreen())
+        child: new MaterialApp(home: MainScreen(true))
     );
 
     await tester.pumpWidget(testWidget);

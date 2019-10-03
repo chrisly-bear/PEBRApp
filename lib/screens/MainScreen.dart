@@ -31,8 +31,10 @@ import 'package:pebrapp/utils/Utils.dart';
 import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
 class MainScreen extends StatefulWidget {
+  bool _isScreenLogged = false;
+  MainScreen(this._isScreenLogged);
   @override
-  State<StatefulWidget> createState() => _MainScreenState();
+  State<StatefulWidget> createState() => _MainScreenState(_isScreenLogged);
 }
 
 class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, TickerProviderStateMixin {
@@ -57,6 +59,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   Map<String, AnimationController> animationControllers = {};
   Map<String, bool> shouldAnimateRequiredActionBadge = {};
   bool shouldAnimateSettingsActionRequired = true;
+
+  // constructor 2
+  _MainScreenState(this._loginLockCheckRunning);
 
   @override
   void initState() {
