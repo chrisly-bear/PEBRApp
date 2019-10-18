@@ -520,7 +520,7 @@ Future<int> _getPatientIdVisibleImpact(Patient patient, String _apiAuthToken) as
         },*/
       );
     }
-    throw MultiplePatientsException('Several matching patients with ART number ${patient.artNumber} found on VisibleImpact.');
+    //throw MultiplePatientsException('Several matching patients with ART number ${patient.artNumber} found on VisibleImpact.');
   }
   return patientIds.first;
 }
