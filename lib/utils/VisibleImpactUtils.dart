@@ -513,11 +513,7 @@ Future<int> _getPatientIdVisibleImpact(Patient patient, String _apiAuthToken) as
       showFlushbar(
         'Several matching patients with ART number ${patient.artNumber}\ found on VisibleImpact.',
         title: 'Resolve the issue',
-        error: true,
-        /*buttonText: 'Retry\nNow',
-        onButtonPress: () {
-          uploadPatientCharacteristics(patient, reUploadNotifications: false);
-        },*/
+        error: true
       );
     }
     //throw MultiplePatientsException('Several matching patients with ART number ${patient.artNumber} found on VisibleImpact.');
