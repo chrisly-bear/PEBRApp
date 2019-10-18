@@ -548,7 +548,7 @@ String _formatGenderForVisibleImpact(Patient patient) {
 dynamic getMatchingPatient(List<dynamic> patients, Patient patient) {
   List<dynamic> matches = [];
   for (dynamic p in patients) {
-    if (p['birth_date'] == formatDateForVisibleImpact(patient.birthday) && p['sex'] == _formatGenderForVisibleImpact(patient)) {
+    if (DateTime.parse(p['birth_date']).year == patient.birthday.year && p['sex'] == _formatGenderForVisibleImpact(patient)) {
       matches.add(p);
     }
   }
