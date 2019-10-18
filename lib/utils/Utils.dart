@@ -751,7 +751,7 @@ String getPatientStatus(int code) {
       return "";
     }
     case 7: {
-      return 'Itfu';
+      return 'ltfu';
     }
     default: {
       return "";
