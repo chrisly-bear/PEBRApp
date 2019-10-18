@@ -519,6 +519,9 @@ Future<int> _getPatientIdVisibleImpact(Patient patient, String _apiAuthToken) as
           uploadPatientCharacteristics(patient, reUploadNotifications: false);
         },*/
       );
+      // set the duplicate flag in the database
+      patient.isDuplicate = true;
+      await DatabaseProvider().insertPatient(patient);
     }
     throw MultiplePatientsException('Several matching patients with ART number ${patient.artNumber} found on VisibleImpact.');
   }
