@@ -519,7 +519,6 @@ Future<int> _getPatientIdVisibleImpact(Patient patient, String _apiAuthToken) as
       patient.isDuplicate = true;
       await DatabaseProvider().insertPatient(patient);
     }
-    //throw MultiplePatientsException('Several matching patients with ART number ${patient.artNumber} found on VisibleImpact.');
   }
   return patientIds.first;
 }
