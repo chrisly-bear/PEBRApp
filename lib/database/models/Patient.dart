@@ -36,6 +36,7 @@ class Patient implements IExcelExportable {
   static final colNoConsentReason = 'no_consent_reason'; // nullable
   static final colNoConsentReasonOther = 'no_consent_reason_other'; // nullable
   static final colIsActivated = 'is_activated'; // nullable
+  static final colIsDuplicate = 'is_duplicate'; // nullable
 
   DateTime _createdDate;
   DateTime enrollmentDate;
@@ -53,6 +54,7 @@ class Patient implements IExcelExportable {
   NoConsentReason noConsentReason;
   String noConsentReasonOther;
   bool isActivated;
+  bool isDuplicate;
   // The following fields are other database tables, to make access to related
   // database objects easier.
   // Will be null until the corresponding initialize... methods were called.
@@ -71,7 +73,7 @@ class Patient implements IExcelExportable {
     this.birthday, this.isEligible, this.isVLBaselineAvailable, this.gender,
     this.sexualOrientation, this.village, this.phoneAvailability,
     this.phoneNumber, this.consentGiven, this.noConsentReason,
-    this.noConsentReasonOther, this.isActivated});
+    this.noConsentReasonOther, this.isActivated, this.isDuplicate});
 
   Patient.fromMap(map) {
     this.createdDate = DateTime.parse(map[colCreatedDate]);
@@ -96,6 +98,9 @@ class Patient implements IExcelExportable {
     this.noConsentReasonOther = map[colNoConsentReasonOther];
     if (map[colIsActivated] != null) {
       this.isActivated = map[colIsActivated] == 1;
+    }
+    if (map[colIsDuplicate] != null) {
+      this.isDuplicate = map[colIsDuplicate] == 1;
     }
   }
 
@@ -122,10 +127,11 @@ class Patient implements IExcelExportable {
     map[colNoConsentReason] = noConsentReason?.code;
     map[colNoConsentReasonOther] = noConsentReasonOther;
     map[colIsActivated] = isActivated;
+    map[colIsDuplicate] = isDuplicate;
     return map;
   }
 
-  static const int _numberOfColumns = 18;
+  static const int _numberOfColumns = 19;
 
   /// Column names for the header row in the excel sheet.
   // If we change the order here, make sure to change the order in the
@@ -150,6 +156,7 @@ class Patient implements IExcelExportable {
     row[15] = 'VL_BASELINE_AVAILABLE';
     row[16] = 'ACTIVATED';
     row[17] = 'ELIGIBLE';
+    row[18] = 'DUPLICATE';
     return row;
   }
 
@@ -177,6 +184,7 @@ class Patient implements IExcelExportable {
     row[15] = isVLBaselineAvailable;
     row[16] = isActivated;
     row[17] = isEligible;
+    row[18] = isDuplicate;
     return row;
   }
 
@@ -254,6 +262,7 @@ class Patient implements IExcelExportable {
       this.noConsentReason = null;
       this.noConsentReasonOther = null;
       this.isActivated = null;
+      this.isDuplicate = null;
     }
     if (this.consentGiven != null && !this.consentGiven) {
       this.gender = null;

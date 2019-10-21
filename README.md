@@ -6,7 +6,9 @@
 
 ![logo](logo.png) 
 
-Mobile application for the PEBRA trial. The PEBRA ("Peer-Educator Based Refill of ART") trial is part of the GET ON IT research project of the [Swiss Tropical and Public Health Institute](https://www.swisstph.ch/) and tries to work towards the [UNAIDS 90-90-90](https://www.unaids.org/en/resources/909090) targets among adolescents and young adults with HIV in rural Lesotho. The app helps peer educators keep track of their interactions with study participants and acts as a data gathering tool for the study. The user interface is designed specifically for the Huawei MediaPad T5, the device used in the study. Deploying to devices with other screen sizes might work but is not officially supported at this point.
+Developed with ❤️ by [Technify](http://technifyls.com) Maseru, Lesotho & [Christoph Schwizer](https://christophschwizer.ch) Zurich, Switzerland.
+
+Mobile application for the PEBRA trial. The PEBRA ("Peer-Educator Based Refill of ART") trial is part of the GET ON IT research project of the [Swiss Tropical and Public Health Institute](https://www.swisstph.ch/en/projects/hiv-care-research-in-lesotho/) and tries to work towards the [UNAIDS 90-90-90](https://www.unaids.org/en/resources/909090) targets among adolescents and young adults with HIV in rural Lesotho. The app helps peer educators keep track of their interactions with study participants and acts as a data gathering tool for the study. The user interface is designed specifically for the Huawei MediaPad T5, the device used in the study. Deploying to devices with other screen sizes might work but is not officially supported at this point.
 
 ![PEBRApp](screenshot.png)
 
