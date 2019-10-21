@@ -513,14 +513,12 @@ Future<int> _getPatientIdVisibleImpact(Patient patient, String _apiAuthToken) as
       showFlushbar(
         'Several matching patients with ART number ${patient.artNumber}\ found on VisibleImpact.',
         title: 'Resolve the issue',
-        error: true,
-        /*buttonText: 'Retry\nNow',
-        onButtonPress: () {
-          uploadPatientCharacteristics(patient, reUploadNotifications: false);
-        },*/
+        error: true
       );
+      // set the duplicate flag in the database
+      patient.isDuplicate = true;
+      await DatabaseProvider().insertPatient(patient);
     }
-    throw MultiplePatientsException('Several matching patients with ART number ${patient.artNumber} found on VisibleImpact.');
   }
   return patientIds.first;
 }
@@ -548,7 +546,7 @@ String _formatGenderForVisibleImpact(Patient patient) {
 dynamic getMatchingPatient(List<dynamic> patients, Patient patient) {
   List<dynamic> matches = [];
   for (dynamic p in patients) {
-    if (p['birth_date'] == formatDateForVisibleImpact(patient.birthday) && p['sex'] == _formatGenderForVisibleImpact(patient)) {
+    if (DateTime.parse(p['birth_date']).year == patient.birthday.year && p['sex'] == _formatGenderForVisibleImpact(patient)) {
       matches.add(p);
     }
   }
