@@ -9,6 +9,7 @@ import 'package:pebrapp/database/models/RequiredAction.dart';
 import 'package:pebrapp/screens/ARTRefillNotDoneScreen.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/VisibleImpactUtils.dart';
+import 'package:pebrapp/utils/Utils.dart';
 
 class ARTRefillScreen extends StatefulWidget {
   final Patient _patient;
@@ -21,6 +22,15 @@ class ARTRefillScreen extends StatefulWidget {
 }
 
 class _ARTRefillScreenState extends State<ARTRefillScreen> {
+  String _nextRefillDate;
+
+  void initState() {
+    super.initState();
+    setState(() {
+      this._nextRefillDate = widget._nextRefillDate;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopupScreen(
@@ -33,7 +43,7 @@ class _ARTRefillScreenState extends State<ARTRefillScreen> {
   Widget _buildBody(BuildContext context, Patient patient) {
     return Column(
       children: <Widget>[
-        Text(widget._nextRefillDate, style: TextStyle(fontSize: 16.0)),
+        Text(this._nextRefillDate, style: TextStyle(fontSize: 16.0)),
         SizedBox(height: 10.0),
         PEBRAButtonRaised('Change Date', onPressed: () { _onPressChangeDate(context); },),
         Padding(
@@ -69,6 +79,9 @@ class _ARTRefillScreenState extends State<ARTRefillScreen> {
       /*Navigator.of(context).popUntil((Route<dynamic> route) {
         return route.settings.name == '/patient';
       });*/
+      setState(() {
+        this._nextRefillDate = formatDate(nextRefillDate);
+      });
     }
   }
 
