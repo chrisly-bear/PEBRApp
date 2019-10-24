@@ -31,6 +31,10 @@ class ARTRefillScreen extends StatelessWidget {
         Text(_nextRefillDate, style: TextStyle(fontSize: 16.0)),
         SizedBox(height: 10.0),
         PEBRAButtonRaised('Change Date', onPressed: () { _onPressChangeDate(context); },),
+        Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Text('The date above has to match the actual date of refill before clicking on "Refill done", otherwise change the date', style: TextStyle(fontSize: 16.0)),
+        ),
         SizedBox(height: 50),
         PEBRAButtonRaised('Refill Done', onPressed: () { _onPressRefillDone(context); },),
         SizedBox(height: 10),
@@ -57,9 +61,9 @@ class ARTRefillScreen extends StatelessWidget {
       }
       // Adherence reminders and ART Refill reminders need to be updated
       uploadNotificationsPreferences(_patient);
-      Navigator.of(context).popUntil((Route<dynamic> route) {
+      /*Navigator.of(context).popUntil((Route<dynamic> route) {
         return route.settings.name == '/patient';
-      });
+      });*/
     }
   }
 
