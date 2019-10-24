@@ -115,7 +115,7 @@ class _ARTRefillScreenState extends State<ARTRefillScreen> {
 
   Future<DateTime> _showDatePickerWithTitle(BuildContext context, String title) async {
     final DateTime now = DateTime.now();
-    return showDatePicker(context: context, initialDate: widget._patient.latestARTRefill?.nextRefillDate ?? now, firstDate: now.subtract(Duration(days: 1)), lastDate: DateTime(2050), builder: (BuildContext context, Widget widget) {
+    return showDatePicker(context: context, initialDate: widget._patient.latestARTRefill?.nextRefillDate ?? now, firstDate: DateTime(1900), lastDate: DateTime(2050), builder: (BuildContext context, Widget widget) {
       return PopupScreen(
         backgroundColor: Colors.transparent,
         actions: [],
