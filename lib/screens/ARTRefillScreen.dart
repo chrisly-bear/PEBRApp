@@ -86,7 +86,7 @@ class _ARTRefillScreenState extends State<ARTRefillScreen> {
   }
 
   void _onPressRefillDone(BuildContext context) async {
-    DateTime nextRefillDate = await _showDatePickerWithTitle(context, 'Select the Next ART Refill Date');
+    DateTime nextRefillDate = await _showDatePickerWithTitle(context, 'Select the ART Refill Date');
     if (nextRefillDate != null) {
       final ARTRefill artRefill = ARTRefill(this.widget._patient.artNumber, RefillType.DONE(), nextRefillDate: nextRefillDate);
       await DatabaseProvider().insertARTRefill(artRefill);
