@@ -676,7 +676,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
         }
       }
       setState(() { _isLoadingLoginBody = false; });
-      if (!error) { Navigator.of(context).popUntil(ModalRoute.withName('/')); }
+      if (!error) {
+        //Navigator.of(context).popUntil(ModalRoute.withName('/'));
+        Navigator.of(context, rootNavigator: true).push(
+          new MaterialPageRoute<void>(
+            settings: RouteSettings(name: '/'),
+            builder: (BuildContext context) {
+              return MainScreen(true);
+            },
+          ),
+        );
+      }
       showFlushbar(notificationMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
     }
   }
