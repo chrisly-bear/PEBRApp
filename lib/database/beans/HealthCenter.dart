@@ -38,6 +38,7 @@ class HealthCenter {
     _HealthCenter.C27: 27,
     _HealthCenter.C28: 28,
     _HealthCenter.C29: 29,
+    _HealthCenter.C30: 30,
   };
 
   // These are the descriptions that will be displayed in the UI.
@@ -71,6 +72,7 @@ class HealthCenter {
     _HealthCenter.C27: "St. Monicas",
     _HealthCenter.C28: "Ha Lejone",
     _HealthCenter.C29: "Little Flower",
+    _HealthCenter.C30: "St. Martins",
   };
 
   static const int _BUTHA_BUTHE = 1;
@@ -107,6 +109,7 @@ class HealthCenter {
     _HealthCenter.C27: _LERIBE,
     _HealthCenter.C28: _LERIBE,
     _HealthCenter.C29: _LERIBE,
+    _HealthCenter.C30: _MOKHOTLONG,
   };
 
   static const int _INTERVENTION = 1;
@@ -114,35 +117,36 @@ class HealthCenter {
 
   // TODO: set the proper study arm for each health center before the trial starts
   static const Map<_HealthCenter, int> _studyArm = {
-    _HealthCenter.C1: _INTERVENTION,
+    _HealthCenter.C1: _CONTROL,
     _HealthCenter.C2: _INTERVENTION,
-    _HealthCenter.C3: _INTERVENTION,
-    _HealthCenter.C4: _INTERVENTION,
-    _HealthCenter.C5: _INTERVENTION,
+    _HealthCenter.C3: _CONTROL,
+    _HealthCenter.C4: _CONTROL,
+    _HealthCenter.C5: _CONTROL,
     _HealthCenter.C6: _INTERVENTION,
     _HealthCenter.C7: _INTERVENTION,
-    _HealthCenter.C8: _INTERVENTION,
+    _HealthCenter.C8: _CONTROL,
     _HealthCenter.C9: _INTERVENTION,
     _HealthCenter.C10: _INTERVENTION,
     _HealthCenter.C11: _INTERVENTION,
-    _HealthCenter.C12: _INTERVENTION,
-    _HealthCenter.C13: _INTERVENTION,
+    _HealthCenter.C12: _CONTROL,
+    _HealthCenter.C13: _CONTROL,
     _HealthCenter.C14: _INTERVENTION,
-    _HealthCenter.C15: _INTERVENTION,
+    _HealthCenter.C15: _CONTROL,
     _HealthCenter.C16: _INTERVENTION,
-    _HealthCenter.C17: _INTERVENTION,
+    _HealthCenter.C17: _CONTROL,
     _HealthCenter.C18: _CONTROL,
     _HealthCenter.C19: _CONTROL,
     _HealthCenter.C20: _CONTROL,
     _HealthCenter.C21: _CONTROL,
     _HealthCenter.C22: _CONTROL,
-    _HealthCenter.C23: _CONTROL,
+    _HealthCenter.C23: _INTERVENTION,
     _HealthCenter.C24: _CONTROL,
     _HealthCenter.C25: _CONTROL,
     _HealthCenter.C26: _CONTROL,
     _HealthCenter.C27: _CONTROL,
     _HealthCenter.C28: _CONTROL,
     _HealthCenter.C29: _CONTROL,
+    _HealthCenter.C30: _INTERVENTION,
   };
 
   _HealthCenter _healthCenter;
@@ -204,4 +208,4 @@ class HealthCenter {
 
 }
 
-enum _HealthCenter { C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12, C13, C14, C15, C16, C17, C18, C19, C20, C21, C22, C23, C24, C25, C26, C27, C28, C29 }
+enum _HealthCenter { C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12, C13, C14, C15, C16, C17, C18, C19, C20, C21, C22, C23, C24, C25, C26, C27, C28, C29, C30 }

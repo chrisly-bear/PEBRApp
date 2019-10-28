@@ -64,7 +64,12 @@ class _PatientScreenState extends State<PatientScreen> {
   void initState() {
     super.initState();
     DatabaseProvider().retrieveLatestUserData().then((UserData userData) {
-      this._userData = userData;
+      //this._userData = userData;
+      if (userData != null) {
+        setState(() {
+          this._userData = userData;
+        });
+      }
     });
     getLatestViralLoadFetchFromSharedPrefs(_patient.artNumber).then((DateTime fetchDate) {
       setState(() {
@@ -163,7 +168,7 @@ class _PatientScreenState extends State<PatientScreen> {
           child: Text('Use this option to correct a wrong entry from the database.', textAlign: TextAlign.center),
         ),
         SizedBox(height: _spacingBetweenCards),
-        _buildPreferencesCard(),
+        _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : _buildPreferencesCard(),
         SizedBox(height: _spacingBetweenCards),
       ],
     );
