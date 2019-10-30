@@ -69,15 +69,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     print('~~~ MainScreenState.initState ~~~');
     // listen to changes in the app lifecycle
     WidgetsBinding.instance.addObserver(this);
-    DatabaseProvider().retrieveLatestUserData().then((UserData userData) {
-      this._userData = userData;
-      setState(() {
-        this._isLoadingUserData = false;
-      });
-    });
     DatabaseProvider().retrieveLatestUserData().then((UserData user) {
       if (user != null) {
         setState(() {
+          this._userData = user;
           this._settingsActionRequired = user.phoneNumberUploadRequired;
           this._isLoadingUserData = false;
         });
@@ -718,11 +713,15 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
             width: _nextRefillWidth,
             child: _formatHeaderRowText('NEXT REFILL'),
           ),
-          Container(
+          _userData.healthCenter.studyArm == 1 ? _buildEmptyBox() : Container(
+            width: _refillByWidth,
+            child: _formatHeaderRowText('       '),
+          ),
+          _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(
             width: _refillByWidth,
             child: _formatHeaderRowText('REFILL BY'),
           ),
-          Container(
+          _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(
             width: _supportWidth,
             child: _formatHeaderRowText('SUPPORT'),
           ),
@@ -891,13 +890,18 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
                         width: _nextRefillWidth,
                         child: _formatPatientRowText(nextRefillText, isActivated: curPatient.isActivated, highlight: nextRefillTextHighlighted),
                       ),
+                      // Empty Cell
+                      _userData.healthCenter.studyArm == 1 ? _buildEmptyBox()  : Container(
+                        width: _refillByWidth,
+                        child: _formatPatientRowText(" ", isActivated: curPatient.isActivated),
+                      ),
                       // Refill By
-                      Container(
+                      _userData.healthCenter.studyArm == 2 ? _buildEmptyBox()  : Container(
                         width: _refillByWidth,
                         child: _formatPatientRowText(refillByText, isActivated: curPatient.isActivated),
                       ),
                       // Support
-                      Container(
+                      _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(
                         width: _supportWidth,
                         child: _buildSupportIcons(curPatient?.latestPreferenceAssessment, isActivated: curPatient.isActivated),
                       ),
