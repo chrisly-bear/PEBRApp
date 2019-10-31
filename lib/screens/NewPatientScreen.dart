@@ -361,6 +361,7 @@ class _NewPatientFormState extends State<NewPatientScreen> {
   Widget _artNumberQuestion() {
     return _makeQuestion('ART Number',
       answer: TextFormField(
+        autocorrect: false,
         controller: _artNumberCtr,
         inputFormatters: [
           WhitelistingTextInputFormatter(RegExp('[A-Za-z0-9]')),
@@ -380,6 +381,7 @@ class _NewPatientFormState extends State<NewPatientScreen> {
   Widget _stickerNumberQuestion() {
     return _makeQuestion('Sticker Number',
       answer: TextFormField(
+        autocorrect: false,
         decoration: InputDecoration(
           errorMaxLines: 2,
           prefixText: 'P',
@@ -775,6 +777,7 @@ class _NewPatientFormState extends State<NewPatientScreen> {
     }
     return _makeQuestion('Lab number of that viral load',
       answer: TextFormField(
+        autocorrect: false,
         controller: _viralLoadBaselineLabNumberCtr,
         decoration: InputDecoration(
           errorMaxLines: 2,

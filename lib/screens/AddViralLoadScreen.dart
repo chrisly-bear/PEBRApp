@@ -230,6 +230,7 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
   Widget _viralLoadBaselineLabNumberQuestion() {
     return _makeQuestion('Lab number of the viral load',
       answer: TextFormField(
+        autocorrect: false,
         controller: _viralLoadLabNumberCtr,
         inputFormatters: [
           WhitelistingTextInputFormatter(RegExp(r'[a-zA-Z0-9]')),

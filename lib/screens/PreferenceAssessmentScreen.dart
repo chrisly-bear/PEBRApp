@@ -464,6 +464,7 @@ class _PreferenceAssessmentFormState extends State<PreferenceAssessmentForm> {
       }
       return _makeQuestion("What is your Treatment Buddy's ART number?",
         answer: TextFormField(
+          autocorrect: false,
           controller: _treatmentBuddyARTNumberCtr,
           inputFormatters: [
             WhitelistingTextInputFormatter(RegExp('[A-Za-z0-9]')),

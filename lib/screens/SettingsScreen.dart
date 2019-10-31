@@ -460,6 +460,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               children: <Widget>[
                 TextFormField(
+                  autocorrect: false,
                   decoration: InputDecoration(
                     labelText: 'Username',
                     helperText: _createAccountMode ? 'allowed (max. 12 symbols): lower case letters, numbers, "-"' : null,
