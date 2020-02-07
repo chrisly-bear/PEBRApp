@@ -345,7 +345,7 @@ Future<String> _getShibSession(String username, String password) async {
   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% - 4 - %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   // get RelayState and SAMLResponse tokens
 
-  final _resp4 = await http.post(
+  var _resp4 = await http.post(
       _redirectUrl2,
       headers: {'Cookie': _jsessionidCookie},
       body: {
@@ -357,6 +357,19 @@ Future<String> _getShibSession(String username, String password) async {
 
   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% - 5 - %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   // get _shibsession_ cookie
+
+  if (_resp4.statusCode == 302) {
+    print("additional redirect, trying to get _shibsession cookie again");
+    final _redirectUrl3 = _host + _resp4.headers['location'];
+    _resp4 = await http.post(
+        _redirectUrl3,
+        headers: {'Cookie': _jsessionidCookie},
+        body: {
+          'j_username': username,
+          'j_password': password,
+          '_eventId_proceed': '',
+        });
+  }
 
   if (_resp4.statusCode != 200) {
     throw SWITCHLoginFailedException();
