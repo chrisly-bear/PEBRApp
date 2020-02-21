@@ -1,6 +1,7 @@
 /// Configuration of PEBRAcloud where all the backup data is stored
 
-const String PEBRA_CLOUD_API = "http://localhost:5000";
+const String PEBRA_CLOUD_API = "";
+const String PEBRA_CLOUD_TOKEN = "";
 
 // subfolder under which all the excel files are stored
 const String PEBRA_CLOUD_DATA_FOLDER = "data";

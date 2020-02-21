@@ -34,10 +34,13 @@ Future<void> uploadFileToPebraCloud(File sourceFile, String folder, {String file
   final uri = Uri.parse('$PEBRA_CLOUD_API/upload/$folder');
   final multiPartFile = await http.MultipartFile.fromPath('file', sourceFile.path, filename: filename);
   final uploadRequest = http.MultipartRequest('POST', uri)
-    ..files.add(multiPartFile);
+    ..files.add(multiPartFile)
+    ..headers['token'] = PEBRA_CLOUD_TOKEN;
   final responseStream = await uploadRequest.send();
   final response = await http.Response.fromStream(responseStream);
-  if (response.statusCode != 201) {
+  if (response.statusCode == 401) {
+    throw PebraCloudAuthFailedException();
+  } else if (response.statusCode != 201) {
     throw HTTPStatusNotOKException('An unexpected status code ${response.statusCode} was returned while interacting with PEBRAcloud.\n');
   }
 }
@@ -90,8 +93,12 @@ Future<void> restoreFromPebraCloud(String username, String pinCodeHash) async {
 Future<bool> existsBackupForUser(String username) async {
   final folder = PEBRA_CLOUD_BACKUP_FOLDER;
   final uri = Uri.parse('$PEBRA_CLOUD_API/exists/$folder/$username');
-  final resp = await http.get(uri);
-  if (resp.statusCode != 200) {
+  final resp = await http.get(uri, headers: {
+    'token': PEBRA_CLOUD_TOKEN,
+  });
+  if (resp.statusCode == 401) {
+    throw PebraCloudAuthFailedException();
+  } else if (resp.statusCode != 200) {
     throw HTTPStatusNotOKException('An unexpected status code ${resp.statusCode} was returned while interacting with PEBRAcloud.\n');
   }
   final json = jsonDecode(resp.body) as Map<String, dynamic>;
@@ -101,6 +108,8 @@ Future<bool> existsBackupForUser(String username) async {
 
 /// Throws [NoPasswordFileException] if no password file is found for the given
 /// [username] on PEBRAcloud.
+///
+/// Throws [PebraCloudAuthFailedException] if the login to PEBRAcloud fails.
 ///
 /// Throws [HTTPStatusNotOKException] if interaction with PEBRAcloud fails.
 Future<bool> _pinCodeValid(String username, String pinCodeHash) async {
@@ -115,15 +124,21 @@ Future<bool> _pinCodeValid(String username, String pinCodeHash) async {
 /// Throws [NoPasswordFileException] if no password file is found for the given
 /// [username] on PEBRAcloud.
 ///
+/// Throws [PebraCloudAuthFailedException] if the login to PEBRAcloud fails.
+///
 /// Throws [HTTPStatusNotOKException] if interaction with PEBRAcloud fails.
 Future<File> _downloadPasswordFile(String username) async {
   final folder = PEBRA_CLOUD_PASSWORD_FOLDER;
   final uri = Uri.parse('$PEBRA_CLOUD_API/download/$folder/$username');
 
   // download file
-  final resp = await http.get(uri);
+  final resp = await http.get(uri, headers: {
+    'token': PEBRA_CLOUD_TOKEN,
+  });
 
-  if (resp.statusCode == 400) {
+  if (resp.statusCode == 401) {
+    throw PebraCloudAuthFailedException();
+  } else if (resp.statusCode == 400) {
     throw NoPasswordFileException();
   } else if (resp.statusCode != 200) {
     throw HTTPStatusNotOKException('An unexpected status code ${resp.statusCode} was returned while interacting with PEBRAcloud.\n');
@@ -142,15 +157,21 @@ Future<File> _downloadPasswordFile(String username) async {
 /// Throws [BackupNotFoundException] if no backup is found for the given
 /// [username] on PEBRAcloud.
 ///
+/// Throws [PebraCloudAuthFailedException] if the login to PEBRAcloud fails.
+///
 /// Throws [HTTPStatusNotOKException] if interaction with PEBRAcloud fails.
 Future<File> _downloadLatestBackup(String username) async {
   final folder = PEBRA_CLOUD_BACKUP_FOLDER;
   final uri = Uri.parse('$PEBRA_CLOUD_API/download/$folder/$username');
 
   // download file
-  final resp = await http.get(uri);
+  final resp = await http.get(uri, headers: {
+    'token': PEBRA_CLOUD_TOKEN,
+  });
 
-  if (resp.statusCode == 400) {
+  if (resp.statusCode == 401) {
+    throw PebraCloudAuthFailedException();
+  } else if (resp.statusCode == 400) {
     throw BackupNotFoundException();
   } else if (resp.statusCode != 200) {
     throw HTTPStatusNotOKException('An unexpected status code ${resp.statusCode} was returned while interacting with PEBRAcloud.\n');
