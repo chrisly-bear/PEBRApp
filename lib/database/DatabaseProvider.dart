@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:pebrapp/config/SwitchConfig.dart';
+import 'package:pebrapp/config/PebraCloudConfig.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/beans/RefillType.dart';
 import 'package:pebrapp/database/models/ARTRefill.dart';
@@ -14,7 +14,7 @@ import 'package:pebrapp/utils/Utils.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'dart:io';
-import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
+import 'package:pebrapp/utils/PebraCloudUtils.dart';
 
 /// Access to the SQFLite database.
 /// Get an instance either via `DatabaseProvider.instance` or via the singleton constructor `DatabaseProvider()`.
@@ -674,15 +674,21 @@ class DatabaseProvider {
     return file.writeAsString(content, flush: true);
   }
 
-  /// Backs up the SQLite database file and exports the data as Excel file to SWITCH.
-  /// Use this if no previous backup for this user exists yet. This creates
-  /// version 1 of the backup documents on SWITCHtoolbox.
-  /// 
-  /// Throws `NoLoginDataException` if the loginData object is null.
   ///
-  /// Throws `SWITCHLoginFailedException` if the login to SWITCHtoolbox fails.
+  /// Backs up the SQLite database file and password file and exports the data
+  /// as Excel file to PEBRAcloud. This method is slightly different from
+  /// [createAdditionalBackupOnSWITCH]: It includes the password file in the
+  /// upload and stores [loginData] in the database before uploading.
   ///
-  /// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
+  /// Throws [NoLoginDataException] if the [loginData] object is null.
+  ///
+  /// Throws [PebraCloudAuthFailedException] if the login to PEBRAcloud fails.
+  ///
+  /// Throws [SocketException] if there is no internet connection or PEBRAcloud
+  /// cannot be reached.
+  ///
+  /// Throws [HTTPStatusNotOKException] if PEBRAcloud fails to receive the file.
+  ///
   Future<void> createFirstBackupOnSWITCH(UserData loginData, String pinCodeHash) async {
     if (loginData == null) {
       throw NoLoginDataException();
@@ -694,23 +700,24 @@ class DatabaseProvider {
     final File passwordFile = await _createFileWithContent('PEBRA-password', pinCodeHash);
     // upload SQLite, password file, and Excel file
     final String filename = '${loginData.username}_${loginData.firstName}_${loginData.lastName}';
-    await uploadFileToSWITCHtoolbox(dbFile, filename: filename, folderID: SWITCH_TOOLBOX_BACKUP_FOLDER_ID);
-    await uploadFileToSWITCHtoolbox(passwordFile, filename: loginData.username, folderID: SWITCH_TOOLBOX_PASSWORD_FOLDER_ID);
-    await uploadFileToSWITCHtoolbox(excelFile, filename: filename, folderID: SWITCH_TOOLBOX_DATA_FOLDER_ID);
+    await uploadFileToPebraCloud(dbFile, PEBRA_CLOUD_BACKUP_FOLDER, filename: '$filename.db');
+    await uploadFileToPebraCloud(passwordFile, PEBRA_CLOUD_PASSWORD_FOLDER, filename: '${loginData.username}.txt');
+    await uploadFileToPebraCloud(excelFile, PEBRA_CLOUD_DATA_FOLDER, filename: '$filename.xlsx');
     await storeLatestBackupInSharedPrefs();
   }
 
-  /// Backs up the SQLite database file and exports the data as Excel file to SWITCH.
-  /// Use this only if a previous backup for this user exists. This creates a
-  /// new version of the document on SWITCHtoolbox.
   ///
-  /// Throws `NoLoginDataException` if the loginData object is null.
+  /// Backs up the SQLite database file and exports the data as Excel file to
+  /// PEBRAcloud.
   ///
-  /// Throws `SWITCHLoginFailedException` if the login to SWITCHtoolbox fails.
+  /// Throws [NoLoginDataException] if the [loginData] object is null.
   ///
-  /// Throws `DocumentNotFoundException` if no matching backup was found.
+  /// Throws [PebraCloudAuthFailedException] if the login to PEBRAcloud fails.
   ///
-  /// Throws `SocketException` if there is no internet connection or SWITCH cannot be reached.
+  /// Throws [SocketException] if there is no internet connection or PEBRAcloud
+  /// cannot be reached.
+  ///
+  /// Throws [HTTPStatusNotOKException] if PEBRAcloud fails to receive the file.
   Future<void> createAdditionalBackupOnSWITCH(UserData loginData) async {
     if (loginData == null) {
       throw NoLoginDataException();
@@ -719,8 +726,8 @@ class DatabaseProvider {
     final File excelFile = await DatabaseExporter.exportDatabaseToExcelFile();
     // update SQLite and Excel file with new version
     final String docName = '${loginData.username}_${loginData.firstName}_${loginData.lastName}';
-    await updateFileOnSWITCHtoolbox(dbFile, docName, folderId: SWITCH_TOOLBOX_BACKUP_FOLDER_ID);
-    await updateFileOnSWITCHtoolbox(excelFile, docName, folderId: SWITCH_TOOLBOX_DATA_FOLDER_ID);
+    await uploadFileToPebraCloud(dbFile, PEBRA_CLOUD_BACKUP_FOLDER, filename: '$docName.db');
+    await uploadFileToPebraCloud(excelFile, PEBRA_CLOUD_DATA_FOLDER, filename: '$docName.xlsx');
     await storeLatestBackupInSharedPrefs();
   }
 

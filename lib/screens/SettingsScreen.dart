@@ -9,17 +9,17 @@ import 'package:pebrapp/components/RequiredActionContainerPEPhoneNumberUpload.da
 import 'package:pebrapp/database/DatabaseProvider.dart';
 import 'package:pebrapp/database/beans/HealthCenter.dart';
 import 'package:pebrapp/database/models/UserData.dart';
-import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
+import 'package:pebrapp/exceptions/BackupNotFoundException.dart';
 import 'package:pebrapp/exceptions/InvalidPINException.dart';
 import 'package:pebrapp/exceptions/NoPasswordFileException.dart';
-import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
+import 'package:pebrapp/exceptions/PebraCloudAuthFailedException.dart';
 import 'package:pebrapp/screens/ChangePhoneNumberScreen.dart';
 import 'package:pebrapp/screens/NewPINScreen.dart';
 import 'package:pebrapp/screens/MainScreen.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 import 'package:pebrapp/utils/InputFormatters.dart';
-import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
+import 'package:pebrapp/utils/PebraCloudUtils.dart';
 import 'package:pebrapp/utils/Utils.dart';
 import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -246,11 +246,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       switch (e.runtimeType) {
       // case NoLoginDataException should never occur because we don't show
       // the backup button when the user is not logged in
-        case SWITCHLoginFailedException:
-          message = 'Login to SWITCH failed. Contact the development team.';
-          break;
-        case DocumentNotFoundException:
-          message = 'No existing backup found for user \'${_loginData.username}\'';
+        case PebraCloudAuthFailedException:
+          message = 'PEBRAcloud authentication failed. Contact the development team.';
           break;
         case SocketException:
           message = 'Make sure you are connected to the internet.';
@@ -565,7 +562,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         onNotificationButtonPress = null;
         retry = false;
         try {
-          await restoreFromSWITCHtoolbox(username, pinCodeHash);
+          await restoreFromPebraCloud(username, pinCodeHash);
           // restore was successful, go to home screen
           //Navigator.of(context).popUntil(ModalRoute.withName('/'));
           Navigator.of(context, rootNavigator: true).push(
@@ -587,19 +584,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
               notificationMessage =
               'Make sure you are connected to the internet.';
               break;
-            case SWITCHLoginFailedException:
+            case PebraCloudAuthFailedException:
               notificationMessage =
-              'Login to SWITCH failed. Contact the development team.';
+              'PEBRAcloud authentication failed. Contact the development team.';
               break;
-            case DocumentNotFoundException:
+            case BackupNotFoundException:
               notificationMessage =
-              'User \'$username\' not found. Check your login data or create a new account.';
+              'No data found for user \'$username\'. Check your login data or create a new account.';
               break;
             case InvalidPINException:
               notificationMessage = 'Invalid PIN Code.';
               break;
             case NoPasswordFileException:
-              // the password file was removed from SWITCHtoolbox -> prompt user
+              // the password file was removed from PEBRAcloud -> prompt user
               // to set a new PIN
               final String newPINHash = await _setNewPIN(username, context);
               if (newPINHash != null) {
@@ -664,8 +661,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           case SocketException:
             notificationMessage = 'Make sure you are connected to the internet.';
             break;
-          case SWITCHLoginFailedException:
-            notificationMessage = 'Login to SWITCH failed. Contact the development team.';
+          case PebraCloudAuthFailedException:
+            notificationMessage = 'PEBRAcloud authentication failed. Contact the development team.';
             break;
           default:
             notificationMessage = 'An unknown error occured. Contact the development team.';

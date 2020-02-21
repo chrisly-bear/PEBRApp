@@ -8,14 +8,14 @@ import 'package:pebrapp/database/models/Patient.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/ViralLoad.dart';
-import 'package:pebrapp/exceptions/DocumentNotFoundException.dart';
+import 'package:pebrapp/exceptions/BackupNotFoundException.dart';
 import 'package:pebrapp/exceptions/InvalidPINException.dart';
 import 'package:pebrapp/exceptions/NoPasswordFileException.dart';
-import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
+import 'package:pebrapp/exceptions/PebraCloudAuthFailedException.dart';
 import 'package:pebrapp/screens/NewPINScreen.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/AppColors.dart';
-import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
+import 'package:pebrapp/utils/PebraCloudUtils.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 class DebugScreen extends StatefulWidget {
@@ -164,7 +164,7 @@ class _DebugScreenState extends State<DebugScreen> {
       onNotificationButtonPress = null;
       retry = false;
       try {
-        await restoreFromSWITCHtoolbox(userData.username, pinCodeHash);
+        await restoreFromPebraCloud(userData.username, pinCodeHash);
         // restore was successful, go to home screen
         Navigator.of(context).popUntil(ModalRoute.withName('/'));
       } catch (e, s) {
@@ -177,13 +177,13 @@ class _DebugScreenState extends State<DebugScreen> {
             notificationMessage =
                 'Make sure you are connected to the internet.';
             break;
-          case SWITCHLoginFailedException:
+          case PebraCloudAuthFailedException:
             notificationMessage =
-                'Login to SWITCH failed. Contact the development team.';
+                'PEBRAcloud authentication failed. Contact the development team.';
             break;
-          case DocumentNotFoundException:
+          case BackupNotFoundException:
             notificationMessage =
-                'User \'${userData.username}\' not found. Check your login data or create a new account.';
+                'No data found for user \'${userData.username}\'. Check your login data or create a new account.';
             break;
           case InvalidPINException:
             notificationMessage = 'Invalid PIN Code.';

@@ -1,1 +1,0 @@
-class DocumentNotFoundException implements Exception {}
