@@ -383,7 +383,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     }
 
     try {
-      await DatabaseProvider().createAdditionalBackupOnSWITCH(loginData);
+      await DatabaseProvider().createAdditionalBackupOnServer(loginData);
       showFlushbar('Upload Successful');
     } catch (e, s) {
       print('Caught exception during automated backup: $e');

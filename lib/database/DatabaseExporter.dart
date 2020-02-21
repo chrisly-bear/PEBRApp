@@ -11,7 +11,7 @@ import 'package:pebrapp/database/models/ViralLoad.dart';
 import 'dart:io';
 import 'package:spreadsheet_decoder/spreadsheet_decoder.dart';
 
-/// Exports the database as a CSV file an uploads it to SWITCH.
+/// Exports the database as a CSV file an uploads it to PEBRAcloud.
 class DatabaseExporter {
 
   static const EXCEL_FILENAME = 'PEBRA_Data.xlsx';

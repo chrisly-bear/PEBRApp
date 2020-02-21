@@ -674,10 +674,9 @@ class DatabaseProvider {
     return file.writeAsString(content, flush: true);
   }
 
-  ///
   /// Backs up the SQLite database file and password file and exports the data
   /// as Excel file to PEBRAcloud. This method is slightly different from
-  /// [createAdditionalBackupOnSWITCH]: It includes the password file in the
+  /// [createAdditionalBackupOnServer]: It includes the password file in the
   /// upload and stores [loginData] in the database before uploading.
   ///
   /// Throws [NoLoginDataException] if the [loginData] object is null.
@@ -688,13 +687,12 @@ class DatabaseProvider {
   /// cannot be reached.
   ///
   /// Throws [HTTPStatusNotOKException] if PEBRAcloud fails to receive the file.
-  ///
-  Future<void> createFirstBackupOnSWITCH(UserData loginData, String pinCodeHash) async {
+  Future<void> createFirstBackupOnServer(UserData loginData, String pinCodeHash) async {
     if (loginData == null) {
       throw NoLoginDataException();
     }
     // store the user data in the database before creating the first backup
-    insertUserData(loginData);
+    await insertUserData(loginData);
     final File dbFile = await _databaseFile;
     final File excelFile = await DatabaseExporter.exportDatabaseToExcelFile();
     final File passwordFile = await _createFileWithContent('PEBRA-password', pinCodeHash);
@@ -706,7 +704,6 @@ class DatabaseProvider {
     await storeLatestBackupInSharedPrefs();
   }
 
-  ///
   /// Backs up the SQLite database file and exports the data as Excel file to
   /// PEBRAcloud.
   ///
@@ -718,7 +715,7 @@ class DatabaseProvider {
   /// cannot be reached.
   ///
   /// Throws [HTTPStatusNotOKException] if PEBRAcloud fails to receive the file.
-  Future<void> createAdditionalBackupOnSWITCH(UserData loginData) async {
+  Future<void> createAdditionalBackupOnServer(UserData loginData) async {
     if (loginData == null) {
       throw NoLoginDataException();
     }

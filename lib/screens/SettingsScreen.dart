@@ -236,7 +236,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     VoidCallback onNotificationButtonPress;
     setState(() { _isLoadingSettingsBody = true; });
     try {
-      await DatabaseProvider().createAdditionalBackupOnSWITCH(_loginData);
+      await DatabaseProvider().createAdditionalBackupOnServer(_loginData);
       setState(() {
         lastBackup = formatDateAndTime(DateTime.now());
       });
@@ -649,7 +649,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         if (userExists) {
           notificationMessage = 'User \'${_userData.username}\' already exists.';
         } else {
-          await DatabaseProvider().createFirstBackupOnSWITCH(_userData, pinCodeHash);
+          await DatabaseProvider().createFirstBackupOnServer(_userData, pinCodeHash);
           title = 'Account Created';
           notificationMessage = 'You are logged in as \'${_userData.username}\.';
           error = false;

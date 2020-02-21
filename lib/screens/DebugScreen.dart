@@ -103,7 +103,7 @@ class _DebugScreenState extends State<DebugScreen> {
           children: <Widget>[
             _card('Misc.', [
               _buttonRow(
-                description: 'Restore data from SWITCHtoolbox',
+                description: 'Restore data from PEBRAcloud',
                 buttonLabel: 'Restore',
                 onPressed: () {
                   _onPressRestoreButton(context);
