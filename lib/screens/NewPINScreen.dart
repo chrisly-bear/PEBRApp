@@ -7,10 +7,10 @@ import 'package:path/path.dart' show join;
 import 'package:pebrapp/components/PEBRAButtonFlat.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
-import 'package:pebrapp/config/SwitchConfig.dart';
+import 'package:pebrapp/config/PebraCloudConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
-import 'package:pebrapp/exceptions/SWITCHLoginFailedException.dart';
-import 'package:pebrapp/utils/SwitchToolboxUtils.dart';
+import 'package:pebrapp/exceptions/PebraCloudAuthFailedException.dart';
+import 'package:pebrapp/utils/PebraCloudUtils.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
 class NewPINScreen extends StatefulWidget {
@@ -123,7 +123,7 @@ class _NewPINScreenState extends State<NewPINScreen> {
         final String filepath = join(await DatabaseProvider().databasesDirectoryPath, 'PEBRA-password');
         var file = File(filepath);
         file = await file.writeAsString(pinCodeHash, flush: true);
-        await uploadFileToSWITCHtoolbox(file, filename: username, folderID: SWITCH_TOOLBOX_PASSWORD_FOLDER_ID);
+        await uploadFileToPebraCloud(file, PEBRA_CLOUD_PASSWORD_FOLDER, filename: '$username.txt');
         _closeScreen(pinCodeHash);
       } catch (e, s) {
         final String title = 'PIN Update Failed';
@@ -133,8 +133,8 @@ class _NewPINScreenState extends State<NewPINScreen> {
           case SocketException:
             message = 'Make sure you are connected to the internet.';
             break;
-          case SWITCHLoginFailedException:
-            message = 'Login to SWITCH failed. Contact the development team.';
+          case PebraCloudAuthFailedException:
+            message = 'PEBRAcloud authentication failed. Contact the development team.';
             break;
           default:
             print('${e.runtimeType}: $e');
