@@ -12,7 +12,6 @@ class PEBRApp extends StatefulWidget {
 }
 
 class PEBRAppState extends State<PEBRApp> {
-
   static BuildContext _rootContext;
 
   static BuildContext get rootContext => _rootContext;
@@ -20,7 +19,8 @@ class PEBRAppState extends State<PEBRApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Navigator( // 'sub-root' navigator, second in the hierarchy. We use the root navigator for flushbar notifications.
+      home: Navigator(
+        // 'sub-root' navigator, second in the hierarchy. We use the root navigator for flushbar notifications.
         onGenerateRoute: (_) => MaterialPageRoute(
           builder: (BuildContext context) {
             _rootContext = context;
@@ -28,7 +28,6 @@ class PEBRAppState extends State<PEBRApp> {
           },
           settings: RouteSettings(
             name: '/',
-            isInitialRoute: true,
           ),
         ),
       ),
