@@ -215,7 +215,7 @@ class _PatientScreenState extends State<PatientScreen> {
               textAlign: TextAlign.center),
         ),
         SizedBox(height: _spacingBetweenCards),
-        _userData.healthCenter.studyArm == 2
+        _userData?.healthCenter?.studyArm == 2
             ? _buildEmptyBox()
             : _buildPreferencesCard(),
         SizedBox(height: _spacingBetweenCards),
@@ -248,21 +248,17 @@ class _PatientScreenState extends State<PatientScreen> {
   Widget _buildRequiredActions() {
     final List<RequiredAction> visibleRequiredActionsSorted =
         _patient.calculateDueRequiredActions().toList();
-    List<RequiredAction> _visibleRequiredActionsSorted =
-        visibleRequiredActionsSorted;
 
     // Filter out REFILL_REQUIRED and ASSESSMENT_REQUIRED for clinics in the control cluster
-    if (_userData.healthCenter.studyArm == 2) {
-      _visibleRequiredActionsSorted = visibleRequiredActionsSorted
-          .where((i) =>
-              i.type != RequiredActionType.REFILL_REQUIRED &&
-              i.type != RequiredActionType.ASSESSMENT_REQUIRED)
-          .toList();
+    if (_userData?.healthCenter?.studyArm == 2) {
+      visibleRequiredActionsSorted.removeWhere((i) =>
+          i.type == RequiredActionType.REFILL_REQUIRED ||
+          i.type == RequiredActionType.ASSESSMENT_REQUIRED);
     }
 
-    _visibleRequiredActionsSorted.sort((RequiredAction a, RequiredAction b) =>
+    visibleRequiredActionsSorted.sort((RequiredAction a, RequiredAction b) =>
         a.dueDate.isBefore(b.dueDate) ? -1 : 1);
-    final actions = _visibleRequiredActionsSorted
+    final actions = visibleRequiredActionsSorted
         .asMap()
         .map((int i, RequiredAction action) {
           final mapEntry = MapEntry(
@@ -336,7 +332,7 @@ class _PatientScreenState extends State<PatientScreen> {
     }
     return Column(
       children: <Widget>[
-        _userData.healthCenter.studyArm == 2
+        _userData?.healthCenter?.studyArm == 2
             ? _buildEmptyBox()
             : _buildNextActionRow(
                 title: 'Next Preference Assessment',
@@ -352,7 +348,8 @@ class _PatientScreenState extends State<PatientScreen> {
         SizedBox(height: _spacingBetweenCards),
         _buildNextActionRow(
           title: 'Next ART Refill',
-          dueDate: _userData.healthCenter.studyArm == 2 ? '' : _nextRefillText,
+          dueDate:
+              _userData?.healthCenter?.studyArm == 2 ? '' : _nextRefillText,
           explanation:
               'The ART refill date is selected when the participant collects $pronoun ARTs or has them delivered.',
           button: !_patient.isActivated
