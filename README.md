@@ -4,9 +4,9 @@
 
 # PEBRApp
 
-![logo](logo.png) 
+![logo](logo.png)
 
-Developed with ❤️ by [Tech4All](https://techforall.co.ls) Maseru, Lesotho & [Christoph Schwizer](https://christophschwizer.ch) Zurich, Switzerland.
+Developed with ❤️ by [Tech4All](https://techforall.co.ls) Maseru, Lesotho & [Christoph Schwizer](https://schwizer.dev) Zurich, Switzerland.
 
 Mobile application for the PEBRA trial. The PEBRA ("Peer-Educator Based Refill of ART") trial is part of the GET ON IT research project of the [Swiss Tropical and Public Health Institute](https://www.swisstph.ch/en/projects/hiv-care-research-in-lesotho/) and tries to work towards the [UNAIDS 90-90-90](https://www.unaids.org/en/resources/909090) targets among adolescents and young adults with HIV in rural Lesotho. The app helps peer educators keep track of their interactions with study participants and acts as a data gathering tool for the study. The user interface is designed specifically for the Huawei MediaPad T5, the device used in the study. Deploying to devices with other screen sizes might work but is not officially supported at this point.
 
@@ -14,7 +14,7 @@ Mobile application for the PEBRA trial. The PEBRA ("Peer-Educator Based Refill o
 
 ## Configure
 
-The app interacts with two online services: (1) [VisibleImpact](https://visibleimpact.org) for fetching and uploading patient-related data and (2) [SWITCHtoolbox](https://toolbox.switch.ch) for user account management and backups. You need to configure these two services in `lib/config/VisibleImpactConfig.dart` and `lib/config/SwitchConfig.dart`, respectively.
+The app interacts with two online services: (1) [VisibleImpact](https://visibleimpact.org) for fetching and uploading patient-related data and (2) [PEBRAcloud](https://github.com/chrisly-bear/PEBRAcloud) for user account management and backups. You need to configure these two services in `lib/config/VisibleImpactConfig.dart` and `lib/config/PebraCloudConfig.dart`, respectively.
 
 ## Build and Run
 
@@ -30,6 +30,10 @@ If you want to specify a device to run the app on (check devices with `flutter d
 # runs the app on the Android emulator with ID 5554
 flutter run -d emulator-5554
 ```
+
+### Flutter Version & FVM
+
+You should use the Flutter version defined in `.fvm/fvm_config.json`. To install a specific version of Flutter, it is recommended to use **Flutter Version Management** (https://fvm.app).
 
 ## Release
 
