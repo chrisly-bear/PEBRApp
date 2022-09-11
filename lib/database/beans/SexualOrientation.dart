@@ -1,6 +1,4 @@
-
 class SexualOrientation {
-
   // Class Variables
   // ---------------
 
@@ -51,7 +49,8 @@ class SexualOrientation {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
-    final _SexualOrientation orientation = _encoding.entries.firstWhere((MapEntry<_SexualOrientation, int> entry) {
+    final _SexualOrientation orientation =
+        _encoding.entries.firstWhere((MapEntry<_SexualOrientation, int> entry) {
       return entry.value == code;
     }).key;
     SexualOrientation object = SexualOrientation._();
@@ -64,25 +63,25 @@ class SexualOrientation {
 
   // override the equality operator
   @override
-  bool operator ==(o) => o is SexualOrientation && o._orientation == _orientation;
+  bool operator ==(o) =>
+      o is SexualOrientation && o._orientation == _orientation;
 
   // override hashcode
   @override
   int get hashCode => _orientation.hashCode;
 
   static List<SexualOrientation> get allValues => [
-    SexualOrientation.HETEROSEXUAL(),
-    SexualOrientation.BISEXUAL(),
-    SexualOrientation.HOMOSEXUAL(),
-    SexualOrientation.NOT_SPECIFIED(),
-  ];
+        SexualOrientation.HETEROSEXUAL(),
+        SexualOrientation.BISEXUAL(),
+        SexualOrientation.HOMOSEXUAL(),
+        SexualOrientation.NOT_SPECIFIED(),
+      ];
 
   /// Returns the text description of this orientation.
   String get description => _description[_orientation];
 
   /// Returns the code that represents this orientation.
   int get code => _encoding[_orientation];
-
 }
 
 enum _SexualOrientation { HETEROSEXUAL, BISEXUAL, HOMOSEXUAL, NOT_SPECIFIED }

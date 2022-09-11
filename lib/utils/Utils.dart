@@ -22,7 +22,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:password/password.dart';
 import 'package:flushbar/flushbar_route.dart' as route;
 
-
 /// Displays a notification over the given [context].
 ///
 /// @param [message] The message to display.
@@ -40,8 +39,13 @@ import 'package:flushbar/flushbar_route.dart' as route;
 /// notification will stay on screen, no matter what the value of [stay] is.
 ///
 /// @param [duration] How long the notification should stay before disappearing. Default is 5 seconds.
-Future<void> showFlushbar(String message, {String title, bool error=false, VoidCallback onButtonPress, String buttonText, bool stay: false, Duration duration}) {
-
+Future<void> showFlushbar(String message,
+    {String title,
+    bool error = false,
+    VoidCallback onButtonPress,
+    String buttonText,
+    bool stay: false,
+    Duration duration}) {
   final context = PEBRAppState.rootContext;
 
   FlatButton button;
@@ -50,7 +54,8 @@ Future<void> showFlushbar(String message, {String title, bool error=false, VoidC
       onPressed: onButtonPress,
       child: buttonText == null || buttonText == ''
           ? Icon(Icons.info, color: NOTIFICATION_INFO_ICON)
-          : Text(buttonText.toUpperCase(), style: TextStyle(color: NOTIFICATION_INFO_TEXT)),
+          : Text(buttonText.toUpperCase(),
+              style: TextStyle(color: NOTIFICATION_INFO_TEXT)),
     );
   }
 
@@ -58,27 +63,38 @@ Future<void> showFlushbar(String message, {String title, bool error=false, VoidC
   const double MAX_WIDTH = 600;
   const double MIN_PADDING_HORIZONTAL = 10;
   final double screenWidth = MediaQuery.of(context).size.width;
-  final double padding = max(MIN_PADDING_HORIZONTAL, (screenWidth - MAX_WIDTH)/2);
+  final double padding =
+      max(MIN_PADDING_HORIZONTAL, (screenWidth - MAX_WIDTH) / 2);
 
   final Flushbar _flushbar = Flushbar(
     flushbarPosition: FlushbarPosition.TOP,
-    titleText: title == null ? null : Text(title,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        color: NOTIFICATION_MESSAGE_TEXT,
-        fontSize: 18.0,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
+    titleText: title == null
+        ? null
+        : Text(
+            title,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: NOTIFICATION_MESSAGE_TEXT,
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
     messageText: Text(
-      message, textAlign: TextAlign.center,
+      message,
+      textAlign: TextAlign.center,
       style: TextStyle(
         color: NOTIFICATION_MESSAGE_TEXT,
         fontSize: title == null ? 18.0 : 16.0,
       ),
     ),
     mainButton: button,
-    boxShadows: [BoxShadow(color: NOTIFICATION_SHADOW, blurRadius: 5.0, offset: Offset(0.0, 0.0), spreadRadius: 0.0)],
+    boxShadows: [
+      BoxShadow(
+          color: NOTIFICATION_SHADOW,
+          blurRadius: 5.0,
+          offset: Offset(0.0, 0.0),
+          spreadRadius: 0.0)
+    ],
     borderRadius: 5,
     backgroundColor: error ? NOTIFICATION_ERROR : NOTIFICATION_NORMAL,
     margin: EdgeInsets.symmetric(horizontal: padding),
@@ -96,15 +112,16 @@ Future<void> showFlushbar(String message, {String title, bool error=false, VoidC
 int get _fbCount => _fbRoutes.length;
 List<route.FlushbarRoute<dynamic>> _fbRoutes = [];
 
-Flushbar _buildTransferringFlushbar({@required Widget child, double forwardAnimTime: 1.0, Duration duration}) {
-
+Flushbar _buildTransferringFlushbar(
+    {@required Widget child, double forwardAnimTime: 1.0, Duration duration}) {
   final context = PEBRAppState.rootContext;
 
   // define the maximum width of the notification
   const double MAX_WIDTH = 160;
   const double MIN_PADDING_HORIZONTAL = 10;
   final double screenWidth = MediaQuery.of(context).size.width;
-  final double padding = max(MIN_PADDING_HORIZONTAL, (screenWidth - MAX_WIDTH)/2);
+  final double padding =
+      max(MIN_PADDING_HORIZONTAL, (screenWidth - MAX_WIDTH) / 2);
 
   return Flushbar(
     flushbarPosition: FlushbarPosition.BOTTOM,
@@ -116,23 +133,26 @@ Flushbar _buildTransferringFlushbar({@required Widget child, double forwardAnimT
     duration: duration,
     forwardAnimationCurve: Interval(0.0, forwardAnimTime),
   );
-
 }
 
 void showTransferringDataFlushbar() {
-
   final context = PEBRAppState.rootContext;
 
   final Flushbar _flushbar = _buildTransferringFlushbar(
     child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        SizedBox(height: 2.0, width: 15.0, child: LinearProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(SPINNER_SETTINGS_SCREEN),
-          backgroundColor: Colors.transparent,
-        )),
+        SizedBox(
+            height: 2.0,
+            width: 15.0,
+            child: LinearProgressIndicator(
+              valueColor:
+                  AlwaysStoppedAnimation<Color>(SPINNER_SETTINGS_SCREEN),
+              backgroundColor: Colors.transparent,
+            )),
         SizedBox(width: 10.0),
-        Text('transferring data',
+        Text(
+          'transferring data',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: NOTIFICATION_MESSAGE_TEXT,
@@ -153,7 +173,6 @@ void showTransferringDataFlushbar() {
 }
 
 void dismissTransferringDataFlushbar() {
-
   if (_fbCount < 1) {
     print('$_fbCount notifications showing, doing nothing');
     return;
@@ -190,7 +209,6 @@ void dismissTransferringDataFlushbar() {
     print('done pushed');
     navigator.removeRoute(toBeRemoved);
   });
-
 }
 
 /// Takes a date and returns a date at the beginning (midnight) of the same day.
@@ -205,10 +223,9 @@ DateTime _roundToDays(DateTime date) {
   final month = date.month;
   final year = date.year;
   return date.isUtc
-    ? DateTime.utc(year, month, day)
-    : DateTime(year, month, day);
+      ? DateTime.utc(year, month, day)
+      : DateTime(year, month, day);
 }
-
 
 /// Returns the difference in days between [date1] and [date2]. The difference
 /// is measured at midnight, i.e., how many "midnights" lie between [date1] and
@@ -232,7 +249,9 @@ DateTime _roundToDays(DateTime date) {
 /// final diff = differenceInDays(date1, date2); // <- returns 0, we expect 1
 /// ```
 int differenceInDays(DateTime date1, DateTime date2) {
-  assert(date1.isUtc == date2.isUtc, 'Comparing UTC and local dates leads to '
+  assert(
+      date1.isUtc == date2.isUtc,
+      'Comparing UTC and local dates leads to '
       'unpredictable difference in days.\n'
       'date1 (isUtc: ${date1.isUtc}) = $date1\n'
       'date2 (isUtc: ${date2.isUtc}) = $date2');
@@ -295,7 +314,7 @@ String formatDate(DateTime date) {
   if (daysFromToday == 0) {
     return "Today";
   } else if (daysFromToday == 1) {
-      return "Tomorrow";
+    return "Tomorrow";
   } else if (daysFromToday > 1 && daysFromToday <= 7) {
     return "$daysFromToday days from now";
   } else if (daysFromToday == -1) {
@@ -388,11 +407,16 @@ TimeOfDay parseTimeOfDay(String time) {
 /// Calculates the due date of the next preference assessment based on the date
 /// of the last preference assessment and whether the patient is [suppressed]
 /// (+3 months) or unsuppressed (+1 month).
-/// 
+///
 /// Returns `null` if [lastAssessment] is `null`.
 DateTime calculateNextAssessment(DateTime lastAssessment, bool suppressed) {
-  if (lastAssessment == null) { return null; }
-  DateTime newDate = DateTime(lastAssessment.year, suppressed ? lastAssessment.month + 3 : lastAssessment.month + 1, lastAssessment.day);
+  if (lastAssessment == null) {
+    return null;
+  }
+  DateTime newDate = DateTime(
+      lastAssessment.year,
+      suppressed ? lastAssessment.month + 3 : lastAssessment.month + 1,
+      lastAssessment.day);
   return newDate;
 }
 
@@ -402,20 +426,21 @@ DateTime calculateNextAssessment(DateTime lastAssessment, bool suppressed) {
 ///
 /// Returns `null` if there are no x_QUESTIONNAIRE_xM_REQUIRED actions in
 /// [requiredActions].
-DateTime calculateNextQuestionnaire(DateTime enrollmentDate, Set<RequiredAction> requiredActions) {
-  final bool _9MQuestionnairesCompleted = !requiredActions.any((RequiredAction a) =>
-    (a.type == RequiredActionType.ADHERENCE_QUESTIONNAIRE_9M_REQUIRED
-      || a.type == RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_9M_REQUIRED
-    )
-  );
-  final bool _5MQuestionnairesCompleted = !requiredActions.any((RequiredAction a) =>
-    (a.type == RequiredActionType.ADHERENCE_QUESTIONNAIRE_5M_REQUIRED
-      || a.type == RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_5M_REQUIRED
-    )
-  );
-  final bool _2P5MQuestionnairesCompleted = !requiredActions.any((RequiredAction a) =>
-    a.type == RequiredActionType.ADHERENCE_QUESTIONNAIRE_2P5M_REQUIRED
-  );
+DateTime calculateNextQuestionnaire(
+    DateTime enrollmentDate, Set<RequiredAction> requiredActions) {
+  final bool _9MQuestionnairesCompleted = !requiredActions.any(
+      (RequiredAction a) => (a.type ==
+              RequiredActionType.ADHERENCE_QUESTIONNAIRE_9M_REQUIRED ||
+          a.type ==
+              RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_9M_REQUIRED));
+  final bool _5MQuestionnairesCompleted = !requiredActions.any(
+      (RequiredAction a) => (a.type ==
+              RequiredActionType.ADHERENCE_QUESTIONNAIRE_5M_REQUIRED ||
+          a.type ==
+              RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_5M_REQUIRED));
+  final bool _2P5MQuestionnairesCompleted = !requiredActions.any(
+      (RequiredAction a) =>
+          a.type == RequiredActionType.ADHERENCE_QUESTIONNAIRE_2P5M_REQUIRED);
   DateTime nextDate;
   if (!_9MQuestionnairesCompleted) {
     DateTime nineMonthsAfter = addMonths(enrollmentDate, 9);
@@ -426,7 +451,8 @@ DateTime calculateNextQuestionnaire(DateTime enrollmentDate, Set<RequiredAction>
     nextDate = fiveMonthsAfter;
   }
   if (!_2P5MQuestionnairesCompleted) {
-    DateTime twoAndAHalfMonthsAfter = addMonths(enrollmentDate, 2, addHalfMonth: true);
+    DateTime twoAndAHalfMonthsAfter =
+        addMonths(enrollmentDate, 2, addHalfMonth: true);
     nextDate = twoAndAHalfMonthsAfter;
   }
   return nextDate;
@@ -441,7 +467,8 @@ DateTime calculateNextQuestionnaire(DateTime enrollmentDate, Set<RequiredAction>
 /// @param [addHalfMonth] If true, 15 days (two weeks) will be added to the date
 /// additionally.
 DateTime addMonths(DateTime date, int monthsToAdd, {bool addHalfMonth: false}) {
-  return DateTime(date.year, date.month + monthsToAdd, addHalfMonth ? date.day + 15 : date.day);
+  return DateTime(date.year, date.month + monthsToAdd,
+      addHalfMonth ? date.day + 15 : date.day);
 }
 
 /// Updates the date of the last successful backup to now (local time).
@@ -456,15 +483,18 @@ Future<void> storeLatestBackupInSharedPrefs() async {
 /// fetch date.
 Future<void> storeLatestViralLoadFetchInSharedPrefs(String patientART) async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  prefs.setString('${LAST_SUCCESSFUL_VL_FETCH_KEY}_$patientART', DateTime.now().toIso8601String());
+  prefs.setString('${LAST_SUCCESSFUL_VL_FETCH_KEY}_$patientART',
+      DateTime.now().toIso8601String());
 }
 
 /// Gets the date of the last successful viral load fetch for the patient with
 /// ART number [patientART]. Returns `null` if no date has been stored for this
 /// patient yet.
-Future<DateTime> getLatestViralLoadFetchFromSharedPrefs(String patientART) async {
+Future<DateTime> getLatestViralLoadFetchFromSharedPrefs(
+    String patientART) async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  final String dateTimeString = prefs.getString('${LAST_SUCCESSFUL_VL_FETCH_KEY}_$patientART');
+  final String dateTimeString =
+      prefs.getString('${LAST_SUCCESSFUL_VL_FETCH_KEY}_$patientART');
   return dateTimeString == null ? null : DateTime.parse(dateTimeString);
 }
 
@@ -473,7 +503,6 @@ Future<void> storeAppLastActiveInSharedPrefs() async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setString(LAST_APP_ACTIVE_KEY, DateTime.now().toIso8601String());
 }
-
 
 Future<DateTime> get appLastActive async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -522,7 +551,6 @@ void showErrorInPopup(e, StackTrace s, BuildContext context) {
   );
 }
 
-
 /// Returns true if the patient's most recent viral load is LTDL (lower than
 /// detectable limit) or suppressed.
 ///
@@ -545,7 +573,8 @@ Future<T> lockApp<T extends Object>(BuildContext context) {
     PageRouteBuilder<T>(
       opaque: false,
       settings: RouteSettings(name: '/lock'),
-      transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
+      transitionsBuilder: (BuildContext context, Animation<double> anim1,
+          Animation<double> anim2, Widget widget) {
         return FadeTransition(
           opacity: anim1,
           child: widget, // child is the value returned by pageBuilder
@@ -606,10 +635,12 @@ void sortViralLoads(List<ViralLoad> viralLoads) {
     if (b.dateOfBloodDraw.isBefore(a.dateOfBloodDraw)) {
       return 1;
     }
-    if (a.source == ViralLoadSource.MANUAL_INPUT() && b.source != ViralLoadSource.MANUAL_INPUT()) {
+    if (a.source == ViralLoadSource.MANUAL_INPUT() &&
+        b.source != ViralLoadSource.MANUAL_INPUT()) {
       return -1;
     }
-    if (a.source != ViralLoadSource.MANUAL_INPUT() && b.source == ViralLoadSource.MANUAL_INPUT()) {
+    if (a.source != ViralLoadSource.MANUAL_INPUT() &&
+        b.source == ViralLoadSource.MANUAL_INPUT()) {
       return 1;
     }
     return a.labNumber.compareTo(b.labNumber);
@@ -624,11 +655,14 @@ void sortViralLoads(List<ViralLoad> viralLoads) {
 /// @param [viralLoads] The viral loads in which to look for a match.
 ///
 /// @param [baselineVL] The baseline viral load for which to find a match.
-ViralLoad getMatchingBaselineViralLoad(List<ViralLoad> viralLoads, ViralLoad baselineVL) {
+ViralLoad getMatchingBaselineViralLoad(
+    List<ViralLoad> viralLoads, ViralLoad baselineVL) {
   ViralLoad result; // initialize the matching viral load
   for (ViralLoad vl in viralLoads) {
     // Check for a corresponding viral load with a different source
-    if ((vl.dateOfBloodDraw.compareTo(baselineVL.dateOfBloodDraw) == 0 || vl.labNumber == baselineVL.labNumber) && vl.source.code != baselineVL.source.code) {
+    if ((vl.dateOfBloodDraw.compareTo(baselineVL.dateOfBloodDraw) == 0 ||
+            vl.labNumber == baselineVL.labNumber) &&
+        vl.source.code != baselineVL.source.code) {
       if (result == null || result.createdDate.isBefore(vl.createdDate)) {
         result = vl;
       }
@@ -643,7 +677,8 @@ ViralLoad getMatchingBaselineViralLoad(List<ViralLoad> viralLoads, ViralLoad bas
 ///
 /// @param [testingEnabled] If set to true, the discrepancy will not be inserted
 /// into the SQLite database. This is useful for unit testing.
-Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnabled: false}) async {
+Future<bool> checkForViralLoadDiscrepancies(Patient patient,
+    {bool testingEnabled: false}) async {
   bool newDiscrepancyFound = false;
 
   List<ViralLoad> allViralLoadsForPatient = []; // List<ViralLoad>();
@@ -652,7 +687,11 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnable
   allViralLoadsForPatient.addAll(patient.viralLoads);
 
   // filter out failed viral loads and viral loads created after patient enrollment date
-  viralLoads = allViralLoadsForPatient.where((a) => a.dateOfBloodDraw.isBefore(patient.enrollmentDate) && a.failed == false).toList();
+  viralLoads = allViralLoadsForPatient
+      .where((a) =>
+          a.dateOfBloodDraw.isBefore(patient.enrollmentDate) &&
+          a.failed == false)
+      .toList();
 
   // sort the viral loads in descending order of date of blood draw (newest first)
   viralLoads.sort((ViralLoad a, ViralLoad b) {
@@ -670,7 +709,11 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnable
   }
 
   ViralLoad vlBaseline1 = viralLoads.first; // Get the baseline viral load
-  print(vlBaseline1.dateOfBloodDraw.toString() + " : " + vlBaseline1.viralLoad.toString() + " : " + vlBaseline1.labNumber);
+  print(vlBaseline1.dateOfBloodDraw.toString() +
+      " : " +
+      vlBaseline1.viralLoad.toString() +
+      " : " +
+      vlBaseline1.labNumber);
 
   // get the corresponding baseline viral load (manual or database)
   ViralLoad vlBaseline2 = getMatchingBaselineViralLoad(viralLoads, vlBaseline1);
@@ -681,39 +724,59 @@ Future<bool> checkForViralLoadDiscrepancies(Patient patient, {bool testingEnable
       newDiscrepancyFound = true;
     }
     vlBaseline1.discrepancy = true;
-    if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline1);
+    if (!testingEnabled)
+      DatabaseProvider().setViralLoadDiscrepancy(vlBaseline1);
   } else {
-    print(vlBaseline2.dateOfBloodDraw.toString() + " : " + vlBaseline2.viralLoad.toString() + " : " + vlBaseline2.labNumber);
+    print(vlBaseline2.dateOfBloodDraw.toString() +
+        " : " +
+        vlBaseline2.viralLoad.toString() +
+        " : " +
+        vlBaseline2.labNumber);
     // check if the viral loads differ in at least one of the following:
     // a) VL result (c/mL)
     // b) lab number
     // c) date of blood draw
-    if (vlBaseline2.viralLoad != vlBaseline1.viralLoad || vlBaseline2.dateOfBloodDraw.compareTo(vlBaseline1.dateOfBloodDraw) != 0 || vlBaseline2.labNumber != vlBaseline1.labNumber) {
-      if (!(vlBaseline1.discrepancy ?? false) || !(vlBaseline2.discrepancy ?? false)) {
+    if (vlBaseline2.viralLoad != vlBaseline1.viralLoad ||
+        vlBaseline2.dateOfBloodDraw.compareTo(vlBaseline1.dateOfBloodDraw) !=
+            0 ||
+        vlBaseline2.labNumber != vlBaseline1.labNumber) {
+      if (!(vlBaseline1.discrepancy ?? false) ||
+          !(vlBaseline2.discrepancy ?? false)) {
         newDiscrepancyFound = true;
       }
       vlBaseline1.discrepancy = true;
       vlBaseline2.discrepancy = true;
-      if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline1);
-      if (!testingEnabled) DatabaseProvider().setViralLoadDiscrepancy(vlBaseline2);
+      if (!testingEnabled)
+        DatabaseProvider().setViralLoadDiscrepancy(vlBaseline1);
+      if (!testingEnabled)
+        DatabaseProvider().setViralLoadDiscrepancy(vlBaseline2);
     }
   }
   if (newDiscrepancyFound && !testingEnabled) {
-    RequiredAction vlRequired = RequiredAction(patient.artNumber, RequiredActionType.VIRAL_LOAD_DISCREPANCY_WARNING, DateTime.fromMillisecondsSinceEpoch(0));
+    RequiredAction vlRequired = RequiredAction(
+        patient.artNumber,
+        RequiredActionType.VIRAL_LOAD_DISCREPANCY_WARNING,
+        DateTime.fromMillisecondsSinceEpoch(0));
     DatabaseProvider().insertRequiredAction(vlRequired);
     PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
-    showFlushbar('Please inform the study supervisor.', title: 'Viral Load Discrepancy Found', error: true);
+    showFlushbar('Please inform the study supervisor.',
+        title: 'Viral Load Discrepancy Found', error: true);
   }
   return newDiscrepancyFound;
 }
 
-String composeSMS({@required String message, @required String peName, @required String pePhone}) {
-  final String pePhoneNoSpecialChars = pePhone.replaceAll(RegExp(r'[^0-9]'), '');
-  final String pePhoneEightDigits = pePhoneNoSpecialChars.substring(pePhoneNoSpecialChars.length-8, pePhoneNoSpecialChars.length);
+String composeSMS(
+    {@required String message,
+    @required String peName,
+    @required String pePhone}) {
+  final String pePhoneNoSpecialChars =
+      pePhone.replaceAll(RegExp(r'[^0-9]'), '');
+  final String pePhoneEightDigits = pePhoneNoSpecialChars.substring(
+      pePhoneNoSpecialChars.length - 8, pePhoneNoSpecialChars.length);
   return "PEBRA\n\n"
-    "$message\n\n"
-    "Etsetsa call-back nomorong ena $peName, penya *140*$pePhoneEightDigits#"
-    " (VCL) kapa *181*$pePhoneEightDigits# (econet).";
+      "$message\n\n"
+      "Etsetsa call-back nomorong ena $peName, penya *140*$pePhoneEightDigits#"
+      " (VCL) kapa *181*$pePhoneEightDigits# (econet).";
 }
 
 Future<void> openKoboCollectApp() async {
@@ -725,36 +788,45 @@ Future<void> openKoboCollectApp() async {
   } else if (await canLaunch(marketUrl)) {
     await launch(marketUrl);
   } else {
-    showFlushbar("Make sure KoBoCollect is installed.", title: "KoBoCollect not Found", error: true);
+    showFlushbar("Make sure KoBoCollect is installed.",
+        title: "KoBoCollect not Found", error: true);
   }
 }
 
 /// Get patient_status from ARTRefillNotDoneReason code
 String getPatientStatus(int code) {
   switch (code) {
-    case 1: {
-      return 'dead';
-    }
-    case 2: {
-      return "";
-    }
-    case 3: {
-      return 'transferout';
-    }
-    case 4: {
-      return 'transferout';
-    }
-    case 5: {
-      return "";
-    }
-    case 6: {
-      return "";
-    }
-    case 7: {
-      return 'ltfu';
-    }
-    default: {
-      return "";
-    }
+    case 1:
+      {
+        return 'dead';
+      }
+    case 2:
+      {
+        return "";
+      }
+    case 3:
+      {
+        return 'transferout';
+      }
+    case 4:
+      {
+        return 'transferout';
+      }
+    case 5:
+      {
+        return "";
+      }
+    case 6:
+      {
+        return "";
+      }
+    case 7:
+      {
+        return 'ltfu';
+      }
+    default:
+      {
+        return "";
+      }
   }
 }

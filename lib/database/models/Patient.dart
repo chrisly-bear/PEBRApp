@@ -13,7 +13,6 @@ import 'package:pebrapp/database/models/UserData.dart';
 import 'package:pebrapp/database/models/PreferenceAssessment.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
-
 class Patient implements IExcelExportable {
   static final tableName = 'Patient';
 
@@ -65,15 +64,26 @@ class Patient implements IExcelExportable {
   Set<RequiredAction> requiredActions = {};
   Set<RequiredAction> dueRequiredActionsAtInitialization = {};
 
-
   // Constructors
   // ------------
 
-  Patient({this.enrollmentDate, this.artNumber, this.stickerNumber,
-    this.birthday, this.isEligible, this.isVLBaselineAvailable, this.gender,
-    this.sexualOrientation, this.village, this.phoneAvailability,
-    this.phoneNumber, this.consentGiven, this.noConsentReason,
-    this.noConsentReasonOther, this.isActivated, this.isDuplicate});
+  Patient(
+      {this.enrollmentDate,
+      this.artNumber,
+      this.stickerNumber,
+      this.birthday,
+      this.isEligible,
+      this.isVLBaselineAvailable,
+      this.gender,
+      this.sexualOrientation,
+      this.village,
+      this.phoneAvailability,
+      this.phoneNumber,
+      this.consentGiven,
+      this.noConsentReason,
+      this.noConsentReasonOther,
+      this.isActivated,
+      this.isDuplicate});
 
   Patient.fromMap(map) {
     this.createdDate = DateTime.parse(map[colCreatedDate]);
@@ -87,9 +97,11 @@ class Patient implements IExcelExportable {
       this.isVLBaselineAvailable = map[colIsVLBaselineAvailable] == 1;
     }
     this.gender = Gender.fromCode(map[colGender]);
-    this.sexualOrientation = SexualOrientation.fromCode(map[colSexualOrientation]);
+    this.sexualOrientation =
+        SexualOrientation.fromCode(map[colSexualOrientation]);
     this.village = map[colVillage];
-    this.phoneAvailability = PhoneAvailability.fromCode(map[colPhoneAvailability]);
+    this.phoneAvailability =
+        PhoneAvailability.fromCode(map[colPhoneAvailability]);
     this.phoneNumber = map[colPhoneNumber];
     if (map[colConsentGiven] != null) {
       this.consentGiven = map[colConsentGiven] == 1;
@@ -103,7 +115,6 @@ class Patient implements IExcelExportable {
       this.isDuplicate = map[colIsDuplicate] == 1;
     }
   }
-
 
   // Other
   // -----
@@ -190,21 +201,25 @@ class Patient implements IExcelExportable {
 
   /// Initializes the field [viralLoads] with the latest data from the database.
   Future<void> initializeViralLoadsField() async {
-    this.viralLoads = await DatabaseProvider().retrieveViralLoadsForPatient(artNumber);
+    this.viralLoads =
+        await DatabaseProvider().retrieveViralLoadsForPatient(artNumber);
   }
 
   /// Initializes the field [latestPreferenceAssessment] with the latest data from the database.
   Future<void> initializePreferenceAssessmentField() async {
-    PreferenceAssessment pa = await DatabaseProvider().retrieveLatestPreferenceAssessmentForPatient(artNumber);
+    PreferenceAssessment pa = await DatabaseProvider()
+        .retrieveLatestPreferenceAssessmentForPatient(artNumber);
     this.latestPreferenceAssessment = pa;
   }
 
   /// Initializes the fields [latestARTRefill] and [latestDoneARTRefill] with
   /// the latest data from the database.
   Future<void> initializeARTRefillField() async {
-    ARTRefill artRefill = await DatabaseProvider().retrieveLatestARTRefillForPatient(artNumber);
+    ARTRefill artRefill =
+        await DatabaseProvider().retrieveLatestARTRefillForPatient(artNumber);
     this.latestARTRefill = artRefill;
-    ARTRefill doneARTRefill = await DatabaseProvider().retrieveLatestDoneARTRefillForPatient(artNumber);
+    ARTRefill doneARTRefill = await DatabaseProvider()
+        .retrieveLatestDoneARTRefillForPatient(artNumber);
     this.latestDoneARTRefill = doneARTRefill;
   }
 
@@ -216,18 +231,24 @@ class Patient implements IExcelExportable {
   /// initialized (null).
   Future<void> initializeRequiredActionsField() async {
     // get required actions stored in database
-    final Set<RequiredAction> actions = await DatabaseProvider().retrieveRequiredActionsForPatient(artNumber);
+    final Set<RequiredAction> actions =
+        await DatabaseProvider().retrieveRequiredActionsForPatient(artNumber);
     final DateTime now = DateTime.now();
     // calculate if ART refill is required
-    final DateTime dueDateART = latestDoneARTRefill?.nextRefillDate ?? enrollmentDate;
+    final DateTime dueDateART =
+        latestDoneARTRefill?.nextRefillDate ?? enrollmentDate;
     if (now.isAfter(dueDateART)) {
-      RequiredAction artRefillRequired = RequiredAction(artNumber, RequiredActionType.REFILL_REQUIRED, dueDateART);
+      RequiredAction artRefillRequired = RequiredAction(
+          artNumber, RequiredActionType.REFILL_REQUIRED, dueDateART);
       actions.add(artRefillRequired);
     }
     // calculate if preference assessment is required
-    final DateTime dueDatePA = calculateNextAssessment(latestPreferenceAssessment?.createdDate, isSuppressed(this)) ?? enrollmentDate;
+    final DateTime dueDatePA = calculateNextAssessment(
+            latestPreferenceAssessment?.createdDate, isSuppressed(this)) ??
+        enrollmentDate;
     if (now.isAfter(dueDatePA)) {
-      RequiredAction assessmentRequired = RequiredAction(artNumber, RequiredActionType.ASSESSMENT_REQUIRED, dueDatePA);
+      RequiredAction assessmentRequired = RequiredAction(
+          artNumber, RequiredActionType.ASSESSMENT_REQUIRED, dueDatePA);
       actions.add(assessmentRequired);
     }
     this.requiredActions = actions;
@@ -242,7 +263,8 @@ class Patient implements IExcelExportable {
   ViralLoad get mostRecentViralLoad {
     ViralLoad mostRecent;
     for (ViralLoad vl in viralLoads) {
-      if (mostRecent == null || !vl.createdDate.isBefore(mostRecent.createdDate)) {
+      if (mostRecent == null ||
+          !vl.createdDate.isBefore(mostRecent.createdDate)) {
         mostRecent = vl;
       }
     }
@@ -275,7 +297,8 @@ class Patient implements IExcelExportable {
         this.noConsentReasonOther = null;
       }
     }
-    if (this.phoneAvailability != null && this.phoneAvailability != PhoneAvailability.YES()) {
+    if (this.phoneAvailability != null &&
+        this.phoneAvailability != PhoneAvailability.YES()) {
       this.phoneNumber = null;
     }
     if (this.consentGiven != null && this.consentGiven) {
@@ -298,10 +321,13 @@ class Patient implements IExcelExportable {
     final DateTime now = DateTime.now();
     Set<RequiredAction> visibleRequiredActions = {};
     visibleRequiredActions.addAll(requiredActions);
-    visibleRequiredActions.removeWhere((RequiredAction a) => a.dueDate.isAfter(now));
+    visibleRequiredActions
+        .removeWhere((RequiredAction a) => a.dueDate.isAfter(now));
     if (userData != null && userData.healthCenter.studyArm == 2) {
-      visibleRequiredActions.removeWhere((RequiredAction a) => a.type == RequiredActionType.REFILL_REQUIRED);
-      visibleRequiredActions.removeWhere((RequiredAction a) => a.type == RequiredActionType.ASSESSMENT_REQUIRED);
+      visibleRequiredActions.removeWhere(
+          (RequiredAction a) => a.type == RequiredActionType.REFILL_REQUIRED);
+      visibleRequiredActions.removeWhere((RequiredAction a) =>
+          a.type == RequiredActionType.ASSESSMENT_REQUIRED);
     }
     return visibleRequiredActions;
   }
@@ -314,5 +340,4 @@ class Patient implements IExcelExportable {
     }
     sortViralLoads(viralLoads);
   }
-
 }

@@ -1,6 +1,4 @@
-
 class SupportOption {
-
   // Class Variables
   // ---------------
 
@@ -37,9 +35,12 @@ class SupportOption {
     _SupportOption.CONDOM_DEMO: "Condom demonstration",
     _SupportOption.CONTRACEPTIVES_INFO: "More information about contraceptives",
     _SupportOption.VMMC_INFO: "More information about VMMC",
-    _SupportOption.YOUNG_MOTHERS_GROUP: "Linkage to young mothers group (DREAMS or Mothers-to-Mothers)",
-    _SupportOption.FEMALE_WORTH_GROUP: "Linkage to a female WORTH group (Social Asset Building Model)",
-    _SupportOption.LEGAL_AID_INFO: "More information about gender-based violence / legal aid",
+    _SupportOption.YOUNG_MOTHERS_GROUP:
+        "Linkage to young mothers group (DREAMS or Mothers-to-Mothers)",
+    _SupportOption.FEMALE_WORTH_GROUP:
+        "Linkage to a female WORTH group (Social Asset Building Model)",
+    _SupportOption.LEGAL_AID_INFO:
+        "More information about gender-based violence / legal aid",
     _SupportOption.NONE: "No support wished",
   };
 
@@ -111,7 +112,8 @@ class SupportOption {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
-    final _SupportOption option = _encoding.entries.firstWhere((MapEntry<_SupportOption, int> entry) {
+    final _SupportOption option =
+        _encoding.entries.firstWhere((MapEntry<_SupportOption, int> entry) {
       return entry.value == code;
     }).key;
     SupportOption object = SupportOption._();
@@ -131,28 +133,27 @@ class SupportOption {
   int get hashCode => _option.hashCode;
 
   static List<SupportOption> get allValues => [
-    SupportOption.NURSE_CLINIC(),
-    SupportOption.SATURDAY_CLINIC_CLUB(),
-    SupportOption.COMMUNITY_YOUTH_CLUB(),
-    SupportOption.PHONE_CALL_PE(),
-    SupportOption.HOME_VISIT_PE(),
-    SupportOption.SCHOOL_VISIT_PE(),
-    SupportOption.PITSO_VISIT_PE(),
-    SupportOption.CONDOM_DEMO(),
-    SupportOption.CONTRACEPTIVES_INFO(),
-    SupportOption.VMMC_INFO(),
-    SupportOption.YOUNG_MOTHERS_GROUP(),
-    SupportOption.FEMALE_WORTH_GROUP(),
-    SupportOption.LEGAL_AID_INFO(),
-    SupportOption.NONE(),
-  ];
+        SupportOption.NURSE_CLINIC(),
+        SupportOption.SATURDAY_CLINIC_CLUB(),
+        SupportOption.COMMUNITY_YOUTH_CLUB(),
+        SupportOption.PHONE_CALL_PE(),
+        SupportOption.HOME_VISIT_PE(),
+        SupportOption.SCHOOL_VISIT_PE(),
+        SupportOption.PITSO_VISIT_PE(),
+        SupportOption.CONDOM_DEMO(),
+        SupportOption.CONTRACEPTIVES_INFO(),
+        SupportOption.VMMC_INFO(),
+        SupportOption.YOUNG_MOTHERS_GROUP(),
+        SupportOption.FEMALE_WORTH_GROUP(),
+        SupportOption.LEGAL_AID_INFO(),
+        SupportOption.NONE(),
+      ];
 
   /// Returns the text description of this message.
   String get description => _description[_option];
 
   /// Returns the code that represents this message.
   int get code => _encoding[_option];
-
 }
 
 enum _SupportOption {

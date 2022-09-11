@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 
 class PEBRAButtonFlat extends StatelessWidget {
-
   final String _buttonText;
   final onPressed;
   final Widget widget;
@@ -12,7 +11,9 @@ class PEBRAButtonFlat extends StatelessWidget {
   /// If `onPressed` is null then the button is painted gray to show that it's
   /// deactivated. If a `widget` is passed, the `_buttonText` is ignored and the
   /// `widget` is displayed instead.
-  const PEBRAButtonFlat(this._buttonText, {this.onPressed, this.widget, this.minWidth, this.maxWidth}) : super();
+  const PEBRAButtonFlat(this._buttonText,
+      {this.onPressed, this.widget, this.minWidth, this.maxWidth})
+      : super();
 
   @override
   Widget build(BuildContext context) {
@@ -24,14 +25,14 @@ class PEBRAButtonFlat extends StatelessWidget {
       ),
       child: FlatButton(
         onPressed: this.onPressed,
-        child: widget != null ? widget : Text(
-          this._buttonText.toUpperCase(),
-          style: TextStyle(
-            color: this.onPressed == null
-                ? BUTTON_INACTIVE
-                : FLAT_BUTTON,
-          ),
-        ),
+        child: widget != null
+            ? widget
+            : Text(
+                this._buttonText.toUpperCase(),
+                style: TextStyle(
+                  color: this.onPressed == null ? BUTTON_INACTIVE : FLAT_BUTTON,
+                ),
+              ),
       ),
     );
   }

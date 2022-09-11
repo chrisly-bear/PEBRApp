@@ -1,6 +1,4 @@
-
 class NoConsentReason {
-
   // Class Variables
   // ---------------
 
@@ -51,7 +49,8 @@ class NoConsentReason {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
-    final _Reason reason = _encoding.entries.firstWhere((MapEntry<_Reason, int> entry) {
+    final _Reason reason =
+        _encoding.entries.firstWhere((MapEntry<_Reason, int> entry) {
       return entry.value == code;
     }).key;
     NoConsentReason object = NoConsentReason._();
@@ -71,18 +70,17 @@ class NoConsentReason {
   int get hashCode => _reason.hashCode;
 
   static List<NoConsentReason> get allValues => [
-    NoConsentReason.NO_TIME(),
-    NoConsentReason.NO_INTEREST(),
-    NoConsentReason.MISTRUST(),
-    NoConsentReason.OTHER(),
-  ];
+        NoConsentReason.NO_TIME(),
+        NoConsentReason.NO_INTEREST(),
+        NoConsentReason.MISTRUST(),
+        NoConsentReason.OTHER(),
+      ];
 
   /// Returns the text description of this reason.
   String get description => _description[_reason];
 
   /// Returns the code that represents this reason.
   int get code => _encoding[_reason];
-
 }
 
 enum _Reason { NO_TIME, NO_INTEREST, MISTRUST, OTHER }

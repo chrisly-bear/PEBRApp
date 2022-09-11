@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:pebrapp/components/PEBRAButtonRaised.dart';
 import 'package:pebrapp/components/PopupScreen.dart';
@@ -22,7 +21,9 @@ class _LockScreenState extends State<LockScreen> {
     DatabaseProvider().retrieveLatestUserData().then((UserData loginData) {
       loginData.pinCodeHash.then((String storedPINCodeHash) {
         _storedPINHash = storedPINCodeHash;
-        setState(() { this._isLoading = false; });
+        setState(() {
+          this._isLoading = false;
+        });
       });
     });
   }
@@ -54,7 +55,6 @@ class _LockScreenState extends State<LockScreen> {
         child: LockScreenBody(_storedPINHash),
       ),
     );
-
   }
 }
 
@@ -90,7 +90,6 @@ class _LockScreenBodyState extends State<LockScreenBody> {
   }
 
   _formBlock() {
-
     Widget pinCodeField() {
       return TextFormField(
         decoration: InputDecoration(
@@ -106,7 +105,8 @@ class _LockScreenBodyState extends State<LockScreenBody> {
     return Column(
       children: <Widget>[
         SizedBox(height: 25.0),
-        Text('App Locked', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0)),
+        Text('App Locked',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0)),
         SizedBox(height: 20.0),
         Text('Please enter your PIN code:'),
         Card(
@@ -117,15 +117,26 @@ class _LockScreenBodyState extends State<LockScreenBody> {
           ),
         ),
         _errorMessage.isEmpty
-          ? SizedBox()
-          : Padding(
-              padding: const EdgeInsets.only(bottom: 15.0),
-              child: Text(_errorMessage, style: TextStyle(color: Colors.red, fontSize: 13.0, fontWeight: FontWeight.w400),
+            ? SizedBox()
+            : Padding(
+                padding: const EdgeInsets.only(bottom: 15.0),
+                child: Text(
+                  _errorMessage,
+                  style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 13.0,
+                      fontWeight: FontWeight.w400),
+                ),
               ),
-        ),
         PEBRAButtonRaised(
           'Unlock',
-          widget: _isLoading ? SizedBox(height: 15.0, width: 15.0, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))) : null,
+          widget: _isLoading
+              ? SizedBox(
+                  height: 15.0,
+                  width: 15.0,
+                  child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
+              : null,
           onPressed: _isLoading ? null : _onSubmitPINCodeForm,
         ),
         SizedBox(height: 20.0),

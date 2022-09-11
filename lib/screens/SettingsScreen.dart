@@ -61,7 +61,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     DatabaseProvider().retrieveLatestUserData().then((UserData loginData) {
       this._loginData = loginData;
       this._phoneUploadRequired = loginData?.phoneNumberUploadRequired ?? false;
-      setState(() {this._isLoading = false;});
+      setState(() {
+        this._isLoading = false;
+      });
     });
     latestBackupFromSharedPrefs.then((DateTime value) {
       setState(() {
@@ -69,11 +71,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
       });
     });
 
-    _appStateStream = PatientBloc.instance.appState.listen( (streamEvent) {
+    _appStateStream = PatientBloc.instance.appState.listen((streamEvent) {
       if (streamEvent is AppStateSettingsRequiredActionData) {
-        if (this._phoneUploadRequired == streamEvent.isDone) { // only do something if the state has changed
-          shouldAnimateRequiredActionContainer = streamEvent.isDone ? AnimateDirection.BACKWARD : AnimateDirection.FORWARD;
-          this._phoneUploadRequired = true; // set to true so that the required action is rendered
+        if (this._phoneUploadRequired == streamEvent.isDone) {
+          // only do something if the state has changed
+          shouldAnimateRequiredActionContainer = streamEvent.isDone
+              ? AnimateDirection.BACKWARD
+              : AnimateDirection.FORWARD;
+          this._phoneUploadRequired =
+              true; // set to true so that the required action is rendered
           setState(() {}); // trigger the build and thus the animation
         } else {
           // nothing's changed, do not animate
@@ -85,7 +91,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     if (_isLoading) {
       print('~~~ LOADING SCREEN ~~~');
       return PopupScreen(
@@ -94,7 +99,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           padding: EdgeInsets.all(20.0),
           child: Center(
             child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(SPINNER_SETTINGS_SCREEN),
+              valueColor:
+                  AlwaysStoppedAnimation<Color>(SPINNER_SETTINGS_SCREEN),
             ),
           ),
         ),
@@ -114,9 +120,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return PopupScreen(
       title: 'Settings',
       child: _settingsBody,
-      actions: [IconButton(icon: Icon(Icons.close), onPressed: () { Navigator.of(context).popUntil(ModalRoute.withName('/')); })],
+      actions: [
+        IconButton(
+            icon: Icon(Icons.close),
+            onPressed: () {
+              Navigator.of(context).popUntil(ModalRoute.withName('/'));
+            })
+      ],
     );
-
   }
 
   @override
@@ -124,7 +135,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _appStateStream.cancel();
     super.dispose();
   }
-
 
   /*
    * SETTINGS BODY
@@ -162,19 +172,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildRequiredActions() {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
-      child: !_phoneUploadRequired ? null : RequiredActionContainerPEPhoneNumberUpload(
-        _loginData.phoneNumber,
-        animateDirection: shouldAnimateRequiredActionContainer,
-        onAnimated: () {
-            if (shouldAnimateRequiredActionContainer == AnimateDirection.BACKWARD) {
-              // if we animate the required action back make sure that it stays
-              // hidden after the animation
-              setState(() {
-                this._phoneUploadRequired = false;
-              });
-            }
-        },
-      ),
+      child: !_phoneUploadRequired
+          ? null
+          : RequiredActionContainerPEPhoneNumberUpload(
+              _loginData.phoneNumber,
+              animateDirection: shouldAnimateRequiredActionContainer,
+              onAnimated: () {
+                if (shouldAnimateRequiredActionContainer ==
+                    AnimateDirection.BACKWARD) {
+                  // if we animate the required action back make sure that it stays
+                  // hidden after the animation
+                  setState(() {
+                    this._phoneUploadRequired = false;
+                  });
+                }
+              },
+            ),
     );
   }
 
@@ -184,18 +197,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
       children: <Widget>[
         _buildRequiredActions(),
         _buildUserDataCard(),
-        PEBRAButtonFlat('Change Phone Number', onPressed: _isLoadingSettingsBody ? null : () { _onPressChangePhoneNumberButton(context); },),
+        PEBRAButtonFlat(
+          'Change Phone Number',
+          onPressed: _isLoadingSettingsBody
+              ? null
+              : () {
+                  _onPressChangePhoneNumberButton(context);
+                },
+        ),
         SizedBox(height: _spacing),
-        PEBRAButtonRaised('Start Upload', onPressed: _isLoadingSettingsBody ? null : () {_onPressBackupButton(context);},),
+        PEBRAButtonRaised(
+          'Start Upload',
+          onPressed: _isLoadingSettingsBody
+              ? null
+              : () {
+                  _onPressBackupButton(context);
+                },
+        ),
         SizedBox(height: 10.0),
         Container(
           height: 40,
           child: Column(
-              mainAxisAlignment: _isLoadingSettingsBody ? MainAxisAlignment.center : MainAxisAlignment.start,
-              children: _isLoadingSettingsBody ? [SizedBox(width: 15.0, height: 15.0, child: CircularProgressIndicator())] : [
-                Text("last upload:"),
-                Text(lastBackup),
-              ]),
+              mainAxisAlignment: _isLoadingSettingsBody
+                  ? MainAxisAlignment.center
+                  : MainAxisAlignment.start,
+              children: _isLoadingSettingsBody
+                  ? [
+                      SizedBox(
+                          width: 15.0,
+                          height: 15.0,
+                          child: CircularProgressIndicator())
+                    ]
+                  : [
+                      Text("last upload:"),
+                      Text(lastBackup),
+                    ]),
         ),
         SizedBox(height: _spacing),
         PEBRAButtonRaised('Logout', onPressed: _onPressLogout),
@@ -204,7 +240,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         SizedBox(height: 5.0),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 25.0),
-          child: Text('Use this option if you want to keep the participant data on the device but change the user.', textAlign: TextAlign.center,),
+          child: Text(
+            'Use this option if you want to keep the participant data on the device but change the user.',
+            textAlign: TextAlign.center,
+          ),
         ),
         SizedBox(height: _spacing),
       ],
@@ -212,9 +251,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   _onPressChangePhoneNumberButton(BuildContext context) async {
-    final String newNumber = await showDialog(context: context, builder: ((BuildContext context) {
-      return ChangePhoneNumberScreen();
-    }));
+    final String newNumber = await showDialog(
+        context: context,
+        builder: ((BuildContext context) {
+          return ChangePhoneNumberScreen();
+        }));
     if (newNumber != null) {
       setState(() {
         _loginData.phoneNumber = newNumber;
@@ -234,7 +275,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     String title;
     bool error = false;
     VoidCallback onNotificationButtonPress;
-    setState(() { _isLoadingSettingsBody = true; });
+    setState(() {
+      _isLoadingSettingsBody = true;
+    });
     try {
       await DatabaseProvider().createAdditionalBackupOnServer(_loginData);
       setState(() {
@@ -244,10 +287,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       error = true;
       title = 'Upload Failed';
       switch (e.runtimeType) {
-      // case NoLoginDataException should never occur because we don't show
-      // the backup button when the user is not logged in
+        // case NoLoginDataException should never occur because we don't show
+        // the backup button when the user is not logged in
         case PebraCloudAuthFailedException:
-          message = 'PEBRAcloud authentication failed. Contact the development team.';
+          message =
+              'PEBRAcloud authentication failed. Contact the development team.';
           break;
         case SocketException:
           message = 'Make sure you are connected to the internet.';
@@ -261,8 +305,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           };
       }
     }
-    setState(() { _isLoadingSettingsBody = false; });
-    showFlushbar(message, title: title, error: error, onButtonPress: onNotificationButtonPress);
+    setState(() {
+      _isLoadingSettingsBody = false;
+    });
+    showFlushbar(message,
+        title: title, error: error, onButtonPress: onNotificationButtonPress);
   }
 
   Future<String> _setNewPIN(String username, BuildContext context) async {
@@ -270,7 +317,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       PageRouteBuilder<String>(
         settings: RouteSettings(name: '/new-pin'),
         opaque: false,
-        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
+        transitionsBuilder: (BuildContext context, Animation<double> anim1,
+            Animation<double> anim2, Widget widget) {
           return FadeTransition(
             opacity: anim1,
             child: widget,
@@ -351,14 +399,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-
-
 /*
  * LOGIN BODY
  */
 
   Widget get _loginBody {
-
     return Form(
       key: _createAccountMode ? _createAccountFormKey : _loginFormKey,
       child: Column(
@@ -418,7 +463,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             }
             return null;
           },
-          items: HealthCenter.allValues.map<DropdownMenuItem<HealthCenter>>((HealthCenter value) {
+          items: HealthCenter.allValues
+              .map<DropdownMenuItem<HealthCenter>>((HealthCenter value) {
             return DropdownMenuItem<HealthCenter>(
               value: value,
               child: Text(value.description),
@@ -448,7 +494,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       children: <Widget>[
         Padding(
           padding: EdgeInsets.only(top: 25.0, bottom: 10.0),
-          child: Text(_createAccountMode ? 'Create Account' : 'Login', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0),),
+          child: Text(
+            _createAccountMode ? 'Create Account' : 'Login',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0),
+          ),
         ),
         Card(
           margin: EdgeInsets.all(20),
@@ -460,7 +509,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   autocorrect: false,
                   decoration: InputDecoration(
                     labelText: 'Username',
-                    helperText: _createAccountMode ? 'allowed (max. 12 symbols): lower case letters, numbers, "-"' : null,
+                    helperText: _createAccountMode
+                        ? 'allowed (max. 12 symbols): lower case letters, numbers, "-"'
+                        : null,
                   ),
                   textAlign: TextAlign.center,
                   controller: _usernameCtr,
@@ -490,7 +541,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                   validator: (value) {
                     if (value.isEmpty) {
-                      return _createAccountMode ? 'Please enter a PIN code' : 'Please enter your PIN code';
+                      return _createAccountMode
+                          ? 'Please enter a PIN code'
+                          : 'Please enter your PIN code';
                     } else if (value.length < 4) {
                       return 'At least 4 digits required';
                     }
@@ -507,18 +560,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: PEBRAButtonRaised(
               _createAccountMode ? 'Create Account' : 'Login',
               widget: _isLoadingLoginBody
-                  ? SizedBox(height: 15.0, width: 15.0, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(SPINNER_SETTINGS_SCREEN))) : null,
-              onPressed: _isLoadingLoginBody ? null : (_createAccountMode
-                  ? _onSubmitCreateAccountForm
-                  : _onSubmitLoginForm),
+                  ? SizedBox(
+                      height: 15.0,
+                      width: 15.0,
+                      child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              SPINNER_SETTINGS_SCREEN)))
+                  : null,
+              onPressed: _isLoadingLoginBody
+                  ? null
+                  : (_createAccountMode
+                      ? _onSubmitCreateAccountForm
+                      : _onSubmitLoginForm),
             ),
           ),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 25.0),
-          child: Text(_createAccountMode
-              ? 'Creating an account will store the name and health center on the server.'
-              : 'Logging in will replace all data on this device with the data from the latest upload.',
+          child: Text(
+            _createAccountMode
+                ? 'Creating an account will store the name and health center on the server.'
+                : 'Logging in will replace all data on this device with the data from the latest upload.',
             textAlign: TextAlign.center,
           ),
         ),
@@ -553,7 +615,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       bool error = false;
       bool showNotification = false;
       VoidCallback onNotificationButtonPress;
-      setState(() { _isLoadingLoginBody = true; });
+      setState(() {
+        _isLoadingLoginBody = true;
+      });
       final String username = _usernameCtr.text;
       String pinCodeHash = hash(_pinCtr.text);
       bool retry = true;
@@ -578,19 +642,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
           error = true;
           title = 'Login Failed';
           switch (e.runtimeType) {
-          // NoLoginDataException case should never occur because we create the
-          // LoginData object at the beginning of this method
+            // NoLoginDataException case should never occur because we create the
+            // LoginData object at the beginning of this method
             case SocketException:
               notificationMessage =
-              'Make sure you are connected to the internet.';
+                  'Make sure you are connected to the internet.';
               break;
             case PebraCloudAuthFailedException:
               notificationMessage =
-              'PEBRAcloud authentication failed. Contact the development team.';
+                  'PEBRAcloud authentication failed. Contact the development team.';
               break;
             case BackupNotFoundException:
               notificationMessage =
-              'No data found for user \'$username\'. Check your login data or create a new account.';
+                  'No data found for user \'$username\'. Check your login data or create a new account.';
               break;
             case InvalidPINException:
               notificationMessage = 'Invalid PIN Code.';
@@ -611,7 +675,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               break;
             default:
               notificationMessage =
-              'An unknown error occured. Contact the development team.';
+                  'An unknown error occured. Contact the development team.';
               print('${e.runtimeType}: $e');
               print(s);
               onNotificationButtonPress = () {
@@ -620,9 +684,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           }
         }
       }
-      setState(() { _isLoadingLoginBody = false; });
+      setState(() {
+        _isLoadingLoginBody = false;
+      });
       if (showNotification) {
-        showFlushbar(notificationMessage, title: title,
+        showFlushbar(notificationMessage,
+            title: title,
             error: error,
             onButtonPress: onNotificationButtonPress);
       }
@@ -636,7 +703,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       String title = 'Error Creating Account';
       bool error = true;
       VoidCallback onNotificationButtonPress;
-      setState(() { _isLoadingLoginBody = true; });
+      setState(() {
+        _isLoadingLoginBody = true;
+      });
       _userData.username = _usernameCtr.text;
       _userData.firstName = _firstNameCtr.text;
       _userData.lastName = _lastNameCtr.text;
@@ -647,25 +716,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
       try {
         final bool userExists = await existsBackupForUser(_userData.username);
         if (userExists) {
-          notificationMessage = 'User \'${_userData.username}\' already exists.';
+          notificationMessage =
+              'User \'${_userData.username}\' already exists.';
         } else {
-          await DatabaseProvider().createFirstBackupOnServer(_userData, pinCodeHash);
+          await DatabaseProvider()
+              .createFirstBackupOnServer(_userData, pinCodeHash);
           title = 'Account Created';
-          notificationMessage = 'You are logged in as \'${_userData.username}\.';
+          notificationMessage =
+              'You are logged in as \'${_userData.username}\.';
           error = false;
         }
       } catch (e, s) {
         switch (e.runtimeType) {
-        // case NoLoginDataException should never occur because we create the
-        // loginData object at the beginning of this method
+          // case NoLoginDataException should never occur because we create the
+          // loginData object at the beginning of this method
           case SocketException:
-            notificationMessage = 'Make sure you are connected to the internet.';
+            notificationMessage =
+                'Make sure you are connected to the internet.';
             break;
           case PebraCloudAuthFailedException:
-            notificationMessage = 'PEBRAcloud authentication failed. Contact the development team.';
+            notificationMessage =
+                'PEBRAcloud authentication failed. Contact the development team.';
             break;
           default:
-            notificationMessage = 'An unknown error occured. Contact the development team.';
+            notificationMessage =
+                'An unknown error occured. Contact the development team.';
             print('${e.runtimeType}: $e');
             print(s);
             onNotificationButtonPress = () {
@@ -673,7 +748,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             };
         }
       }
-      setState(() { _isLoadingLoginBody = false; });
+      setState(() {
+        _isLoadingLoginBody = false;
+      });
       if (!error) {
         //Navigator.of(context).popUntil(ModalRoute.withName('/'));
         Navigator.of(context, rootNavigator: true).push(
@@ -685,8 +762,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         );
       }
-      showFlushbar(notificationMessage, title: title, error: error, onButtonPress: onNotificationButtonPress);
+      showFlushbar(notificationMessage,
+          title: title, error: error, onButtonPress: onNotificationButtonPress);
     }
   }
-
 }

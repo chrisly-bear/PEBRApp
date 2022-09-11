@@ -1,6 +1,4 @@
-
 class ARTRefillNotDoneReason {
-
   // Class Variables
   // ---------------
 
@@ -22,10 +20,13 @@ class ARTRefillNotDoneReason {
   static const Map<_Reason, String> _description = {
     _Reason.PATIENT_DIED: "Participant Died",
     _Reason.PATIENT_HOSPITALIZED: "Participant is Hospitalized",
-    _Reason.ART_FROM_OTHER_CLINIC_LESOTHO: "Participant gets ART from another clinic in Lesotho",
-    _Reason.ART_FROM_OTHER_CLINIC_SA: "Participant gets ART from another clinic in South Africa",
+    _Reason.ART_FROM_OTHER_CLINIC_LESOTHO:
+        "Participant gets ART from another clinic in Lesotho",
+    _Reason.ART_FROM_OTHER_CLINIC_SA:
+        "Participant gets ART from another clinic in South Africa",
     _Reason.NOT_TAKING_ART_ANYMORE: "Participant does not take ART anymore",
-    _Reason.STOCK_OUT_OR_FAILED_DELIVERY: "ART stock out or PE or VHW failed to deliver ART to participant",
+    _Reason.STOCK_OUT_OR_FAILED_DELIVERY:
+        "ART stock out or PE or VHW failed to deliver ART to participant",
     _Reason.NO_INFORMATION: "No information found about the participant at all",
   };
 
@@ -69,7 +70,8 @@ class ARTRefillNotDoneReason {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
-    final _Reason reason = _encoding.entries.firstWhere((MapEntry<_Reason, int> entry) {
+    final _Reason reason =
+        _encoding.entries.firstWhere((MapEntry<_Reason, int> entry) {
       return entry.value == code;
     }).key;
     ARTRefillNotDoneReason object = ARTRefillNotDoneReason._();
@@ -89,23 +91,28 @@ class ARTRefillNotDoneReason {
   int get hashCode => _reason.hashCode;
 
   static List<ARTRefillNotDoneReason> get allValues => [
-    ARTRefillNotDoneReason.PATIENT_DIED(),
-    ARTRefillNotDoneReason.PATIENT_HOSPITALIZED(),
-    ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_LESOTHO(),
-    ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_SA(),
-    ARTRefillNotDoneReason.NOT_TAKING_ART_ANYMORE(),
-    ARTRefillNotDoneReason.STOCK_OUT_OR_FAILED_DELIVERY(),
-    ARTRefillNotDoneReason.NO_INFORMATION(),
-  ];
+        ARTRefillNotDoneReason.PATIENT_DIED(),
+        ARTRefillNotDoneReason.PATIENT_HOSPITALIZED(),
+        ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_LESOTHO(),
+        ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_SA(),
+        ARTRefillNotDoneReason.NOT_TAKING_ART_ANYMORE(),
+        ARTRefillNotDoneReason.STOCK_OUT_OR_FAILED_DELIVERY(),
+        ARTRefillNotDoneReason.NO_INFORMATION(),
+      ];
 
   /// Returns the text description of this reason.
   String get description => _description[_reason];
 
   /// Returns the code that represents this reason.
   int get code => _encoding[_reason];
-
 }
 
-enum _Reason { PATIENT_DIED, PATIENT_HOSPITALIZED,
-  ART_FROM_OTHER_CLINIC_LESOTHO, ART_FROM_OTHER_CLINIC_SA,
-  NOT_TAKING_ART_ANYMORE, STOCK_OUT_OR_FAILED_DELIVERY, NO_INFORMATION }
+enum _Reason {
+  PATIENT_DIED,
+  PATIENT_HOSPITALIZED,
+  ART_FROM_OTHER_CLINIC_LESOTHO,
+  ART_FROM_OTHER_CLINIC_SA,
+  NOT_TAKING_ART_ANYMORE,
+  STOCK_OUT_OR_FAILED_DELIVERY,
+  NO_INFORMATION
+}

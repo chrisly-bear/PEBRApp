@@ -1,4 +1,3 @@
-
 import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/beans/SupportOption.dart';
@@ -11,7 +10,8 @@ class SupportOptionDone implements IExcelExportable {
   // column names
   static final colId = 'id'; // primary key
   static final colCreatedDate = 'created_date';
-  static final colPreferenceAssessmentId = 'preference_assessment_id'; // foreign key to [PreferenceAssessment].id
+  static final colPreferenceAssessmentId =
+      'preference_assessment_id'; // foreign key to [PreferenceAssessment].id
   static final colSupportOption = 'support_option';
   static final colDone = 'done';
 
@@ -23,7 +23,8 @@ class SupportOptionDone implements IExcelExportable {
   // Constructors
   // ------------
 
-  SupportOptionDone({this.preferenceAssessmentId, this.supportOption, this.done});
+  SupportOptionDone(
+      {this.preferenceAssessmentId, this.supportOption, this.done});
 
   SupportOptionDone.fromMap(map) {
     this._createdDate = DateTime.parse(map[colCreatedDate]);
@@ -32,19 +33,19 @@ class SupportOptionDone implements IExcelExportable {
     this.done = map[colDone] == 1;
   }
 
-
   // Other
   // -----
 
   // override the equality operator
   @override
-  bool operator ==(o) => o is SupportOptionDone
-      && o.preferenceAssessmentId == preferenceAssessmentId
-      && o.supportOption == supportOption;
+  bool operator ==(o) =>
+      o is SupportOptionDone &&
+      o.preferenceAssessmentId == preferenceAssessmentId &&
+      o.supportOption == supportOption;
 
   // override hashcode
   @override
-  int get hashCode => preferenceAssessmentId.hashCode^supportOption.hashCode;
+  int get hashCode => preferenceAssessmentId.hashCode ^ supportOption.hashCode;
 
   toMap() {
     var map = Map<String, dynamic>();
@@ -84,7 +85,6 @@ class SupportOptionDone implements IExcelExportable {
     return row;
   }
 
-
   /// Do not set the createdDate manually! The DatabaseProvider sets the date
   /// automatically on inserts into database.
   // ignore: unnecessary_getters_setters
@@ -92,5 +92,4 @@ class SupportOptionDone implements IExcelExportable {
 
   // ignore: unnecessary_getters_setters
   DateTime get createdDate => _createdDate;
-
 }

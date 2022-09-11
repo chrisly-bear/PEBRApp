@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:path/path.dart';
@@ -13,7 +12,8 @@ class UserData implements IExcelExportable {
   // column names
   static final colId = 'id'; // primary key
   static final colCreatedDate = 'created_date';
-  static final colFirstName = 'first_name'; // foreign key to [Patient].art_number
+  static final colFirstName =
+      'first_name'; // foreign key to [Patient].art_number
   static final colLastName = 'last_name';
   static final colUsername = 'username';
   static final colPhoneNumber = 'phone_number';
@@ -35,7 +35,13 @@ class UserData implements IExcelExportable {
   // Constructors
   // ------------
 
-  UserData({this.firstName, this.lastName, this.username, this.phoneNumber, this.healthCenter, this.isActive});
+  UserData(
+      {this.firstName,
+      this.lastName,
+      this.username,
+      this.phoneNumber,
+      this.healthCenter,
+      this.isActive});
 
   UserData.fromMap(map) {
     this._createdDate = DateTime.parse(map[colCreatedDate]);
@@ -46,9 +52,10 @@ class UserData implements IExcelExportable {
     this.phoneNumberUploadRequired = map[colPhoneNumberUploadRequired] == 1;
     this.healthCenter = HealthCenter.fromCode(map[colHealthCenter]);
     this.isActive = map[colIsActive] == 1;
-    this.deactivatedDate = map[colDeactivatedDate] == null ? null : DateTime.parse(map[colDeactivatedDate]);
+    this.deactivatedDate = map[colDeactivatedDate] == null
+        ? null
+        : DateTime.parse(map[colDeactivatedDate]);
   }
-
 
   // Other
   // -----
@@ -130,9 +137,9 @@ class UserData implements IExcelExportable {
 
   /// Throws FileSystemException if no password file is present on the device.
   Future<String> get pinCodeHash async {
-    final String filepath = join(await DatabaseProvider().databasesDirectoryPath, 'PEBRA-password');
+    final String filepath =
+        join(await DatabaseProvider().databasesDirectoryPath, 'PEBRA-password');
     final File passwordFile = File(filepath);
     return await passwordFile.readAsString();
   }
-
 }

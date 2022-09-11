@@ -63,30 +63,32 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
     return Form(
         key: _formKey,
         child: Column(
-      children: <Widget>[
-        SizedBox(height: _spacing),
-        _buildQuestionCard(),
-        SizedBox(height: _spacing),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.0),
-          child: Text(
-            _artRefill.notDoneReason == null || _artRefill.notDoneReason == ARTRefillNotDoneReason.STOCK_OUT_OR_FAILED_DELIVERY()
-              ? ''
-              : 'Participant will be deactivated and appear greyed out in the main screen.',
-            textAlign: TextAlign.center,
-          ),
-        ),
-        SizedBox(height: _spacing),
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          PEBRAButtonRaised(
-            'Save',
-            onPressed: _onSubmitForm,
-          )
-        ]),
-        SizedBox(height: _spacing),
-      ],
-    )
-    );
+          children: <Widget>[
+            SizedBox(height: _spacing),
+            _buildQuestionCard(),
+            SizedBox(height: _spacing),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.0),
+              child: Text(
+                _artRefill.notDoneReason == null ||
+                        _artRefill.notDoneReason ==
+                            ARTRefillNotDoneReason
+                                .STOCK_OUT_OR_FAILED_DELIVERY()
+                    ? ''
+                    : 'Participant will be deactivated and appear greyed out in the main screen.',
+                textAlign: TextAlign.center,
+              ),
+            ),
+            SizedBox(height: _spacing),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              PEBRAButtonRaised(
+                'Save',
+                onPressed: _onSubmitForm,
+              )
+            ]),
+            SizedBox(height: _spacing),
+          ],
+        ));
   }
 
   _buildQuestionCard() {
@@ -110,7 +112,8 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
   }
 
   Widget _whyRefillNotDoneQuestion() {
-    return _makeQuestion('Why was this ART Refill not done?',
+    return _makeQuestion(
+      'Why was this ART Refill not done?',
       answer: DropdownButtonFormField<ARTRefillNotDoneReason>(
         value: _artRefill.notDoneReason,
         onChanged: (ARTRefillNotDoneReason newValue) {
@@ -119,10 +122,13 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question'; }
+          if (value == null) {
+            return 'Please answer this question';
+          }
         },
-        items:
-        ARTRefillNotDoneReason.allValues.map<DropdownMenuItem<ARTRefillNotDoneReason>>((ARTRefillNotDoneReason value) {
+        items: ARTRefillNotDoneReason.allValues
+            .map<DropdownMenuItem<ARTRefillNotDoneReason>>(
+                (ARTRefillNotDoneReason value) {
           return DropdownMenuItem<ARTRefillNotDoneReason>(
             value: value,
             child: Text(value.description),
@@ -136,36 +142,41 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
     if (_artRefill.notDoneReason != ARTRefillNotDoneReason.PATIENT_DIED()) {
       return Container();
     }
-    return _makeQuestion('Date of Death',
-      answer: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            FlatButton(
-              padding: EdgeInsets.all(0.0),
-              child: SizedBox(
-                width: double.infinity,
-                child: Text(
-                  _artRefill.dateOfDeath == null ? 'Select Date' : formatDateConsistent(_artRefill.dateOfDeath),
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
+    return _makeQuestion(
+      'Date of Death',
+      answer: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        FlatButton(
+          padding: EdgeInsets.all(0.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: Text(
+              _artRefill.dateOfDeath == null
+                  ? 'Select Date'
+                  : formatDateConsistent(_artRefill.dateOfDeath),
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.normal,
               ),
-              onPressed: () async {
-                final now = DateTime.now();
-                DateTime date = await _showDatePicker(context, 'Date of Death', initialDate: _artRefill.dateOfDeath ?? DateTime(now.year, now.month, now.day));
-                if (date != null) {
-                  setState(() {
-                    _artRefill.dateOfDeath = date;
-                  });
-                }
-              },
             ),
-            Divider(color: CUSTOM_FORM_FIELD_UNDERLINE, height: 1.0,),
-          ]
-      ),
+          ),
+          onPressed: () async {
+            final now = DateTime.now();
+            DateTime date = await _showDatePicker(context, 'Date of Death',
+                initialDate: _artRefill.dateOfDeath ??
+                    DateTime(now.year, now.month, now.day));
+            if (date != null) {
+              setState(() {
+                _artRefill.dateOfDeath = date;
+              });
+            }
+          },
+        ),
+        Divider(
+          color: CUSTOM_FORM_FIELD_UNDERLINE,
+          height: 1.0,
+        ),
+      ]),
     );
   }
 
@@ -173,18 +184,21 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
     if (_artRefill.notDoneReason != ARTRefillNotDoneReason.PATIENT_DIED()) {
       return Container();
     }
-    return _makeQuestion('Cause of Death',
+    return _makeQuestion(
+      'Cause of Death',
       answer: TextFormField(
         controller: _causeOfDeathCtr,
       ),
     );
   }
-  
+
   Widget _hospitalizedClinicQuestion() {
-    if (_artRefill.notDoneReason != ARTRefillNotDoneReason.PATIENT_HOSPITALIZED()) {
+    if (_artRefill.notDoneReason !=
+        ARTRefillNotDoneReason.PATIENT_HOSPITALIZED()) {
       return Container();
     }
-    return _makeQuestion('Where is the participant hospitalized?',
+    return _makeQuestion(
+      'Where is the participant hospitalized?',
       answer: TextFormField(
         controller: _hospitalizedClinicCtr,
         validator: (value) {
@@ -195,12 +209,16 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
       ),
     );
   }
-  
+
   Widget _otherClinicQuestion() {
-    if (_artRefill.notDoneReason != ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_LESOTHO() && _artRefill.notDoneReason != ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_SA()) {
+    if (_artRefill.notDoneReason !=
+            ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_LESOTHO() &&
+        _artRefill.notDoneReason !=
+            ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_SA()) {
       return Container();
     }
-    return _makeQuestion('Clinic Name:',
+    return _makeQuestion(
+      'Clinic Name:',
       answer: TextFormField(
         controller: _otherClinicCtr,
       ),
@@ -208,48 +226,57 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
   }
 
   Widget _transferDateQuestion() {
-    if (_artRefill.notDoneReason != ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_LESOTHO()
-        && _artRefill.notDoneReason != ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_SA()) {
+    if (_artRefill.notDoneReason !=
+            ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_LESOTHO() &&
+        _artRefill.notDoneReason !=
+            ARTRefillNotDoneReason.ART_FROM_OTHER_CLINIC_SA()) {
       return Container();
     }
-    return _makeQuestion('Date of Transfer',
-      answer: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            FlatButton(
-              padding: EdgeInsets.all(0.0),
-              child: SizedBox(
-                width: double.infinity,
-                child: Text(
-                  _artRefill.transferDate == null ? 'Select Date' : formatDateConsistent(_artRefill.transferDate),
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
+    return _makeQuestion(
+      'Date of Transfer',
+      answer: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        FlatButton(
+          padding: EdgeInsets.all(0.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: Text(
+              _artRefill.transferDate == null
+                  ? 'Select Date'
+                  : formatDateConsistent(_artRefill.transferDate),
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.normal,
               ),
-              onPressed: () async {
-                final now = DateTime.now();
-                DateTime date = await _showDatePicker(context, 'Date of Transfer', initialDate: _artRefill.transferDate ?? DateTime(now.year, now.month, now.day));
-                if (date != null) {
-                  setState(() {
-                    _artRefill.transferDate = date;
-                  });
-                }
-              },
             ),
-            Divider(color: CUSTOM_FORM_FIELD_UNDERLINE, height: 1.0,),
-          ]
-      ),
+          ),
+          onPressed: () async {
+            final now = DateTime.now();
+            DateTime date = await _showDatePicker(context, 'Date of Transfer',
+                initialDate: _artRefill.transferDate ??
+                    DateTime(now.year, now.month, now.day));
+            if (date != null) {
+              setState(() {
+                _artRefill.transferDate = date;
+              });
+            }
+          },
+        ),
+        Divider(
+          color: CUSTOM_FORM_FIELD_UNDERLINE,
+          height: 1.0,
+        ),
+      ]),
     );
   }
 
   Widget _notTakingARTAnymoreQuestion() {
-    if (_artRefill.notDoneReason != ARTRefillNotDoneReason.NOT_TAKING_ART_ANYMORE()) {
+    if (_artRefill.notDoneReason !=
+        ARTRefillNotDoneReason.NOT_TAKING_ART_ANYMORE()) {
       return Container();
     }
-    return _makeQuestion('Reason:',
+    return _makeQuestion(
+      'Reason:',
       answer: TextFormField(
         controller: _notTakingARTAnymoreCtr,
         validator: (value) {
@@ -267,15 +294,19 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
       _artRefill.hospitalizedClinic = _hospitalizedClinicCtr.text;
       _artRefill.otherClinic = _otherClinicCtr.text;
       _artRefill.notTakingARTReason = _notTakingARTAnymoreCtr.text;
-      print('NEW ART REFILL (_id will be given by SQLite database):\n$_artRefill');
+      print(
+          'NEW ART REFILL (_id will be given by SQLite database):\n$_artRefill');
       await DatabaseProvider().insertARTRefill(_artRefill);
       _patient.latestARTRefill = _artRefill;
-      if (_patient.isActivated && _artRefill.notDoneReason != ARTRefillNotDoneReason.STOCK_OUT_OR_FAILED_DELIVERY()) {
+      if (_patient.isActivated &&
+          _artRefill.notDoneReason !=
+              ARTRefillNotDoneReason.STOCK_OUT_OR_FAILED_DELIVERY()) {
         _patient.isActivated = false;
         String status = getPatientStatus(_artRefill.notDoneReason.code);
         // Update the status only when necessary
         if (status != "") {
-          var uploadPatientStatus = await uploadPatientStatusVisibleImpact(_patient, status);
+          var uploadPatientStatus =
+              await uploadPatientStatusVisibleImpact(_patient, status);
           print(uploadPatientStatus);
         }
         // the isActivated field changed on the patient object, we have to store
@@ -316,14 +347,14 @@ class _ARTRefillNotDoneFormState extends State<ARTRefillNotDoneForm> {
     );
   }
 
-  Future<DateTime> _showDatePicker(BuildContext context, String title, {DateTime initialDate}) async {
+  Future<DateTime> _showDatePicker(BuildContext context, String title,
+      {DateTime initialDate}) async {
     DateTime now = DateTime.now();
     return showDatePicker(
-        context: context,
-        initialDate: initialDate ?? now,
-        firstDate: DateTime.fromMillisecondsSinceEpoch(0),
-        lastDate: DateTime.now(),
+      context: context,
+      initialDate: initialDate ?? now,
+      firstDate: DateTime.fromMillisecondsSinceEpoch(0),
+      lastDate: DateTime.now(),
     );
   }
-
 }

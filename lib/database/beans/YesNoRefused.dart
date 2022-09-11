@@ -1,6 +1,4 @@
-
 class YesNoRefused {
-
   // Class Variables
   // ---------------
 
@@ -45,7 +43,8 @@ class YesNoRefused {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
-    final _Answer answer = _encoding.entries.firstWhere((MapEntry<_Answer, int> entry) {
+    final _Answer answer =
+        _encoding.entries.firstWhere((MapEntry<_Answer, int> entry) {
       return entry.value == code;
     }).key;
     YesNoRefused object = YesNoRefused._();
@@ -65,17 +64,16 @@ class YesNoRefused {
   int get hashCode => _answer.hashCode;
 
   static List<YesNoRefused> get allValues => [
-    YesNoRefused.YES(),
-    YesNoRefused.NO(),
-    YesNoRefused.REFUSED_TO_ANSWER(),
-  ];
+        YesNoRefused.YES(),
+        YesNoRefused.NO(),
+        YesNoRefused.REFUSED_TO_ANSWER(),
+      ];
 
   /// Returns the text description of this answer.
   String get description => _description[_answer];
 
   /// Returns the code that represents this answer.
   int get code => _encoding[_answer];
-
 }
 
 enum _Answer { YES, NO, REFUSED_TO_ANSWER }

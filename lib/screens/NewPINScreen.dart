@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -47,7 +46,6 @@ class _NewPINScreenState extends State<NewPINScreen> {
   }
 
   _formBlock() {
-
     Widget pinCodeField() {
       return TextFormField(
         decoration: InputDecoration(
@@ -73,11 +71,13 @@ class _NewPINScreenState extends State<NewPINScreen> {
     return Column(
       children: <Widget>[
         SizedBox(height: 25.0),
-        Text('PIN Code Reset', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0)),
+        Text('PIN Code Reset',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0)),
         SizedBox(height: 20.0),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Text('Your PIN code has been reset. Please set a new PIN code:'),
+          child:
+              Text('Your PIN code has been reset. Please set a new PIN code:'),
         ),
         Card(
           margin: EdgeInsets.all(20.0),
@@ -88,13 +88,27 @@ class _NewPINScreenState extends State<NewPINScreen> {
         ),
         PEBRAButtonRaised(
           'Set',
-          widget: _isLoading ? SizedBox(height: 15.0, width: 15.0, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))) : null,
-          onPressed: _isLoading ? null : () { _onSubmitPINCodeForm(context); },
+          widget: _isLoading
+              ? SizedBox(
+                  height: 15.0,
+                  width: 15.0,
+                  child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
+              : null,
+          onPressed: _isLoading
+              ? null
+              : () {
+                  _onSubmitPINCodeForm(context);
+                },
         ),
         SizedBox(height: 15.0),
         PEBRAButtonFlat(
           'Cancel',
-          onPressed: _isLoading ? null : () { _closeScreen(null); },
+          onPressed: _isLoading
+              ? null
+              : () {
+                  _closeScreen(null);
+                },
         ),
         SizedBox(height: 20.0),
       ],
@@ -120,10 +134,12 @@ class _NewPINScreenState extends State<NewPINScreen> {
     if (_pinCodeFormKey.currentState.validate()) {
       try {
         final String pinCodeHash = hash(_pinCtr.text);
-        final String filepath = join(await DatabaseProvider().databasesDirectoryPath, 'PEBRA-password');
+        final String filepath = join(
+            await DatabaseProvider().databasesDirectoryPath, 'PEBRA-password');
         var file = File(filepath);
         file = await file.writeAsString(pinCodeHash, flush: true);
-        await uploadFileToPebraCloud(file, PEBRA_CLOUD_PASSWORD_FOLDER, filename: '$username.txt');
+        await uploadFileToPebraCloud(file, PEBRA_CLOUD_PASSWORD_FOLDER,
+            filename: '$username.txt');
         _closeScreen(pinCodeHash);
       } catch (e, s) {
         final String title = 'PIN Update Failed';
@@ -134,7 +150,8 @@ class _NewPINScreenState extends State<NewPINScreen> {
             message = 'Make sure you are connected to the internet.';
             break;
           case PebraCloudAuthFailedException:
-            message = 'PEBRAcloud authentication failed. Contact the development team.';
+            message =
+                'PEBRAcloud authentication failed. Contact the development team.';
             break;
           default:
             print('${e.runtimeType}: $e');
@@ -144,7 +161,10 @@ class _NewPINScreenState extends State<NewPINScreen> {
               showErrorInPopup(e, s, context);
             };
         }
-        showFlushbar(message, title: title, error: true, onButtonPress: onNotificationButtonPress);
+        showFlushbar(message,
+            title: title,
+            error: true,
+            onButtonPress: onNotificationButtonPress);
       }
     }
     setState(() {

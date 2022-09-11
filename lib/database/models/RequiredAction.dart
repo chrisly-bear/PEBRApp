@@ -1,11 +1,11 @@
-
 class RequiredAction {
   static final tableName = 'RequiredAction';
 
   // column names
   static final colId = 'id'; // primary key
   static final colCreatedDate = 'created_date';
-  static final colPatientART = 'patient_art'; // foreign key to [Patient].art_number
+  static final colPatientART =
+      'patient_art'; // foreign key to [Patient].art_number
   static final colType = 'action_type';
   static final colDueDate = 'due_date';
 
@@ -26,7 +26,6 @@ class RequiredAction {
     this.dueDate = DateTime.parse(map[colDueDate]);
   }
 
-
   // Other
   // -----
 
@@ -37,11 +36,14 @@ class RequiredAction {
   // there are several entries of NOTIFICATIONS_UPLOAD_REQUIRED we only want to
   // require an upload from the user once and not display several such actions)
   @override
-  bool operator ==(o) => o is RequiredAction && o.patientART == this.patientART && o.type == this.type;
+  bool operator ==(o) =>
+      o is RequiredAction &&
+      o.patientART == this.patientART &&
+      o.type == this.type;
 
   // override hashcode
   @override
-  int get hashCode => patientART.hashCode^type.hashCode;
+  int get hashCode => patientART.hashCode ^ type.hashCode;
 
   toMap() {
     var map = Map<String, dynamic>();
@@ -59,7 +61,6 @@ class RequiredAction {
 
   // ignore: unnecessary_getters_setters
   DateTime get createdDate => _createdDate;
-
 }
 
 // Do not change the order as the index of each item is used to persist in the

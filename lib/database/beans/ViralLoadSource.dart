@@ -1,6 +1,4 @@
-
 class ViralLoadSource {
-
   // Class Variables
   // ---------------
 
@@ -39,7 +37,8 @@ class ViralLoadSource {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
-    final _ViralLoadSource source = _encoding.entries.firstWhere((MapEntry<_ViralLoadSource, int> entry) {
+    final _ViralLoadSource source =
+        _encoding.entries.firstWhere((MapEntry<_ViralLoadSource, int> entry) {
       return entry.value == code;
     }).key;
     ViralLoadSource object = ViralLoadSource._();
@@ -59,16 +58,15 @@ class ViralLoadSource {
   int get hashCode => _source.hashCode;
 
   static List<ViralLoadSource> get allValues => [
-    ViralLoadSource.DATABASE(),
-    ViralLoadSource.MANUAL_INPUT(),
-  ];
+        ViralLoadSource.DATABASE(),
+        ViralLoadSource.MANUAL_INPUT(),
+      ];
 
   /// Returns the text description of this source.
   String get description => _description[_source];
 
   /// Returns the code that represents this source.
   int get code => _encoding[_source];
-
 }
 
 enum _ViralLoadSource { DATABASE, MANUAL_INPUT }

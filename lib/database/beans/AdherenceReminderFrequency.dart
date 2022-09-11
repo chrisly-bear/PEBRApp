@@ -1,6 +1,4 @@
-
 class AdherenceReminderFrequency {
-
   // Class Variables
   // ---------------
 
@@ -51,7 +49,8 @@ class AdherenceReminderFrequency {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
-    final _Frequency frequency = _encoding.entries.firstWhere((MapEntry<_Frequency, int> entry) {
+    final _Frequency frequency =
+        _encoding.entries.firstWhere((MapEntry<_Frequency, int> entry) {
       return entry.value == code;
     }).key;
     AdherenceReminderFrequency object = AdherenceReminderFrequency._();
@@ -64,17 +63,18 @@ class AdherenceReminderFrequency {
 
   // override the equality operator
   @override
-  bool operator ==(o) => o is AdherenceReminderFrequency && o._frequency == _frequency;
+  bool operator ==(o) =>
+      o is AdherenceReminderFrequency && o._frequency == _frequency;
 
   // override hashcode
   @override
   int get hashCode => _frequency.hashCode;
 
   static List<AdherenceReminderFrequency> get allValues => [
-    AdherenceReminderFrequency.DAILY(),
-    AdherenceReminderFrequency.WEEKLY(),
-    AdherenceReminderFrequency.MONTHLY(),
-  ];
+        AdherenceReminderFrequency.DAILY(),
+        AdherenceReminderFrequency.WEEKLY(),
+        AdherenceReminderFrequency.MONTHLY(),
+      ];
 
   /// Returns the text description of this frequency.
   String get description => _description[_frequency];
@@ -83,7 +83,6 @@ class AdherenceReminderFrequency {
 
   /// Returns the code that represents this frequency.
   int get code => _encoding[_frequency];
-
 }
 
 enum _Frequency { DAILY, WEEKLY, MONTHLY }

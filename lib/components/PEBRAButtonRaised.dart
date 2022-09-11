@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pebrapp/utils/AppColors.dart';
 
 class PEBRAButtonRaised extends StatelessWidget {
-
   final String _buttonText;
   final onPressed;
   final Widget widget;
@@ -14,7 +13,9 @@ class PEBRAButtonRaised extends StatelessWidget {
   /// deactivated. If a `widget` is passed, the `_buttonText` is ignored and the
   /// `widget` is displayed instead. Pass a [color] to override the default blue
   /// background color of the button.
-  const PEBRAButtonRaised(this._buttonText, {this.onPressed, this.widget, this.color, this.minWidth, this.maxWidth}) : super();
+  const PEBRAButtonRaised(this._buttonText,
+      {this.onPressed, this.widget, this.color, this.minWidth, this.maxWidth})
+      : super();
 
   @override
   Widget build(BuildContext context) {
@@ -27,12 +28,14 @@ class PEBRAButtonRaised extends StatelessWidget {
       child: RaisedButton(
         onPressed: this.onPressed,
         color: color ?? RAISED_BUTTON,
-        child: widget != null ? widget : Text(
-          this._buttonText.toUpperCase(),
-          style: TextStyle(
-            color: RAISED_BUTTON_TEXT,
-          ),
-        ),
+        child: widget != null
+            ? widget
+            : Text(
+                this._buttonText.toUpperCase(),
+                style: TextStyle(
+                  color: RAISED_BUTTON_TEXT,
+                ),
+              ),
       ),
     );
   }

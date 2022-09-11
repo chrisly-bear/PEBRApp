@@ -45,34 +45,60 @@ class _ARTRefillScreenState extends State<ARTRefillScreen> {
       children: <Widget>[
         Text(this._nextRefillDate, style: TextStyle(fontSize: 16.0)),
         SizedBox(height: 10.0),
-        PEBRAButtonRaised('Change Date', onPressed: () { _onPressChangeDate(context); },),
+        PEBRAButtonRaised(
+          'Change Date',
+          onPressed: () {
+            _onPressChangeDate(context);
+          },
+        ),
         Padding(
           padding: const EdgeInsets.all(20.0),
-          child: Text('The date above has to match the actual date of refill before clicking on "Refill done", otherwise change the date', style: TextStyle(fontSize: 16.0)),
+          child: Text(
+              'The date above has to match the actual date of refill before clicking on "Refill done", otherwise change the date',
+              style: TextStyle(fontSize: 16.0)),
         ),
         SizedBox(height: 50),
-        PEBRAButtonRaised('Refill Done', onPressed: () { _onPressRefillDone(context); },),
+        PEBRAButtonRaised(
+          'Refill Done',
+          onPressed: () {
+            _onPressRefillDone(context);
+          },
+        ),
         SizedBox(height: 10),
-        PEBRAButtonRaised('Refill Not Done', onPressed: () { _pushARTRefillNotDoneScreen(context, patient); },),
+        PEBRAButtonRaised(
+          'Refill Not Done',
+          onPressed: () {
+            _pushARTRefillNotDoneScreen(context, patient);
+          },
+        ),
         SizedBox(height: 30),
       ],
     );
   }
 
   void _onPressChangeDate(BuildContext context) async {
-    DateTime nextRefillDate = await _showDatePickerWithTitle(context, 'Select the ART Refill Date');
+    DateTime nextRefillDate =
+        await _showDatePickerWithTitle(context, 'Select the ART Refill Date');
     if (nextRefillDate != null) {
-      final ARTRefill artRefill = ARTRefill(this.widget._patient.artNumber, RefillType.CHANGE_DATE(), nextRefillDate: nextRefillDate);
+      final ARTRefill artRefill = ARTRefill(
+          this.widget._patient.artNumber, RefillType.CHANGE_DATE(),
+          nextRefillDate: nextRefillDate);
       await DatabaseProvider().insertARTRefill(artRefill);
       widget._patient.latestARTRefill = artRefill;
       widget._patient.latestDoneARTRefill = artRefill;
       final DateTime now = DateTime.now();
       if (nextRefillDate.isAfter(now)) {
         // send an event indicating that the art refill was done
-        PatientBloc.instance.sinkRequiredActionData(RequiredAction(widget._patient.artNumber, RequiredActionType.REFILL_REQUIRED, null), true);
+        PatientBloc.instance.sinkRequiredActionData(
+            RequiredAction(widget._patient.artNumber,
+                RequiredActionType.REFILL_REQUIRED, null),
+            true);
       } else {
         // send an event indicating that the art refill is overdue and has to be done
-        PatientBloc.instance.sinkRequiredActionData(RequiredAction(widget._patient.artNumber, RequiredActionType.REFILL_REQUIRED, nextRefillDate), false);
+        PatientBloc.instance.sinkRequiredActionData(
+            RequiredAction(widget._patient.artNumber,
+                RequiredActionType.REFILL_REQUIRED, nextRefillDate),
+            false);
       }
       // Adherence reminders and ART Refill reminders need to be updated
       uploadNotificationsPreferences(widget._patient);
@@ -86,19 +112,28 @@ class _ARTRefillScreenState extends State<ARTRefillScreen> {
   }
 
   void _onPressRefillDone(BuildContext context) async {
-    DateTime nextRefillDate = await _showDatePickerWithTitle(context, 'Select the Next ART Refill Date');
+    DateTime nextRefillDate = await _showDatePickerWithTitle(
+        context, 'Select the Next ART Refill Date');
     if (nextRefillDate != null) {
-      final ARTRefill artRefill = ARTRefill(this.widget._patient.artNumber, RefillType.DONE(), nextRefillDate: nextRefillDate);
+      final ARTRefill artRefill = ARTRefill(
+          this.widget._patient.artNumber, RefillType.DONE(),
+          nextRefillDate: nextRefillDate);
       await DatabaseProvider().insertARTRefill(artRefill);
       widget._patient.latestARTRefill = artRefill;
       widget._patient.latestDoneARTRefill = artRefill;
       final DateTime now = DateTime.now();
       if (nextRefillDate.isAfter(now)) {
         // send an event indicating that the art refill was done
-        PatientBloc.instance.sinkRequiredActionData(RequiredAction(widget._patient.artNumber, RequiredActionType.REFILL_REQUIRED, null), true);
+        PatientBloc.instance.sinkRequiredActionData(
+            RequiredAction(widget._patient.artNumber,
+                RequiredActionType.REFILL_REQUIRED, null),
+            true);
       } else {
         // send an event indicating that the art refill is overdue and has to be done
-        PatientBloc.instance.sinkRequiredActionData(RequiredAction(widget._patient.artNumber, RequiredActionType.REFILL_REQUIRED, nextRefillDate), false);
+        PatientBloc.instance.sinkRequiredActionData(
+            RequiredAction(widget._patient.artNumber,
+                RequiredActionType.REFILL_REQUIRED, nextRefillDate),
+            false);
       }
       // Adherence reminders and ART Refill reminders need to be updated
       uploadNotificationsPreferences(widget._patient);
@@ -110,18 +145,27 @@ class _ARTRefillScreenState extends State<ARTRefillScreen> {
 
   Future<DateTime> _showDatePicker(BuildContext context) async {
     final DateTime now = DateTime.now();
-    return showDatePicker(context: context, initialDate: now, firstDate: now.subtract(Duration(days: 1)), lastDate: DateTime(2050));
+    return showDatePicker(
+        context: context,
+        initialDate: now,
+        firstDate: now.subtract(Duration(days: 1)),
+        lastDate: DateTime(2050));
   }
 
-  Future<DateTime> _showDatePickerWithTitle(BuildContext context, String title) async {
+  Future<DateTime> _showDatePickerWithTitle(
+      BuildContext context, String title) async {
     final DateTime now = DateTime.now();
-    return showDatePicker(context: context, initialDate: widget._patient.latestARTRefill?.nextRefillDate ?? now, firstDate: DateTime(1900), lastDate: DateTime(2050), builder: (BuildContext context, Widget widget) {
-      return PopupScreen(
-        backgroundColor: Colors.transparent,
-        actions: [],
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+    return showDatePicker(
+        context: context,
+        initialDate: widget._patient.latestARTRefill?.nextRefillDate ?? now,
+        firstDate: DateTime(1900),
+        lastDate: DateTime(2050),
+        builder: (BuildContext context, Widget widget) {
+          return PopupScreen(
+            backgroundColor: Colors.transparent,
+            actions: [],
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               SizedBox(height: 20.0),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -135,17 +179,17 @@ class _ARTRefillScreenState extends State<ARTRefillScreen> {
                 ),
               ),
               widget,
-            ]
-        ),
-      );
-    });
+            ]),
+          );
+        });
   }
 
   void _pushARTRefillNotDoneScreen(BuildContext context, Patient patient) {
     Navigator.of(context).push(
       PageRouteBuilder<void>(
         opaque: false,
-        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
+        transitionsBuilder: (BuildContext context, Animation<double> anim1,
+            Animation<double> anim2, Widget widget) {
           return FadeTransition(
             opacity: anim1,
             child: widget, // child is the value returned by pageBuilder

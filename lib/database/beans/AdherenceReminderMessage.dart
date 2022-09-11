@@ -1,6 +1,4 @@
-
 class AdherenceReminderMessage {
-
   // Class Variables
   // ---------------
 
@@ -81,7 +79,8 @@ class AdherenceReminderMessage {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
-    final _Message message = _encoding.entries.firstWhere((MapEntry<_Message, int> entry) {
+    final _Message message =
+        _encoding.entries.firstWhere((MapEntry<_Message, int> entry) {
       return entry.value == code;
     }).key;
     AdherenceReminderMessage object = AdherenceReminderMessage._();
@@ -94,30 +93,40 @@ class AdherenceReminderMessage {
 
   // override the equality operator
   @override
-  bool operator ==(o) => o is AdherenceReminderMessage && o._message == _message;
+  bool operator ==(o) =>
+      o is AdherenceReminderMessage && o._message == _message;
 
   // override hashcode
   @override
   int get hashCode => _message.hashCode;
 
   static List<AdherenceReminderMessage> get allValues => [
-    AdherenceReminderMessage.MESSAGE_1(),
-    AdherenceReminderMessage.MESSAGE_2(),
-    AdherenceReminderMessage.MESSAGE_3(),
-    AdherenceReminderMessage.MESSAGE_4(),
-    AdherenceReminderMessage.MESSAGE_5(),
-    AdherenceReminderMessage.MESSAGE_6(),
-    AdherenceReminderMessage.MESSAGE_7(),
-    AdherenceReminderMessage.MESSAGE_8(),
-    AdherenceReminderMessage.MESSAGE_9(),
-  ];
+        AdherenceReminderMessage.MESSAGE_1(),
+        AdherenceReminderMessage.MESSAGE_2(),
+        AdherenceReminderMessage.MESSAGE_3(),
+        AdherenceReminderMessage.MESSAGE_4(),
+        AdherenceReminderMessage.MESSAGE_5(),
+        AdherenceReminderMessage.MESSAGE_6(),
+        AdherenceReminderMessage.MESSAGE_7(),
+        AdherenceReminderMessage.MESSAGE_8(),
+        AdherenceReminderMessage.MESSAGE_9(),
+      ];
 
   /// Returns the text description of this message.
   String get description => _description[_message];
 
   /// Returns the code that represents this message.
   int get code => _encoding[_message];
-
 }
 
-enum _Message { MESSAGE_1, MESSAGE_2, MESSAGE_3, MESSAGE_4, MESSAGE_5, MESSAGE_6, MESSAGE_7, MESSAGE_8, MESSAGE_9 }
+enum _Message {
+  MESSAGE_1,
+  MESSAGE_2,
+  MESSAGE_3,
+  MESSAGE_4,
+  MESSAGE_5,
+  MESSAGE_6,
+  MESSAGE_7,
+  MESSAGE_8,
+  MESSAGE_9
+}

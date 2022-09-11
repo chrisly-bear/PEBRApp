@@ -13,13 +13,11 @@ import 'package:spreadsheet_decoder/spreadsheet_decoder.dart';
 
 /// Exports the database as a CSV file an uploads it to PEBRAcloud.
 class DatabaseExporter {
-
   static const EXCEL_FILENAME = 'PEBRA_Data.xlsx';
   static const _EXCEL_TEMPLATE_PATH = 'assets/excel/PEBRA_Data_template.xlsx';
 
   /// Writes database data to Excel (xlsx) file and returns that file.
   static Future<File> exportDatabaseToExcelFile() async {
-
     // these are the name of the sheets in the template excel file
     const String userDataSheet = 'User Data';
     const String patientSheet = 'Participant';
@@ -31,16 +29,19 @@ class DatabaseExporter {
     // open database
     final DatabaseProvider dbp = DatabaseProvider();
     // open excel template file
-    final String filepath = join(await dbp.databasesDirectoryPath, EXCEL_FILENAME);
+    final String filepath =
+        join(await dbp.databasesDirectoryPath, EXCEL_FILENAME);
     ByteData data = await rootBundle.load(_EXCEL_TEMPLATE_PATH);
-    final File excelFile = await File(filepath).writeAsBytes(data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
+    final File excelFile = await File(filepath).writeAsBytes(
+        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
     final List<int> bytes = excelFile.readAsBytesSync();
     final decoder = SpreadsheetDecoder.decodeBytes(bytes, update: true);
 
-    void _writeRowsToExcel(String sheetName, List<String> headerRow, List<IExcelExportable> rows) {
+    void _writeRowsToExcel(
+        String sheetName, List<String> headerRow, List<IExcelExportable> rows) {
       // make enough rows
       for (var i = 0; i < rows.length; i++) {
-        decoder.insertRow(sheetName, i+1);
+        decoder.insertRow(sheetName, i + 1);
       }
 
       // make enough columns
@@ -58,7 +59,7 @@ class DatabaseExporter {
         List<dynamic> row = rows[i].toExcelRow();
         // write all columns of current row
         for (var j = 0; j < headerRow.length; j++) {
-          decoder.updateCell(sheetName, j, i+1, row[j]);
+          decoder.updateCell(sheetName, j, i + 1, row[j]);
         }
       }
     }
@@ -72,11 +73,15 @@ class DatabaseExporter {
     final List<ViralLoad> viralLoadRows = await dbp.retrieveAllViralLoads();
     _writeRowsToExcel(viralLoadSheet, ViralLoad.excelHeaderRow, viralLoadRows);
 
-    final List<PreferenceAssessment> preferenceAssessmentRows = await dbp.retrieveAllPreferenceAssessments();
-    _writeRowsToExcel(preferenceAssessmentSheet, PreferenceAssessment.excelHeaderRow, preferenceAssessmentRows);
+    final List<PreferenceAssessment> preferenceAssessmentRows =
+        await dbp.retrieveAllPreferenceAssessments();
+    _writeRowsToExcel(preferenceAssessmentSheet,
+        PreferenceAssessment.excelHeaderRow, preferenceAssessmentRows);
 
-    final List<SupportOptionDone> supportOptionDoneRows = await dbp.retrieveAllSupportOptionDones();
-    _writeRowsToExcel(supportOptionDoneSheet, SupportOptionDone.excelHeaderRow, supportOptionDoneRows);
+    final List<SupportOptionDone> supportOptionDoneRows =
+        await dbp.retrieveAllSupportOptionDones();
+    _writeRowsToExcel(supportOptionDoneSheet, SupportOptionDone.excelHeaderRow,
+        supportOptionDoneRows);
 
     final List<ARTRefill> artRefillRows = await dbp.retrieveAllARTRefills();
     _writeRowsToExcel(artRefillSheet, ARTRefill.excelHeaderRow, artRefillRows);
@@ -85,7 +90,6 @@ class DatabaseExporter {
     excelFile.writeAsBytesSync(decoder.encode());
     return excelFile;
   }
-
 }
 
 /// Interface which makes a class exportable to an excel file.

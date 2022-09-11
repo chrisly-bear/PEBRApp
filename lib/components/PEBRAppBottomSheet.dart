@@ -16,7 +16,14 @@ class PEBRAppBottomSheet extends StatelessWidget {
         return Container(
           height: 20.0,
           width: double.infinity,
-          child: Center(child: Text('TEST VERSION', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 12.0),)),
+          child: Center(
+              child: Text(
+            'TEST VERSION',
+            style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+                fontSize: 12.0),
+          )),
         );
       },
     );

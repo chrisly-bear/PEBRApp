@@ -1,6 +1,4 @@
-
 class ARTRefillOption {
-
   // Class Variables
   // ---------------
 
@@ -60,12 +58,13 @@ class ARTRefillOption {
   ARTRefillOption.TREATMENT_BUDDY() {
     _option = _RefillOption.TREATMENT_BUDDY;
   }
-  
+
   static ARTRefillOption fromCode(int code) {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
-    final _RefillOption option = _encoding.entries.firstWhere((MapEntry<_RefillOption, int> entry) {
+    final _RefillOption option =
+        _encoding.entries.firstWhere((MapEntry<_RefillOption, int> entry) {
       return entry.value == code;
     }).key;
     ARTRefillOption object = ARTRefillOption._();
@@ -85,12 +84,12 @@ class ARTRefillOption {
   int get hashCode => _option.hashCode;
 
   static List<ARTRefillOption> get allValues => [
-    ARTRefillOption.CLINIC(),
-    ARTRefillOption.PE_HOME_DELIVERY(),
-    ARTRefillOption.VHW(),
-    ARTRefillOption.COMMUNITY_ADHERENCE_CLUB(),
-    ARTRefillOption.TREATMENT_BUDDY(),
-  ];
+        ARTRefillOption.CLINIC(),
+        ARTRefillOption.PE_HOME_DELIVERY(),
+        ARTRefillOption.VHW(),
+        ARTRefillOption.COMMUNITY_ADHERENCE_CLUB(),
+        ARTRefillOption.TREATMENT_BUDDY(),
+      ];
 
   /// Returns the text description of this option.
   String get description => _description[_option];
@@ -100,7 +99,12 @@ class ARTRefillOption {
 
   /// Returns the code that represents this option.
   int get code => _encoding[_option];
-
 }
 
-enum _RefillOption { CLINIC, PE_HOME_DELIVERY, VHW, COMMUNITY_ADHERENCE_CLUB, TREATMENT_BUDDY }
+enum _RefillOption {
+  CLINIC,
+  PE_HOME_DELIVERY,
+  VHW,
+  COMMUNITY_ADHERENCE_CLUB,
+  TREATMENT_BUDDY
+}

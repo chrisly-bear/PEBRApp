@@ -46,25 +46,32 @@ class PopupScreen extends StatelessWidget {
   /// @param [scrollable] If set to true the content of the popup screen can be
   /// scrolled. This is useful for small devices and/or content with large
   /// heights. Defaults to true.
-  PopupScreen({@required this.child, this.title, this.subtitle, this.actions,
-  this.backgroundBlur: 0.0, this.backgroundColor, this.scrollable: true});
+  PopupScreen(
+      {@required this.child,
+      this.title,
+      this.subtitle,
+      this.actions,
+      this.backgroundBlur: 0.0,
+      this.backgroundColor,
+      this.scrollable: true});
 
   @override
   Widget build(BuildContext context) {
-
     screenWidth = MediaQuery.of(context).size.width;
-    padding = max(MIN_PADDING, (screenWidth - MAX_WIDTH)/2);
+    padding = max(MIN_PADDING, (screenWidth - MAX_WIDTH) / 2);
 
     return Scaffold(
       backgroundColor: backgroundColor ?? POPUP_BEHIND,
       body: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: backgroundBlur, sigmaY: backgroundBlur),
+        filter:
+            ImageFilter.blur(sigmaX: backgroundBlur, sigmaY: backgroundBlur),
         child: SafeArea(
           child: Center(
             child: Card(
               clipBehavior: Clip.antiAlias,
               elevation: 10.0,
-              margin: EdgeInsets.symmetric(horizontal: padding, vertical: MIN_PADDING),
+              margin: EdgeInsets.symmetric(
+                  horizontal: padding, vertical: MIN_PADDING),
               color: BACKGROUND_COLOR,
 //              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0), side: BorderSide(color: Colors.black)),
               child: TransparentHeaderPage(
@@ -72,14 +79,15 @@ class PopupScreen extends StatelessWidget {
                 title: title,
                 subtitle: subtitle,
                 child: child,
-                actions: actions ?? [
-                  IconButton(
-                    alignment: Alignment.topCenter,
+                actions: actions ??
+                    [
+                      IconButton(
+                        alignment: Alignment.topCenter,
 //                    padding: EdgeInsets.all(0.0),
-                    icon: Icon(Icons.close),
-                    onPressed: Navigator.of(context).pop,
-                  ),
-                ],
+                        icon: Icon(Icons.close),
+                        onPressed: Navigator.of(context).pop,
+                      ),
+                    ],
                 color: BACKGROUND_COLOR,
                 blurEnabled: false,
                 scrollable: scrollable,

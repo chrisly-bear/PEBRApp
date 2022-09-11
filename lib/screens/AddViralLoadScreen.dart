@@ -28,11 +28,16 @@ class AddViralLoadScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupScreen(
-      title: 'Add Viral Load',
-      subtitle: _patient.artNumber,
-      actions: <Widget>[IconButton(icon: Icon(Icons.close), onPressed: () { _onPressCancel(context); })],
-      child: AddViralLoadForm(_patient)
-    );
+        title: 'Add Viral Load',
+        subtitle: _patient.artNumber,
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(Icons.close),
+              onPressed: () {
+                _onPressCancel(context);
+              })
+        ],
+        child: AddViralLoadForm(_patient));
   }
 }
 
@@ -61,7 +66,8 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
 
   // constructor
   _AddViralLoadFormState(this._patient) {
-    _viralLoad = ViralLoad(patientART: _patient.artNumber, source: ViralLoadSource.MANUAL_INPUT());
+    _viralLoad = ViralLoad(
+        patientART: _patient.artNumber, source: ViralLoadSource.MANUAL_INPUT());
   }
 
   @override
@@ -78,7 +84,9 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             PEBRAButtonRaised(
               'Save',
-              onPressed: () { _onSubmitForm(context); },
+              onPressed: () {
+                _onSubmitForm(context);
+              },
             )
           ]),
           SizedBox(height: _spacing),
@@ -106,51 +114,59 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
   }
 
   Widget _viralLoadBaselineDateQuestion() {
-    return _makeQuestion('Date of the viral load\n(put the date when blood was taken)',
-      answer: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            FlatButton(
-              padding: EdgeInsets.all(0.0),
-              child: SizedBox(
-                width: double.infinity,
+    return _makeQuestion(
+      'Date of the viral load\n(put the date when blood was taken)',
+      answer: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        FlatButton(
+          padding: EdgeInsets.all(0.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: Text(
+              _viralLoad.dateOfBloodDraw == null
+                  ? 'Select Date'
+                  : formatDateConsistent(_viralLoad.dateOfBloodDraw),
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+          ),
+          onPressed: () async {
+            final now = DateTime.now();
+            DateTime date = await _showDatePicker(context,
+                initialDate: _viralLoad.dateOfBloodDraw ??
+                    DateTime(now.year, now.month, now.day));
+            if (date != null) {
+              setState(() {
+                _viralLoad.dateOfBloodDraw = date;
+              });
+            }
+          },
+        ),
+        Divider(
+          color: CUSTOM_FORM_FIELD_UNDERLINE,
+          height: 1.0,
+        ),
+        _viralLoadBaselineDateValid
+            ? Container()
+            : Padding(
+                padding: const EdgeInsets.only(top: 5.0),
                 child: Text(
-                  _viralLoad.dateOfBloodDraw == null ? 'Select Date' : formatDateConsistent(_viralLoad.dateOfBloodDraw),
-                  textAlign: TextAlign.left,
+                  'Please select a date',
                   style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.normal,
+                    color: CUSTOM_FORM_FIELD_ERROR_TEXT,
+                    fontSize: 12.0,
                   ),
                 ),
               ),
-              onPressed: () async {
-                final now = DateTime.now();
-                DateTime date = await _showDatePicker(context, initialDate: _viralLoad.dateOfBloodDraw ?? DateTime(now.year, now.month, now.day));
-                if (date != null) {
-                  setState(() {
-                    _viralLoad.dateOfBloodDraw = date;
-                  });
-                }
-              },
-            ),
-            Divider(color: CUSTOM_FORM_FIELD_UNDERLINE, height: 1.0,),
-            _viralLoadBaselineDateValid ? Container() : Padding(
-              padding: const EdgeInsets.only(top: 5.0),
-              child: Text(
-                'Please select a date',
-                style: TextStyle(
-                  color: CUSTOM_FORM_FIELD_ERROR_TEXT,
-                  fontSize: 12.0,
-                ),
-              ),
-            ),
-          ]
-      ),
+      ]),
     );
   }
 
   Widget _viralLoadBaselineFailedQuestion() {
-    return _makeQuestion('Did the viral load measurement fail?',
+    return _makeQuestion(
+      'Did the viral load measurement fail?',
       answer: DropdownButtonFormField<bool>(
         value: _viralLoad.failed,
         onChanged: (bool newValue) {
@@ -179,7 +195,8 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
     if (_viralLoad.failed == null || _viralLoad.failed) {
       return SizedBox();
     }
-    return _makeQuestion('Was the viral load result lower than detectable limit (<20 copies/mL)?',
+    return _makeQuestion(
+      'Was the viral load result lower than detectable limit (<20 copies/mL)?',
       answer: DropdownButtonFormField<bool>(
         value: _isLowerThanDetectable,
         onChanged: (bool newValue) {
@@ -205,10 +222,14 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
   }
 
   Widget _viralLoadBaselineResultQuestion() {
-    if (_viralLoad.failed == null || _viralLoad.failed || _isLowerThanDetectable == null || _isLowerThanDetectable) {
+    if (_viralLoad.failed == null ||
+        _viralLoad.failed ||
+        _isLowerThanDetectable == null ||
+        _isLowerThanDetectable) {
       return SizedBox();
     }
-    return _makeQuestion('Result of the viral load (in c/mL)',
+    return _makeQuestion(
+      'Result of the viral load (in c/mL)',
       answer: TextFormField(
         inputFormatters: [
           WhitelistingTextInputFormatter.digitsOnly,
@@ -228,7 +249,8 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
   }
 
   Widget _viralLoadBaselineLabNumberQuestion() {
-    return _makeQuestion('Lab number of the viral load',
+    return _makeQuestion(
+      'Lab number of the viral load',
       answer: TextFormField(
         autocorrect: false,
         controller: _viralLoadLabNumberCtr,
@@ -270,13 +292,15 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
     );
   }
 
-  Future<DateTime> _showDatePicker(BuildContext context, {DateTime initialDate}) async {
+  Future<DateTime> _showDatePicker(BuildContext context,
+      {DateTime initialDate}) async {
     DateTime now = DateTime.now();
     return showDatePicker(
-        context: context,
-        initialDate: initialDate ?? now,
-        firstDate: DateTime(_patient.enrollmentDate.year - 1, _patient.enrollmentDate.month, _patient.enrollmentDate.day),
-        lastDate: now,
+      context: context,
+      initialDate: initialDate ?? now,
+      firstDate: DateTime(_patient.enrollmentDate.year - 1,
+          _patient.enrollmentDate.month, _patient.enrollmentDate.day),
+      lastDate: now,
     );
   }
 
@@ -298,25 +322,29 @@ class _AddViralLoadFormState extends State<AddViralLoadForm> {
 
   _onSubmitForm(BuildContext context) async {
     if (_formKey.currentState.validate() & _validateViralLoadBaselineDate()) {
-
       if (_viralLoad.failed) {
         // if the new viral load has failed, send the patient to blood draw
-        RequiredAction vlRequired = RequiredAction(_patient.artNumber, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, DateTime.fromMillisecondsSinceEpoch(0));
+        RequiredAction vlRequired = RequiredAction(
+            _patient.artNumber,
+            RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED,
+            DateTime.fromMillisecondsSinceEpoch(0));
         DatabaseProvider().insertRequiredAction(vlRequired);
         PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
       } else {
-        _viralLoad.viralLoad = _isLowerThanDetectable ? 0 : int.parse(_viralLoadResultCtr.text);
+        _viralLoad.viralLoad =
+            _isLowerThanDetectable ? 0 : int.parse(_viralLoadResultCtr.text);
       }
-      _viralLoad.labNumber = _viralLoadLabNumberCtr.text == '' ? null : _viralLoadLabNumberCtr.text;
+      _viralLoad.labNumber = _viralLoadLabNumberCtr.text == ''
+          ? null
+          : _viralLoadLabNumberCtr.text;
       _viralLoad.checkLogicAndResetUnusedFields();
       await DatabaseProvider().insertViralLoad(_viralLoad);
       _patient.viralLoads.add(_viralLoad);
-      
+
       // we will also have to sink a PatientData event in case the patient's isActivated state changes
       Navigator.of(context).popUntil((Route<dynamic> route) {
         return route.settings.name == '/patient';
       });
     }
   }
-
 }

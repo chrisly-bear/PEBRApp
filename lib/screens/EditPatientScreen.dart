@@ -13,7 +13,6 @@ import 'package:pebrapp/utils/Utils.dart';
 import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 
 class EditPatientScreen extends StatefulWidget {
-
   final Patient _existingPatient;
 
   EditPatientScreen(this._existingPatient);
@@ -108,7 +107,8 @@ class _EditPatientFormState extends State<EditPatientScreen> {
   // ----------
 
   Widget _genderQuestion() {
-    return _makeQuestion('Gender',
+    return _makeQuestion(
+      'Gender',
       answer: DropdownButtonFormField<Gender>(
         value: _patientToBeEdited.gender,
         onChanged: (Gender newValue) {
@@ -117,7 +117,9 @@ class _EditPatientFormState extends State<EditPatientScreen> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question.'; }
+          if (value == null) {
+            return 'Please answer this question.';
+          }
         },
         items: Gender.allValues.map<DropdownMenuItem<Gender>>((Gender value) {
           return DropdownMenuItem<Gender>(
@@ -130,7 +132,8 @@ class _EditPatientFormState extends State<EditPatientScreen> {
   }
 
   Widget _sexualOrientationQuestion() {
-    return _makeQuestion('Sexual Orientation',
+    return _makeQuestion(
+      'Sexual Orientation',
       answer: DropdownButtonFormField<SexualOrientation>(
         value: _patientToBeEdited.sexualOrientation,
         onChanged: (SexualOrientation newValue) {
@@ -139,9 +142,13 @@ class _EditPatientFormState extends State<EditPatientScreen> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question.'; }
+          if (value == null) {
+            return 'Please answer this question.';
+          }
         },
-        items: SexualOrientation.allValues.map<DropdownMenuItem<SexualOrientation>>((SexualOrientation value) {
+        items: SexualOrientation.allValues
+            .map<DropdownMenuItem<SexualOrientation>>(
+                (SexualOrientation value) {
           return DropdownMenuItem<SexualOrientation>(
             value: value,
             child: Text(value.description),
@@ -152,20 +159,22 @@ class _EditPatientFormState extends State<EditPatientScreen> {
   }
 
   Widget _villageQuestion() {
-    return _makeQuestion('Village',
+    return _makeQuestion(
+      'Village',
       answer: TextFormField(
-          controller: _villageCtr,
-          validator: (value) {
-            if (value.isEmpty) {
-              return 'Please enter a village';
-            }
-          },
-        ),
-      );
+        controller: _villageCtr,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter a village';
+          }
+        },
+      ),
+    );
   }
 
   Widget _phoneAvailabilityQuestion() {
-    return _makeQuestion('Do you have regular access to a phone (with Lesotho number) where you can receive confidential information?',
+    return _makeQuestion(
+      'Do you have regular access to a phone (with Lesotho number) where you can receive confidential information?',
       answer: DropdownButtonFormField<PhoneAvailability>(
         value: _patientToBeEdited.phoneAvailability,
         onChanged: (PhoneAvailability newValue) {
@@ -174,9 +183,13 @@ class _EditPatientFormState extends State<EditPatientScreen> {
           });
         },
         validator: (value) {
-          if (value == null) { return 'Please answer this question.'; }
+          if (value == null) {
+            return 'Please answer this question.';
+          }
         },
-        items: PhoneAvailability.allValues.map<DropdownMenuItem<PhoneAvailability>>((PhoneAvailability value) {
+        items: PhoneAvailability.allValues
+            .map<DropdownMenuItem<PhoneAvailability>>(
+                (PhoneAvailability value) {
           return DropdownMenuItem<PhoneAvailability>(
             value: value,
             child: Text(value.description),
@@ -187,23 +200,25 @@ class _EditPatientFormState extends State<EditPatientScreen> {
   }
 
   Widget _phoneNumberQuestion() {
-    if (_patientToBeEdited.phoneAvailability == null || _patientToBeEdited.phoneAvailability != PhoneAvailability.YES()) {
+    if (_patientToBeEdited.phoneAvailability == null ||
+        _patientToBeEdited.phoneAvailability != PhoneAvailability.YES()) {
       return Container();
     }
-    return _makeQuestion('Phone Number',
-        answer: TextFormField(
-          decoration: InputDecoration(
-            prefixText: '+266-',
-          ),
-          controller: _phoneNumberCtr,
-          keyboardType: TextInputType.phone,
-          inputFormatters: [
-            WhitelistingTextInputFormatter.digitsOnly,
-            LengthLimitingTextInputFormatter(8),
-            LesothoPhoneNumberTextInputFormatter(),
-          ],
-          validator: validatePhoneNumber,
+    return _makeQuestion(
+      'Phone Number',
+      answer: TextFormField(
+        decoration: InputDecoration(
+          prefixText: '+266-',
         ),
+        controller: _phoneNumberCtr,
+        keyboardType: TextInputType.phone,
+        inputFormatters: [
+          WhitelistingTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(8),
+          LesothoPhoneNumberTextInputFormatter(),
+        ],
+        validator: validatePhoneNumber,
+      ),
     );
   }
 
@@ -221,15 +236,19 @@ class _EditPatientFormState extends State<EditPatientScreen> {
       }
       _patientToBeEdited.village = _villageCtr.text;
       await DatabaseProvider().insertPatient(_patientToBeEdited);
-      if (_patientToBeEdited.gender != _patientBeforeEditing.gender
-          || _patientToBeEdited.phoneNumber != _patientBeforeEditing.phoneNumber
-          || _patientToBeEdited.birthday != _patientBeforeEditing.birthday) {
+      if (_patientToBeEdited.gender != _patientBeforeEditing.gender ||
+          _patientToBeEdited.phoneNumber != _patientBeforeEditing.phoneNumber ||
+          _patientToBeEdited.birthday != _patientBeforeEditing.birthday) {
         // upload to VisibleImpact is required
-        final bool phoneNumberChanged = _patientToBeEdited.phoneAvailability != _patientBeforeEditing.phoneAvailability || _patientToBeEdited.phoneNumber != _patientBeforeEditing.phoneNumber;
-        uploadPatientCharacteristics(_patientToBeEdited, reUploadNotifications: phoneNumberChanged);
+        final bool phoneNumberChanged = _patientToBeEdited.phoneAvailability !=
+                _patientBeforeEditing.phoneAvailability ||
+            _patientToBeEdited.phoneNumber != _patientBeforeEditing.phoneNumber;
+        uploadPatientCharacteristics(_patientToBeEdited,
+            reUploadNotifications: phoneNumberChanged);
       }
       Navigator.of(context).popUntil((Route<dynamic> route) {
-        return (route.settings.name == '/patient' || route.settings.name == '/');
+        return (route.settings.name == '/patient' ||
+            route.settings.name == '/');
       });
     }
   }
@@ -274,5 +293,4 @@ class _EditPatientFormState extends State<EditPatientScreen> {
       ],
     );
   }
-
 }

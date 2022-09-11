@@ -24,55 +24,84 @@ class PreferenceAssessment implements IExcelExportable {
 
   // column names
   static final colId = 'id'; // primary key
-  static final colPatientART = 'patient_art'; // foreign key to [Patient].art_number
+  static final colPatientART =
+      'patient_art'; // foreign key to [Patient].art_number
   static final colCreatedDate = 'created_date';
   static final colARTRefillOption1 = 'art_refill_option_1';
   static final colARTRefillOption2 = 'art_refill_option_2'; // nullable
   static final colARTRefillOption3 = 'art_refill_option_3'; // nullable
   static final colARTRefillOption4 = 'art_refill_option_4'; // nullable
   static final colARTRefillOption5 = 'art_refill_option_5'; // nullable
-  static final colARTRefillPENotPossibleReason = 'art_refill_pe_not_possible_reason'; // nullable
-  static final colARTRefillPENotPossibleReasonOther = 'art_refill_pe_not_possible_reason_other'; // nullable
+  static final colARTRefillPENotPossibleReason =
+      'art_refill_pe_not_possible_reason'; // nullable
+  static final colARTRefillPENotPossibleReasonOther =
+      'art_refill_pe_not_possible_reason_other'; // nullable
   static final colARTRefillVHWName = 'art_refill_vhw_name'; // nullable
   static final colARTRefillVHWVillage = 'art_refill_vhw_village'; // nullable
-  static final colARTRefillVHWPhoneNumber = 'art_refill_vhw_phone_number'; // nullable
-  static final colARTRefillTreatmentBuddyART = 'art_refill_treatment_buddy_art'; // nullable
-  static final colARTRefillTreatmentBuddyVillage = 'art_refill_treatment_buddy_village'; // nullable
-  static final colARTRefillTreatmentBuddyPhoneNumber = 'art_refill_treatment_buddy_phone_number'; // nullable
+  static final colARTRefillVHWPhoneNumber =
+      'art_refill_vhw_phone_number'; // nullable
+  static final colARTRefillTreatmentBuddyART =
+      'art_refill_treatment_buddy_art'; // nullable
+  static final colARTRefillTreatmentBuddyVillage =
+      'art_refill_treatment_buddy_village'; // nullable
+  static final colARTRefillTreatmentBuddyPhoneNumber =
+      'art_refill_treatment_buddy_phone_number'; // nullable
   static final colARTSupplyAmount = 'art_supply_amount';
   static final colPatientPhoneAvailable = 'patient_phone_available';
-  static final colAdherenceReminderEnabled = 'adherence_reminder_enabled'; // nullable
-  static final colAdherenceReminderFrequency = 'adherence_reminder_frequency'; // nullable
+  static final colAdherenceReminderEnabled =
+      'adherence_reminder_enabled'; // nullable
+  static final colAdherenceReminderFrequency =
+      'adherence_reminder_frequency'; // nullable
   static final colAdherenceReminderTime = 'adherence_reminder_time'; // nullable
-  static final colAdherenceReminderMessage = 'adherence_reminder_message'; // nullable
-  static final colARTRefillReminderEnabled = 'art_refill_reminder_enabled'; // nullable
-  static final colARTRefillReminderDaysBefore = 'art_refill_reminder_days_before'; // nullable
-  static final colARTRefillReminderMessage = 'art_refill_reminder_message'; // nullable
+  static final colAdherenceReminderMessage =
+      'adherence_reminder_message'; // nullable
+  static final colARTRefillReminderEnabled =
+      'art_refill_reminder_enabled'; // nullable
+  static final colARTRefillReminderDaysBefore =
+      'art_refill_reminder_days_before'; // nullable
+  static final colARTRefillReminderMessage =
+      'art_refill_reminder_message'; // nullable
   static final colVLNotificationEnabled = 'vl_notification_enabled'; // nullable
-  static final colVLNotificationMessageSuppressed = 'vl_notification_message_suppressed'; // nullable
-  static final colVLNotificationMessageUnsuppressed = 'vl_notification_message_unsuppressed'; // nullable
+  static final colVLNotificationMessageSuppressed =
+      'vl_notification_message_suppressed'; // nullable
+  static final colVLNotificationMessageUnsuppressed =
+      'vl_notification_message_unsuppressed'; // nullable
   static final colSupportPreferences = 'support_preferences';
-  static final colSaturdayClinicClubAvailable = 'saturday_clinic_club_available'; // nullable
-  static final colCommunityYouthClubAvailable = 'community_youth_club_available'; // nullable
+  static final colSaturdayClinicClubAvailable =
+      'saturday_clinic_club_available'; // nullable
+  static final colCommunityYouthClubAvailable =
+      'community_youth_club_available'; // nullable
   static final colHomeVisitPEPossible = 'home_visit_pe_possible'; // nullable
-  static final colHomeVisitPENotPossibleReason = 'home_visit_pe_not_possible_reason'; // nullable
-  static final colHomeVisitPENotPossibleReasonOther = 'home_visit_pe_not_possible_reason_other'; // nullable
-  static final colSchoolVisitPEPossible = 'school_visit_pe_possible'; // nullable
+  static final colHomeVisitPENotPossibleReason =
+      'home_visit_pe_not_possible_reason'; // nullable
+  static final colHomeVisitPENotPossibleReasonOther =
+      'home_visit_pe_not_possible_reason_other'; // nullable
+  static final colSchoolVisitPEPossible =
+      'school_visit_pe_possible'; // nullable
   static final colSchool = 'school'; // nullable
-  static final colSchoolVisitPENotPossibleReason = 'school_visit_pe_not_possible_reason'; // nullable
-  static final colSchoolVisitPENotPossibleReasonOther = 'school_visit_pe_not_possible_reason_other'; // nullable
+  static final colSchoolVisitPENotPossibleReason =
+      'school_visit_pe_not_possible_reason'; // nullable
+  static final colSchoolVisitPENotPossibleReasonOther =
+      'school_visit_pe_not_possible_reason_other'; // nullable
   static final colPitsoPEPossible = 'pitso_pe_possible'; // nullable
-  static final colPitsoPENotPossibleReason = 'pitso_pe_not_possible_reason'; // nullable
-  static final colPitsoPENotPossibleReasonOther = 'pitso_pe_not_possible_reason_other'; // nullable
-  static final colMoreInfoContraceptives = 'more_info_contraceptives'; // nullable
+  static final colPitsoPENotPossibleReason =
+      'pitso_pe_not_possible_reason'; // nullable
+  static final colPitsoPENotPossibleReasonOther =
+      'pitso_pe_not_possible_reason_other'; // nullable
+  static final colMoreInfoContraceptives =
+      'more_info_contraceptives'; // nullable
   static final colMoreInfoVMMC = 'more_info_vmmc'; // nullable
   static final colYoungMothersAvailable = 'young_mothers_available'; // nullable
   static final colFemaleWorthAvailable = 'female_worth_available'; // nullable
-  static final colPsychosocialShareSomethingAnswer = 'psychosocial_share_something';
-  static final colPsychosocialShareSomethingContent = 'psychosocial_share_something_content'; // nullable
+  static final colPsychosocialShareSomethingAnswer =
+      'psychosocial_share_something';
+  static final colPsychosocialShareSomethingContent =
+      'psychosocial_share_something_content'; // nullable
   static final colPsychosocialHowDoing = 'psychosocial_how_doing'; // nullable
-  static final colUnsuppressedSafeEnvironmentAnswer = 'unsuppressed_safe_env_answer'; // nullable
-  static final colUnsuppressedWhyNotSafe = 'unsuppressed_why_not_safe_env'; // nullable
+  static final colUnsuppressedSafeEnvironmentAnswer =
+      'unsuppressed_safe_env_answer'; // nullable
+  static final colUnsuppressedWhyNotSafe =
+      'unsuppressed_why_not_safe_env'; // nullable
 
   int id;
   String patientART;
@@ -102,7 +131,8 @@ class PreferenceAssessment implements IExcelExportable {
   bool vlNotificationEnabled;
   VLSuppressedMessage vlNotificationMessageSuppressed;
   VLUnsuppressedMessage vlNotificationMessageUnsuppressed;
-  SupportPreferencesSelection supportPreferences = SupportPreferencesSelection();
+  SupportPreferencesSelection supportPreferences =
+      SupportPreferencesSelection();
   bool saturdayClinicClubAvailable;
   bool communityYouthClubAvailable;
   bool homeVisitPEPossible;
@@ -129,62 +159,60 @@ class PreferenceAssessment implements IExcelExportable {
   // called.
   Set<SupportOptionDone> _supportOptionDones = {};
 
-
   // Constructors
   // ------------
 
   PreferenceAssessment(
-      this.id,
-      this.patientART,
-      this.artRefillOption1,
-      this.supportPreferences,
-      this.artSupplyAmount,
-      this.psychosocialShareSomethingAnswer,
-      {
-        this.artRefillOption2,
-        this.artRefillOption3,
-        this.artRefillOption4,
-        this.artRefillOption5,
-        this.artRefillPENotPossibleReason,
-        this.artRefillPENotPossibleReasonOther,
-        this.artRefillVHWName,
-        this.artRefillVHWVillage,
-        this.artRefillVHWPhoneNumber,
-        this.artRefillTreatmentBuddyART,
-        this.artRefillTreatmentBuddyVillage,
-        this.artRefillTreatmentBuddyPhoneNumber,
-        this.patientPhoneAvailable,
-        this.adherenceReminderEnabled,
-        this.adherenceReminderFrequency,
-        this.adherenceReminderTime,
-        this.adherenceReminderMessage,
-        this.artRefillReminderEnabled,
-        this.artRefillReminderDaysBefore,
-        this.artRefillReminderMessage,
-        this.vlNotificationEnabled,
-        this.vlNotificationMessageSuppressed,
-        this.vlNotificationMessageUnsuppressed,
-        this.saturdayClinicClubAvailable,
-        this.communityYouthClubAvailable,
-        this.homeVisitPEPossible,
-        this.homeVisitPENotPossibleReason,
-        this.homeVisitPENotPossibleReasonOther,
-        this.schoolVisitPEPossible,
-        this.school,
-        this.schoolVisitPENotPossibleReason,
-        this.schoolVisitPENotPossibleReasonOther,
-        this.pitsoPEPossible,
-        this.pitsoPENotPossibleReason,
-        this.pitsoPENotPossibleReasonOther,
-        this.moreInfoContraceptives,
-        this.moreInfoVMMC,
-        this.youngMothersAvailable,
-        this.femaleWorthAvailable,
-        this.psychosocialShareSomethingContent,
-        this.psychosocialHowDoing,
-        this.unsuppressedSafeEnvironmentAnswer,
-        this.unsuppressedWhyNotSafe,
-      });
+    this.id,
+    this.patientART,
+    this.artRefillOption1,
+    this.supportPreferences,
+    this.artSupplyAmount,
+    this.psychosocialShareSomethingAnswer, {
+    this.artRefillOption2,
+    this.artRefillOption3,
+    this.artRefillOption4,
+    this.artRefillOption5,
+    this.artRefillPENotPossibleReason,
+    this.artRefillPENotPossibleReasonOther,
+    this.artRefillVHWName,
+    this.artRefillVHWVillage,
+    this.artRefillVHWPhoneNumber,
+    this.artRefillTreatmentBuddyART,
+    this.artRefillTreatmentBuddyVillage,
+    this.artRefillTreatmentBuddyPhoneNumber,
+    this.patientPhoneAvailable,
+    this.adherenceReminderEnabled,
+    this.adherenceReminderFrequency,
+    this.adherenceReminderTime,
+    this.adherenceReminderMessage,
+    this.artRefillReminderEnabled,
+    this.artRefillReminderDaysBefore,
+    this.artRefillReminderMessage,
+    this.vlNotificationEnabled,
+    this.vlNotificationMessageSuppressed,
+    this.vlNotificationMessageUnsuppressed,
+    this.saturdayClinicClubAvailable,
+    this.communityYouthClubAvailable,
+    this.homeVisitPEPossible,
+    this.homeVisitPENotPossibleReason,
+    this.homeVisitPENotPossibleReasonOther,
+    this.schoolVisitPEPossible,
+    this.school,
+    this.schoolVisitPENotPossibleReason,
+    this.schoolVisitPENotPossibleReasonOther,
+    this.pitsoPEPossible,
+    this.pitsoPENotPossibleReason,
+    this.pitsoPENotPossibleReasonOther,
+    this.moreInfoContraceptives,
+    this.moreInfoVMMC,
+    this.youngMothersAvailable,
+    this.femaleWorthAvailable,
+    this.psychosocialShareSomethingContent,
+    this.psychosocialHowDoing,
+    this.unsuppressedSafeEnvironmentAnswer,
+    this.unsuppressedWhyNotSafe,
+  });
 
   PreferenceAssessment.uninitialized();
 
@@ -197,56 +225,94 @@ class PreferenceAssessment implements IExcelExportable {
     this.artRefillOption3 = ARTRefillOption.fromCode(map[colARTRefillOption3]);
     this.artRefillOption4 = ARTRefillOption.fromCode(map[colARTRefillOption4]);
     this.artRefillOption5 = ARTRefillOption.fromCode(map[colARTRefillOption5]);
-    this.artRefillPENotPossibleReason = PEHomeDeliveryNotPossibleReason.fromCode(map[colARTRefillPENotPossibleReason]);
-    this.artRefillPENotPossibleReasonOther = map[colARTRefillPENotPossibleReasonOther];
+    this.artRefillPENotPossibleReason =
+        PEHomeDeliveryNotPossibleReason.fromCode(
+            map[colARTRefillPENotPossibleReason]);
+    this.artRefillPENotPossibleReasonOther =
+        map[colARTRefillPENotPossibleReasonOther];
     this.artRefillVHWName = map[colARTRefillVHWName];
     this.artRefillVHWVillage = map[colARTRefillVHWVillage];
     this.artRefillVHWPhoneNumber = map[colARTRefillVHWPhoneNumber];
     this.artRefillTreatmentBuddyART = map[colARTRefillTreatmentBuddyART];
-    this.artRefillTreatmentBuddyVillage = map[colARTRefillTreatmentBuddyVillage];
-    this.artRefillTreatmentBuddyPhoneNumber = map[colARTRefillTreatmentBuddyPhoneNumber];
+    this.artRefillTreatmentBuddyVillage =
+        map[colARTRefillTreatmentBuddyVillage];
+    this.artRefillTreatmentBuddyPhoneNumber =
+        map[colARTRefillTreatmentBuddyPhoneNumber];
     this.artSupplyAmount = ARTSupplyAmount.fromCode(map[colARTSupplyAmount]);
     this.patientPhoneAvailable = map[colPatientPhoneAvailable] == 1;
     if (map[colAdherenceReminderEnabled] != null) {
       this.adherenceReminderEnabled = map[colAdherenceReminderEnabled] == 1;
     }
-    this.adherenceReminderFrequency = AdherenceReminderFrequency.fromCode(map[colAdherenceReminderFrequency]);
+    this.adherenceReminderFrequency =
+        AdherenceReminderFrequency.fromCode(map[colAdherenceReminderFrequency]);
     this.adherenceReminderTime = parseTimeOfDay(map[colAdherenceReminderTime]);
-    this.adherenceReminderMessage = AdherenceReminderMessage.fromCode(map[colAdherenceReminderMessage]);
+    this.adherenceReminderMessage =
+        AdherenceReminderMessage.fromCode(map[colAdherenceReminderMessage]);
     if (map[colARTRefillReminderEnabled] != null) {
       this.artRefillReminderEnabled = map[colARTRefillReminderEnabled] == 1;
     }
-    this.artRefillReminderDaysBefore = map[colARTRefillReminderDaysBefore] == null ? null : ARTRefillReminderDaysBeforeSelection.deserializeFromJSON(map[colARTRefillReminderDaysBefore]);
-    this.artRefillReminderMessage = ARTRefillReminderMessage.fromCode(map[colARTRefillReminderMessage]);
+    this.artRefillReminderDaysBefore =
+        map[colARTRefillReminderDaysBefore] == null
+            ? null
+            : ARTRefillReminderDaysBeforeSelection.deserializeFromJSON(
+                map[colARTRefillReminderDaysBefore]);
+    this.artRefillReminderMessage =
+        ARTRefillReminderMessage.fromCode(map[colARTRefillReminderMessage]);
     if (map[colVLNotificationEnabled] != null) {
       this.vlNotificationEnabled = map[colVLNotificationEnabled] == 1;
     }
-    this.vlNotificationMessageSuppressed = VLSuppressedMessage.fromCode(map[colVLNotificationMessageSuppressed]);
-    this.vlNotificationMessageUnsuppressed = VLUnsuppressedMessage.fromCode(map[colVLNotificationMessageUnsuppressed]);
-    this.supportPreferences = SupportPreferencesSelection.deserializeFromJSON(map[colSupportPreferences]);
-    this.saturdayClinicClubAvailable = map[colSaturdayClinicClubAvailable] == null ? null : map[colSaturdayClinicClubAvailable] == 1;
-    this.communityYouthClubAvailable = map[colCommunityYouthClubAvailable] == null ? null : map[colCommunityYouthClubAvailable] == 1;
-    this.homeVisitPEPossible = map[colHomeVisitPEPossible] == null ? null : map[colHomeVisitPEPossible] == 1;
-    this.homeVisitPENotPossibleReason = HomeVisitPENotPossibleReason.fromCode(map[colHomeVisitPENotPossibleReason]);
-    this.homeVisitPENotPossibleReasonOther = map[colHomeVisitPENotPossibleReasonOther];
-    this.schoolVisitPEPossible = map[colSchoolVisitPEPossible] == null ? null : map[colSchoolVisitPEPossible] == 1;
+    this.vlNotificationMessageSuppressed =
+        VLSuppressedMessage.fromCode(map[colVLNotificationMessageSuppressed]);
+    this.vlNotificationMessageUnsuppressed = VLUnsuppressedMessage.fromCode(
+        map[colVLNotificationMessageUnsuppressed]);
+    this.supportPreferences = SupportPreferencesSelection.deserializeFromJSON(
+        map[colSupportPreferences]);
+    this.saturdayClinicClubAvailable =
+        map[colSaturdayClinicClubAvailable] == null
+            ? null
+            : map[colSaturdayClinicClubAvailable] == 1;
+    this.communityYouthClubAvailable =
+        map[colCommunityYouthClubAvailable] == null
+            ? null
+            : map[colCommunityYouthClubAvailable] == 1;
+    this.homeVisitPEPossible = map[colHomeVisitPEPossible] == null
+        ? null
+        : map[colHomeVisitPEPossible] == 1;
+    this.homeVisitPENotPossibleReason = HomeVisitPENotPossibleReason.fromCode(
+        map[colHomeVisitPENotPossibleReason]);
+    this.homeVisitPENotPossibleReasonOther =
+        map[colHomeVisitPENotPossibleReasonOther];
+    this.schoolVisitPEPossible = map[colSchoolVisitPEPossible] == null
+        ? null
+        : map[colSchoolVisitPEPossible] == 1;
     this.school = map[colSchool];
-    this.schoolVisitPENotPossibleReason = SchoolVisitPENotPossibleReason.fromCode(map[colSchoolVisitPENotPossibleReason]);
-    this.schoolVisitPENotPossibleReasonOther = map[colSchoolVisitPENotPossibleReasonOther];
-    this.pitsoPEPossible = map[colPitsoPEPossible] == null ? null : map[colPitsoPEPossible] == 1;
-    this.pitsoPENotPossibleReason = PitsoPENotPossibleReason.fromCode(map[colPitsoPENotPossibleReason]);
+    this.schoolVisitPENotPossibleReason =
+        SchoolVisitPENotPossibleReason.fromCode(
+            map[colSchoolVisitPENotPossibleReason]);
+    this.schoolVisitPENotPossibleReasonOther =
+        map[colSchoolVisitPENotPossibleReasonOther];
+    this.pitsoPEPossible =
+        map[colPitsoPEPossible] == null ? null : map[colPitsoPEPossible] == 1;
+    this.pitsoPENotPossibleReason =
+        PitsoPENotPossibleReason.fromCode(map[colPitsoPENotPossibleReason]);
     this.pitsoPENotPossibleReasonOther = map[colPitsoPENotPossibleReasonOther];
     this.moreInfoContraceptives = map[colMoreInfoContraceptives];
     this.moreInfoVMMC = map[colMoreInfoVMMC];
-    this.youngMothersAvailable = map[colYoungMothersAvailable] == null ? null : map[colYoungMothersAvailable] == 1;
-    this.femaleWorthAvailable = map[colFemaleWorthAvailable] == null ? null : map[colFemaleWorthAvailable] == 1;
-    this.psychosocialShareSomethingAnswer = YesNoRefused.fromCode(map[colPsychosocialShareSomethingAnswer]);
-    this.psychosocialShareSomethingContent = map[colPsychosocialShareSomethingContent];
+    this.youngMothersAvailable = map[colYoungMothersAvailable] == null
+        ? null
+        : map[colYoungMothersAvailable] == 1;
+    this.femaleWorthAvailable = map[colFemaleWorthAvailable] == null
+        ? null
+        : map[colFemaleWorthAvailable] == 1;
+    this.psychosocialShareSomethingAnswer =
+        YesNoRefused.fromCode(map[colPsychosocialShareSomethingAnswer]);
+    this.psychosocialShareSomethingContent =
+        map[colPsychosocialShareSomethingContent];
     this.psychosocialHowDoing = map[colPsychosocialHowDoing];
-    this.unsuppressedSafeEnvironmentAnswer = YesNoRefused.fromCode(map[colUnsuppressedSafeEnvironmentAnswer]);
+    this.unsuppressedSafeEnvironmentAnswer =
+        YesNoRefused.fromCode(map[colUnsuppressedSafeEnvironmentAnswer]);
     this.unsuppressedWhyNotSafe = map[colUnsuppressedWhyNotSafe];
   }
-
 
   // Other
   // -----
@@ -261,13 +327,15 @@ class PreferenceAssessment implements IExcelExportable {
     map[colARTRefillOption4] = artRefillOption4?.code;
     map[colARTRefillOption5] = artRefillOption5?.code;
     map[colARTRefillPENotPossibleReason] = artRefillPENotPossibleReason?.code;
-    map[colARTRefillPENotPossibleReasonOther] = artRefillPENotPossibleReasonOther;
+    map[colARTRefillPENotPossibleReasonOther] =
+        artRefillPENotPossibleReasonOther;
     map[colARTRefillVHWName] = artRefillVHWName;
     map[colARTRefillVHWVillage] = artRefillVHWVillage;
     map[colARTRefillVHWPhoneNumber] = artRefillVHWPhoneNumber;
     map[colARTRefillTreatmentBuddyART] = artRefillTreatmentBuddyART;
     map[colARTRefillTreatmentBuddyVillage] = artRefillTreatmentBuddyVillage;
-    map[colARTRefillTreatmentBuddyPhoneNumber] = artRefillTreatmentBuddyPhoneNumber;
+    map[colARTRefillTreatmentBuddyPhoneNumber] =
+        artRefillTreatmentBuddyPhoneNumber;
     map[colARTSupplyAmount] = artSupplyAmount.code;
     map[colPatientPhoneAvailable] = patientPhoneAvailable;
     map[colAdherenceReminderEnabled] = adherenceReminderEnabled;
@@ -275,21 +343,27 @@ class PreferenceAssessment implements IExcelExportable {
     map[colAdherenceReminderTime] = formatTime(adherenceReminderTime);
     map[colAdherenceReminderMessage] = adherenceReminderMessage?.code;
     map[colARTRefillReminderEnabled] = artRefillReminderEnabled;
-    map[colARTRefillReminderDaysBefore] = artRefillReminderDaysBefore?.serializeToJSON();
+    map[colARTRefillReminderDaysBefore] =
+        artRefillReminderDaysBefore?.serializeToJSON();
     map[colARTRefillReminderMessage] = artRefillReminderMessage?.code;
     map[colVLNotificationEnabled] = vlNotificationEnabled;
-    map[colVLNotificationMessageSuppressed] = vlNotificationMessageSuppressed?.code;
-    map[colVLNotificationMessageUnsuppressed] = vlNotificationMessageUnsuppressed?.code;
+    map[colVLNotificationMessageSuppressed] =
+        vlNotificationMessageSuppressed?.code;
+    map[colVLNotificationMessageUnsuppressed] =
+        vlNotificationMessageUnsuppressed?.code;
     map[colSupportPreferences] = supportPreferences.serializeToJSON();
     map[colSaturdayClinicClubAvailable] = saturdayClinicClubAvailable;
     map[colCommunityYouthClubAvailable] = communityYouthClubAvailable;
     map[colHomeVisitPEPossible] = homeVisitPEPossible;
     map[colHomeVisitPENotPossibleReason] = homeVisitPENotPossibleReason?.code;
-    map[colHomeVisitPENotPossibleReasonOther] = homeVisitPENotPossibleReasonOther;
+    map[colHomeVisitPENotPossibleReasonOther] =
+        homeVisitPENotPossibleReasonOther;
     map[colSchoolVisitPEPossible] = schoolVisitPEPossible;
     map[colSchool] = school;
-    map[colSchoolVisitPENotPossibleReason] = schoolVisitPENotPossibleReason?.code;
-    map[colSchoolVisitPENotPossibleReasonOther] = schoolVisitPENotPossibleReasonOther;
+    map[colSchoolVisitPENotPossibleReason] =
+        schoolVisitPENotPossibleReason?.code;
+    map[colSchoolVisitPENotPossibleReasonOther] =
+        schoolVisitPENotPossibleReasonOther;
     map[colPitsoPEPossible] = pitsoPEPossible;
     map[colPitsoPENotPossibleReason] = pitsoPENotPossibleReason?.code;
     map[colPitsoPENotPossibleReasonOther] = pitsoPENotPossibleReasonOther;
@@ -297,10 +371,13 @@ class PreferenceAssessment implements IExcelExportable {
     map[colMoreInfoVMMC] = moreInfoVMMC;
     map[colYoungMothersAvailable] = youngMothersAvailable;
     map[colFemaleWorthAvailable] = femaleWorthAvailable;
-    map[colPsychosocialShareSomethingAnswer] = psychosocialShareSomethingAnswer.code;
-    map[colPsychosocialShareSomethingContent] = psychosocialShareSomethingContent;
+    map[colPsychosocialShareSomethingAnswer] =
+        psychosocialShareSomethingAnswer.code;
+    map[colPsychosocialShareSomethingContent] =
+        psychosocialShareSomethingContent;
     map[colPsychosocialHowDoing] = psychosocialHowDoing;
-    map[colUnsuppressedSafeEnvironmentAnswer] = unsuppressedSafeEnvironmentAnswer?.code;
+    map[colUnsuppressedSafeEnvironmentAnswer] =
+        unsuppressedSafeEnvironmentAnswer?.code;
     map[colUnsuppressedWhyNotSafe] = unsuppressedWhyNotSafe;
     return map;
   }
@@ -428,7 +505,8 @@ class PreferenceAssessment implements IExcelExportable {
 
   /// Initializes the support option done fields with the latest data from the database.
   Future<void> initializeSupportOptionDoneFields() async {
-    _supportOptionDones = await DatabaseProvider().retrieveDoneSupportOptionsForPreferenceAssessment(id);
+    _supportOptionDones = await DatabaseProvider()
+        .retrieveDoneSupportOptionsForPreferenceAssessment(id);
   }
 
   /// Do not set the createdDate manually! The DatabaseProvider sets the date
@@ -437,38 +515,176 @@ class PreferenceAssessment implements IExcelExportable {
 
   DateTime get createdDate => this._createdDate;
 
-  ARTRefillOption get lastRefillOption => artRefillOption5 ?? artRefillOption4 ?? artRefillOption3 ?? artRefillOption2 ?? artRefillOption1;
+  ARTRefillOption get lastRefillOption =>
+      artRefillOption5 ??
+      artRefillOption4 ??
+      artRefillOption3 ??
+      artRefillOption2 ??
+      artRefillOption1;
 
-  DateTime get NURSE_CLINIC_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.NURSE_CLINIC() && s.done, orElse: () => null)?.createdDate;
-  DateTime get SATURDAY_CLINIC_CLUB_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.SATURDAY_CLINIC_CLUB() && s.done, orElse: () => null)?.createdDate;
-  DateTime get COMMUNITY_YOUTH_CLUB_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.COMMUNITY_YOUTH_CLUB() && s.done, orElse: () => null)?.createdDate;
-  DateTime get PHONE_CALL_PE_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.PHONE_CALL_PE() && s.done, orElse: () => null)?.createdDate;
-  DateTime get HOME_VISIT_PE_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.HOME_VISIT_PE() && s.done, orElse: () => null)?.createdDate;
-  DateTime get SCHOOL_VISIT_PE_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.SCHOOL_VISIT_PE() && s.done, orElse: () => null)?.createdDate;
-  DateTime get PITSO_VISIT_PE_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.PITSO_VISIT_PE() && s.done, orElse: () => null)?.createdDate;
-  DateTime get CONDOM_DEMO_done_date =>_supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.CONDOM_DEMO() && s.done, orElse: () => null)?.createdDate;
-  DateTime get CONTRACEPTIVES_INFO_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.CONTRACEPTIVES_INFO() && s.done, orElse: () => null)?.createdDate;
-  DateTime get VMMC_INFO_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.VMMC_INFO() && s.done, orElse: () => null)?.createdDate;
-  DateTime get YOUNG_MOTHERS_GROUP_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.YOUNG_MOTHERS_GROUP() && s.done, orElse: () => null)?.createdDate;
-  DateTime get FEMALE_WORTH_GROUP_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.FEMALE_WORTH_GROUP() && s.done, orElse: () => null)?.createdDate;
-  DateTime get LEGAL_AID_INFO_done_date => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.LEGAL_AID_INFO() && s.done, orElse: () => null)?.createdDate;
+  DateTime get NURSE_CLINIC_done_date => _supportOptionDones
+      .firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.NURSE_CLINIC() && s.done,
+          orElse: () => null)
+      ?.createdDate;
+  DateTime get SATURDAY_CLINIC_CLUB_done_date => _supportOptionDones
+      .firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.SATURDAY_CLINIC_CLUB() && s.done,
+          orElse: () => null)
+      ?.createdDate;
+  DateTime get COMMUNITY_YOUTH_CLUB_done_date => _supportOptionDones
+      .firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.COMMUNITY_YOUTH_CLUB() && s.done,
+          orElse: () => null)
+      ?.createdDate;
+  DateTime get PHONE_CALL_PE_done_date => _supportOptionDones
+      .firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.PHONE_CALL_PE() && s.done,
+          orElse: () => null)
+      ?.createdDate;
+  DateTime get HOME_VISIT_PE_done_date => _supportOptionDones
+      .firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.HOME_VISIT_PE() && s.done,
+          orElse: () => null)
+      ?.createdDate;
+  DateTime get SCHOOL_VISIT_PE_done_date => _supportOptionDones
+      .firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.SCHOOL_VISIT_PE() && s.done,
+          orElse: () => null)
+      ?.createdDate;
+  DateTime get PITSO_VISIT_PE_done_date => _supportOptionDones
+      .firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.PITSO_VISIT_PE() && s.done,
+          orElse: () => null)
+      ?.createdDate;
+  DateTime get CONDOM_DEMO_done_date => _supportOptionDones
+      .firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.CONDOM_DEMO() && s.done,
+          orElse: () => null)
+      ?.createdDate;
+  DateTime get CONTRACEPTIVES_INFO_done_date => _supportOptionDones
+      .firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.CONTRACEPTIVES_INFO() && s.done,
+          orElse: () => null)
+      ?.createdDate;
+  DateTime get VMMC_INFO_done_date => _supportOptionDones
+      .firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.VMMC_INFO() && s.done,
+          orElse: () => null)
+      ?.createdDate;
+  DateTime get YOUNG_MOTHERS_GROUP_done_date => _supportOptionDones
+      .firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.YOUNG_MOTHERS_GROUP() && s.done,
+          orElse: () => null)
+      ?.createdDate;
+  DateTime get FEMALE_WORTH_GROUP_done_date => _supportOptionDones
+      .firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.FEMALE_WORTH_GROUP() && s.done,
+          orElse: () => null)
+      ?.createdDate;
+  DateTime get LEGAL_AID_INFO_done_date => _supportOptionDones
+      .firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.LEGAL_AID_INFO() && s.done,
+          orElse: () => null)
+      ?.createdDate;
 
-  bool get NURSE_CLINIC_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.NURSE_CLINIC() && s.done, orElse: () => null) != null;
-  bool get SATURDAY_CLINIC_CLUB_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.SATURDAY_CLINIC_CLUB() && s.done, orElse: () => null) != null;
-  bool get COMMUNITY_YOUTH_CLUB_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.COMMUNITY_YOUTH_CLUB() && s.done, orElse: () => null) != null;
-  bool get PHONE_CALL_PE_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.PHONE_CALL_PE() && s.done, orElse: () => null) != null;
-  bool get HOME_VISIT_PE_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.HOME_VISIT_PE() && s.done, orElse: () => null) != null;
-  bool get SCHOOL_VISIT_PE_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.SCHOOL_VISIT_PE() && s.done, orElse: () => null) != null;
-  bool get PITSO_VISIT_PE_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.PITSO_VISIT_PE() && s.done, orElse: () => null) != null;
-  bool get CONDOM_DEMO_done =>_supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.CONDOM_DEMO() && s.done, orElse: () => null) != null;
-  bool get CONTRACEPTIVES_INFO_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.CONTRACEPTIVES_INFO() && s.done, orElse: () => null) != null;
-  bool get VMMC_INFO_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.VMMC_INFO() && s.done, orElse: () => null) != null;
-  bool get YOUNG_MOTHERS_GROUP_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.YOUNG_MOTHERS_GROUP() && s.done, orElse: () => null) != null;
-  bool get FEMALE_WORTH_GROUP_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.FEMALE_WORTH_GROUP() && s.done, orElse: () => null) != null;
-  bool get LEGAL_AID_INFO_done => _supportOptionDones.firstWhere((SupportOptionDone s) => s.supportOption == SupportOption.LEGAL_AID_INFO() && s.done, orElse: () => null) != null;
+  bool get NURSE_CLINIC_done =>
+      _supportOptionDones.firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.NURSE_CLINIC() && s.done,
+          orElse: () => null) !=
+      null;
+  bool get SATURDAY_CLINIC_CLUB_done =>
+      _supportOptionDones.firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.SATURDAY_CLINIC_CLUB() && s.done,
+          orElse: () => null) !=
+      null;
+  bool get COMMUNITY_YOUTH_CLUB_done =>
+      _supportOptionDones.firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.COMMUNITY_YOUTH_CLUB() && s.done,
+          orElse: () => null) !=
+      null;
+  bool get PHONE_CALL_PE_done =>
+      _supportOptionDones.firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.PHONE_CALL_PE() && s.done,
+          orElse: () => null) !=
+      null;
+  bool get HOME_VISIT_PE_done =>
+      _supportOptionDones.firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.HOME_VISIT_PE() && s.done,
+          orElse: () => null) !=
+      null;
+  bool get SCHOOL_VISIT_PE_done =>
+      _supportOptionDones.firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.SCHOOL_VISIT_PE() && s.done,
+          orElse: () => null) !=
+      null;
+  bool get PITSO_VISIT_PE_done =>
+      _supportOptionDones.firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.PITSO_VISIT_PE() && s.done,
+          orElse: () => null) !=
+      null;
+  bool get CONDOM_DEMO_done =>
+      _supportOptionDones.firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.CONDOM_DEMO() && s.done,
+          orElse: () => null) !=
+      null;
+  bool get CONTRACEPTIVES_INFO_done =>
+      _supportOptionDones.firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.CONTRACEPTIVES_INFO() && s.done,
+          orElse: () => null) !=
+      null;
+  bool get VMMC_INFO_done =>
+      _supportOptionDones.firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.VMMC_INFO() && s.done,
+          orElse: () => null) !=
+      null;
+  bool get YOUNG_MOTHERS_GROUP_done =>
+      _supportOptionDones.firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.YOUNG_MOTHERS_GROUP() && s.done,
+          orElse: () => null) !=
+      null;
+  bool get FEMALE_WORTH_GROUP_done =>
+      _supportOptionDones.firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.FEMALE_WORTH_GROUP() && s.done,
+          orElse: () => null) !=
+      null;
+  bool get LEGAL_AID_INFO_done =>
+      _supportOptionDones.firstWhere(
+          (SupportOptionDone s) =>
+              s.supportOption == SupportOption.LEGAL_AID_INFO() && s.done,
+          orElse: () => null) !=
+      null;
 
   set_NURSE_CLINIC_done(bool done) async {
-    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.NURSE_CLINIC(), done: done);
+    SupportOptionDone s = SupportOptionDone(
+        preferenceAssessmentId: id,
+        supportOption: SupportOption.NURSE_CLINIC(),
+        done: done);
     DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
@@ -477,7 +693,10 @@ class PreferenceAssessment implements IExcelExportable {
   }
 
   set_SATURDAY_CLINIC_CLUB_done(bool done) async {
-    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.SATURDAY_CLINIC_CLUB(), done: done);
+    SupportOptionDone s = SupportOptionDone(
+        preferenceAssessmentId: id,
+        supportOption: SupportOption.SATURDAY_CLINIC_CLUB(),
+        done: done);
     DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
@@ -486,7 +705,10 @@ class PreferenceAssessment implements IExcelExportable {
   }
 
   set_COMMUNITY_YOUTH_CLUB_done(bool done) async {
-    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.COMMUNITY_YOUTH_CLUB(), done: done);
+    SupportOptionDone s = SupportOptionDone(
+        preferenceAssessmentId: id,
+        supportOption: SupportOption.COMMUNITY_YOUTH_CLUB(),
+        done: done);
     DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
@@ -495,7 +717,10 @@ class PreferenceAssessment implements IExcelExportable {
   }
 
   set_PHONE_CALL_PE_done(bool done) async {
-    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.PHONE_CALL_PE(), done: done);
+    SupportOptionDone s = SupportOptionDone(
+        preferenceAssessmentId: id,
+        supportOption: SupportOption.PHONE_CALL_PE(),
+        done: done);
     DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
@@ -504,7 +729,10 @@ class PreferenceAssessment implements IExcelExportable {
   }
 
   set_HOME_VISIT_PE_done(bool done) async {
-    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.HOME_VISIT_PE(), done: done);
+    SupportOptionDone s = SupportOptionDone(
+        preferenceAssessmentId: id,
+        supportOption: SupportOption.HOME_VISIT_PE(),
+        done: done);
     DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
@@ -513,7 +741,10 @@ class PreferenceAssessment implements IExcelExportable {
   }
 
   set_SCHOOL_VISIT_PE_done(bool done) async {
-    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.SCHOOL_VISIT_PE(), done: done);
+    SupportOptionDone s = SupportOptionDone(
+        preferenceAssessmentId: id,
+        supportOption: SupportOption.SCHOOL_VISIT_PE(),
+        done: done);
     DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
@@ -522,7 +753,10 @@ class PreferenceAssessment implements IExcelExportable {
   }
 
   set_PITSO_VISIT_PE_done(bool done) async {
-    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.PITSO_VISIT_PE(), done: done);
+    SupportOptionDone s = SupportOptionDone(
+        preferenceAssessmentId: id,
+        supportOption: SupportOption.PITSO_VISIT_PE(),
+        done: done);
     DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
@@ -531,7 +765,10 @@ class PreferenceAssessment implements IExcelExportable {
   }
 
   set_CONDOM_DEMO_done(bool done) async {
-    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.CONDOM_DEMO(), done: done);
+    SupportOptionDone s = SupportOptionDone(
+        preferenceAssessmentId: id,
+        supportOption: SupportOption.CONDOM_DEMO(),
+        done: done);
     DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
@@ -540,7 +777,10 @@ class PreferenceAssessment implements IExcelExportable {
   }
 
   set_CONTRACEPTIVES_INFO_done(bool done) async {
-    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.CONTRACEPTIVES_INFO(), done: done);
+    SupportOptionDone s = SupportOptionDone(
+        preferenceAssessmentId: id,
+        supportOption: SupportOption.CONTRACEPTIVES_INFO(),
+        done: done);
     DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
@@ -549,7 +789,10 @@ class PreferenceAssessment implements IExcelExportable {
   }
 
   set_VMMC_INFO_done(bool done) async {
-    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.VMMC_INFO(), done: done);
+    SupportOptionDone s = SupportOptionDone(
+        preferenceAssessmentId: id,
+        supportOption: SupportOption.VMMC_INFO(),
+        done: done);
     DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
@@ -558,7 +801,10 @@ class PreferenceAssessment implements IExcelExportable {
   }
 
   set_YOUNG_MOTHERS_GROUP_done(bool done) async {
-    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.YOUNG_MOTHERS_GROUP(), done: done);
+    SupportOptionDone s = SupportOptionDone(
+        preferenceAssessmentId: id,
+        supportOption: SupportOption.YOUNG_MOTHERS_GROUP(),
+        done: done);
     DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
@@ -567,7 +813,10 @@ class PreferenceAssessment implements IExcelExportable {
   }
 
   set_FEMALE_WORTH_GROUP_done(bool done) async {
-    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.FEMALE_WORTH_GROUP(), done: done);
+    SupportOptionDone s = SupportOptionDone(
+        preferenceAssessmentId: id,
+        supportOption: SupportOption.FEMALE_WORTH_GROUP(),
+        done: done);
     DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
@@ -576,12 +825,14 @@ class PreferenceAssessment implements IExcelExportable {
   }
 
   set_LEGAL_AID_INFO_done(bool done) async {
-    SupportOptionDone s = SupportOptionDone(preferenceAssessmentId: id, supportOption: SupportOption.LEGAL_AID_INFO(), done: done);
+    SupportOptionDone s = SupportOptionDone(
+        preferenceAssessmentId: id,
+        supportOption: SupportOption.LEGAL_AID_INFO(),
+        done: done);
     DateTime now = DateTime.now();
     s.createdDate = now;
     _supportOptionDones.remove(s);
     _supportOptionDones.add(s);
     await DatabaseProvider().insertSupportOptionDone(s, createdDate: now);
   }
-
 }

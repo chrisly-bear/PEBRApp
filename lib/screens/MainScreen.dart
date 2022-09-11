@@ -37,7 +37,8 @@ class MainScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _MainScreenState(_isScreenLogged);
 }
 
-class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, TickerProviderStateMixin {
+class _MainScreenState extends State<MainScreen>
+    with WidgetsBindingObserver, TickerProviderStateMixin {
   // TODO: remove _context field and pass context via args if necessary
   BuildContext _context;
   bool _isLoading = true;
@@ -53,9 +54,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
 
   static const int _ANIMATION_TIME = 800; // in milliseconds
   static const double _cardHeight = 100.0;
-  final Animatable<double> _cardHeightTween = Tween<double>(begin: 0, end: _cardHeight).chain(
-      CurveTween(curve: Curves.ease)
-  );
+  final Animatable<double> _cardHeightTween =
+      Tween<double>(begin: 0, end: _cardHeight)
+          .chain(CurveTween(curve: Curves.ease));
   Map<String, AnimationController> animationControllers = {};
   Map<String, bool> shouldAnimateRequiredActionBadge = {};
   bool shouldAnimateSettingsActionRequired = true;
@@ -95,7 +96,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
      * Navigator build calls issue:
      * https://github.com/flutter/flutter/issues/11655#issuecomment-348287396
      */
-    _appStateStream = PatientBloc.instance.appState.listen( (streamEvent) {
+    _appStateStream = PatientBloc.instance.appState.listen((streamEvent) {
       if (streamEvent is AppStateLoading) {
         setState(() {
           this._isLoading = true;
@@ -109,10 +110,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       }
       if (streamEvent is AppStatePatientData) {
         final newPatient = streamEvent.patient;
-        print('*** MainScreen received AppStatePatientData: ${newPatient.artNumber} ***');
+        print(
+            '*** MainScreen received AppStatePatientData: ${newPatient.artNumber} ***');
         setState(() {
           this._isLoading = false;
-          int indexOfExisting = this._patients.indexWhere((p) => p.artNumber == newPatient.artNumber);
+          int indexOfExisting = this
+              ._patients
+              .indexWhere((p) => p.artNumber == newPatient.artNumber);
           if (indexOfExisting > -1) {
             // replace if patient exists (patient was edited)
             this._patients[indexOfExisting] = newPatient;
@@ -123,7 +127,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
             if (newPatient.isEligible && newPatient.consentGiven) {
               this._patients.add(newPatient);
               // add animation controller for this patient card
-              final controller = AnimationController(duration: const Duration(milliseconds: _ANIMATION_TIME), vsync: this);
+              final controller = AnimationController(
+                  duration: const Duration(milliseconds: _ANIMATION_TIME),
+                  vsync: this);
               animationControllers[newPatient.artNumber] = controller;
               // start animation
               controller.forward();
@@ -132,16 +138,25 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
         });
       }
       if (streamEvent is AppStateRequiredActionData) {
-        print('*** MainScreen received AppStateRequiredActionData: ${streamEvent.action.patientART} ***');
-        Patient affectedPatient = _patients.singleWhere((Patient p) => p.artNumber == streamEvent.action.patientART, orElse: () => null);
+        print(
+            '*** MainScreen received AppStateRequiredActionData: ${streamEvent.action.patientART} ***');
+        Patient affectedPatient = _patients.singleWhere(
+            (Patient p) => p.artNumber == streamEvent.action.patientART,
+            orElse: () => null);
         if (affectedPatient != null && !_patientScreenPushed) {
           setState(() {
             if (streamEvent.isDone) {
-              shouldAnimateRequiredActionBadge[affectedPatient.artNumber] = true;
-              affectedPatient.requiredActions.removeWhere((RequiredAction a) => a.type == streamEvent.action.type);
+              shouldAnimateRequiredActionBadge[affectedPatient.artNumber] =
+                  true;
+              affectedPatient.requiredActions.removeWhere(
+                  (RequiredAction a) => a.type == streamEvent.action.type);
             } else {
-              if (affectedPatient.requiredActions.firstWhere((RequiredAction a) => a.type == streamEvent.action.type, orElse: () => null) == null) {
-                shouldAnimateRequiredActionBadge[affectedPatient.artNumber] = true;
+              if (affectedPatient.requiredActions.firstWhere(
+                      (RequiredAction a) => a.type == streamEvent.action.type,
+                      orElse: () => null) ==
+                  null) {
+                shouldAnimateRequiredActionBadge[affectedPatient.artNumber] =
+                    true;
                 affectedPatient.requiredActions.add(streamEvent.action);
               }
             }
@@ -149,7 +164,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
         }
       }
       if (streamEvent is AppStateSettingsRequiredActionData) {
-        print('*** MainScreen received AppStateSettingsRequiredActionData: ${streamEvent.isDone} ***');
+        print(
+            '*** MainScreen received AppStateSettingsRequiredActionData: ${streamEvent.isDone} ***');
         this.shouldAnimateSettingsActionRequired = true;
         setState(() {
           this._settingsActionRequired = !streamEvent.isDone;
@@ -171,8 +187,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   ///   date
   void _sortPatients(List<Patient> patients) {
     patients.sort((Patient a, Patient b) {
-      if (a.isActivated && !b.isActivated) { return -1; }
-      if (!a.isActivated && b.isActivated) { return 1; } // do we need this rule or is it implied by the previous rule?
+      if (a.isActivated && !b.isActivated) {
+        return -1;
+      }
+      if (!a.isActivated && b.isActivated) {
+        return 1;
+      } // do we need this rule or is it implied by the previous rule?
       final DateTime dateOfNextActionA = _getDateOfNextAction(a);
       final DateTime dateOfNextActionB = _getDateOfNextAction(b);
       if (dateOfNextActionA == null && dateOfNextActionB != null) {
@@ -181,7 +201,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       if (dateOfNextActionA != null && dateOfNextActionB == null) {
         return 1;
       }
-      if (dateOfNextActionA != null && dateOfNextActionB != null && !dateOfNextActionA.isAtSameMomentAs(dateOfNextActionB)) {
+      if (dateOfNextActionA != null &&
+          dateOfNextActionB != null &&
+          !dateOfNextActionA.isAtSameMomentAs(dateOfNextActionB)) {
         return dateOfNextActionA.isBefore(dateOfNextActionB) ? -1 : 1;
       }
       return a.createdDate.isBefore(b.createdDate) ? 1 : -1;
@@ -221,60 +243,66 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     print('~~~ MainScreenState.build ~~~');
     _context = context;
     return Scaffold(
-        bottomSheet: PEBRAppBottomSheet(),
-        backgroundColor: BACKGROUND_COLOR,
-        floatingActionButton: FloatingActionButton(
-          key: Key('addPatient'), // key can be used to find the button in integration testing
-          onPressed: _pushNewPatientScreen,
-          child: Icon(Icons.add),
-          backgroundColor: FLOATING_ACTION_BUTTON,
-        ),
-        body: TransparentHeaderPage(
-          title: 'Participants',
-          subtitle: 'Overview',
-          child: Center(child: _bodyToDisplayBasedOnState()),
-          actions: <Widget>[
-            kReleaseMode ? SizedBox() : IconButton(icon: Icon(Icons.bug_report), onPressed: () {
-              _fadeInScreen(DebugScreen());
-            }),
-            IconButton(
-              icon: Icon(Icons.info),
-              onPressed: _pushIconExplanationsScreen,
-            ),
-            IconButton(
-                icon: Icon(Icons.refresh),
-                onPressed: () {
-                    // reset animation
-                    animationControllers.values.forEach((AnimationController c) => c.reset());
-                    // reload patients from SQLite database
-                    PatientBloc.instance.sinkAllPatientsFromDatabase();
-                  },
-            ),
-            IconButton(
-              icon: _settingsActionRequired
-                  ? Stack(
-                  alignment: AlignmentDirectional(2.2, 1.8),
-                  children: [
+      bottomSheet: PEBRAppBottomSheet(),
+      backgroundColor: BACKGROUND_COLOR,
+      floatingActionButton: FloatingActionButton(
+        key: Key(
+            'addPatient'), // key can be used to find the button in integration testing
+        onPressed: _pushNewPatientScreen,
+        child: Icon(Icons.add),
+        backgroundColor: FLOATING_ACTION_BUTTON,
+      ),
+      body: TransparentHeaderPage(
+        title: 'Participants',
+        subtitle: 'Overview',
+        child: Center(child: _bodyToDisplayBasedOnState()),
+        actions: <Widget>[
+          kReleaseMode
+              ? SizedBox()
+              : IconButton(
+                  icon: Icon(Icons.bug_report),
+                  onPressed: () {
+                    _fadeInScreen(DebugScreen());
+                  }),
+          IconButton(
+            icon: Icon(Icons.info),
+            onPressed: _pushIconExplanationsScreen,
+          ),
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: () {
+              // reset animation
+              animationControllers.values
+                  .forEach((AnimationController c) => c.reset());
+              // reload patients from SQLite database
+              PatientBloc.instance.sinkAllPatientsFromDatabase();
+            },
+          ),
+          IconButton(
+            icon: _settingsActionRequired
+                ? Stack(alignment: AlignmentDirectional(2.2, 1.8), children: [
                     Icon(Icons.settings),
                     RequiredActionBadge(
                       '1',
                       animate: shouldAnimateSettingsActionRequired,
                       badgeSize: 16.0,
-                      boxShadow: [BoxShadow(
-                        color: BACKGROUND_COLOR,
-                        blurRadius: 0.0,
-                        spreadRadius: 1.0,
-                      )],
+                      boxShadow: [
+                        BoxShadow(
+                          color: BACKGROUND_COLOR,
+                          blurRadius: 0.0,
+                          spreadRadius: 1.0,
+                        )
+                      ],
                       onAnimateComplete: () {
                         this.shouldAnimateSettingsActionRequired = false;
                       },
                     ),
                   ])
-                  : Icon(Icons.settings),
-              onPressed: _pushSettingsScreen,
-            ),
-          ],
-        ),
+                : Icon(Icons.settings),
+            onPressed: _pushSettingsScreen,
+          ),
+        ],
+      ),
     );
   }
 
@@ -309,13 +337,15 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   /// inform all listeners of the new data.
   Future<void> _recalculateRequiredActionsForAllPatients() async {
     for (Patient p in _patients) {
-      final Set<RequiredAction> previousActions = p.dueRequiredActionsAtInitialization;
+      final Set<RequiredAction> previousActions =
+          p.dueRequiredActionsAtInitialization;
       await p.initializeRequiredActionsField();
       final Set<RequiredAction> newActions = p.calculateDueRequiredActions();
       final bool shouldAnimate = previousActions.length != newActions.length;
       if (shouldAnimate) {
         shouldAnimateRequiredActionBadge[p.artNumber] = shouldAnimate;
-        PatientBloc.instance.sinkNewPatientData(p, oldRequiredActions: previousActions);
+        PatientBloc.instance
+            .sinkNewPatientData(p, oldRequiredActions: previousActions);
       }
     }
   }
@@ -355,7 +385,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
 
   /// Checks if a backup is due and if so, starts a backup.
   Future<void> _runBackupIfDue() async {
-
     // if backup is running, do not start another backup
     if (_backupRunning) {
       return;
@@ -375,8 +404,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     if (lastBackup != null) {
       daysSinceLastBackup = differenceInDays(lastBackup, DateTime.now());
       print('days since last backup: $daysSinceLastBackup');
-      if (daysSinceLastBackup < AUTO_BACKUP_EVERY_X_DAYS && daysSinceLastBackup >= 0) {
-        print("backup not due yet (only due after $AUTO_BACKUP_EVERY_X_DAYS days)");
+      if (daysSinceLastBackup < AUTO_BACKUP_EVERY_X_DAYS &&
+          daysSinceLastBackup >= 0) {
+        print(
+            "backup not due yet (only due after $AUTO_BACKUP_EVERY_X_DAYS days)");
         _backupRunning = false;
         return; // don't run a backup, we have already backed up today
       }
@@ -390,7 +421,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       print('Stacktrace: $s');
       // show warning if backup wasn't successful for a long time
       if (daysSinceLastBackup >= SHOW_BACKUP_WARNING_AFTER_X_DAYS) {
-        showFlushbar("Last upload was $daysSinceLastBackup days ago.\nPlease perform a manual upload from the settings screen.", title: "Warning", error: true);
+        showFlushbar(
+            "Last upload was $daysSinceLastBackup days ago.\nPlease perform a manual upload from the settings screen.",
+            title: "Warning",
+            error: true);
       }
     }
     _backupRunning = false;
@@ -399,7 +433,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   /// Checks if a viral load fetch is due and if so, starts fetching viral loads
   /// from VisibleImpact.
   Future<void> _runVLFetchIfDue() async {
-
     // if fetch is running, do not start another fetch
     if (_vlFetchRunning) {
       return;
@@ -413,18 +446,24 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       return;
     }
 
-    final List<Patient> allPatients = await DatabaseProvider().retrieveLatestPatients(retrieveNonEligibles: false, retrieveNonConsents: false);
+    final List<Patient> allPatients = await DatabaseProvider()
+        .retrieveLatestPatients(
+            retrieveNonEligibles: false, retrieveNonConsents: false);
     final List<Patient> patientsToUpdate = [];
     final Map<String, int> patientsNotUpdatedForTooLong = {};
     for (Patient patient in allPatients) {
       // check if fetch is due
       int daysSinceLastFetch = -1; // -1 means one day from today, i.e. tomorrow
-      final DateTime lastFetch = await getLatestViralLoadFetchFromSharedPrefs(patient.artNumber);
+      final DateTime lastFetch =
+          await getLatestViralLoadFetchFromSharedPrefs(patient.artNumber);
       if (lastFetch != null) {
         daysSinceLastFetch = differenceInDays(lastFetch, DateTime.now());
-        print('days since last vl fetch (${patient.artNumber}): $daysSinceLastFetch');
-        if (daysSinceLastFetch < AUTO_VL_FETCH_EVERY_X_DAYS && daysSinceLastFetch >= 0) {
-          print("fetch not due yet (only due after $AUTO_VL_FETCH_EVERY_X_DAYS days)");
+        print(
+            'days since last vl fetch (${patient.artNumber}): $daysSinceLastFetch');
+        if (daysSinceLastFetch < AUTO_VL_FETCH_EVERY_X_DAYS &&
+            daysSinceLastFetch >= 0) {
+          print(
+              "fetch not due yet (only due after $AUTO_VL_FETCH_EVERY_X_DAYS days)");
         } else {
           patientsToUpdate.add(patient);
         }
@@ -453,38 +492,49 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
         viralLoadsFromDB = await downloadViralLoadsFromDatabase(patient);
         final DateTime fetchedDate = DateTime.now();
         for (ViralLoad vl in viralLoadsFromDB) {
-          await DatabaseProvider().insertViralLoad(vl, createdDate: fetchedDate);
+          await DatabaseProvider()
+              .insertViralLoad(vl, createdDate: fetchedDate);
         }
-        final Patient patientObj = _patients.firstWhere((Patient p) => p.artNumber == patient.artNumber, orElse: () => null);
+        final Patient patientObj = _patients.firstWhere(
+            (Patient p) => p.artNumber == patient.artNumber,
+            orElse: () => null);
         if (patientObj != null) {
           // update the patient objects from the main screen
           final int oldEntries = patientObj.viralLoads.length;
           patientObj.addViralLoads(viralLoadsFromDB);
-          final int newEntriesForPatient = patientObj.viralLoads.length - oldEntries;
+          final int newEntriesForPatient =
+              patientObj.viralLoads.length - oldEntries;
           newEntries += newEntriesForPatient;
           if (newEntriesForPatient > 0) {
             updatedPatients[patient.artNumber] = newEntriesForPatient;
           }
           await storeLatestViralLoadFetchInSharedPrefs(patient.artNumber);
-          patientsNotUpdatedForTooLong.remove(patient); // update for this patient was successful, do not show it to be overdue
-          final bool discrepancyFound = await checkForViralLoadDiscrepancies(patientObj);
+          patientsNotUpdatedForTooLong.remove(
+              patient); // update for this patient was successful, do not show it to be overdue
+          final bool discrepancyFound =
+              await checkForViralLoadDiscrepancies(patientObj);
         }
       }
       String message = 'No new viral loads found.';
       if (newEntries > 0) {
-        message = '$newEntries new viral load result${newEntries > 1 ? 's' : ''} found for participants:\n${updatedPatients.map((String patientART, int newVLs) {
-          return MapEntry(patientART, '\n$patientART ($newVLs)');
-        }).values.join('')}';
+        message =
+            '$newEntries new viral load result${newEntries > 1 ? 's' : ''} found for participants:\n${updatedPatients.map((String patientART, int newVLs) {
+                  return MapEntry(patientART, '\n$patientART ($newVLs)');
+                }).values.join('')}';
       }
-      showFlushbar(message, title: 'Viral Loads Fetched', duration: newEntries > 0 ? Duration(seconds: 10) : null);
+      showFlushbar(message,
+          title: 'Viral Loads Fetched',
+          duration: newEntries > 0 ? Duration(seconds: 10) : null);
     } catch (e, s) {
       print('Caught exception during automated viral load fetch: $e');
       print('Stacktrace: $s');
       // show warning if viral load fetch wasn't successful for a long time
       if (patientsNotUpdatedForTooLong.isNotEmpty) {
-        final String vlFetchOverdueMessage = "The last viral load update for the following participant${patientsNotUpdatedForTooLong.length > 1 ? 's' : ''} dates back $SHOW_VL_FETCH_WARNING_AFTER_X_DAYS days or more:\n${patientsNotUpdatedForTooLong.map((String patientART, int lastFetch) {
-          return MapEntry(patientART, '\n$patientART (${lastFetch < 0 ? 'never' : '$lastFetch days ago'})');
-        }).values.join('')}\n\nYou can fetch the latest viral loads from ${patientsNotUpdatedForTooLong.length > 1 ? 'each' : 'the'} participant's detail page.";
+        final String vlFetchOverdueMessage =
+            "The last viral load update for the following participant${patientsNotUpdatedForTooLong.length > 1 ? 's' : ''} dates back $SHOW_VL_FETCH_WARNING_AFTER_X_DAYS days or more:\n${patientsNotUpdatedForTooLong.map((String patientART, int lastFetch) {
+                  return MapEntry(patientART,
+                      '\n$patientART (${lastFetch < 0 ? 'never' : '$lastFetch days ago'})');
+                }).values.join('')}\n\nYou can fetch the latest viral loads from ${patientsNotUpdatedForTooLong.length > 1 ? 'each' : 'the'} participant's detail page.";
         showFlushbar(vlFetchOverdueMessage, title: "Warning", error: true);
       }
     }
@@ -506,12 +556,14 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
 
   /// Pushes [newScreen] to the top of the navigation stack using a fade in
   /// transition.
-  Future<T> _fadeInScreen<T extends Object>(Widget newScreen, {String routeName}) {
+  Future<T> _fadeInScreen<T extends Object>(Widget newScreen,
+      {String routeName}) {
     return Navigator.of(_context).push(
       PageRouteBuilder<T>(
         settings: RouteSettings(name: routeName),
         opaque: false,
-        transitionsBuilder: (BuildContext context, Animation<double> anim1, Animation<double> anim2, Widget widget) {
+        transitionsBuilder: (BuildContext context, Animation<double> anim1,
+            Animation<double> anim2, Widget widget) {
           return FadeTransition(
             opacity: anim1,
             child: widget, // child is the value returned by pageBuilder
@@ -529,7 +581,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   }
 
   Future<void> _pushIconExplanationsScreen() async {
-    await _fadeInScreen(IconExplanationsScreen(), routeName: '/icon-explanations');
+    await _fadeInScreen(IconExplanationsScreen(),
+        routeName: '/icon-explanations');
   }
 
   Future<void> _pushNewPatientScreen() async {
@@ -556,8 +609,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       height: size,
       width: size,
       child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(SPINNER_MAIN_SCREEN)
-      ),
+          valueColor: AlwaysStoppedAnimation<Color>(SPINNER_MAIN_SCREEN)),
     );
   }
 
@@ -616,7 +668,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       );
     }
 
-    Text _formatPatientRowText(String text, {bool isActivated: true, bool highlight: false}) {
+    Text _formatPatientRowText(String text,
+        {bool isActivated: true, bool highlight: false}) {
       return Text(
         text,
         style: TextStyle(
@@ -637,8 +690,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
               child: Image(
                 height: 30.0,
                 color: color,
-                image: AssetImage(
-                    assetLocation),
+                image: AssetImage(assetLocation),
               )));
     }
 
@@ -647,7 +699,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       return _getPaddedIcon(assetLocation, color: iconColor);
     }
 
-    Widget _buildSupportIcons(PreferenceAssessment pa, {bool isActivated: true}) {
+    Widget _buildSupportIcons(PreferenceAssessment pa,
+        {bool isActivated: true}) {
       if (pa == null) {
         return _formatPatientRowText('—', isActivated: isActivated);
       }
@@ -655,37 +708,71 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       List<Widget> icons = List<Widget>();
       final Container spacer = Container(width: 3);
       if (sps.NURSE_CLINIC_selected) {
-        final icon = [_getPaddedSupportIcon('assets/icons/nurse_clinic.png', active: isActivated && !pa.NURSE_CLINIC_done), spacer];
+        final icon = [
+          _getPaddedSupportIcon('assets/icons/nurse_clinic.png',
+              active: isActivated && !pa.NURSE_CLINIC_done),
+          spacer
+        ];
         pa.NURSE_CLINIC_done ? icons.addAll(icon) : icons.insertAll(0, icon);
       }
       if (sps.SATURDAY_CLINIC_CLUB_selected && pa.saturdayClinicClubAvailable) {
-        final icon = [_getPaddedSupportIcon('assets/icons/saturday_clinic_club.png', active: isActivated && !pa.SATURDAY_CLINIC_CLUB_done), spacer];
-        pa.SATURDAY_CLINIC_CLUB_done ? icons.addAll(icon) : icons.insertAll(0, icon);
+        final icon = [
+          _getPaddedSupportIcon('assets/icons/saturday_clinic_club.png',
+              active: isActivated && !pa.SATURDAY_CLINIC_CLUB_done),
+          spacer
+        ];
+        pa.SATURDAY_CLINIC_CLUB_done
+            ? icons.addAll(icon)
+            : icons.insertAll(0, icon);
       }
       if (sps.COMMUNITY_YOUTH_CLUB_selected && pa.communityYouthClubAvailable) {
-        final icon = [_getPaddedSupportIcon('assets/icons/youth_club.png', active: isActivated && !pa.COMMUNITY_YOUTH_CLUB_done), spacer];
-        pa.COMMUNITY_YOUTH_CLUB_done ? icons.addAll(icon) : icons.insertAll(0, icon);
+        final icon = [
+          _getPaddedSupportIcon('assets/icons/youth_club.png',
+              active: isActivated && !pa.COMMUNITY_YOUTH_CLUB_done),
+          spacer
+        ];
+        pa.COMMUNITY_YOUTH_CLUB_done
+            ? icons.addAll(icon)
+            : icons.insertAll(0, icon);
       }
       if (sps.PHONE_CALL_PE_selected) {
-        final icon = [_getPaddedSupportIcon('assets/icons/phonecall_pe.png', active: isActivated && !pa.PHONE_CALL_PE_done), spacer];
+        final icon = [
+          _getPaddedSupportIcon('assets/icons/phonecall_pe.png',
+              active: isActivated && !pa.PHONE_CALL_PE_done),
+          spacer
+        ];
         pa.PHONE_CALL_PE_done ? icons.addAll(icon) : icons.insertAll(0, icon);
       }
       if (sps.HOME_VISIT_PE_selected && pa.homeVisitPEPossible) {
-        final icon = [_getPaddedSupportIcon('assets/icons/homevisit_pe.png', active: isActivated && !pa.HOME_VISIT_PE_done), spacer];
+        final icon = [
+          _getPaddedSupportIcon('assets/icons/homevisit_pe.png',
+              active: isActivated && !pa.HOME_VISIT_PE_done),
+          spacer
+        ];
         pa.HOME_VISIT_PE_done ? icons.addAll(icon) : icons.insertAll(0, icon);
       }
       if (sps.SCHOOL_VISIT_PE_selected && pa.schoolVisitPEPossible) {
-        final icon = [_getPaddedSupportIcon('assets/icons/schooltalk_pe.png', active: isActivated && !pa.SCHOOL_VISIT_PE_done), spacer];
+        final icon = [
+          _getPaddedSupportIcon('assets/icons/schooltalk_pe.png',
+              active: isActivated && !pa.SCHOOL_VISIT_PE_done),
+          spacer
+        ];
         pa.SCHOOL_VISIT_PE_done ? icons.addAll(icon) : icons.insertAll(0, icon);
       }
       if (sps.PITSO_VISIT_PE_selected && pa.pitsoPEPossible) {
-        final icon = [_getPaddedSupportIcon('assets/icons/pitso.png', active: isActivated && !pa.PITSO_VISIT_PE_done), spacer];
+        final icon = [
+          _getPaddedSupportIcon('assets/icons/pitso.png',
+              active: isActivated && !pa.PITSO_VISIT_PE_done),
+          spacer
+        ];
         pa.PITSO_VISIT_PE_done ? icons.addAll(icon) : icons.insertAll(0, icon);
       }
       if (sps.areAllDeselected) {
-        icons.add(_getPaddedSupportIcon('assets/icons/no_support.png', active: isActivated));
+        icons.add(_getPaddedSupportIcon('assets/icons/no_support.png',
+            active: isActivated));
         icons.add(spacer);
-      } if (icons.isEmpty) {
+      }
+      if (icons.isEmpty) {
         // indicate with '…' that options were selected which do not have an icon
         return _formatPatientRowText('…', isActivated: isActivated);
       }
@@ -701,7 +788,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
     }
 
     final Widget _headerRow = Padding(
-      padding: EdgeInsets.symmetric(horizontal: _cardMarginHorizontal + _rowPaddingHorizontal),
+      padding: EdgeInsets.symmetric(
+          horizontal: _cardMarginHorizontal + _rowPaddingHorizontal),
       child: Row(
         children: <Widget>[
           SizedBox(width: _colorBarWidth),
@@ -709,30 +797,40 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
             width: _artNumberWidth,
             child: _formatHeaderRowText('ART NR.'),
           ),
-          _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(
-            width: _nextRefillWidth,
-            child: _formatHeaderRowText('NEXT REFILL'),
-          ),
-          _userData.healthCenter.studyArm == 1 ? _buildEmptyBox() : Container(
-            width: _refillByWidth,
-            child: _formatHeaderRowText('       '),
-          ),
-          _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(
-            width: _refillByWidth,
-            child: _formatHeaderRowText('REFILL BY'),
-          ),
-          _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(
-            width: _supportWidth,
-            child: _formatHeaderRowText('SUPPORT'),
-          ),
+          _userData.healthCenter.studyArm == 2
+              ? _buildEmptyBox()
+              : Container(
+                  width: _nextRefillWidth,
+                  child: _formatHeaderRowText('NEXT REFILL'),
+                ),
+          _userData.healthCenter.studyArm == 1
+              ? _buildEmptyBox()
+              : Container(
+                  width: _refillByWidth,
+                  child: _formatHeaderRowText('       '),
+                ),
+          _userData.healthCenter.studyArm == 2
+              ? _buildEmptyBox()
+              : Container(
+                  width: _refillByWidth,
+                  child: _formatHeaderRowText('REFILL BY'),
+                ),
+          _userData.healthCenter.studyArm == 2
+              ? _buildEmptyBox()
+              : Container(
+                  width: _supportWidth,
+                  child: _formatHeaderRowText('SUPPORT'),
+                ),
           Container(
             width: _viralLoadWidth,
             child: _formatHeaderRowText('VIRAL LOAD'),
           ),
-          _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(
-            width: _nextAssessmentWidth,
-            child: _formatHeaderRowText('NEXT ASSESSMENT'),
-          ),
+          _userData.healthCenter.studyArm == 2
+              ? _buildEmptyBox()
+              : Container(
+                  width: _nextAssessmentWidth,
+                  child: _formatHeaderRowText('NEXT ASSESSMENT'),
+                ),
         ],
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
       ),
@@ -748,35 +846,56 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       final patientART = curPatient.artNumber;
 
       Widget _getViralLoadIndicator({bool isActivated: true}) {
-        Widget viralLoadIcon = Padding(padding: EdgeInsets.only(left: 8.0), child: _formatPatientRowText('—', isActivated: isActivated));
-        Widget viralLoadBadge = _formatPatientRowText('—', isActivated: isActivated);
+        Widget viralLoadIcon = Padding(
+            padding: EdgeInsets.only(left: 8.0),
+            child: _formatPatientRowText('—', isActivated: isActivated));
+        Widget viralLoadBadge =
+            _formatPatientRowText('—', isActivated: isActivated);
         Color iconColor = isActivated ? null : ICON_INACTIVE;
-        if (curPatient.mostRecentViralLoad?.failed != null && curPatient.mostRecentViralLoad.failed) {
-          viralLoadIcon = _getPaddedIcon('assets/icons/viralload_failed.png', color: iconColor);
-        } else if (curPatient.mostRecentViralLoad?.isSuppressed != null && curPatient.mostRecentViralLoad.isSuppressed) {
-          viralLoadIcon = _getPaddedIcon('assets/icons/viralload_suppressed.png', color: iconColor);
-          viralLoadBadge = ViralLoadBadge(curPatient.mostRecentViralLoad, smallSize: true); // TODO: show greyed out version if isActivated is false
-        } else if (curPatient.mostRecentViralLoad?.isSuppressed != null && !curPatient.mostRecentViralLoad.isSuppressed) {
-          viralLoadIcon = _getPaddedIcon('assets/icons/viralload_unsuppressed.png', color: iconColor);
-          viralLoadBadge = ViralLoadBadge(curPatient.mostRecentViralLoad, smallSize: true); // TODO: show greyed out version if isActivated is false
+        if (curPatient.mostRecentViralLoad?.failed != null &&
+            curPatient.mostRecentViralLoad.failed) {
+          viralLoadIcon = _getPaddedIcon('assets/icons/viralload_failed.png',
+              color: iconColor);
+        } else if (curPatient.mostRecentViralLoad?.isSuppressed != null &&
+            curPatient.mostRecentViralLoad.isSuppressed) {
+          viralLoadIcon = _getPaddedIcon(
+              'assets/icons/viralload_suppressed.png',
+              color: iconColor);
+          viralLoadBadge = ViralLoadBadge(curPatient.mostRecentViralLoad,
+              smallSize:
+                  true); // TODO: show greyed out version if isActivated is false
+        } else if (curPatient.mostRecentViralLoad?.isSuppressed != null &&
+            !curPatient.mostRecentViralLoad.isSuppressed) {
+          viralLoadIcon = _getPaddedIcon(
+              'assets/icons/viralload_unsuppressed.png',
+              color: iconColor);
+          viralLoadBadge = ViralLoadBadge(curPatient.mostRecentViralLoad,
+              smallSize:
+                  true); // TODO: show greyed out version if isActivated is false
         }
         return viralLoadIcon;
 //        return viralLoadBadge;
       }
 
       String nextRefillText = '—';
-      DateTime nextARTRefillDate = curPatient.latestDoneARTRefill?.nextRefillDate ?? curPatient.enrollmentDate;
+      DateTime nextARTRefillDate =
+          curPatient.latestDoneARTRefill?.nextRefillDate ??
+              curPatient.enrollmentDate;
       nextRefillText = formatDate(nextARTRefillDate);
 
       String refillByText = '—';
-      ARTRefillOption aro = curPatient.latestPreferenceAssessment?.lastRefillOption;
+      ARTRefillOption aro =
+          curPatient.latestPreferenceAssessment?.lastRefillOption;
       if (aro != null) {
         refillByText = aro.descriptionShort;
       }
 
       String nextAssessmentText = '—';
-      DateTime lastAssessmentDate = curPatient.latestPreferenceAssessment?.createdDate;
-      DateTime nextAssessmentDate = calculateNextAssessment(lastAssessmentDate, isSuppressed(curPatient)) ?? curPatient.enrollmentDate;
+      DateTime lastAssessmentDate =
+          curPatient.latestPreferenceAssessment?.createdDate;
+      DateTime nextAssessmentDate = calculateNextAssessment(
+              lastAssessmentDate, isSuppressed(curPatient)) ??
+          curPatient.enrollmentDate;
       nextAssessmentText = formatDate(nextAssessmentDate);
 
       bool nextRefillTextHighlighted = false;
@@ -792,67 +911,82 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       }
 
       final _curCardMargin = EdgeInsets.symmetric(
-          vertical: _cardMarginVertical,
-          horizontal: _cardMarginHorizontal);
+          vertical: _cardMarginVertical, horizontal: _cardMarginHorizontal);
 
       void _showAlertDialogToActivatePatient() {
-        final AnimationController controller = animationControllers[curPatient.artNumber];
+        final AnimationController controller =
+            animationControllers[curPatient.artNumber];
         final originalAnimationDuration = controller.duration;
-        final Duration _quickAnimationDuration = Duration(milliseconds: (_ANIMATION_TIME / 2).round());
+        final Duration _quickAnimationDuration =
+            Duration(milliseconds: (_ANIMATION_TIME / 2).round());
         controller.duration = _quickAnimationDuration;
         showDialog(
           context: _context,
           builder: (BuildContext context) => AlertDialog(
             title: Text(curPatient.artNumber),
             backgroundColor: BACKGROUND_COLOR,
-            content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: 180.0,
-                    child: PEBRAButtonRaised(
-                      curPatient.isActivated ? 'Deactivate Participant' : 'Activate Participant',
-                      onPressed: () async {
-                        Navigator.of(context).pop();
-                        // *****************************
-                        // activate / deactivate patient
-                        // *****************************
-                        if (!curPatient.isActivated) {
-                          var uploadPatientStatus = await uploadPatientStatusVisibleImpact(curPatient, 'active');
-                          print(uploadPatientStatus);
-                        }
-                        curPatient.isActivated = !curPatient.isActivated;
-                        DatabaseProvider().insertPatient(curPatient);
-                        await controller.animateBack(0.0, duration: _quickAnimationDuration, curve: Curves.ease); // fold patient card up
-                        setState(() {}); // re-render the patient card (grey it out / un-grey it and sort it at the right position in the table)
-                        await controller.forward(); // unfold patient card
-                        controller.duration = originalAnimationDuration; // reset animation duration
-                      },
+            content: Column(mainAxisSize: MainAxisSize.min, children: [
+              SizedBox(
+                width: 180.0,
+                child: PEBRAButtonRaised(
+                  curPatient.isActivated
+                      ? 'Deactivate Participant'
+                      : 'Activate Participant',
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                    // *****************************
+                    // activate / deactivate patient
+                    // *****************************
+                    if (!curPatient.isActivated) {
+                      var uploadPatientStatus =
+                          await uploadPatientStatusVisibleImpact(
+                              curPatient, 'active');
+                      print(uploadPatientStatus);
+                    }
+                    curPatient.isActivated = !curPatient.isActivated;
+                    DatabaseProvider().insertPatient(curPatient);
+                    await controller.animateBack(0.0,
+                        duration: _quickAnimationDuration,
+                        curve: Curves.ease); // fold patient card up
+                    setState(
+                        () {}); // re-render the patient card (grey it out / un-grey it and sort it at the right position in the table)
+                    await controller.forward(); // unfold patient card
+                    controller.duration =
+                        originalAnimationDuration; // reset animation duration
+                  },
+                ),
+              ),
+              SizedBox(height: kReleaseMode ? 0.0 : 10.0),
+              kReleaseMode
+                  ? SizedBox()
+                  : SizedBox(
+                      width: 180.0,
+                      child: PEBRAButtonRaised(
+                        'Delete Participant',
+                        onPressed: () async {
+                          // **************
+                          // delete patient
+                          // **************
+                          Navigator.of(context).pop();
+                          DatabaseProvider().deletePatient(curPatient);
+                          _patients.removeWhere((Patient p) =>
+                              p.artNumber == curPatient.artNumber);
+                          await controller.animateBack(0.0,
+                              duration: _quickAnimationDuration,
+                              curve: Curves.ease); // fold patient card up
+                          controller.duration =
+                              originalAnimationDuration; // reset animation duration
+                        },
+                      ),
                     ),
-                  ),
-                  SizedBox(height: kReleaseMode ? 0.0 : 10.0),
-                  kReleaseMode ? SizedBox() : SizedBox(
-                    width: 180.0,
-                    child: PEBRAButtonRaised(
-                      'Delete Participant',
-                      onPressed: () async {
-                        // **************
-                        // delete patient
-                        // **************
-                        Navigator.of(context).pop();
-                        DatabaseProvider().deletePatient(curPatient);
-                        _patients.removeWhere((Patient p) => p.artNumber == curPatient.artNumber);
-                        await controller.animateBack(0.0, duration: _quickAnimationDuration, curve: Curves.ease); // fold patient card up
-                        controller.duration = originalAnimationDuration; // reset animation duration
-                      },
-                    ),
-                  ),
-                  SizedBox(height: 15.0),
-                  PEBRAButtonFlat(
-                    'Close',
-                    onPressed: () { Navigator.of(context).pop(); },
-                  ),
-                ]),
+              SizedBox(height: 15.0),
+              PEBRAButtonFlat(
+                'Close',
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ]),
           ),
         );
       }
@@ -866,11 +1000,17 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
           onTap: () {
             _pushPatientScreen(curPatient);
           },
-          onLongPress: (kReleaseMode && curPatient.isActivated) ? null : _showAlertDialogToActivatePatient,
+          onLongPress: (kReleaseMode && curPatient.isActivated)
+              ? null
+              : _showAlertDialogToActivatePatient,
           child: Row(
             children: [
               // color bar
-              _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(width: _colorBarWidth, color: _calculateCardColor(curPatient)),
+              _userData.healthCenter.studyArm == 2
+                  ? _buildEmptyBox()
+                  : Container(
+                      width: _colorBarWidth,
+                      color: _calculateCardColor(curPatient)),
               // patient info
               Container(
                 child: Padding(
@@ -883,38 +1023,60 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
                       // ART Nr.
                       Container(
                         width: _artNumberWidth,
-                        child: _formatPatientRowText(patientART, isActivated: curPatient.isActivated),
+                        child: _formatPatientRowText(patientART,
+                            isActivated: curPatient.isActivated),
                       ),
                       // Next Refill
-                      _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(
-                        width: _nextRefillWidth,
-                        child: _formatPatientRowText(nextRefillText, isActivated: curPatient.isActivated, highlight: nextRefillTextHighlighted),
-                      ),
+                      _userData.healthCenter.studyArm == 2
+                          ? _buildEmptyBox()
+                          : Container(
+                              width: _nextRefillWidth,
+                              child: _formatPatientRowText(nextRefillText,
+                                  isActivated: curPatient.isActivated,
+                                  highlight: nextRefillTextHighlighted),
+                            ),
                       // Empty Cell
-                      _userData.healthCenter.studyArm == 1 ? _buildEmptyBox()  : Container(
-                        width: _refillByWidth,
-                        child: _formatPatientRowText(" ", isActivated: curPatient.isActivated),
-                      ),
+                      _userData.healthCenter.studyArm == 1
+                          ? _buildEmptyBox()
+                          : Container(
+                              width: _refillByWidth,
+                              child: _formatPatientRowText(" ",
+                                  isActivated: curPatient.isActivated),
+                            ),
                       // Refill By
-                      _userData.healthCenter.studyArm == 2 ? _buildEmptyBox()  : Container(
-                        width: _refillByWidth,
-                        child: _formatPatientRowText(refillByText, isActivated: curPatient.isActivated),
-                      ),
+                      _userData.healthCenter.studyArm == 2
+                          ? _buildEmptyBox()
+                          : Container(
+                              width: _refillByWidth,
+                              child: _formatPatientRowText(refillByText,
+                                  isActivated: curPatient.isActivated),
+                            ),
                       // Support
-                      _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(
-                        width: _supportWidth,
-                        child: _buildSupportIcons(curPatient?.latestPreferenceAssessment, isActivated: curPatient.isActivated),
-                      ),
+                      _userData.healthCenter.studyArm == 2
+                          ? _buildEmptyBox()
+                          : Container(
+                              width: _supportWidth,
+                              child: _buildSupportIcons(
+                                  curPatient?.latestPreferenceAssessment,
+                                  isActivated: curPatient.isActivated),
+                            ),
                       // Viral Load
                       Container(
                         width: _viralLoadWidth,
-                        child: Container(alignment: Alignment.centerLeft, child: _getViralLoadIndicator(isActivated: curPatient.isActivated)),
+                        child: Container(
+                            alignment: Alignment.centerLeft,
+                            child: _getViralLoadIndicator(
+                                isActivated: curPatient.isActivated)),
                       ),
                       // Next Assessment
-                      _userData.healthCenter.studyArm == 2 ? _buildEmptyBox() : Container(
-                        width: _nextAssessmentWidth,
-                        child: _formatPatientRowText(nextAssessmentText, isActivated: curPatient.isActivated, highlight: nextAssessmentTextHighlighted),
-                      ),
+                      _userData.healthCenter.studyArm == 2
+                          ? _buildEmptyBox()
+                          : Container(
+                              width: _nextAssessmentWidth,
+                              child: _formatPatientRowText(nextAssessmentText,
+                                  isActivated: curPatient.isActivated,
+                                  highlight: nextAssessmentTextHighlighted),
+                            ),
                     ],
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   ),
@@ -926,16 +1088,18 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       );
 
       // wrap in stack to display action required label
-      final int numOfActionsRequired = curPatient.calculateDueRequiredActions(userData : _userData).length;
+      final int numOfActionsRequired =
+          curPatient.calculateDueRequiredActions(userData: _userData).length;
       if (curPatient.isActivated && numOfActionsRequired > 0) {
         final List<Widget> badges = [];
         for (int i = 0; i < numOfActionsRequired; i++) {
-          final bool shouldAnimateBadge = shouldAnimateRequiredActionBadge[curPatient.artNumber] ?? false;
+          final bool shouldAnimateBadge =
+              shouldAnimateRequiredActionBadge[curPatient.artNumber] ?? false;
           badges.add(
             Hero(
               tag: "RequiredAction_${curPatient.artNumber}_$i",
               child: RequiredActionBadge(
-                '${i+1}',
+                '${i + 1}',
                 animate: shouldAnimateBadge,
               ),
             ),
@@ -954,9 +1118,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
 
       // animate patient card when loading
       patientCard = GrowTransition(
-          animation: _cardHeightTween.animate(animationControllers[curPatient.artNumber]),
-          child: patientCard
-      );
+          animation: _cardHeightTween
+              .animate(animationControllers[curPatient.artNumber]),
+          child: patientCard);
 
       _patientCards.add(patientCard);
     }
@@ -966,7 +1130,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   /// Returns red, orange, yellow based on urgency of next action (next ART refill or next preference assessment).
   /// Returns transparent color, if there is no urgency (next action lays more than a week in the future) or if
   /// the patient is not activated.
-  /// 
+  ///
   /// Assumes that the [patient.latestARTRefill] and [patient.latestPreferenceAssessment] fields are initialized.
   Color _calculateCardColor(Patient patient) {
     if (!patient.isActivated) {
@@ -979,7 +1143,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       return Colors.transparent;
     }
 
-    final int daysUntilNextAction = differenceInDays(DateTime.now(), dateOfNextAction);
+    final int daysUntilNextAction =
+        differenceInDays(DateTime.now(), dateOfNextAction);
     if (daysUntilNextAction <= 1) {
       return URGENCY_HIGH;
     }
@@ -997,13 +1162,17 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
   /// Returns `null` if both `latestARTRefill.nextRefillDate` and
   /// `latestPreferenceAssessment` are null.
   DateTime _getDateOfNextAction(Patient patient) {
-    DateTime nextARTRefillDate = patient.latestDoneARTRefill?.nextRefillDate ?? patient.enrollmentDate;
-    DateTime nextPreferenceAssessmentDate = calculateNextAssessment(patient.latestPreferenceAssessment?.createdDate, isSuppressed(patient)) ?? patient.enrollmentDate;
+    DateTime nextARTRefillDate =
+        patient.latestDoneARTRefill?.nextRefillDate ?? patient.enrollmentDate;
+    DateTime nextPreferenceAssessmentDate = calculateNextAssessment(
+            patient.latestPreferenceAssessment?.createdDate,
+            isSuppressed(patient)) ??
+        patient.enrollmentDate;
     return _getLesserDate(nextARTRefillDate, nextPreferenceAssessmentDate);
   }
 
   /// Returns the older of the two dates.
-  /// 
+  ///
   /// Returns `null` if both dates are `null`.
   DateTime _getLesserDate(DateTime date1, DateTime date2) {
     if (date1 == null && date2 == null) {
@@ -1017,5 +1186,4 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver, Ti
       return date1.isBefore(date2) ? date1 : date2;
     }
   }
-
 }

@@ -1,6 +1,4 @@
-
 class HealthCenter {
-
   // Class Variables
   // ---------------
 
@@ -161,7 +159,9 @@ class HealthCenter {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
-    final _HealthCenter center = _encoding.entries.firstWhere((MapEntry<_HealthCenter, int> entry) => entry.value == code).key;
+    final _HealthCenter center = _encoding.entries
+        .firstWhere((MapEntry<_HealthCenter, int> entry) => entry.value == code)
+        .key;
     return HealthCenter._(center);
   }
 
@@ -176,7 +176,9 @@ class HealthCenter {
   @override
   int get hashCode => _healthCenter.hashCode;
 
-  static List<HealthCenter> get allValues => _HealthCenter.values.map((_HealthCenter hcEnum) => HealthCenter._(hcEnum)).toList();
+  static List<HealthCenter> get allValues => _HealthCenter.values
+      .map((_HealthCenter hcEnum) => HealthCenter._(hcEnum))
+      .toList();
 
   /// Returns the text description of this health center.
   String get description => _description[_healthCenter];
@@ -205,7 +207,37 @@ class HealthCenter {
   /// Returns the study arm for this health center (1 for Intervention, 2 for
   /// Control).
   int get studyArm => _studyArm[_healthCenter];
-
 }
 
-enum _HealthCenter { C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12, C13, C14, C15, C16, C17, C18, C19, C20, C21, C22, C23, C24, C25, C26, C27, C28, C29, C30 }
+enum _HealthCenter {
+  C1,
+  C2,
+  C3,
+  C4,
+  C5,
+  C6,
+  C7,
+  C8,
+  C9,
+  C10,
+  C11,
+  C12,
+  C13,
+  C14,
+  C15,
+  C16,
+  C17,
+  C18,
+  C19,
+  C20,
+  C21,
+  C22,
+  C23,
+  C24,
+  C25,
+  C26,
+  C27,
+  C28,
+  C29,
+  C30
+}

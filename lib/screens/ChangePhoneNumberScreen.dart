@@ -12,7 +12,6 @@ class ChangePhoneNumberScreen extends StatefulWidget {
 }
 
 class _ChangePhoneNumberState extends State<ChangePhoneNumberScreen> {
-
   String _changedPhoneValidationMessage;
   TextEditingController _changedPhoneNumberCtr = TextEditingController();
 
@@ -51,13 +50,16 @@ class _ChangePhoneNumberState extends State<ChangePhoneNumberScreen> {
               ),
             ),
             SizedBox(height: 10.0),
-            _changedPhoneValidationMessage == null ? SizedBox() : Text(_changedPhoneValidationMessage),
+            _changedPhoneValidationMessage == null
+                ? SizedBox()
+                : Text(_changedPhoneValidationMessage),
             SizedBox(height: 10.0),
             PEBRAButtonRaised(
               'Save',
               onPressed: () {
                 setState(() {
-                  _changedPhoneValidationMessage = validatePhoneNumber(_changedPhoneNumberCtr.text);
+                  _changedPhoneValidationMessage =
+                      validatePhoneNumber(_changedPhoneNumberCtr.text);
                 });
                 final String _newPhone = '+266-${_changedPhoneNumberCtr.text}';
                 if (_changedPhoneValidationMessage == null) {

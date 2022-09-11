@@ -11,12 +11,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pebrapp/screens/MainScreen.dart';
 
 void main() {
-  testWidgets("Main Screen has an 'add patient' button", (WidgetTester tester) async {
+  testWidgets("Main Screen has an 'add patient' button",
+      (WidgetTester tester) async {
     // wrap MainScreen in a MediaQuery
     Widget testWidget = new MediaQuery(
         data: new MediaQueryData(),
-        child: new MaterialApp(home: MainScreen(true))
-    );
+        child: new MaterialApp(home: MainScreen(true)));
 
     await tester.pumpWidget(testWidget);
 

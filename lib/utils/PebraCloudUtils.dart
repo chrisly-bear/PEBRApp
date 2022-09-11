@@ -15,7 +15,6 @@ import 'package:path/path.dart';
 import 'package:pebrapp/state/PatientBloc.dart';
 import 'package:pebrapp/utils/Utils.dart';
 
-
 /// Uploads [sourceFile] to PEBRAcloud.
 ///
 /// [folder] is one of "data", "backups", "passwords".
@@ -30,9 +29,12 @@ import 'package:pebrapp/utils/Utils.dart';
 /// cannot be reached.
 ///
 /// Throws [HTTPStatusNotOKException] if PEBRAcloud fails to receive the file.
-Future<void> uploadFileToPebraCloud(File sourceFile, String folder, {String filename}) async {
+Future<void> uploadFileToPebraCloud(File sourceFile, String folder,
+    {String filename}) async {
   final uri = Uri.parse('$PEBRA_CLOUD_API/upload/$folder');
-  final multiPartFile = await http.MultipartFile.fromPath('file', sourceFile.path, filename: filename);
+  final multiPartFile = await http.MultipartFile.fromPath(
+      'file', sourceFile.path,
+      filename: filename);
   final uploadRequest = http.MultipartRequest('POST', uri)
     ..files.add(multiPartFile)
     ..headers['token'] = PEBRA_CLOUD_TOKEN;
@@ -41,10 +43,10 @@ Future<void> uploadFileToPebraCloud(File sourceFile, String folder, {String file
   if (response.statusCode == 401) {
     throw PebraCloudAuthFailedException();
   } else if (response.statusCode != 201) {
-    throw HTTPStatusNotOKException('An unexpected status code ${response.statusCode} was returned while interacting with PEBRAcloud.\n');
+    throw HTTPStatusNotOKException(
+        'An unexpected status code ${response.statusCode} was returned while interacting with PEBRAcloud.\n');
   }
 }
-
 
 /// Downloads the latest SQLite file from PEBRAcloud and replaces the one on the
 /// device.
@@ -82,7 +84,6 @@ Future<void> restoreFromPebraCloud(String username, String pinCodeHash) async {
   storeLatestBackupInSharedPrefs();
 }
 
-
 /// Checks if the given [username] is already taken, i.e., if a backup for the
 /// given [username] exists on PEBRAcloud. Returns `true` if [username]
 /// exists, `false` otherwise.
@@ -99,12 +100,12 @@ Future<bool> existsBackupForUser(String username) async {
   if (resp.statusCode == 401) {
     throw PebraCloudAuthFailedException();
   } else if (resp.statusCode != 200) {
-    throw HTTPStatusNotOKException('An unexpected status code ${resp.statusCode} was returned while interacting with PEBRAcloud.\n');
+    throw HTTPStatusNotOKException(
+        'An unexpected status code ${resp.statusCode} was returned while interacting with PEBRAcloud.\n');
   }
   final json = jsonDecode(resp.body) as Map<String, dynamic>;
   return json['exists'];
 }
-
 
 /// Throws [NoPasswordFileException] if no password file is found for the given
 /// [username] on PEBRAcloud.
@@ -117,7 +118,6 @@ Future<bool> _pinCodeValid(String username, String pinCodeHash) async {
   final String truePINCodeHash = await passwordFile.readAsString();
   return pinCodeHash == truePINCodeHash;
 }
-
 
 /// Downloads the password file for the given [username].
 ///
@@ -141,16 +141,17 @@ Future<File> _downloadPasswordFile(String username) async {
   } else if (resp.statusCode == 400) {
     throw NoPasswordFileException();
   } else if (resp.statusCode != 200) {
-    throw HTTPStatusNotOKException('An unexpected status code ${resp.statusCode} was returned while interacting with PEBRAcloud.\n');
+    throw HTTPStatusNotOKException(
+        'An unexpected status code ${resp.statusCode} was returned while interacting with PEBRAcloud.\n');
   }
 
   // store file in database directory
-  final String filepath = join(await DatabaseProvider().databasesDirectoryPath, 'PEBRA-password');
+  final String filepath =
+      join(await DatabaseProvider().databasesDirectoryPath, 'PEBRA-password');
   File passwordFile = File(filepath);
   passwordFile = await passwordFile.writeAsBytes(resp.bodyBytes, flush: true);
   return passwordFile;
 }
-
 
 /// Downloads the latest backup file that matches the [username].
 ///
@@ -174,13 +175,14 @@ Future<File> _downloadLatestBackup(String username) async {
   } else if (resp.statusCode == 400) {
     throw BackupNotFoundException();
   } else if (resp.statusCode != 200) {
-    throw HTTPStatusNotOKException('An unexpected status code ${resp.statusCode} was returned while interacting with PEBRAcloud.\n');
+    throw HTTPStatusNotOKException(
+        'An unexpected status code ${resp.statusCode} was returned while interacting with PEBRAcloud.\n');
   }
 
   // store file in database directory
-  final String filepath = join(await DatabaseProvider().databasesDirectoryPath, 'PEBRApp-backup.db');
+  final String filepath = join(
+      await DatabaseProvider().databasesDirectoryPath, 'PEBRApp-backup.db');
   File backupFile = File(filepath);
   backupFile = await backupFile.writeAsBytes(resp.bodyBytes, flush: true);
   return backupFile;
 }
-

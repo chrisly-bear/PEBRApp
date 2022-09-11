@@ -1,6 +1,4 @@
-
 class ARTSupplyAmount {
-
   // Class Variables
   // ---------------
 
@@ -51,7 +49,8 @@ class ARTSupplyAmount {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
-    final _SupplyAmount amount = _encoding.entries.firstWhere((MapEntry<_SupplyAmount, int> entry) {
+    final _SupplyAmount amount =
+        _encoding.entries.firstWhere((MapEntry<_SupplyAmount, int> entry) {
       return entry.value == code;
     }).key;
     ARTSupplyAmount object = ARTSupplyAmount._();
@@ -64,25 +63,25 @@ class ARTSupplyAmount {
 
   // override the equality operator
   @override
-  bool operator ==(o) => o is ARTSupplyAmount && o._supplyAmount == _supplyAmount;
+  bool operator ==(o) =>
+      o is ARTSupplyAmount && o._supplyAmount == _supplyAmount;
 
   // override hashcode
   @override
   int get hashCode => _supplyAmount.hashCode;
 
   static List<ARTSupplyAmount> get allValues => [
-    ARTSupplyAmount.ONE_MONTH(),
-    ARTSupplyAmount.THREE_MONTHS(),
-    ARTSupplyAmount.SIX_MONTHS(),
-    ARTSupplyAmount.TWELVE_MONTHS(),
-  ];
+        ARTSupplyAmount.ONE_MONTH(),
+        ARTSupplyAmount.THREE_MONTHS(),
+        ARTSupplyAmount.SIX_MONTHS(),
+        ARTSupplyAmount.TWELVE_MONTHS(),
+      ];
 
   /// Returns the text description of this supply amount.
   String get description => _description[_supplyAmount];
 
   /// Returns the code that represents this supply amount.
   int get code => _encoding[_supplyAmount];
-
 }
 
 enum _SupplyAmount { ONE_MONTH, THREE_MONTHS, SIX_MONTHS, TWELVE_MONTHS }

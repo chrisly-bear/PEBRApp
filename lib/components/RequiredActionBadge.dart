@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
 
 class RequiredActionBadge extends StatefulWidget {
-
   final String text;
   final double badgeSize;
   final bool animate;
   final VoidCallback onAnimateComplete;
   final List<BoxShadow> boxShadow;
 
-  RequiredActionBadge(this.text, { this.animate: false, this.badgeSize: 30.0, this.onAnimateComplete, this.boxShadow: const [] });
+  RequiredActionBadge(this.text,
+      {this.animate: false,
+      this.badgeSize: 30.0,
+      this.onAnimateComplete,
+      this.boxShadow: const []});
 
   @override
   State<StatefulWidget> createState() => _RequiredActionBadgeState();
-
 }
 
-class _RequiredActionBadgeState extends State<RequiredActionBadge> with SingleTickerProviderStateMixin {
-
+class _RequiredActionBadgeState extends State<RequiredActionBadge>
+    with SingleTickerProviderStateMixin {
   AnimationController _controller;
   Animation<double> _containerAnimation;
   Curve _curve = Curves.elasticOut;
@@ -31,9 +33,7 @@ class _RequiredActionBadgeState extends State<RequiredActionBadge> with SingleTi
     _containerAnimation = Tween<double>(
       begin: 0.0,
       end: widget.badgeSize,
-    ).chain(
-        CurveTween(curve: _curve)
-    ).animate(_controller);
+    ).chain(CurveTween(curve: _curve)).animate(_controller);
 
     _controller.addListener(() {
       setState(() {});
@@ -68,7 +68,8 @@ class _RequiredActionBadgeState extends State<RequiredActionBadge> with SingleTi
     super.dispose();
   }
 
-  Widget _surroundWithFittedBoxIfWidthGreaterThanZero({Widget child, double parentWidth}) {
+  Widget _surroundWithFittedBoxIfWidthGreaterThanZero(
+      {Widget child, double parentWidth}) {
     if (parentWidth > 0.0) {
       return FittedBox(
         fit: BoxFit.fitWidth,
@@ -82,8 +83,7 @@ class _RequiredActionBadgeState extends State<RequiredActionBadge> with SingleTi
   Widget build(BuildContext context) {
     return SizedOverflowBox(
       size: Size(widget.badgeSize, widget.badgeSize),
-      child:
-      Container(
+      child: Container(
         width: _containerAnimation.value,
         height: _containerAnimation.value,
         decoration: BoxDecoration(
@@ -111,5 +111,4 @@ class _RequiredActionBadgeState extends State<RequiredActionBadge> with SingleTi
       ),
     );
   }
-
 }

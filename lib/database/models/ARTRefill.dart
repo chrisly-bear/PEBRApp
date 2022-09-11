@@ -1,4 +1,3 @@
-
 import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/beans/ARTRefillNotDoneReason.dart';
 import 'package:pebrapp/database/beans/RefillType.dart';
@@ -9,7 +8,8 @@ class ARTRefill implements IExcelExportable {
 
   // column names
   static final colId = 'id'; // primary key
-  static final colPatientART = 'patient_art'; // foreign key to [Patient].art_number
+  static final colPatientART =
+      'patient_art'; // foreign key to [Patient].art_number
   static final colCreatedDate = 'created_date';
   static final colRefillType = 'refill_type';
   static final colNextRefillDate = 'next_refill_date'; // nullable
@@ -33,23 +33,21 @@ class ARTRefill implements IExcelExportable {
   DateTime transferDate;
   String notTakingARTReason;
 
-
   // Constructors
   // ------------
 
   ARTRefill(
-      this.patientART,
-      this._refillType,
-      {
-        this.nextRefillDate,
-        this.notDoneReason,
-        this.dateOfDeath,
-        this.causeOfDeath,
-        this.hospitalizedClinic,
-        this.otherClinic,
-        this.transferDate,
-        this.notTakingARTReason,
-      });
+    this.patientART,
+    this._refillType, {
+    this.nextRefillDate,
+    this.notDoneReason,
+    this.dateOfDeath,
+    this.causeOfDeath,
+    this.hospitalizedClinic,
+    this.otherClinic,
+    this.transferDate,
+    this.notTakingARTReason,
+  });
 
   ARTRefill.uninitialized();
 
@@ -57,16 +55,21 @@ class ARTRefill implements IExcelExportable {
     this.patientART = map[colPatientART];
     this.createdDate = DateTime.parse(map[colCreatedDate]);
     this._refillType = RefillType.fromCode(map[colRefillType]);
-    this.nextRefillDate = map[colNextRefillDate] == null ? null : DateTime.parse(map[colNextRefillDate]);
+    this.nextRefillDate = map[colNextRefillDate] == null
+        ? null
+        : DateTime.parse(map[colNextRefillDate]);
     this.notDoneReason = ARTRefillNotDoneReason.fromCode(map[colNotDoneReason]);
-    this.dateOfDeath = map[colDateOfDeath] == null ? null : DateTime.parse(map[colDateOfDeath]);
+    this.dateOfDeath = map[colDateOfDeath] == null
+        ? null
+        : DateTime.parse(map[colDateOfDeath]);
     this.causeOfDeath = map[colCauseOfDeath];
     this.hospitalizedClinic = map[colHospitalizedClinic];
     this.otherClinic = map[colOtherClinic];
-    this.transferDate = map[colTransferDate] == null ? null : DateTime.parse(map[colTransferDate]);
+    this.transferDate = map[colTransferDate] == null
+        ? null
+        : DateTime.parse(map[colTransferDate]);
     this.notTakingARTReason = map[colNotTakingARTReason];
   }
-
 
   // Other
   // -----
@@ -137,5 +140,4 @@ class ARTRefill implements IExcelExportable {
   DateTime get createdDate => this._createdDate;
 
   RefillType get refillType => this._refillType;
-
 }

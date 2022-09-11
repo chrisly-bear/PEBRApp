@@ -1,6 +1,4 @@
-
 class HomeVisitPENotPossibleReason {
-
   // Class Variables
   // ---------------
 
@@ -51,7 +49,8 @@ class HomeVisitPENotPossibleReason {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
-    final _Reason reason = _encoding.entries.firstWhere((MapEntry<_Reason, int> entry) {
+    final _Reason reason =
+        _encoding.entries.firstWhere((MapEntry<_Reason, int> entry) {
       return entry.value == code;
     }).key;
     HomeVisitPENotPossibleReason object = HomeVisitPENotPossibleReason._();
@@ -64,25 +63,25 @@ class HomeVisitPENotPossibleReason {
 
   // override the equality operator
   @override
-  bool operator ==(o) => o is HomeVisitPENotPossibleReason && o._reason == _reason;
+  bool operator ==(o) =>
+      o is HomeVisitPENotPossibleReason && o._reason == _reason;
 
   // override hashcode
   @override
   int get hashCode => _reason.hashCode;
 
   static List<HomeVisitPENotPossibleReason> get allValues => [
-    HomeVisitPENotPossibleReason.TOO_FAR(),
-    HomeVisitPENotPossibleReason.NO_TIME(),
-    HomeVisitPENotPossibleReason.DONT_WANT_TO(),
-    HomeVisitPENotPossibleReason.OTHER(),
-  ];
+        HomeVisitPENotPossibleReason.TOO_FAR(),
+        HomeVisitPENotPossibleReason.NO_TIME(),
+        HomeVisitPENotPossibleReason.DONT_WANT_TO(),
+        HomeVisitPENotPossibleReason.OTHER(),
+      ];
 
   /// Returns the text description of this reason.
   String get description => _description[_reason];
 
   /// Returns the code that represents this reason.
   int get code => _encoding[_reason];
-
 }
 
 enum _Reason { TOO_FAR, NO_TIME, DONT_WANT_TO, OTHER }

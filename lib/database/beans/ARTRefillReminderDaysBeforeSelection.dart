@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 class ARTRefillReminderDaysBeforeSelection {
-
   // Class Variables
   // ---------------
 
@@ -49,7 +48,8 @@ class ARTRefillReminderDaysBeforeSelection {
     }
     // '7, 3, 2, 1 and 0 days before'
     final selectionSorted = _selection.toList();
-    selectionSorted.sort((_DaysBefore a, _DaysBefore b) => a.index > b.index ? 1 : -1);
+    selectionSorted
+        .sort((_DaysBefore a, _DaysBefore b) => a.index > b.index ? 1 : -1);
     String result = '';
     for (int i = 0; i < selectionSorted.length; i++) {
       if (i == selectionSorted.length - 1) {
@@ -63,12 +63,12 @@ class ARTRefillReminderDaysBeforeSelection {
     return result;
   }
 
-
   // Constructors
   // ------------
 
   String serializeToJSON() {
-    final selectionAsList = _selection.map((_DaysBefore pref) => _encoding[pref]).toList();
+    final selectionAsList =
+        _selection.map((_DaysBefore pref) => _encoding[pref]).toList();
     selectionAsList.sort((int a, int b) => a > b ? 1 : -1);
     return jsonEncode(selectionAsList);
   }
@@ -77,14 +77,14 @@ class ARTRefillReminderDaysBeforeSelection {
     final list = jsonDecode(json) as List<dynamic>;
     var obj = ARTRefillReminderDaysBeforeSelection();
     obj._selection = list.map((dynamic code) {
-      final _DaysBefore preference = _encoding.entries.firstWhere((MapEntry<_DaysBefore, int> entry) {
+      final _DaysBefore preference =
+          _encoding.entries.firstWhere((MapEntry<_DaysBefore, int> entry) {
         return entry.value == code as int;
       }).key;
       return preference;
     }).toSet();
     return obj;
   }
-
 
   // Public API
   // ----------
@@ -97,8 +97,8 @@ class ARTRefillReminderDaysBeforeSelection {
 
   set SEVEN_DAYS_BEFORE_selected(bool selected) {
     selected
-      ? _selection.add(_DaysBefore.SEVEN_DAYS_BEFORE)
-      : _selection.remove(_DaysBefore.SEVEN_DAYS_BEFORE);
+        ? _selection.add(_DaysBefore.SEVEN_DAYS_BEFORE)
+        : _selection.remove(_DaysBefore.SEVEN_DAYS_BEFORE);
   }
 
   set THREE_DAYS_BEFORE_selected(bool selected) {
@@ -125,16 +125,20 @@ class ARTRefillReminderDaysBeforeSelection {
         : _selection.remove(_DaysBefore.ZERO_DAYS_BEFORE);
   }
 
-  bool get SEVEN_DAYS_BEFORE_selected => _selection.contains(_DaysBefore.SEVEN_DAYS_BEFORE);
+  bool get SEVEN_DAYS_BEFORE_selected =>
+      _selection.contains(_DaysBefore.SEVEN_DAYS_BEFORE);
 
-  bool get THREE_DAYS_BEFORE_selected => _selection.contains(_DaysBefore.THREE_DAYS_BEFORE);
+  bool get THREE_DAYS_BEFORE_selected =>
+      _selection.contains(_DaysBefore.THREE_DAYS_BEFORE);
 
-  bool get TWO_DAYS_BEFORE_selected => _selection.contains(_DaysBefore.TWO_DAYS_BEFORE);
+  bool get TWO_DAYS_BEFORE_selected =>
+      _selection.contains(_DaysBefore.TWO_DAYS_BEFORE);
 
-  bool get ONE_DAY_BEFORE_selected => _selection.contains(_DaysBefore.ONE_DAY_BEFORE);
+  bool get ONE_DAY_BEFORE_selected =>
+      _selection.contains(_DaysBefore.ONE_DAY_BEFORE);
 
-  bool get ZERO_DAYS_BEFORE_selected => _selection.contains(_DaysBefore.ZERO_DAYS_BEFORE);
-
+  bool get ZERO_DAYS_BEFORE_selected =>
+      _selection.contains(_DaysBefore.ZERO_DAYS_BEFORE);
 }
 
 enum _DaysBefore {

@@ -10,22 +10,21 @@ import 'package:pebrapp/utils/Utils.dart';
 enum AnimateDirection { FORWARD, BACKWARD }
 
 class RequiredActionContainer extends StatefulWidget {
-
   final RequiredAction action;
   final int actionNumber;
   final Patient patient;
   final AnimateDirection animateDirection;
   final VoidCallback onAnimated;
 
-  RequiredActionContainer(this.action, this.actionNumber, this.patient, {this.animateDirection, this.onAnimated});
+  RequiredActionContainer(this.action, this.actionNumber, this.patient,
+      {this.animateDirection, this.onAnimated});
 
   @override
   State<StatefulWidget> createState() => _RequiredActionContainerState();
-
 }
 
-class _RequiredActionContainerState extends State<RequiredActionContainer> with SingleTickerProviderStateMixin {
-
+class _RequiredActionContainerState extends State<RequiredActionContainer>
+    with SingleTickerProviderStateMixin {
   AnimationController _controller;
   Animation<double> _containerAnimation;
   Curve _curve = Curves.ease;
@@ -40,9 +39,7 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
     _containerAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).chain(
-        CurveTween(curve: _curve)
-    ).animate(_controller);
+    ).chain(CurveTween(curve: _curve)).animate(_controller);
 
     _animateIfDemanded();
     super.initState();
@@ -67,7 +64,10 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
       });
     } else if (widget.animateDirection == AnimateDirection.BACKWARD) {
       _controller.value = _controller.upperBound;
-      _controller.animateBack(0.0, duration: Duration(milliseconds: 1000), curve: Curves.ease).then((_) {
+      _controller
+          .animateBack(0.0,
+              duration: Duration(milliseconds: 1000), curve: Curves.ease)
+          .then((_) {
         if (widget.onAnimated != null) {
           widget.onAnimated();
         }
@@ -83,7 +83,8 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
   FlatButton _doneButton(RequiredAction action) {
     return FlatButton(
       onPressed: () async {
-        DatabaseProvider().removeRequiredAction(widget.patient.artNumber, action.type);
+        DatabaseProvider()
+            .removeRequiredAction(widget.patient.artNumber, action.type);
         PatientBloc.instance.sinkRequiredActionData(action, true);
       },
       splashColor: NOTIFICATION_INFO_SPLASH,
@@ -103,13 +104,16 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
     Widget actionButton;
     switch (widget.action.type) {
       case RequiredActionType.ASSESSMENT_REQUIRED:
-        actionText = "Preference assessment required. Start a preference assessment by tapping 'Start Assessment' below.";
+        actionText =
+            "Preference assessment required. Start a preference assessment by tapping 'Start Assessment' below.";
         break;
       case RequiredActionType.REFILL_REQUIRED:
-        actionText = "ART refill required. Start an ART refill by tapping 'Manage Refill' below.";
+        actionText =
+            "ART refill required. Start an ART refill by tapping 'Manage Refill' below.";
         break;
       case RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED:
-        actionText = "The automatic upload of the notifications failed. Please upload manually.";
+        actionText =
+            "The automatic upload of the notifications failed. Please upload manually.";
         actionButton = FlatButton(
           onPressed: () async {
             await uploadNotificationsPreferences(widget.patient);
@@ -125,10 +129,12 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
         );
         break;
       case RequiredActionType.PATIENT_CHARACTERISTICS_UPLOAD_REQUIRED:
-        actionText = "The automatic upload of the participant's characteristics failed. Please upload manually.";
+        actionText =
+            "The automatic upload of the participant's characteristics failed. Please upload manually.";
         actionButton = FlatButton(
           onPressed: () async {
-            await uploadPatientCharacteristics(widget.patient, reUploadNotifications: false);
+            await uploadPatientCharacteristics(widget.patient,
+                reUploadNotifications: false);
           },
           splashColor: NOTIFICATION_INFO_SPLASH,
           child: Text(
@@ -141,11 +147,14 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
         );
         break;
       case RequiredActionType.PATIENT_STATUS_UPLOAD_REQUIRED:
-        actionText = "The automatic upload of the participant's status failed. Please upload manually.";
+        actionText =
+            "The automatic upload of the participant's status failed. Please upload manually.";
         actionButton = FlatButton(
           onPressed: () async {
-            String status = getPatientStatus(widget.patient.latestARTRefill.notDoneReason.code);
-            await uploadPatientStatusVisibleImpact(widget.patient, status, reUploadNotifications: false);
+            String status = getPatientStatus(
+                widget.patient.latestARTRefill.notDoneReason.code);
+            await uploadPatientStatusVisibleImpact(widget.patient, status,
+                reUploadNotifications: false);
           },
           splashColor: NOTIFICATION_INFO_SPLASH,
           child: Text(
@@ -158,23 +167,28 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
         );
         break;
       case RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED:
-        actionText = "Viral load required. Please send the participant to the nurse for blood draw.";
+        actionText =
+            "Viral load required. Please send the participant to the nurse for blood draw.";
         actionButton = _doneButton(widget.action);
         break;
       case RequiredActionType.VIRAL_LOAD_DISCREPANCY_WARNING:
-        actionText = "Viral load discrepancy found. Please inform the study supervisor.";
+        actionText =
+            "Viral load discrepancy found. Please inform the study supervisor.";
         actionButton = _doneButton(widget.action);
         break;
       case RequiredActionType.VIRAL_LOAD_9M_REQUIRED:
-        actionText = "The participant needs a viral load within the next few months. Please coordinate with the nurse for blood draw.";
+        actionText =
+            "The participant needs a viral load within the next few months. Please coordinate with the nurse for blood draw.";
         actionButton = _doneButton(widget.action);
         break;
       case RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_5M_REQUIRED:
-        actionText = "Fill in the Quality of Life questionnaire on KoBoCollect.";
+        actionText =
+            "Fill in the Quality of Life questionnaire on KoBoCollect.";
         actionButton = _doneButton(widget.action);
         break;
       case RequiredActionType.QUALITY_OF_LIFE_QUESTIONNAIRE_9M_REQUIRED:
-        actionText = "Fill in the Quality of Life questionnaire on KoBoCollect.";
+        actionText =
+            "Fill in the Quality of Life questionnaire on KoBoCollect.";
         actionButton = _doneButton(widget.action);
         break;
       case RequiredActionType.ADHERENCE_QUESTIONNAIRE_2P5M_REQUIRED:
@@ -213,7 +227,8 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Hero(
-                          tag: "RequiredAction_${widget.patient.artNumber}_${widget.actionNumber}",
+                          tag:
+                              "RequiredAction_${widget.patient.artNumber}_${widget.actionNumber}",
                           child: Container(
                             width: badgeSize,
                             height: badgeSize,
@@ -223,7 +238,7 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
                             ),
                             child: Center(
                               child: Text(
-                                '${widget.actionNumber+1}',
+                                '${widget.actionNumber + 1}',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16.0,
@@ -257,5 +272,4 @@ class _RequiredActionContainerState extends State<RequiredActionContainer> with 
       ),
     );
   }
-
 }

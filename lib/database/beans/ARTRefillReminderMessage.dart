@@ -1,6 +1,4 @@
-
 class ARTRefillReminderMessage {
-
   // Class Variables
   // ---------------
 
@@ -51,7 +49,8 @@ class ARTRefillReminderMessage {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
-    final _Message message = _encoding.entries.firstWhere((MapEntry<_Message, int> entry) {
+    final _Message message =
+        _encoding.entries.firstWhere((MapEntry<_Message, int> entry) {
       return entry.value == code;
     }).key;
     ARTRefillReminderMessage object = ARTRefillReminderMessage._();
@@ -64,25 +63,25 @@ class ARTRefillReminderMessage {
 
   // override the equality operator
   @override
-  bool operator ==(o) => o is ARTRefillReminderMessage && o._message == _message;
+  bool operator ==(o) =>
+      o is ARTRefillReminderMessage && o._message == _message;
 
   // override hashcode
   @override
   int get hashCode => _message.hashCode;
 
   static List<ARTRefillReminderMessage> get allValues => [
-    ARTRefillReminderMessage.VISIT_COMING_UP(),
-    ARTRefillReminderMessage.BA_BONE(),
-    ARTRefillReminderMessage.GET_MORE(),
-    ARTRefillReminderMessage.NKA_TSE_LING(),
-  ];
+        ARTRefillReminderMessage.VISIT_COMING_UP(),
+        ARTRefillReminderMessage.BA_BONE(),
+        ARTRefillReminderMessage.GET_MORE(),
+        ARTRefillReminderMessage.NKA_TSE_LING(),
+      ];
 
   /// Returns the text description of this message.
   String get description => _description[_message];
 
   /// Returns the code that represents this message.
   int get code => _encoding[_message];
-
 }
 
 enum _Message { VISIT_COMING_UP, BA_BONE, GET_MORE, NKA_TSE_LING }

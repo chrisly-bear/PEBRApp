@@ -38,7 +38,7 @@ class ViralLoadBadge extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: VL_BADGE_TEXT,
-  //              fontSize: 16.0,
+                // fontSize: 16.0,
                 fontWeight: FontWeight.w900,
               ),
             ),

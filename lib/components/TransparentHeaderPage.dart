@@ -47,13 +47,19 @@ class TransparentHeaderPage extends StatelessWidget {
   /// @param [scrollable] If set to true the content behind the transparent
   /// header can be scrolled. This is useful for small devices and/or content
   /// with large heights. Defaults to true.
-  TransparentHeaderPage({@required this.child, this.title, this.subtitle,
-    this.actions, this.color: Colors.transparent, this.blurEnabled: true,
-    this.elevationEnabled: false, this.safeArea: true, this.scrollable: true}) {
+  TransparentHeaderPage(
+      {@required this.child,
+      this.title,
+      this.subtitle,
+      this.actions,
+      this.color: Colors.transparent,
+      this.blurEnabled: true,
+      this.elevationEnabled: false,
+      this.safeArea: true,
+      this.scrollable: true}) {
     if (title == null) {
       _headerHeight -= 25;
-    }
-    else if (subtitle == null) {
+    } else if (subtitle == null) {
       _headerHeight -= 25;
     }
     if (!safeArea) {
@@ -67,13 +73,15 @@ class TransparentHeaderPage extends StatelessWidget {
   }
 
   Widget get _background {
-
     // padding until bottom of header
     final double paddingUntilBottomOfHeader = _headerHeight;
     // padding to avoid Gaussian blur,
     // only required if we have a header and either blurring is enabled
     // or a shadow is displayed
-    final double paddingToAvoidBlur = (_headerHeight != 0 && (blurEnabled || elevationEnabled)) ? (Platform.isIOS ? 10.0 : 12.0) : 0;
+    final double paddingToAvoidBlur =
+        (_headerHeight != 0 && (blurEnabled || elevationEnabled))
+            ? (Platform.isIOS ? 10.0 : 12.0)
+            : 0;
 
     final Widget content = SafeArea(
       right: safeArea,
@@ -81,7 +89,8 @@ class TransparentHeaderPage extends StatelessWidget {
       bottom: safeArea,
       top: safeArea,
       child: Padding(
-        padding: EdgeInsets.only(top: paddingUntilBottomOfHeader + paddingToAvoidBlur),
+        padding: EdgeInsets.only(
+            top: paddingUntilBottomOfHeader + paddingToAvoidBlur),
         child: child,
       ),
     );
@@ -90,17 +99,29 @@ class TransparentHeaderPage extends StatelessWidget {
   }
 
   Widget get _foreground {
-
-    final Widget _actionBar = actions == null ? Container() : Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: actions,
-    );
+    final Widget _actionBar = actions == null
+        ? Container()
+        : Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: actions,
+          );
 
     return Container(
-      decoration: BoxDecoration(color: color, boxShadow: elevationEnabled ? [BoxShadow(color: HEADER_DROPSHADOW, spreadRadius: 10.0, blurRadius: 5.0)] : null),
+      decoration: BoxDecoration(
+          color: color,
+          boxShadow: elevationEnabled
+              ? [
+                  BoxShadow(
+                      color: HEADER_DROPSHADOW,
+                      spreadRadius: 10.0,
+                      blurRadius: 5.0)
+                ]
+              : null),
       child: ClipRect(
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: blurEnabled ? _BLUR_RADIUS : 0, sigmaY: blurEnabled ? _BLUR_RADIUS : 0),
+          filter: ImageFilter.blur(
+              sigmaX: blurEnabled ? _BLUR_RADIUS : 0,
+              sigmaY: blurEnabled ? _BLUR_RADIUS : 0),
           child: SafeArea(
             right: safeArea,
             left: safeArea,
@@ -109,7 +130,11 @@ class TransparentHeaderPage extends StatelessWidget {
             child: Container(
               height: _headerHeight,
               child: Padding(
-                padding: EdgeInsets.only(left: 10.0, right: 0.0, bottom: 10.0, top: safeArea ? 0.0 : 10.0),
+                padding: EdgeInsets.only(
+                    left: 10.0,
+                    right: 0.0,
+                    bottom: 10.0,
+                    top: safeArea ? 0.0 : 10.0),
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,

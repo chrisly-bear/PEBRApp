@@ -35,7 +35,6 @@ class DatabaseProvider {
     return _instance;
   }
 
-  
   // Private Methods
   // ---------------
 
@@ -54,7 +53,11 @@ class DatabaseProvider {
   _initDB() async {
     String path = await databaseFilePath;
     print('opening database at $path');
-    _database = await openDatabase(path, version: _DB_VERSION, onCreate: _onCreate, onUpgrade: _onUpgrade, onDowngrade: _onDowngrade);
+    _database = await openDatabase(path,
+        version: _DB_VERSION,
+        onCreate: _onCreate,
+        onUpgrade: _onUpgrade,
+        onDowngrade: _onDowngrade);
   }
 
   /// Gets called if the database does not exist.
@@ -209,19 +212,22 @@ class DatabaseProvider {
   /// Gets called if the defined database version is higher than the current
   /// database version on the device.
   FutureOr<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-
     print('Upgrading database from version $oldVersion to version $newVersion');
     if (oldVersion < 2) {
       print('Upgrading to database version 2...');
 
       // helper method
       _convertDatesFromIntToString(String tablename) async {
-        List<Map<String, dynamic>> rows = await db.query(tablename, columns: ['id', 'created_date']);
+        List<Map<String, dynamic>> rows =
+            await db.query(tablename, columns: ['id', 'created_date']);
         Batch batch = db.batch();
         for (Map<String, dynamic> row in rows) {
           int id = row['id'];
           int createdDateInMilliseconds = row['created_date'];
-          String createdDateAsUTCString = DateTime.fromMillisecondsSinceEpoch(createdDateInMilliseconds).toUtc().toIso8601String();
+          String createdDateAsUTCString =
+              DateTime.fromMillisecondsSinceEpoch(createdDateInMilliseconds)
+                  .toUtc()
+                  .toIso8601String();
           batch.update(
             tablename,
             {'created_date_utc': createdDateAsUTCString},
@@ -235,9 +241,12 @@ class DatabaseProvider {
       // 1 - add new column 'created_date_utc'
       Batch batch = db.batch();
       batch.execute("ALTER TABLE Patient RENAME TO Patient_tmp;");
-      batch.execute("ALTER TABLE Patient_tmp ADD created_date_utc TEXT NOT NULL DEFAULT '';");
-      batch.execute("ALTER TABLE PreferenceAssessment RENAME TO PreferenceAssessment_tmp;");
-      batch.execute("ALTER TABLE PreferenceAssessment_tmp ADD created_date_utc TEXT NOT NULL DEFAULT '';");
+      batch.execute(
+          "ALTER TABLE Patient_tmp ADD created_date_utc TEXT NOT NULL DEFAULT '';");
+      batch.execute(
+          "ALTER TABLE PreferenceAssessment RENAME TO PreferenceAssessment_tmp;");
+      batch.execute(
+          "ALTER TABLE PreferenceAssessment_tmp ADD created_date_utc TEXT NOT NULL DEFAULT '';");
       await batch.commit(noResult: true);
 
       // 2 - change date representation to UTC String and store it in the new column
@@ -315,7 +324,8 @@ class DatabaseProvider {
       // provide a default value (we chose 0). This means that all preference
       // assessments done under previous database versions (< 3) will have the
       // "Nurse at Clinic" EAC option selected.
-      await db.execute("ALTER TABLE PreferenceAssessment ADD eac_option INTEGER NOT NULL DEFAULT 0;");
+      await db.execute(
+          "ALTER TABLE PreferenceAssessment ADD eac_option INTEGER NOT NULL DEFAULT 0;");
     }
     if (oldVersion < 6) {
       print('Upgrading to database version 6...');
@@ -375,13 +385,15 @@ class DatabaseProvider {
     }
     if (oldVersion < 17) {
       print('Upgrading to database version 17...');
-      print('UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
+      print(
+          'UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
       await db.execute("DROP TABLE PreferenceAssessment;");
       await _onCreate(db, 17);
     }
     if (oldVersion < 18) {
       print('Upgrading to database version 18...');
-      List<Map<String, dynamic>> tableInfo = await db.rawQuery("PRAGMA table_info(Patient);");
+      List<Map<String, dynamic>> tableInfo =
+          await db.rawQuery("PRAGMA table_info(Patient);");
       bool _columnAlreadyInTable = false;
       for (Map<String, dynamic> map in tableInfo) {
         if (map['name'] == 'enrollment_date_utc') {
@@ -391,12 +403,14 @@ class DatabaseProvider {
       }
       if (!_columnAlreadyInTable) {
         // Add new column 'enrollment_date_utc' with default value of 1970-01-01.
-        await db.execute("ALTER TABLE Patient ADD enrollment_date_utc TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z';");
+        await db.execute(
+            "ALTER TABLE Patient ADD enrollment_date_utc TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z';");
       }
     }
     if (oldVersion < 19) {
       print('Upgrading to database version 19...');
-      List<Map<String, dynamic>> tableInfo = await db.rawQuery("PRAGMA table_info(Patient);");
+      List<Map<String, dynamic>> tableInfo =
+          await db.rawQuery("PRAGMA table_info(Patient);");
       bool _columnAlreadyInTable = false;
       for (Map<String, dynamic> map in tableInfo) {
         if (map['name'] == 'is_vl_baseline_available') {
@@ -406,7 +420,8 @@ class DatabaseProvider {
       }
       if (!_columnAlreadyInTable) {
         // Add new column 'is_vl_baseline_available' with default value of false (0).
-        await db.execute("ALTER TABLE Patient ADD is_vl_baseline_available BIT NOT NULL DEFAULT 0;");
+        await db.execute(
+            "ALTER TABLE Patient ADD is_vl_baseline_available BIT NOT NULL DEFAULT 0;");
       }
     }
     if (oldVersion < 21) {
@@ -417,7 +432,8 @@ class DatabaseProvider {
     }
     if (oldVersion < 28) {
       print('Upgrading to database version 28...');
-      print('UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
+      print(
+          'UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
       await db.execute("DROP TABLE PreferenceAssessment;");
       await _onCreate(db, 28);
     }
@@ -446,7 +462,8 @@ class DatabaseProvider {
     }
     if (oldVersion < 31) {
       print('Upgrading to database version 31...');
-      print('UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
+      print(
+          'UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
       await db.execute("DROP TABLE PreferenceAssessment;");
       await _onCreate(db, 31);
     }
@@ -473,7 +490,8 @@ class DatabaseProvider {
     }
     if (oldVersion < 34) {
       print('Upgrading to database version 34...');
-      List<Map<String, dynamic>> tableInfo = await db.rawQuery("PRAGMA table_info(RequiredAction);");
+      List<Map<String, dynamic>> tableInfo =
+          await db.rawQuery("PRAGMA table_info(RequiredAction);");
       bool _columnAlreadyInTable = false;
       for (Map<String, dynamic> map in tableInfo) {
         if (map['name'] == 'due_date') {
@@ -482,7 +500,8 @@ class DatabaseProvider {
         }
       }
       if (!_columnAlreadyInTable) {
-        await db.execute("ALTER TABLE RequiredAction ADD due_date TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z';");
+        await db.execute(
+            "ALTER TABLE RequiredAction ADD due_date TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z';");
       }
     }
     if (oldVersion < 37) {
@@ -499,13 +518,16 @@ class DatabaseProvider {
       print('Upgrading to database version 38...');
       print('UPGRADE NOT IMPLEMENTED, USER DATA WILL BE RESET! YOU WILL HAVE TO'
           'CREATE A NEW ACCOUNT OR YOU WILL GET STUCK IN A LOGIN LOOP.');
-      await db.execute("DROP TABLE IF EXISTS UserData;"); // Removing the UserData table will result in a login loop -> user has to create a new account
+      await db.execute(
+          "DROP TABLE IF EXISTS UserData;"); // Removing the UserData table will result in a login loop -> user has to create a new account
       await _onCreate(db, 38);
-      showFlushbar('Please create a new account to continue using the app.', title: 'App Upgraded', error: true);
+      showFlushbar('Please create a new account to continue using the app.',
+          title: 'App Upgraded', error: true);
     }
     if (oldVersion < 39 && _DB_VERSION >= 39) {
       print('Upgrading to database version 39...');
-      List<Map<String, dynamic>> tableInfo = await db.rawQuery("PRAGMA table_info(PreferenceAssessment);");
+      List<Map<String, dynamic>> tableInfo =
+          await db.rawQuery("PRAGMA table_info(PreferenceAssessment);");
       bool _columnAlreadyInTable = false;
       for (Map<String, dynamic> map in tableInfo) {
         if (map['name'] == 'patient_phone_available') {
@@ -514,12 +536,14 @@ class DatabaseProvider {
         }
       }
       if (!_columnAlreadyInTable) {
-        await db.execute("ALTER TABLE PreferenceAssessment ADD patient_phone_available BIT NOT NULL DEFAULT 1;");
+        await db.execute(
+            "ALTER TABLE PreferenceAssessment ADD patient_phone_available BIT NOT NULL DEFAULT 1;");
       }
     }
     if (oldVersion < 41 && _DB_VERSION >= 41) {
       print('Upgrading to database version 41...');
-      print('UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
+      print(
+          'UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
       await db.execute("DROP TABLE IF EXISTS PreferenceAssessment;");
       await _onCreate(db, 41);
     }
@@ -531,8 +555,10 @@ class DatabaseProvider {
     }
     if (oldVersion < 45 && _DB_VERSION >= 45) {
       print('Upgrading to database version 45...');
-      if (!(await _columnExistsInTable(db, 'phone_number_upload_required', 'UserData'))) {
-        await db.execute("ALTER TABLE UserData ADD phone_number_upload_required BIT NOT NULL DEFAULT 1;");
+      if (!(await _columnExistsInTable(
+          db, 'phone_number_upload_required', 'UserData'))) {
+        await db.execute(
+            "ALTER TABLE UserData ADD phone_number_upload_required BIT NOT NULL DEFAULT 1;");
       }
     }
     if (oldVersion < 46 && _DB_VERSION >= 46) {
@@ -562,7 +588,8 @@ class DatabaseProvider {
     if (oldVersion < 49 && _DB_VERSION >= 49) {
       print('Upgrading to database version 49...');
       if (!(await _columnExistsInTable(db, 'failed', 'ViralLoad'))) {
-        await db.execute("ALTER TABLE ViralLoad ADD failed BIT NOT NULL DEFAULT 0;");
+        await db.execute(
+            "ALTER TABLE ViralLoad ADD failed BIT NOT NULL DEFAULT 0;");
       }
     }
     if (oldVersion < 50 && _DB_VERSION >= 50) {
@@ -573,7 +600,8 @@ class DatabaseProvider {
     }
     if (oldVersion < 51 && _DB_VERSION >= 51) {
       print('Upgrading to database version 51...');
-      print('UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
+      print(
+          'UPGRADE NOT IMPLEMENTED, PREFERENCE ASSESSMENT DATA WILL BE RESET!');
       await db.execute("DROP TABLE IF EXISTS PreferenceAssessment;");
       await _onCreate(db, 51);
     }
@@ -592,7 +620,8 @@ class DatabaseProvider {
     }
     if (oldVersion < 53 && _DB_VERSION >= 53) {
       print('Upgrading to database version 53...');
-      print('UPGRADE NOT IMPLEMENTED, PATIENT DATA AND REQUIRED ACTION DATA WILL BE RESET!');
+      print(
+          'UPGRADE NOT IMPLEMENTED, PATIENT DATA AND REQUIRED ACTION DATA WILL BE RESET!');
       await db.execute("DROP TABLE IF EXISTS Patient;");
       await db.execute("DROP TABLE IF EXISTS RequiredAction;");
       await _onCreate(db, 53);
@@ -616,8 +645,10 @@ class DatabaseProvider {
     }
   }
 
-  FutureOr<void> _onDowngrade(Database db, int oldVersion, int newVersion) async {
-    print('Downgrading database from version $oldVersion to version $newVersion');
+  FutureOr<void> _onDowngrade(
+      Database db, int oldVersion, int newVersion) async {
+    print(
+        'Downgrading database from version $oldVersion to version $newVersion');
     print('NOT IMPLEMENTED, DATA WILL BE RESET!');
     await db.execute("DROP TABLE IF EXISTS ARTRefill;");
     await db.execute("DROP TABLE IF EXISTS Patient;");
@@ -625,13 +656,17 @@ class DatabaseProvider {
     await db.execute("DROP TABLE IF EXISTS RequiredAction;");
     await db.execute("DROP TABLE IF EXISTS SupportOptionDone;");
     await db.execute("DROP TABLE IF EXISTS ViralLoad;");
-    await db.execute("DROP TABLE IF EXISTS UserData;"); // Removing the UserData table will result in a login loop -> user has to create a new account
+    await db.execute(
+        "DROP TABLE IF EXISTS UserData;"); // Removing the UserData table will result in a login loop -> user has to create a new account
     await _onCreate(db, newVersion);
-    showFlushbar('Please create a new account to continue using the app.', title: 'App Downgraded', error: true);
+    showFlushbar('Please create a new account to continue using the app.',
+        title: 'App Downgraded', error: true);
   }
 
-  Future<bool> _columnExistsInTable(Database db, String columnName, String tableName) async {
-    List<Map<String, dynamic>> tableInfo = await db.rawQuery("PRAGMA table_info($tableName);");
+  Future<bool> _columnExistsInTable(
+      Database db, String columnName, String tableName) async {
+    List<Map<String, dynamic>> tableInfo =
+        await db.rawQuery("PRAGMA table_info($tableName);");
     for (Map<String, dynamic> map in tableInfo) {
       if (map['name'] == columnName) {
         return true;
@@ -639,7 +674,6 @@ class DatabaseProvider {
     }
     return false;
   }
-
 
   // Public Methods
   // --------------
@@ -687,7 +721,8 @@ class DatabaseProvider {
   /// cannot be reached.
   ///
   /// Throws [HTTPStatusNotOKException] if PEBRAcloud fails to receive the file.
-  Future<void> createFirstBackupOnServer(UserData loginData, String pinCodeHash) async {
+  Future<void> createFirstBackupOnServer(
+      UserData loginData, String pinCodeHash) async {
     if (loginData == null) {
       throw NoLoginDataException();
     }
@@ -695,12 +730,17 @@ class DatabaseProvider {
     await insertUserData(loginData);
     final File dbFile = await _databaseFile;
     final File excelFile = await DatabaseExporter.exportDatabaseToExcelFile();
-    final File passwordFile = await _createFileWithContent('PEBRA-password', pinCodeHash);
+    final File passwordFile =
+        await _createFileWithContent('PEBRA-password', pinCodeHash);
     // upload SQLite, password file, and Excel file
-    final String filename = '${loginData.username}_${loginData.firstName}_${loginData.lastName}';
-    await uploadFileToPebraCloud(dbFile, PEBRA_CLOUD_BACKUP_FOLDER, filename: '$filename.db');
-    await uploadFileToPebraCloud(passwordFile, PEBRA_CLOUD_PASSWORD_FOLDER, filename: '${loginData.username}.txt');
-    await uploadFileToPebraCloud(excelFile, PEBRA_CLOUD_DATA_FOLDER, filename: '$filename.xlsx');
+    final String filename =
+        '${loginData.username}_${loginData.firstName}_${loginData.lastName}';
+    await uploadFileToPebraCloud(dbFile, PEBRA_CLOUD_BACKUP_FOLDER,
+        filename: '$filename.db');
+    await uploadFileToPebraCloud(passwordFile, PEBRA_CLOUD_PASSWORD_FOLDER,
+        filename: '${loginData.username}.txt');
+    await uploadFileToPebraCloud(excelFile, PEBRA_CLOUD_DATA_FOLDER,
+        filename: '$filename.xlsx');
     await storeLatestBackupInSharedPrefs();
   }
 
@@ -722,9 +762,12 @@ class DatabaseProvider {
     final File dbFile = await _databaseFile;
     final File excelFile = await DatabaseExporter.exportDatabaseToExcelFile();
     // update SQLite and Excel file with new version
-    final String docName = '${loginData.username}_${loginData.firstName}_${loginData.lastName}';
-    await uploadFileToPebraCloud(dbFile, PEBRA_CLOUD_BACKUP_FOLDER, filename: '$docName.db');
-    await uploadFileToPebraCloud(excelFile, PEBRA_CLOUD_DATA_FOLDER, filename: '$docName.xlsx');
+    final String docName =
+        '${loginData.username}_${loginData.firstName}_${loginData.lastName}';
+    await uploadFileToPebraCloud(dbFile, PEBRA_CLOUD_BACKUP_FOLDER,
+        filename: '$docName.db');
+    await uploadFileToPebraCloud(excelFile, PEBRA_CLOUD_DATA_FOLDER,
+        filename: '$docName.xlsx');
     await storeLatestBackupInSharedPrefs();
   }
 
@@ -747,8 +790,9 @@ class DatabaseProvider {
     final res = await db.insert(Patient.tableName, newPatient.toMap());
     return res;
   }
-  
-  Future<void> insertViralLoad(ViralLoad viralLoad, {DateTime createdDate}) async {
+
+  Future<void> insertViralLoad(ViralLoad viralLoad,
+      {DateTime createdDate}) async {
     final Database db = await _databaseInstance;
     viralLoad.createdDate = createdDate ?? DateTime.now();
     final res = await db.insert(ViralLoad.tableName, viralLoad.toMap());
@@ -762,8 +806,16 @@ class DatabaseProvider {
     final res = await db.update(
       ViralLoad.tableName,
       vl.toMap(),
-      where: '${ViralLoad.colPatientART} = ? AND ${ViralLoad.colViralLoadSource} = ? AND ${ViralLoad.colCreatedDate} = ? AND ${ViralLoad.colDateOfBloodDraw} = ? AND ${ViralLoad.colLabNumber} = ? AND ${ViralLoad.colFailed} = ?',
-      whereArgs: [vl.patientART, vl.source.code, vl.createdDate.toIso8601String(), vl.dateOfBloodDraw.toIso8601String(), vl.labNumber, vl.failed],
+      where:
+          '${ViralLoad.colPatientART} = ? AND ${ViralLoad.colViralLoadSource} = ? AND ${ViralLoad.colCreatedDate} = ? AND ${ViralLoad.colDateOfBloodDraw} = ? AND ${ViralLoad.colLabNumber} = ? AND ${ViralLoad.colFailed} = ?',
+      whereArgs: [
+        vl.patientART,
+        vl.source.code,
+        vl.createdDate.toIso8601String(),
+        vl.dateOfBloodDraw.toIso8601String(),
+        vl.labNumber,
+        vl.failed
+      ],
     );
     assert(res <= 1);
     return res;
@@ -777,7 +829,8 @@ class DatabaseProvider {
   /// @param [retrieveNonConsents] Whether patients which did not give consent
   /// should also be retrieved. If false, only patients which gave their consent
   /// are retrieved.
-  Future<List<String>> retrievePatientsART({retrieveNonEligibles: true, retrieveNonConsents: true}) async {
+  Future<List<String>> retrievePatientsART(
+      {retrieveNonEligibles: true, retrieveNonConsents: true}) async {
     final Database db = await _databaseInstance;
     List<Map<String, dynamic>> res;
     if (!retrieveNonEligibles && !retrieveNonConsents) {
@@ -797,7 +850,9 @@ class DatabaseProvider {
       res = await db.rawQuery(
           "SELECT DISTINCT ${Patient.colARTNumber} FROM ${Patient.tableName}");
     }
-    return res.isNotEmpty ? res.map((entry) => entry[Patient.colARTNumber] as String).toList() : List<String>();
+    return res.isNotEmpty
+        ? res.map((entry) => entry[Patient.colARTNumber] as String).toList()
+        : List<String>();
   }
 
   /// Retrieves only the latest patients from the database, i.e. the ones with the latest changes.
@@ -814,7 +869,8 @@ class DatabaseProvider {
   /// @param [retrieveNonConsents] Whether patients which did not give consent
   /// should also be retrieved. If false, only patients which gave their consent
   /// are retrieved.
-  Future<List<Patient>> retrieveLatestPatients({retrieveNonEligibles: true, retrieveNonConsents: true}) async {
+  Future<List<Patient>> retrieveLatestPatients(
+      {retrieveNonEligibles: true, retrieveNonConsents: true}) async {
     final Database db = await _databaseInstance;
     List<Map<String, dynamic>> res;
     if (retrieveNonEligibles && retrieveNonConsents) {
@@ -861,10 +917,12 @@ class DatabaseProvider {
 
   /// Inserts a [PreferenceAssessment] object into database and return the id
   /// given by the database.
-  Future<int> insertPreferenceAssessment(PreferenceAssessment newPreferenceAssessment) async {
+  Future<int> insertPreferenceAssessment(
+      PreferenceAssessment newPreferenceAssessment) async {
     final Database db = await _databaseInstance;
     newPreferenceAssessment.createdDate = DateTime.now();
-    return db.insert(PreferenceAssessment.tableName, newPreferenceAssessment.toMap());
+    return db.insert(
+        PreferenceAssessment.tableName, newPreferenceAssessment.toMap());
   }
 
   Future<void> insertUserData(UserData userData) async {
@@ -881,11 +939,13 @@ class DatabaseProvider {
     return res;
   }
 
-  Future<void> removeRequiredAction(String patientART, RequiredActionType type) async {
+  Future<void> removeRequiredAction(
+      String patientART, RequiredActionType type) async {
     final Database db = await _databaseInstance;
     final int rowsDeleted = await db.delete(
       RequiredAction.tableName,
-      where: "${RequiredAction.colPatientART} = ? AND ${RequiredAction.colType} = ?",
+      where:
+          "${RequiredAction.colPatientART} = ? AND ${RequiredAction.colType} = ?",
       whereArgs: [patientART, type.index],
     );
   }
@@ -908,29 +968,31 @@ class DatabaseProvider {
     }
   }
 
-  Future<List<ViralLoad>> retrieveViralLoadsForPatient(String patientART) async {
+  Future<List<ViralLoad>> retrieveViralLoadsForPatient(
+      String patientART) async {
     final Database db = await _databaseInstance;
     final List<Map> res = await db.query(
-        ViralLoad.tableName,
-        where: '${ViralLoad.colPatientART} = ?',
-        whereArgs: [patientART],
+      ViralLoad.tableName,
+      where: '${ViralLoad.colPatientART} = ?',
+      whereArgs: [patientART],
     );
     if (res.length > 0) {
-      final List<ViralLoad> vls = res.map((Map<dynamic, dynamic> map) => ViralLoad.fromMap(map)).toList();
+      final List<ViralLoad> vls = res
+          .map((Map<dynamic, dynamic> map) => ViralLoad.fromMap(map))
+          .toList();
       sortViralLoads(vls);
       return vls;
     }
     return [];
   }
 
-  Future<PreferenceAssessment> retrieveLatestPreferenceAssessmentForPatient(String patientART) async {
+  Future<PreferenceAssessment> retrieveLatestPreferenceAssessmentForPatient(
+      String patientART) async {
     final Database db = await _databaseInstance;
-    final List<Map> res = await db.query(
-        PreferenceAssessment.tableName,
+    final List<Map> res = await db.query(PreferenceAssessment.tableName,
         where: '${PreferenceAssessment.colPatientART} = ?',
         whereArgs: [patientART],
-        orderBy: '${PreferenceAssessment.colCreatedDate} DESC'
-    );
+        orderBy: '${PreferenceAssessment.colCreatedDate} DESC');
     if (res.length > 0) {
       final PreferenceAssessment pa = PreferenceAssessment.fromMap(res.first);
       await pa.initializeSupportOptionDoneFields();
@@ -942,11 +1004,9 @@ class DatabaseProvider {
   /// Only retrieves latest active user data.
   Future<UserData> retrieveLatestUserData() async {
     final Database db = await _databaseInstance;
-    final List<Map> res = await db.query(
-        UserData.tableName,
+    final List<Map> res = await db.query(UserData.tableName,
         where: '${UserData.colIsActive} = 1',
-        orderBy: '${UserData.colCreatedDate} DESC'
-    );
+        orderBy: '${UserData.colCreatedDate} DESC');
     if (res.length > 0) {
       return UserData.fromMap(res.first);
     }
@@ -960,47 +1020,48 @@ class DatabaseProvider {
     return res;
   }
 
-  Future<void> insertSupportOptionDone(SupportOptionDone supportOptionDone, {DateTime createdDate}) async {
+  Future<void> insertSupportOptionDone(SupportOptionDone supportOptionDone,
+      {DateTime createdDate}) async {
     final Database db = await _databaseInstance;
     supportOptionDone.createdDate = createdDate ?? DateTime.now();
-    final res = await db.insert(SupportOptionDone.tableName, supportOptionDone.toMap());
+    final res =
+        await db.insert(SupportOptionDone.tableName, supportOptionDone.toMap());
     return res;
   }
 
   Future<ARTRefill> retrieveLatestARTRefillForPatient(String patientART) async {
     final Database db = await _databaseInstance;
-    final List<Map> res = await db.query(
-        ARTRefill.tableName,
+    final List<Map> res = await db.query(ARTRefill.tableName,
         where: '${ARTRefill.colPatientART} = ?',
         whereArgs: [patientART],
-        orderBy: '${ARTRefill.colCreatedDate} DESC'
-    );
+        orderBy: '${ARTRefill.colCreatedDate} DESC');
     if (res.length > 0) {
       return ARTRefill.fromMap(res.first);
     }
     return null;
   }
 
-  Future<ARTRefill> retrieveLatestDoneARTRefillForPatient(String patientART) async {
+  Future<ARTRefill> retrieveLatestDoneARTRefillForPatient(
+      String patientART) async {
     final Database db = await _databaseInstance;
-    final List<Map> res = await db.query(
-        ARTRefill.tableName,
-        where: '${ARTRefill.colPatientART} = ? AND ${ARTRefill.colRefillType} != ?',
+    final List<Map> res = await db.query(ARTRefill.tableName,
+        where:
+            '${ARTRefill.colPatientART} = ? AND ${ARTRefill.colRefillType} != ?',
         whereArgs: [patientART, RefillType.NOT_DONE().code],
-        orderBy: '${ARTRefill.colCreatedDate} DESC'
-    );
+        orderBy: '${ARTRefill.colCreatedDate} DESC');
     if (res.length > 0) {
       return ARTRefill.fromMap(res.first);
     }
     return null;
   }
 
-  Future<Set<RequiredAction>> retrieveRequiredActionsForPatient(String patientART) async {
+  Future<Set<RequiredAction>> retrieveRequiredActionsForPatient(
+      String patientART) async {
     final Database db = await _databaseInstance;
     final List<Map> res = await db.query(
-        RequiredAction.tableName,
-        where: '${RequiredAction.colPatientART} = ?',
-        whereArgs: [patientART],
+      RequiredAction.tableName,
+      where: '${RequiredAction.colPatientART} = ?',
+      whereArgs: [patientART],
     );
     final Set<RequiredAction> set = {};
     for (Map map in res) {
@@ -1012,7 +1073,9 @@ class DatabaseProvider {
   /// Retrieves only the support option done statuses for the preference
   /// assessment with [preferenceAssessmentId]. The elements in the set will
   /// be the ones with the most recent 'done' status.
-  Future<Set<SupportOptionDone>> retrieveDoneSupportOptionsForPreferenceAssessment(int preferenceAssessmentId) async {
+  Future<Set<SupportOptionDone>>
+      retrieveDoneSupportOptionsForPreferenceAssessment(
+          int preferenceAssessmentId) async {
     final Database db = await _databaseInstance;
     final List<Map> res = await db.query(
       SupportOptionDone.tableName,
@@ -1130,12 +1193,25 @@ class DatabaseProvider {
   Future<int> deletePatient(Patient deletePatient) async {
     final Database db = await _databaseInstance;
     final String artNumber = deletePatient.artNumber;
-    final int rowsDeletedPatientTable = await db.delete(Patient.tableName, where: '${Patient.colARTNumber} = ?', whereArgs: [artNumber]);
-    final int rowsDeletedViralLoadTable = await db.delete(ViralLoad.tableName, where: '${ViralLoad.colPatientART} = ?', whereArgs: [artNumber]);
-    final int rowsDeletedPreferenceAssessmentTable = await db.delete(PreferenceAssessment.tableName, where: '${PreferenceAssessment.colPatientART} = ?', whereArgs: [artNumber]);
-    final int rowsDeletedARTRefillTable = await db.delete(ARTRefill.tableName, where: '${ARTRefill.colPatientART} = ?', whereArgs: [artNumber]);
-    final int rowsDeletedRequiredActionTable = await db.delete(RequiredAction.tableName, where: '${RequiredAction.colPatientART} = ?', whereArgs: [artNumber]);
-    return rowsDeletedPatientTable + rowsDeletedViralLoadTable + rowsDeletedPreferenceAssessmentTable + rowsDeletedARTRefillTable + rowsDeletedRequiredActionTable;
+    final int rowsDeletedPatientTable = await db.delete(Patient.tableName,
+        where: '${Patient.colARTNumber} = ?', whereArgs: [artNumber]);
+    final int rowsDeletedViralLoadTable = await db.delete(ViralLoad.tableName,
+        where: '${ViralLoad.colPatientART} = ?', whereArgs: [artNumber]);
+    final int rowsDeletedPreferenceAssessmentTable = await db.delete(
+        PreferenceAssessment.tableName,
+        where: '${PreferenceAssessment.colPatientART} = ?',
+        whereArgs: [artNumber]);
+    final int rowsDeletedARTRefillTable = await db.delete(ARTRefill.tableName,
+        where: '${ARTRefill.colPatientART} = ?', whereArgs: [artNumber]);
+    final int rowsDeletedRequiredActionTable = await db.delete(
+        RequiredAction.tableName,
+        where: '${RequiredAction.colPatientART} = ?',
+        whereArgs: [artNumber]);
+    return rowsDeletedPatientTable +
+        rowsDeletedViralLoadTable +
+        rowsDeletedPreferenceAssessmentTable +
+        rowsDeletedARTRefillTable +
+        rowsDeletedRequiredActionTable;
   }
 
   Future<int> resetTable(String tableName) async {
@@ -1143,5 +1219,4 @@ class DatabaseProvider {
     final int rowsDeleted = await db.delete(tableName);
     return rowsDeleted;
   }
-
 }

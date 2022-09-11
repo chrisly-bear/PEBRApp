@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'package:pebrapp/config/VisibleImpactConfig.dart';
 import 'package:pebrapp/database/DatabaseProvider.dart';
@@ -27,7 +26,8 @@ import 'package:http/http.dart' as http;
 /// will be sent. If the patient's phone number changed and you want to update
 /// the notifications to be sent to the new phone number, set
 /// [reUploadNotifications] to true.
-Future<void> uploadPatientCharacteristics(Patient patient, {bool reUploadNotifications: false, bool showNotification: true}) async {
+Future<void> uploadPatientCharacteristics(Patient patient,
+    {bool reUploadNotifications: false, bool showNotification: true}) async {
   print('uploading patient characteristics to VisibleImpact...');
   try {
     final String token = await _getAPIToken();
@@ -37,23 +37,29 @@ Future<void> uploadPatientCharacteristics(Patient patient, {bool reUploadNotific
     if (patient.gender == Gender.FEMALE()) gender = "F";
     Map<String, dynamic> body = {
       "patient_id": patientId,
-      "mobile_phone": patient.phoneAvailability == PhoneAvailability.YES() ? _formatPhoneNumberForVI(patient.phoneNumber) : null,
-      "mobile_owner": patient.phoneAvailability == PhoneAvailability.YES() ? "patient" : null,
+      "mobile_phone": patient.phoneAvailability == PhoneAvailability.YES()
+          ? _formatPhoneNumberForVI(patient.phoneNumber)
+          : null,
+      "mobile_owner": patient.phoneAvailability == PhoneAvailability.YES()
+          ? "patient"
+          : null,
       "birth_date": formatDateForVisibleImpact(patient.birthday),
       "sex": gender,
     };
     final _resp = await http.put(
       '$VI_API/patient',
       headers: {
-        'Authorization' : 'Custom $token',
+        'Authorization': 'Custom $token',
         'Content-Type': 'application/json',
       },
       body: jsonEncode(body),
     );
     _checkStatusCode(_resp);
-    _handleSuccess(patient, RequiredActionType.PATIENT_CHARACTERISTICS_UPLOAD_REQUIRED);
+    _handleSuccess(
+        patient, RequiredActionType.PATIENT_CHARACTERISTICS_UPLOAD_REQUIRED);
   } catch (e, s) {
-    _handleFailure(patient, RequiredActionType.PATIENT_CHARACTERISTICS_UPLOAD_REQUIRED);
+    _handleFailure(
+        patient, RequiredActionType.PATIENT_CHARACTERISTICS_UPLOAD_REQUIRED);
     if (showNotification) {
       showFlushbar(
         'The automatic upload of the participant\'s characteristics failed. Please upload manually.',
@@ -74,7 +80,8 @@ Future<void> uploadPatientCharacteristics(Patient patient, {bool reUploadNotific
 }
 
 /// Update the patient_status on Visible Impact database
-Future<bool> uploadPatientStatusVisibleImpact(Patient patient, String status, {bool reUploadNotifications: false, bool showNotification: true}) async {
+Future<bool> uploadPatientStatusVisibleImpact(Patient patient, String status,
+    {bool reUploadNotifications: false, bool showNotification: true}) async {
   print('uploading patient status to VisibleImpact...');
   // Make sure the patient status is not empty
   if (status == "") {
@@ -100,7 +107,7 @@ Future<bool> uploadPatientStatusVisibleImpact(Patient patient, String status, {b
     if (_resp.statusCode == 200) {
       return true;
     }
-  } catch(e, s) {
+  } catch (e, s) {
     _handleFailure(patient, RequiredActionType.PATIENT_STATUS_UPLOAD_REQUIRED);
     if (showNotification) {
       showFlushbar(
@@ -109,7 +116,8 @@ Future<bool> uploadPatientStatusVisibleImpact(Patient patient, String status, {b
         error: true,
         buttonText: 'Retry\nNow',
         onButtonPress: () {
-          uploadPatientStatusVisibleImpact(patient, status, reUploadNotifications: false);
+          uploadPatientStatusVisibleImpact(patient, status,
+              reUploadNotifications: false);
         },
       );
     }
@@ -121,7 +129,6 @@ Future<bool> uploadPatientStatusVisibleImpact(Patient patient, String status, {b
   }
   return false;
 }
-
 
 /// Updates the peer educator's phone number by re-uploading all notifications
 /// preferences for all patients. If there are a lot of patients this might take
@@ -135,15 +142,21 @@ Future<bool> uploadPatientStatusVisibleImpact(Patient patient, String status, {b
 Future<bool> uploadPeerEducatorPhoneNumber() async {
   try {
     final UserData user = await DatabaseProvider().retrieveLatestUserData();
-    final List<Patient> patients = await DatabaseProvider().retrieveLatestPatients(retrieveNonEligibles: false, retrieveNonConsents: false);
+    final List<Patient> patients = await DatabaseProvider()
+        .retrieveLatestPatients(
+            retrieveNonEligibles: false, retrieveNonConsents: false);
     patients.removeWhere((Patient p) {
       final bool isActivated = p.isActivated ?? false;
       final PreferenceAssessment pa = p.latestPreferenceAssessment;
-      final bool notificationsEnabled = (pa?.adherenceReminderEnabled ?? false) || (pa?.artRefillReminderEnabled ?? false) || (pa?.vlNotificationEnabled ?? false);
+      final bool notificationsEnabled =
+          (pa?.adherenceReminderEnabled ?? false) ||
+              (pa?.artRefillReminderEnabled ?? false) ||
+              (pa?.vlNotificationEnabled ?? false);
       return !isActivated || !notificationsEnabled;
     });
     if (patients.length <= 0) {
-      print('uploadPeerEducatorPhoneNumber: No activated patients with enabled notifications found. No notifications upload required.');
+      print(
+          'uploadPeerEducatorPhoneNumber: No activated patients with enabled notifications found. No notifications upload required.');
     } else {
       final String token = await _getAPIToken();
       for (Patient patient in patients) {
@@ -161,7 +174,8 @@ Future<bool> uploadPeerEducatorPhoneNumber() async {
     await DatabaseProvider().insertUserData(user);
     return true;
   } catch (e, s) {
-    showFlushbar('The automatic upload of your phone number failed. Please upload manually.',
+    showFlushbar(
+      'The automatic upload of your phone number failed. Please upload manually.',
       title: 'Upload of Peer Educator Phone Number Failed',
       error: true,
       buttonText: 'Retry\nNow',
@@ -175,15 +189,17 @@ Future<bool> uploadPeerEducatorPhoneNumber() async {
   }
 }
 
-
 /// Upload notifications preferences from latest preference assessment.
 ///
 /// Make sure that [patient.latestPreferenceAssessment] and
 /// [patient.latestARTRefill] are up to date.
 Future<void> uploadNotificationsPreferences(Patient patient) async {
   final PreferenceAssessment _pa = patient.latestPreferenceAssessment;
-  if (!((_pa?.adherenceReminderEnabled ?? false) || (_pa?.artRefillReminderEnabled ?? false) || (_pa?.vlNotificationEnabled ?? false))) {
-    print('uploadNotificationsPreferences: No notifications enabled. No notifications upload required.');
+  if (!((_pa?.adherenceReminderEnabled ?? false) ||
+      (_pa?.artRefillReminderEnabled ?? false) ||
+      (_pa?.vlNotificationEnabled ?? false))) {
+    print(
+        'uploadNotificationsPreferences: No notifications enabled. No notifications upload required.');
     return;
   }
   try {
@@ -196,7 +212,8 @@ Future<void> uploadNotificationsPreferences(Patient patient) async {
     _handleSuccess(patient, RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED);
   } catch (e, s) {
     _handleFailure(patient, RequiredActionType.NOTIFICATIONS_UPLOAD_REQUIRED);
-    showFlushbar('The automatic upload of the notifications failed. Please upload manually.',
+    showFlushbar(
+      'The automatic upload of the notifications failed. Please upload manually.',
       title: 'Upload of Notifications Failed',
       error: true,
       buttonText: 'Retry\nNow',
@@ -209,7 +226,6 @@ Future<void> uploadNotificationsPreferences(Patient patient) async {
   }
 }
 
-
 /// Adherence Reminder Upload
 ///
 /// Make sure that [patient.latestPreferenceAssessment] and
@@ -219,7 +235,9 @@ Future<void> uploadNotificationsPreferences(Patient patient) async {
 ///
 /// Throws [HTTPStatusNotOKException] if the VisibleImpact API returns anything
 /// else than 200 (OK).
-Future<void> _uploadAdherenceReminder(Patient patient, int patientId, String token, {UserData pe}) async {
+Future<void> _uploadAdherenceReminder(
+    Patient patient, int patientId, String token,
+    {UserData pe}) async {
   if (pe == null) {
     pe = await DatabaseProvider().retrieveLatestUserData();
   }
@@ -230,7 +248,8 @@ Future<void> _uploadAdherenceReminder(Patient patient, int patientId, String tok
   // no preference assessment yet, do not upload
   if (pa == null) return;
   // no next ART refill date yet or refill not done, do not upload
-  if (artRefill == null || artRefill.refillType == RefillType.NOT_DONE()) return;
+  if (artRefill == null || artRefill.refillType == RefillType.NOT_DONE())
+    return;
   // adherence reminders disabled or null (patient has no phone), do not upload
   if (!(pa.adherenceReminderEnabled ?? false)) return;
   Map<String, dynamic> body = {
@@ -250,14 +269,13 @@ Future<void> _uploadAdherenceReminder(Patient patient, int patientId, String tok
   final _resp = await http.put(
     '$VI_API/pebramessage',
     headers: {
-      'Authorization' : 'Custom $token',
+      'Authorization': 'Custom $token',
       'Content-Type': 'application/json',
     },
     body: jsonEncode(body),
   );
   _checkStatusCode(_resp);
 }
-
 
 /// Refill Reminder Upload
 ///
@@ -268,7 +286,8 @@ Future<void> _uploadAdherenceReminder(Patient patient, int patientId, String tok
 ///
 /// Throws [HTTPStatusNotOKException] if the VisibleImpact API returns anything
 /// else than 200 (OK).
-Future<void> _uploadRefillReminder(Patient patient, int patientId, String token, {UserData pe}) async {
+Future<void> _uploadRefillReminder(Patient patient, int patientId, String token,
+    {UserData pe}) async {
   if (pe == null) {
     pe = await DatabaseProvider().retrieveLatestUserData();
   }
@@ -279,10 +298,12 @@ Future<void> _uploadRefillReminder(Patient patient, int patientId, String token,
   // no preference assessment yet, do not upload
   if (pa == null) return;
   // no next ART refill date yet or refill not done, do not upload
-  if (artRefill == null || artRefill.refillType == RefillType.NOT_DONE()) return;
+  if (artRefill == null || artRefill.refillType == RefillType.NOT_DONE())
+    return;
   // refill reminders disabled or null (patient has no phone), do not upload
   if (!(pa.artRefillReminderEnabled ?? false)) return;
-  List<String> sendDates = calculateRefillReminderSendDates(pa.artRefillReminderDaysBefore, artRefill.nextRefillDate);
+  List<String> sendDates = calculateRefillReminderSendDates(
+      pa.artRefillReminderDaysBefore, artRefill.nextRefillDate);
   Map<String, dynamic> body = {
     "message_type": "refill_reminder",
     "patient_id": patientId,
@@ -298,14 +319,13 @@ Future<void> _uploadRefillReminder(Patient patient, int patientId, String token,
   final _resp = await http.put(
     '$VI_API/pebramessage',
     headers: {
-      'Authorization' : 'Custom $token',
+      'Authorization': 'Custom $token',
       'Content-Type': 'application/json',
     },
     body: jsonEncode(body),
   );
   _checkStatusCode(_resp);
 }
-
 
 /// Viral Load Notifications Upload
 ///
@@ -315,7 +335,9 @@ Future<void> _uploadRefillReminder(Patient patient, int patientId, String token,
 ///
 /// Throws [HTTPStatusNotOKException] if the VisibleImpact API returns anything
 /// else than 200 (OK).
-Future<void> _uploadViralLoadNotification(Patient patient, int patientId, String token, {UserData pe}) async {
+Future<void> _uploadViralLoadNotification(
+    Patient patient, int patientId, String token,
+    {UserData pe}) async {
   if (pe == null) {
     pe = await DatabaseProvider().retrieveLatestUserData();
   }
@@ -342,19 +364,19 @@ Future<void> _uploadViralLoadNotification(Patient patient, int patientId, String
       peName: '${pe.firstName} ${pe.lastName}',
       pePhone: pe.phoneNumber,
     ),
-    "message_failed": "Sephetho hasea sebetseha. Re kopa o itlalehe setsing sa bophelo mo o sebeletsoang teng hang hang, u hopotse mooki ka sephetho sa liteko!",
+    "message_failed":
+        "Sephetho hasea sebetseha. Re kopa o itlalehe setsing sa bophelo mo o sebeletsoang teng hang hang, u hopotse mooki ka sephetho sa liteko!",
   };
   final _resp = await http.put(
     '$VI_API/pebramessage',
     headers: {
-      'Authorization' : 'Custom $token',
+      'Authorization': 'Custom $token',
       'Content-Type': 'application/json',
     },
     body: jsonEncode(body),
   );
   _checkStatusCode(_resp);
 }
-
 
 /// Viral Load Measurements Download
 ///
@@ -375,7 +397,7 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(Patient patient) async {
   final int patientId = await _getPatientIdVisibleImpact(patient, _token);
   final _resp = await http.get(
     '$VI_API/labdata?patient_id=$patientId',
-    headers: {'Authorization' : 'Custom $_token'},
+    headers: {'Authorization': 'Custom $_token'},
   );
   _checkStatusCode(_resp);
   final List<dynamic> list = jsonDecode(_resp.body);
@@ -391,31 +413,42 @@ Future<List<ViralLoad>> downloadViralLoadsFromDatabase(Patient patient) async {
     return vl;
   }).toList();
   // ignore viral loads which date back more than one year before patient's enrollment date
-  viralLoadsFromDB.removeWhere((ViralLoad vl) => vl.dateOfBloodDraw.isBefore(DateTime(patient.enrollmentDate.year - 1, patient.enrollmentDate.month, patient.enrollmentDate.day)));
-  viralLoadsFromDB.sort((ViralLoad a, ViralLoad b) => a.dateOfBloodDraw.isBefore(b.dateOfBloodDraw) ? -1 : 1);
+  viralLoadsFromDB.removeWhere((ViralLoad vl) => vl.dateOfBloodDraw.isBefore(
+      DateTime(patient.enrollmentDate.year - 1, patient.enrollmentDate.month,
+          patient.enrollmentDate.day)));
+  viralLoadsFromDB.sort((ViralLoad a, ViralLoad b) =>
+      a.dateOfBloodDraw.isBefore(b.dateOfBloodDraw) ? -1 : 1);
   if (viralLoadsFromDB.isNotEmpty && viralLoadsFromDB.last.failed) {
     // if the last viral load has failed, send the patient to blood draw
-    RequiredAction vlRequired = RequiredAction(patient.artNumber, RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED, DateTime.fromMillisecondsSinceEpoch(0));
+    RequiredAction vlRequired = RequiredAction(
+        patient.artNumber,
+        RequiredActionType.VIRAL_LOAD_MEASUREMENT_REQUIRED,
+        DateTime.fromMillisecondsSinceEpoch(0));
     DatabaseProvider().insertRequiredAction(vlRequired);
     PatientBloc.instance.sinkRequiredActionData(vlRequired, false);
   }
   return viralLoadsFromDB;
 }
 
-
-List<String> calculateRefillReminderSendDates(ARTRefillReminderDaysBeforeSelection artRefillReminderDaysBefore, DateTime nextRefillDate) {
+List<String> calculateRefillReminderSendDates(
+    ARTRefillReminderDaysBeforeSelection artRefillReminderDaysBefore,
+    DateTime nextRefillDate) {
   List<String> sendDates = [];
   if (artRefillReminderDaysBefore.SEVEN_DAYS_BEFORE_selected) {
-    sendDates.add(formatDateForVisibleImpact(nextRefillDate.subtract(Duration(days: 7))));
+    sendDates.add(
+        formatDateForVisibleImpact(nextRefillDate.subtract(Duration(days: 7))));
   }
   if (artRefillReminderDaysBefore.THREE_DAYS_BEFORE_selected) {
-    sendDates.add(formatDateForVisibleImpact(nextRefillDate.subtract(Duration(days: 3))));
+    sendDates.add(
+        formatDateForVisibleImpact(nextRefillDate.subtract(Duration(days: 3))));
   }
   if (artRefillReminderDaysBefore.TWO_DAYS_BEFORE_selected) {
-    sendDates.add(formatDateForVisibleImpact(nextRefillDate.subtract(Duration(days: 2))));
+    sendDates.add(
+        formatDateForVisibleImpact(nextRefillDate.subtract(Duration(days: 2))));
   }
   if (artRefillReminderDaysBefore.ONE_DAY_BEFORE_selected) {
-    sendDates.add(formatDateForVisibleImpact(nextRefillDate.subtract(Duration(days: 1))));
+    sendDates.add(
+        formatDateForVisibleImpact(nextRefillDate.subtract(Duration(days: 1))));
   }
   if (artRefillReminderDaysBefore.ZERO_DAYS_BEFORE_selected) {
     sendDates.add(formatDateForVisibleImpact(nextRefillDate));
@@ -423,10 +456,10 @@ List<String> calculateRefillReminderSendDates(ARTRefillReminderDaysBeforeSelecti
   return sendDates;
 }
 
-
 /// Throws [VisibleImpactLoginFailedException] if the authentication fails.
 Future<String> _getAPIToken() async {
-  String basicAuth = 'Basic ' + base64Encode(utf8.encode('$VI_USERNAME:$VI_PASSWORD'));
+  String basicAuth =
+      'Basic ' + base64Encode(utf8.encode('$VI_USERNAME:$VI_PASSWORD'));
   http.Response _resp = await http.post(
     '$VI_API/token',
     headers: {'authorization': basicAuth},
@@ -447,15 +480,19 @@ Future<String> _getAPIToken() async {
 /// Throws [VisibleImpactLoginFailedException] if status code is 401.
 ///
 /// Throws [HTTPStatusNotOKException] if status code is not 200.
-Future<int> _createPatient(Patient patient, String apiToken, {VIPatientStatus status: VIPatientStatus.ACTIVE}) async {
+Future<int> _createPatient(Patient patient, String apiToken,
+    {VIPatientStatus status: VIPatientStatus.ACTIVE}) async {
   print('🌟 creating new patient on VisibleImpact...');
   String gender;
   if (patient.gender == Gender.MALE()) gender = "M";
   if (patient.gender == Gender.FEMALE()) gender = "F";
   Map<String, dynamic> body = {
     "art_number": patient.artNumber,
-    "mobile_phone": patient.phoneAvailability == PhoneAvailability.YES() ? _formatPhoneNumberForVI(patient.phoneNumber) : null,
-    "mobile_owner": patient.phoneAvailability == PhoneAvailability.YES() ? "patient" : null,
+    "mobile_phone": patient.phoneAvailability == PhoneAvailability.YES()
+        ? _formatPhoneNumberForVI(patient.phoneNumber)
+        : null,
+    "mobile_owner":
+        patient.phoneAvailability == PhoneAvailability.YES() ? "patient" : null,
     "birth_date": formatDateForVisibleImpact(patient.birthday),
     "sex": gender,
     "patient_status": toStringVIPatientStatus(status),
@@ -463,7 +500,7 @@ Future<int> _createPatient(Patient patient, String apiToken, {VIPatientStatus st
   final _resp = await http.post(
     '$VI_API/patient',
     headers: {
-      'Authorization' : 'Custom $apiToken',
+      'Authorization': 'Custom $apiToken',
       'Content-Type': 'application/json',
     },
     body: jsonEncode(body),
@@ -484,10 +521,11 @@ Future<int> _createPatient(Patient patient, String apiToken, {VIPatientStatus st
 /// Throws [VisibleImpactLoginFailedException] if status code is 401.
 ///
 /// Throws [HTTPStatusNotOKException] if status code is not 200.
-Future<int> _getPatientIdVisibleImpact(Patient patient, String _apiAuthToken) async {
+Future<int> _getPatientIdVisibleImpact(
+    Patient patient, String _apiAuthToken) async {
   final _resp = await http.get(
     '$VI_API/patient?art_number=${patient.artNumber}',
-    headers: {'Authorization' : 'Custom $_apiAuthToken'},
+    headers: {'Authorization': 'Custom $_apiAuthToken'},
   );
   _checkStatusCode(_resp);
   final List<dynamic> list = jsonDecode(_resp.body);
@@ -511,10 +549,9 @@ Future<int> _getPatientIdVisibleImpact(Patient patient, String _apiAuthToken) as
       patientIds[0] = match['patient_id'];
     } else {
       showFlushbar(
-        'Several matching patients with ART number ${patient.artNumber}\ found on VisibleImpact.',
-        title: 'Resolve the issue',
-        error: true
-      );
+          'Several matching patients with ART number ${patient.artNumber}\ found on VisibleImpact.',
+          title: 'Resolve the issue',
+          error: true);
       // set the duplicate flag in the database
       patient.isDuplicate = true;
       await DatabaseProvider().insertPatient(patient);
@@ -525,7 +562,7 @@ Future<int> _getPatientIdVisibleImpact(Patient patient, String _apiAuthToken) as
 
 /// Format a patient's gender to a string (character) that can easily be stored in
 /// the Visible Impact Database
-/// 
+///
 /// if (patient.gender == Gender.MALE()) gender = "M";
 ///  if (patient.gender == Gender.FEMALE()) gender = "F";
 String _formatGenderForVisibleImpact(Patient patient) {
@@ -546,7 +583,8 @@ String _formatGenderForVisibleImpact(Patient patient) {
 dynamic getMatchingPatient(List<dynamic> patients, Patient patient) {
   List<dynamic> matches = [];
   for (dynamic p in patients) {
-    if (DateTime.parse(p['birth_date']).year == patient.birthday.year && p['sex'] == _formatGenderForVisibleImpact(patient)) {
+    if (DateTime.parse(p['birth_date']).year == patient.birthday.year &&
+        p['sex'] == _formatGenderForVisibleImpact(patient)) {
       matches.add(p);
     }
   }
@@ -556,16 +594,18 @@ dynamic getMatchingPatient(List<dynamic> patients, Patient patient) {
   return null;
 }
 
-
-Future<void> _handleSuccess(Patient patient, RequiredActionType actionType) async {
+Future<void> _handleSuccess(
+    Patient patient, RequiredActionType actionType) async {
   print('$actionType uploaded to visible impact database successfully.');
   await DatabaseProvider().removeRequiredAction(patient.artNumber, actionType);
-  PatientBloc.instance.sinkRequiredActionData(RequiredAction(patient.artNumber, actionType, null), true);
+  PatientBloc.instance.sinkRequiredActionData(
+      RequiredAction(patient.artNumber, actionType, null), true);
 }
 
-
-Future<void> _handleFailure(Patient patient, RequiredActionType actionType) async {
-  final newAction = RequiredAction(patient.artNumber, actionType, DateTime.fromMillisecondsSinceEpoch(0));
+Future<void> _handleFailure(
+    Patient patient, RequiredActionType actionType) async {
+  final newAction = RequiredAction(
+      patient.artNumber, actionType, DateTime.fromMillisecondsSinceEpoch(0));
   await DatabaseProvider().insertRequiredAction(newAction);
   PatientBloc.instance.sinkRequiredActionData(newAction, false);
 }
@@ -577,10 +617,12 @@ void _checkStatusCode(http.Response response) {
   if (response.statusCode == 401) {
     throw VisibleImpactLoginFailedException();
   } else if (response.statusCode != 200) {
-    print('An unknown status code was returned while interacting with VisibleImpact.');
+    print(
+        'An unknown status code was returned while interacting with VisibleImpact.');
     print(response.statusCode);
     print(response.body);
-    throw HTTPStatusNotOKException('An unknown status code was returned while interacting with VisibleImpact.\n'
+    throw HTTPStatusNotOKException(
+        'An unknown status code was returned while interacting with VisibleImpact.\n'
         'Status Code: ${response.statusCode}\n'
         'Response Body:\n${response.body}');
   }

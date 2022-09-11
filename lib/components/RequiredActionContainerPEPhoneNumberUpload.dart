@@ -9,20 +9,21 @@ import 'package:pebrapp/utils/VisibleImpactUtils.dart';
 enum AnimateDirection { FORWARD, BACKWARD }
 
 class RequiredActionContainerPEPhoneNumberUpload extends StatefulWidget {
-
   final AnimateDirection animateDirection;
   final VoidCallback onAnimated;
   final String phoneNumber;
 
-  RequiredActionContainerPEPhoneNumberUpload(this.phoneNumber, {this.animateDirection, this.onAnimated});
+  RequiredActionContainerPEPhoneNumberUpload(this.phoneNumber,
+      {this.animateDirection, this.onAnimated});
 
   @override
-  State<StatefulWidget> createState() => _RequiredActionContainerPEPhoneNumberUploadState();
-
+  State<StatefulWidget> createState() =>
+      _RequiredActionContainerPEPhoneNumberUploadState();
 }
 
-class _RequiredActionContainerPEPhoneNumberUploadState extends State<RequiredActionContainerPEPhoneNumberUpload> with SingleTickerProviderStateMixin {
-
+class _RequiredActionContainerPEPhoneNumberUploadState
+    extends State<RequiredActionContainerPEPhoneNumberUpload>
+    with SingleTickerProviderStateMixin {
   AnimationController _controller;
   Animation<double> _containerAnimation;
   Curve _curve = Curves.ease;
@@ -37,9 +38,7 @@ class _RequiredActionContainerPEPhoneNumberUploadState extends State<RequiredAct
     _containerAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).chain(
-        CurveTween(curve: _curve)
-    ).animate(_controller);
+    ).chain(CurveTween(curve: _curve)).animate(_controller);
 
     _animateIfDemanded();
     super.initState();
@@ -64,7 +63,10 @@ class _RequiredActionContainerPEPhoneNumberUploadState extends State<RequiredAct
       });
     } else if (widget.animateDirection == AnimateDirection.BACKWARD) {
       _controller.value = _controller.upperBound;
-      _controller.animateBack(0.0, duration: Duration(milliseconds: 1000), curve: Curves.ease).then((_) {
+      _controller
+          .animateBack(0.0,
+              duration: Duration(milliseconds: 1000), curve: Curves.ease)
+          .then((_) {
         if (widget.onAnimated != null) {
           widget.onAnimated();
         }
@@ -79,7 +81,8 @@ class _RequiredActionContainerPEPhoneNumberUploadState extends State<RequiredAct
 
   @override
   Widget build(BuildContext context) {
-    String actionText = "The automatic upload of your phone number failed. Please upload manually.";
+    String actionText =
+        "The automatic upload of your phone number failed. Please upload manually.";
     Widget actionButton = FlatButton(
       onPressed: () async {
         await uploadPeerEducatorPhoneNumber();
@@ -109,14 +112,14 @@ class _RequiredActionContainerPEPhoneNumberUploadState extends State<RequiredAct
                 SizedBox(height: 20.0),
                 Container(
                   width: double.infinity,
-                    child: Text(
-                      actionText,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: NOTIFICATION_MESSAGE_TEXT,
-                        height: 1.2,
-                      ),
+                  child: Text(
+                    actionText,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: NOTIFICATION_MESSAGE_TEXT,
+                      height: 1.2,
                     ),
+                  ),
                 ),
                 actionButton ?? SizedBox(height: 15.0),
                 SizedBox(height: 5.0),
@@ -127,5 +130,4 @@ class _RequiredActionContainerPEPhoneNumberUploadState extends State<RequiredAct
       ),
     );
   }
-
 }

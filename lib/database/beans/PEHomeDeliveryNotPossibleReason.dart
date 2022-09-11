@@ -1,6 +1,4 @@
-
 class PEHomeDeliveryNotPossibleReason {
-
   // Class Variables
   // ---------------
 
@@ -51,10 +49,12 @@ class PEHomeDeliveryNotPossibleReason {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
-    final _Reason reason = _encoding.entries.firstWhere((MapEntry<_Reason, int> entry) {
+    final _Reason reason =
+        _encoding.entries.firstWhere((MapEntry<_Reason, int> entry) {
       return entry.value == code;
     }).key;
-    PEHomeDeliveryNotPossibleReason object = PEHomeDeliveryNotPossibleReason._();
+    PEHomeDeliveryNotPossibleReason object =
+        PEHomeDeliveryNotPossibleReason._();
     object._reason = reason;
     return object;
   }
@@ -64,25 +64,25 @@ class PEHomeDeliveryNotPossibleReason {
 
   // override the equality operator
   @override
-  bool operator ==(o) => o is PEHomeDeliveryNotPossibleReason && o._reason == _reason;
+  bool operator ==(o) =>
+      o is PEHomeDeliveryNotPossibleReason && o._reason == _reason;
 
   // override hashcode
   @override
   int get hashCode => _reason.hashCode;
 
   static List<PEHomeDeliveryNotPossibleReason> get allValues => [
-    PEHomeDeliveryNotPossibleReason.TOO_FAR(),
-    PEHomeDeliveryNotPossibleReason.NO_TIME(),
-    PEHomeDeliveryNotPossibleReason.DONT_WANT_TO(),
-    PEHomeDeliveryNotPossibleReason.OTHER(),
-  ];
+        PEHomeDeliveryNotPossibleReason.TOO_FAR(),
+        PEHomeDeliveryNotPossibleReason.NO_TIME(),
+        PEHomeDeliveryNotPossibleReason.DONT_WANT_TO(),
+        PEHomeDeliveryNotPossibleReason.OTHER(),
+      ];
 
   /// Returns the text description of this reason.
   String get description => _description[_reason];
 
   /// Returns the code that represents this reason.
   int get code => _encoding[_reason];
-
 }
 
 enum _Reason { TOO_FAR, NO_TIME, DONT_WANT_TO, OTHER }

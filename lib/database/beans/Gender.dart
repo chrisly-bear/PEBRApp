@@ -1,6 +1,4 @@
-
 class Gender {
-
   // Class Variables
   // ---------------
 
@@ -45,7 +43,8 @@ class Gender {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
-    final _Gender gender = _encoding.entries.firstWhere((MapEntry<_Gender, int> entry) {
+    final _Gender gender =
+        _encoding.entries.firstWhere((MapEntry<_Gender, int> entry) {
       return entry.value == code;
     }).key;
     Gender object = Gender._();
@@ -65,17 +64,16 @@ class Gender {
   int get hashCode => _gender.hashCode;
 
   static List<Gender> get allValues => [
-    Gender.FEMALE(),
-    Gender.MALE(),
-    Gender.TRANSGENDER(),
-  ];
+        Gender.FEMALE(),
+        Gender.MALE(),
+        Gender.TRANSGENDER(),
+      ];
 
   /// Returns the text description of this gender.
   String get description => _description[_gender];
 
   /// Returns the code that represents this gender.
   int get code => _encoding[_gender];
-
 }
 
 enum _Gender { FEMALE, MALE, TRANSGENDER }

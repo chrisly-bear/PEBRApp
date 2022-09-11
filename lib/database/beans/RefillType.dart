@@ -1,6 +1,4 @@
-
 class RefillType {
-
   // Class Variables
   // ---------------
 
@@ -45,7 +43,8 @@ class RefillType {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
-    final _Type type = _encoding.entries.firstWhere((MapEntry<_Type, int> entry) {
+    final _Type type =
+        _encoding.entries.firstWhere((MapEntry<_Type, int> entry) {
       return entry.value == code;
     }).key;
     RefillType object = RefillType._();
@@ -65,17 +64,16 @@ class RefillType {
   int get hashCode => _type.hashCode;
 
   static List<RefillType> get allValues => [
-    RefillType.CHANGE_DATE(),
-    RefillType.DONE(),
-    RefillType.NOT_DONE(),
-  ];
+        RefillType.CHANGE_DATE(),
+        RefillType.DONE(),
+        RefillType.NOT_DONE(),
+      ];
 
   /// Returns the text description of this type.
   String get description => _description[_type];
 
   /// Returns the code that represents this type.
   int get code => _encoding[_type];
-
 }
 
 enum _Type { CHANGE_DATE, DONE, NOT_DONE }

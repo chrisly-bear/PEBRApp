@@ -1,6 +1,4 @@
-
 class VLUnsuppressedMessage {
-
   // Class Variables
   // ---------------
 
@@ -63,7 +61,8 @@ class VLUnsuppressedMessage {
     if (code == null || !_encoding.containsValue(code)) {
       return null;
     }
-    final _Message message = _encoding.entries.firstWhere((MapEntry<_Message, int> entry) {
+    final _Message message =
+        _encoding.entries.firstWhere((MapEntry<_Message, int> entry) {
       return entry.value == code;
     }).key;
     VLUnsuppressedMessage object = VLUnsuppressedMessage._();
@@ -83,20 +82,26 @@ class VLUnsuppressedMessage {
   int get hashCode => _message.hashCode;
 
   static List<VLUnsuppressedMessage> get allValues => [
-    VLUnsuppressedMessage.MESSAGE_1(),
-    VLUnsuppressedMessage.MESSAGE_2(),
-    VLUnsuppressedMessage.MESSAGE_3(),
-    VLUnsuppressedMessage.MESSAGE_4(),
-    VLUnsuppressedMessage.MESSAGE_5(),
-    VLUnsuppressedMessage.MESSAGE_6(),
-  ];
+        VLUnsuppressedMessage.MESSAGE_1(),
+        VLUnsuppressedMessage.MESSAGE_2(),
+        VLUnsuppressedMessage.MESSAGE_3(),
+        VLUnsuppressedMessage.MESSAGE_4(),
+        VLUnsuppressedMessage.MESSAGE_5(),
+        VLUnsuppressedMessage.MESSAGE_6(),
+      ];
 
   /// Returns the text description of this message.
   String get description => _description[_message];
 
   /// Returns the code that represents this message.
   int get code => _encoding[_message];
-
 }
 
-enum _Message { MESSAGE_1, MESSAGE_2, MESSAGE_3, MESSAGE_4, MESSAGE_5, MESSAGE_6 }
+enum _Message {
+  MESSAGE_1,
+  MESSAGE_2,
+  MESSAGE_3,
+  MESSAGE_4,
+  MESSAGE_5,
+  MESSAGE_6
+}

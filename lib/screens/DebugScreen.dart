@@ -44,17 +44,21 @@ class _DebugScreenState extends State<DebugScreen> {
   Widget get _body {
     const double _spacing = 15.0;
 
-    Widget _buttonRow({ @required String description, @required String buttonLabel, @required VoidCallback onPressed }) {
+    Widget _buttonRow(
+        {@required String description,
+        @required String buttonLabel,
+        @required VoidCallback onPressed}) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Text(description),
-          PEBRAButtonRaised(buttonLabel,
+          PEBRAButtonRaised(
+            buttonLabel,
             onPressed: _isLoading
                 ? null
                 : () {
-              onPressed();
-            },
+                    onPressed();
+                  },
           ),
         ],
       );
@@ -62,11 +66,11 @@ class _DebugScreenState extends State<DebugScreen> {
 
     Widget _dropTabelRow(String tableName) {
       return _buttonRow(
-          description: 'Drop $tableName table',
-          buttonLabel: 'Drop',
-          onPressed: () {
-            _onPressDropTableButton(context, tableName);
-          },
+        description: 'Drop $tableName table',
+        buttonLabel: 'Drop',
+        onPressed: () {
+          _onPressDropTableButton(context, tableName);
+        },
       );
     }
 
@@ -78,7 +82,11 @@ class _DebugScreenState extends State<DebugScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(title, style: TextStyle(fontSize: 15.0, fontStyle: FontStyle.italic, color: DATA_SUBTITLE_TEXT)),
+              Text(title,
+                  style: TextStyle(
+                      fontSize: 15.0,
+                      fontStyle: FontStyle.italic,
+                      color: DATA_SUBTITLE_TEXT)),
               Divider(),
               SizedBox(height: 5.0),
               ...children,
@@ -96,54 +104,55 @@ class _DebugScreenState extends State<DebugScreen> {
                 height: 15.0,
                 width: 15.0,
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(SPINNER_SETTINGS_SCREEN),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(SPINNER_SETTINGS_SCREEN),
                 ),
               )
             : Column(
-          children: <Widget>[
-            _card('Misc.', [
-              _buttonRow(
-                description: 'Restore data from PEBRAcloud',
-                buttonLabel: 'Restore',
-                onPressed: () {
-                  _onPressRestoreButton(context);
-                },
+                children: <Widget>[
+                  _card('Misc.', [
+                    _buttonRow(
+                      description: 'Restore data from PEBRAcloud',
+                      buttonLabel: 'Restore',
+                      onPressed: () {
+                        _onPressRestoreButton(context);
+                      },
+                    ),
+                  ]),
+                  _card('Database Operations', [
+                    _dropTabelRow(ViralLoad.tableName),
+                    SizedBox(height: _spacing),
+                    _dropTabelRow(PreferenceAssessment.tableName),
+                    SizedBox(height: _spacing),
+                    _dropTabelRow(Patient.tableName),
+                  ]),
+                  _card('Notifications', [
+                    _buttonRow(
+                      description: 'Show Normal Notification',
+                      buttonLabel: 'Show',
+                      onPressed: () {
+                        showFlushbar('test notification');
+                      },
+                    ),
+                    SizedBox(height: _spacing),
+                    _buttonRow(
+                      description: 'Show Transfer Notification',
+                      buttonLabel: 'Show',
+                      onPressed: () {
+                        showTransferringDataFlushbar();
+                      },
+                    ),
+                    SizedBox(height: _spacing),
+                    _buttonRow(
+                      description: 'Dismiss Transfer Notification',
+                      buttonLabel: 'Show',
+                      onPressed: () {
+                        dismissTransferringDataFlushbar();
+                      },
+                    ),
+                  ]),
+                ],
               ),
-            ]),
-            _card('Database Operations', [
-              _dropTabelRow(ViralLoad.tableName),
-              SizedBox(height: _spacing),
-              _dropTabelRow(PreferenceAssessment.tableName),
-              SizedBox(height: _spacing),
-              _dropTabelRow(Patient.tableName),
-            ]),
-            _card('Notifications', [
-              _buttonRow(
-                description: 'Show Normal Notification',
-                buttonLabel: 'Show',
-                onPressed: () {
-                  showFlushbar('test notification');
-                },
-              ),
-              SizedBox(height: _spacing),
-              _buttonRow(
-                description: 'Show Transfer Notification',
-                buttonLabel: 'Show',
-                onPressed: () {
-                  showTransferringDataFlushbar();
-                },
-              ),
-              SizedBox(height: _spacing),
-              _buttonRow(
-                description: 'Dismiss Transfer Notification',
-                buttonLabel: 'Show',
-                onPressed: () {
-                  dismissTransferringDataFlushbar();
-                },
-              ),
-            ]),
-          ],
-        ),
       ),
     );
   }
@@ -219,10 +228,15 @@ class _DebugScreenState extends State<DebugScreen> {
         title: title, error: error, onButtonPress: onNotificationButtonPress);
   }
 
-  Future<void> _onPressDropTableButton(BuildContext context, String tableName) async {
-    setState(() { _isLoading = true; });
+  Future<void> _onPressDropTableButton(
+      BuildContext context, String tableName) async {
+    setState(() {
+      _isLoading = true;
+    });
     int rowsDeleted = await DatabaseProvider().resetTable(tableName);
-    setState(() { _isLoading = false; });
+    setState(() {
+      _isLoading = false;
+    });
     PatientBloc.instance.sinkAllPatientsFromDatabase();
     showFlushbar('Deleted $rowsDeleted rows.', title: '$tableName reset');
   }

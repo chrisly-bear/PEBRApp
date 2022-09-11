@@ -1,4 +1,3 @@
-
 import 'package:pebrapp/config/PEBRAConfig.dart';
 import 'package:pebrapp/database/DatabaseExporter.dart';
 import 'package:pebrapp/database/beans/ViralLoadSource.dart';
@@ -10,7 +9,8 @@ class ViralLoad implements IExcelExportable {
   // column names
   static final colId = 'id'; // primary key
   static final colCreatedDate = 'created_date';
-  static final colPatientART = 'patient_art'; // foreign key to [Patient].art_number
+  static final colPatientART =
+      'patient_art'; // foreign key to [Patient].art_number
   static final colViralLoadSource = 'source';
   static final colDateOfBloodDraw = 'date_blood_draw';
   static final colFailed = 'failed';
@@ -30,7 +30,13 @@ class ViralLoad implements IExcelExportable {
   // Constructors
   // ------------
 
-  ViralLoad({this.patientART, this.source, this.dateOfBloodDraw, this.failed, this.labNumber, this.viralLoad});
+  ViralLoad(
+      {this.patientART,
+      this.source,
+      this.dateOfBloodDraw,
+      this.failed,
+      this.labNumber,
+      this.viralLoad});
 
   ViralLoad.fromMap(map) {
     this.patientART = map[colPatientART];
@@ -46,28 +52,29 @@ class ViralLoad implements IExcelExportable {
     }
   }
 
-
   // Other
   // -----
 
   // override the equality operator
   @override
-  bool operator ==(o) => o is ViralLoad
-      && o.patientART == this.patientART
-      && o.source == this.source
-      && o.dateOfBloodDraw == this.dateOfBloodDraw
-      && o.failed == this.failed
-      && o.viralLoad == this.viralLoad
-      && o.labNumber == this.labNumber;
+  bool operator ==(o) =>
+      o is ViralLoad &&
+      o.patientART == this.patientART &&
+      o.source == this.source &&
+      o.dateOfBloodDraw == this.dateOfBloodDraw &&
+      o.failed == this.failed &&
+      o.viralLoad == this.viralLoad &&
+      o.labNumber == this.labNumber;
 
   // override hashcode
   @override
-  int get hashCode => patientART.hashCode
-      ^source.hashCode
-      ^dateOfBloodDraw.hashCode
-      ^failed.hashCode
-      ^viralLoad.hashCode
-      ^labNumber.hashCode;
+  int get hashCode =>
+      patientART.hashCode ^
+      source.hashCode ^
+      dateOfBloodDraw.hashCode ^
+      failed.hashCode ^
+      viralLoad.hashCode ^
+      labNumber.hashCode;
 
   @override
   String toString() {
@@ -135,7 +142,6 @@ class ViralLoad implements IExcelExportable {
     return row;
   }
 
-
   /// Sets fields to null if they are not used.
   void checkLogicAndResetUnusedFields() {
     // Only viral load data from the VL database can have discrepancy,
@@ -159,9 +165,9 @@ class ViralLoad implements IExcelExportable {
   ///
   /// Returns null if the viral load is null (which is the case if the viral
   /// load failed).
-  bool get isSuppressed => viralLoad == null ? null : viralLoad < VL_SUPPRESSED_THRESHOLD;
+  bool get isSuppressed =>
+      viralLoad == null ? null : viralLoad < VL_SUPPRESSED_THRESHOLD;
 
   /// Returns true if [viralLoad] is lower than detectable limit (<20 c/mL).
   bool get isLowerThanDetectable => viralLoad == null ? null : viralLoad < 20;
-
 }
