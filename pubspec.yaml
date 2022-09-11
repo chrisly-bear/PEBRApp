@@ -16,7 +16,7 @@ dependencies:
   shared_preferences: ^0.5.2
   spreadsheet_decoder: ^1.0.1
   password: ^1.0.0
-  device_apps: 1.0.8
+  device_apps: 1.0.10
 
 dev_dependencies:
   flutter_launcher_icons: ^0.7.0
